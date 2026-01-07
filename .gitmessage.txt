@@ -13,3 +13,4 @@
 # docs     : 문서
 # test     : 테스트
 # chore    : 기타 작업
+# style    : 코드 형식 변경
