@@ -1,3 +1,12 @@
+---
+name: "Task"
+about: "일반 작업 이슈 템플릿"
+title: ""
+labels: ""
+assignees: ""
+---
+
+
 ## 개요
 - 이 이슈에서 무엇을 할지 간단히 설명
 
