@@ -6,7 +6,7 @@ Copilot Review Instruction (Korean):
   2. 성능 영향 (DB, 메시지, 배치)
   3. 장애/롤백 리스크
   4. 운영 관점(로그, 모니터링, 알람)
--->
+
 
 ## PR 작성 전 체크 리스트 (PR 생성시 해당 항목은 삭제 후 올려주세요!)
 
@@ -15,6 +15,8 @@ Copilot Review Instruction (Korean):
     - 예: [FEAT] #20: 로그인 기능 구현
 
 `close #{이슈 번호}`을 사용하면 PR이 merge되면 해당 이슈가 자동으로 닫힙니다.
+
+-->
 
 ## #⃣ 연관된 이슈
 
