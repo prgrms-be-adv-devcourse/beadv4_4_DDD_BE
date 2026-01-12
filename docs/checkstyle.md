@@ -1,5 +1,10 @@
 # checkstyle & spotless 를 활용한 코드 컨벤션 커밋 강제 적용
 
+
+* 코드 스타일 관련 xml 파일은 config/checkstyle 하위에 모아두었습니다.
+* intellij-java-google-style.xml 파일은 설정 > 에디터 > 코드 스타일 > 구성표에 import 해주세요.
+
+## 동작 방법
 ### 커밋 전 git hook 실행
 ```makefile
 git-hooks:
@@ -42,6 +47,7 @@ echo "[pre-commit] Checkstyle passed."
 3. 바뀐 파일 다시 스테이징에 올리기
 4. gradle checkstyle 실행하여 규칙 위반 차단
 
+## build.gradle 세팅
 ### 플러그인 추가
 ```groovy
 plugins {
