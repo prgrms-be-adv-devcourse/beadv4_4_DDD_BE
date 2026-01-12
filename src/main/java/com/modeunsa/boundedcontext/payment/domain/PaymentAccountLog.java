@@ -21,27 +21,39 @@ public class PaymentAccountLog {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
   private long id;
 
+  @Column(name = "account_id")
   private long accountId;
 
+  @Column(name = "member_id")
   private long memberId;
 
-  @Column(nullable = false, length = 100)
+  @Column(name = "event_type", nullable = false, length = 100)
   @Enumerated(EnumType.STRING)
   private PaymentEventType eventType;
 
+  @Column(name = "amount")
   private long amount;
 
+  @Column(name = "balance_before")
   private long balanceBefore;
 
+  @Column(name = "balance_after")
   private long balanceAfter;
 
+  @Column(name = "reference_id")
   private long referenceId;
 
+  @Column(name = "reference_type")
   private String referenceType;
 
-  @CreationTimestamp private LocalDateTime createdAt;
+  @Column(name = "created_at", nullable = false, updatable = false)
+  @CreationTimestamp
+  private LocalDateTime createdAt;
 
-  @CreatedBy private Long createdBy;
+  @Column(name = "created_by", nullable = false, updatable = false)
+  @CreatedBy
+  private Long createdBy;
 }

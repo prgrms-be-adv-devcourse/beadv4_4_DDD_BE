@@ -17,17 +17,17 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class PaymentMember extends ManualIdAndAuditedEntity {
 
-  @Column(nullable = false, unique = true)
+  @Column(name = "email", nullable = false, unique = true)
   private String email;
 
-  @Column(nullable = false)
+  @Column(name = "name", nullable = false)
   private String name;
 
-  @Column(nullable = false, unique = true)
+  @Column(name = "customer_key", nullable = false, unique = true)
   private String customerKey;
 
   @Builder.Default
-  @Column(nullable = false, length = 20)
+  @Column(name = "status", nullable = false, length = 20)
   @Enumerated(EnumType.STRING)
   private MemberStatus status = MemberStatus.ACTIVE;
 }

@@ -21,9 +21,10 @@ public class PaymentAccount extends GeneratedIdAndAuditedEntity {
   @JoinColumn(name = "member_id")
   private PaymentMember member;
 
+  @Column(name = "balance")
   private long balance;
 
-  @Column(nullable = false, length = 100)
+  @Column(name = "event_type", nullable = false, length = 100)
   @Enumerated(EnumType.STRING)
   private PaymentEventType eventType;
 }

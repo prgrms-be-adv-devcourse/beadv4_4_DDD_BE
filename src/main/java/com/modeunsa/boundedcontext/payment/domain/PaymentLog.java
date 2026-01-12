@@ -21,6 +21,7 @@ public class PaymentLog {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
   private long id;
 
   @Column(name = "member_id", nullable = false)
@@ -29,17 +30,23 @@ public class PaymentLog {
   @Column(name = "order_no", nullable = false)
   private String orderNo;
 
-  @Column(nullable = false, length = 20)
+  @Column(name = "before_status", nullable = false, length = 20)
   @Enumerated(EnumType.STRING)
   private PaymentStatus beforeStatus;
 
-  @Column(nullable = false, length = 20)
+  @Column(name = "after_status", nullable = false, length = 20)
   @Enumerated(EnumType.STRING)
   private PaymentStatus afterStatus;
 
+  @Column(name = "reason")
+  @Lob
   private String reason;
 
-  @CreationTimestamp private LocalDateTime createdAt;
+  @Column(name = "created_at", nullable = false, updatable = false)
+  @CreationTimestamp
+  private LocalDateTime createdAt;
 
-  @CreatedBy private Long createdBy;
+  @Column(name = "created_by", nullable = false, updatable = false)
+  @CreatedBy
+  private Long createdBy;
 }
