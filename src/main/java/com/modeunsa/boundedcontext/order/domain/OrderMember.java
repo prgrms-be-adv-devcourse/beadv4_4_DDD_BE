@@ -13,7 +13,7 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "ORDER_MEMBER")
+@Table(name = "order_member")
 public class OrderMember extends ManualIdAndAuditedEntity {
 
     @Column(name = "member_name", nullable = false, length = 20)

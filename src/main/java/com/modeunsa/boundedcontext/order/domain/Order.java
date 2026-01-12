@@ -13,7 +13,7 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "ORDER_ORDER")
+@Table(name = "order_order")
 public class Order extends GeneratedIdAndAuditedEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)

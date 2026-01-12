@@ -11,7 +11,7 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "ORDER_CARTITEM")
+@Table(name = "order_cartitem")
 public class CartItem extends GeneratedIdAndAuditedEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
