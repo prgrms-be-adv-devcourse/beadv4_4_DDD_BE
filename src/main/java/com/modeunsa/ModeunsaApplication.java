@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class ModeunsaApplication {
 
   public static void main(String[] args) {
+    // test 수정이 될까요?
     SpringApplication.run(ModeunsaApplication.class, args);
   }
 }
