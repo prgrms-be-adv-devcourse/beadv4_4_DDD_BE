@@ -20,8 +20,8 @@ import lombok.NoArgsConstructor;
 public class PaymentId implements Serializable {
 
   @Column(name = "member_id", nullable = false)
-  private long memberId;
+  private Long memberId;
 
-  @Column(name = "order_no", nullable = false)
+  @Column(name = "order_num", nullable = false, length = 50)
   private String orderNo;
 }

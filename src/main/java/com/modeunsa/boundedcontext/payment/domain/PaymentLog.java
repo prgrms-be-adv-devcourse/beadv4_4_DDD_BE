@@ -22,10 +22,10 @@ public class PaymentLog {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
-  private long id;
+  private Long id;
 
   @Column(name = "member_id", nullable = false)
-  private long memberId;
+  private Long memberId;
 
   @Column(name = "order_no", nullable = false)
   private String orderNo;
