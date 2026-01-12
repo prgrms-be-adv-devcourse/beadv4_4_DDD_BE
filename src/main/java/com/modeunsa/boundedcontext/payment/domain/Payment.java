@@ -1,13 +1,9 @@
 package com.modeunsa.boundedcontext.payment.domain;
 
 import com.modeunsa.boundedcontext.payment.domain.type.PaymentStatus;
+import com.modeunsa.global.jpa.entity.AuditedEntity;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.LastModifiedBy;
 
 /**
  * @author : JAKE
@@ -19,7 +15,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class Payment {
+public class Payment extends AuditedEntity {
 
   @EmbeddedId private PaymentId id;
 
@@ -53,20 +49,4 @@ public class Payment {
   @Column(name = "pg_failure_reason")
   @Lob
   private String pgFailureReason;
-
-  @Column(name = "created_at", nullable = false, updatable = false)
-  @CreationTimestamp
-  private LocalDateTime createdAt;
-
-  @Column(name = "updated_at", nullable = false)
-  @UpdateTimestamp
-  private LocalDateTime updatedAt;
-
-  @Column(name = "created_by", updatable = false)
-  @CreatedBy
-  private Long createdBy;
-
-  @Column(name = "updated_by")
-  @LastModifiedBy
-  private Long updatedBy;
 }

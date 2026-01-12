@@ -6,12 +6,14 @@ import java.time.LocalDateTime;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /**
  * @author : JAKE
  * @date : 26. 1. 12.
  */
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "payment_account_log")
 @Getter
 @Builder
