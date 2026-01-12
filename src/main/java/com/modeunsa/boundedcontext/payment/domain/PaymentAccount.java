@@ -1,25 +1,9 @@
 package com.modeunsa.boundedcontext.payment.domain;
 
 import com.modeunsa.boundedcontext.payment.domain.type.PaymentEventType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import java.time.LocalDateTime;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
+import jakarta.persistence.*;
+import lombok.*;
 
 /**
  * @author : JAKE
@@ -31,11 +15,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class PaymentAccount {
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private long id;
+public class PaymentAccount extends GeneratedIdAndAuditedEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "member_id")
@@ -46,8 +26,4 @@ public class PaymentAccount {
   @Column(nullable = false, length = 100)
   @Enumerated(EnumType.STRING)
   private PaymentEventType eventType;
-
-  @CreationTimestamp private LocalDateTime createdAt;
-
-  @UpdateTimestamp private LocalDateTime updatedAt;
 }

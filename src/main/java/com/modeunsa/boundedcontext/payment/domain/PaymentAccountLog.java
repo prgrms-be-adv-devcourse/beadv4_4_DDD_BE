@@ -1,21 +1,11 @@
 package com.modeunsa.boundedcontext.payment.domain;
 
 import com.modeunsa.boundedcontext.payment.domain.type.PaymentEventType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.CreatedBy;
 
 /**
  * @author : JAKE
@@ -52,4 +42,6 @@ public class PaymentAccountLog {
   private String referenceType;
 
   @CreationTimestamp private LocalDateTime createdAt;
+
+  @CreatedBy private Long createdBy;
 }

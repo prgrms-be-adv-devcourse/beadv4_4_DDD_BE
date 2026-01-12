@@ -1,21 +1,13 @@
 package com.modeunsa.boundedcontext.payment.domain;
 
 import com.modeunsa.boundedcontext.payment.domain.type.PaymentStatus;
-import jakarta.persistence.Column;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Lob;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.LastModifiedBy;
 
 /**
  * @author : JAKE
@@ -55,4 +47,8 @@ public class Payment {
   @CreationTimestamp private LocalDateTime createdAt;
 
   @UpdateTimestamp private LocalDateTime updatedAt;
+
+  @CreatedBy private Long createdBy;
+
+  @LastModifiedBy private Long updatedBy;
 }
