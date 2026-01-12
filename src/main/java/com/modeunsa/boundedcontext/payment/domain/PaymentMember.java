@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
  * @date : 26. 1. 12.
  */
 @Entity
-@Table(name = "PAYMENT_MEMBER")
+@Table(name = "payment_member")
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
