@@ -1,23 +1,21 @@
 package com.modeunsa.boundedcontext.payment.domain;
 
 import com.modeunsa.boundedcontext.payment.domain.type.PaymentStatus;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Column;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Lob;
-import lombok.Getter;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import java.time.LocalDateTime;
 
 /**
  * @author : JAKE
@@ -31,8 +29,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class Payment {
 
-  @EmbeddedId
-  private PaymentId id;
+  @EmbeddedId private PaymentId id;
 
   @Builder.Default
   @Column(nullable = false, length = 20)
@@ -51,15 +48,11 @@ public class Payment {
 
   private String pgCustomerEmail;
 
-  @Lob
-  private Integer pgRawResponse;
+  @Lob private Integer pgRawResponse;
 
-  @Lob
-  private String pgFailureReason;
+  @Lob private String pgFailureReason;
 
-  @CreationTimestamp
-  private LocalDateTime createdAt;
+  @CreationTimestamp private LocalDateTime createdAt;
 
-  @UpdateTimestamp
-  private LocalDateTime updatedAt;
+  @UpdateTimestamp private LocalDateTime updatedAt;
 }
