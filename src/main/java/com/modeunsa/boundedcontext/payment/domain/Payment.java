@@ -13,11 +13,7 @@ import java.time.LocalDateTime;
  * @date : 26. 1. 12.
  */
 @Entity
-@Table(name = "PAYMENT_PAYMENT",
-  uniqueConstraints = @UniqueConstraint(
-    columnNames = {"member_id", "order_no"}
-  )
-)
+@Table(name = "PAYMENT_PAYMENT")
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

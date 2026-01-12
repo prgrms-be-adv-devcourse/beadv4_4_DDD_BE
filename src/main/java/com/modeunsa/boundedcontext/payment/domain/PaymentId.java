@@ -20,7 +20,7 @@ import java.io.Serializable;
 @Getter
 public class PaymentId implements Serializable {
 
-  @Column(name ="member_id", nullable = false)
+  @Column(name = "member_id", nullable = false)
   private long memberId;
 
   @Column(name = "order_no", nullable = false)
