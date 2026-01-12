@@ -22,7 +22,7 @@ public class Order extends GeneratedIdAndAuditedEntity {
     @JoinColumn(name = "member_id")
     private OrderMember orderMember;
 
-    @Column(name = "order_num", nullable = false, length = 50)
+    @Column(name = "order_num", nullable = false, length = 50, unique = true)
     private String orderNum;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
