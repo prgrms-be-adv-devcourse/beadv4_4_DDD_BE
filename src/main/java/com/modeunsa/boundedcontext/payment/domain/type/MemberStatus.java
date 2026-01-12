@@ -8,10 +8,7 @@ import lombok.Getter;
  */
 @Getter
 public enum MemberStatus {
-
   활성,
-
   정지,
-
   탈퇴;
 }
