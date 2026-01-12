@@ -1,5 +1,6 @@
 package com.modeunsa.boundedcontext.order.domain;
 
+import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,9 +12,7 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "ORDER_CARTITEM")
-public class CartItem {
-    @Id @GeneratedValue(strategy = IDENTITY)
-    private Long id;
+public class CartItem extends GeneratedIdAndAuditedEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")

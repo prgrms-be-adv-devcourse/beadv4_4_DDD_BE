@@ -1,5 +1,6 @@
 package com.modeunsa.boundedcontext.order.domain;
 
+import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -13,9 +14,7 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "ORDER_ORDERITEM")
-public class OrderItem {
-    @Id @GeneratedValue(strategy = IDENTITY)
-    private Long id;
+public class OrderItem extends GeneratedIdAndAuditedEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
