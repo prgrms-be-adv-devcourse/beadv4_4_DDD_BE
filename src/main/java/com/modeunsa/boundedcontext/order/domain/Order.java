@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 
@@ -22,6 +24,9 @@ public class Order extends GeneratedIdAndAuditedEntity {
 
     @Column(name = "order_num", nullable = false, length = 50)
     private String orderNum;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> orderItems = new ArrayList<>();
 
     @Builder.Default
     @Enumerated(EnumType.STRING)

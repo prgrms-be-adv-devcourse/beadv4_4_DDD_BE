@@ -20,6 +20,9 @@ public class OrderItem extends GeneratedIdAndAuditedEntity {
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
+    @Column(name = "product_id", nullable = false)
+    private Long productId;
+
     @Column(name = "seller_id", nullable = false)
     private Long sellerId;
 
