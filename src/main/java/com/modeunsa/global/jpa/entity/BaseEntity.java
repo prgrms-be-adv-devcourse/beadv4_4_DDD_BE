@@ -9,8 +9,12 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @EntityListeners(AuditingEntityListener.class)
 public interface BaseEntity {
   Long getId();
+
   LocalDateTime getCreatedAt();
+
   LocalDateTime getUpdatedAt();
+
   Long getCreatedBy();
+
   Long getUpdatedBy();
 }

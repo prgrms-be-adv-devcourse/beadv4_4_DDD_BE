@@ -1,6 +1,7 @@
 package com.modeunsa.global.jpa.entity;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
+
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -20,12 +21,9 @@ public abstract class GeneratedIdAndAuditedEntity implements BaseEntity {
   @Id
   @GeneratedValue(strategy = IDENTITY)
   private Long id;
-  @CreatedDate
-  private LocalDateTime createdAt;
-  @LastModifiedDate
-  private LocalDateTime updatedAt;
-  @CreatedBy
-  private Long createdBy; // member.id
-  @LastModifiedBy
-  private Long updatedBy; // member.id
+
+  @CreatedDate private LocalDateTime createdAt;
+  @LastModifiedDate private LocalDateTime updatedAt;
+  @CreatedBy private Long createdBy; // member.id
+  @LastModifiedBy private Long updatedBy; // member.id
 }

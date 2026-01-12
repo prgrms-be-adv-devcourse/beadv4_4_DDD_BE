@@ -15,14 +15,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 public abstract class ManualIdAndAuditedEntity {
-  @Id
-  private Long id;
-  @CreatedDate
-  private LocalDateTime createdAt;
-  @LastModifiedDate
-  private LocalDateTime updatedAt;
-  @CreatedBy
-  private Long createdBy; // member.id
-  @LastModifiedBy
-  private Long updatedBy; // member.id
+  @Id private Long id;
+  @CreatedDate private LocalDateTime createdAt;
+  @LastModifiedDate private LocalDateTime updatedAt;
+  @CreatedBy private Long createdBy; // member.id
+  @LastModifiedBy private Long updatedBy; // member.id
 }
