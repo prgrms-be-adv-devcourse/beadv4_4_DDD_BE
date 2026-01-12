@@ -3,7 +3,7 @@ plugins {
     id 'org.springframework.boot' version '4.0.1'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'checkstyle'
-    id "com.diffplug.spotless" version "6.25.0"
+    id "com.diffplug.spotless" version "8.1.0"
 }
 
 group = 'com'
@@ -49,30 +49,30 @@ tasks.named('test') {
 spotless {
     java {
         googleJavaFormat("1.33.0")
-        // 아래는 선택
-        trimTrailingWhitespace()
-        endWithNewline()
+        // diff 안정화를 위해 하기 옵션 추가
+        trimTrailingWhitespace() // 줄 끝 공백 제거
+        endWithNewline() // 파일 끝에 newline 강제
     }
 }
 
 checkstyle {
     toolVersion = '13.0.0'
-    maxWarnings = 0 //경고가 0개 이상이라면 빌드시에 에러를 냅니다
-    configFile = file("config/checkstyle/google_checks.xml") //rule을 적용합니다
-    ignoreFailures = false            // 위반 시 실패(강제)
-//    configProperties = ["suppressionFile": "intellij-java-google-style.xml"] // 예외를 적용합니다
+    maxWarnings = 0 // 경고가 0개 이상이라면 빌드 시에 에러 발생
+    configFile = file("config/checkstyle/google_checks.xml") // rule 적용
+    ignoreFailures = false // 위반 시 실패(강제)
 }
 
 tasks.withType(Checkstyle).configureEach {
+    // 리포트 출력
     reports {
         xml.required = false
         html.required = true
     }
 }
 
-// 일반적으로 check에 checkstyle이 포함되도록
 tasks.named('check') {
     dependsOn 'spotlessCheck', 'checkstyleMain', 'checkstyleTest'
 }
 
-checkstyleMain.source = fileTree('src/main/java') //java아래 폴더에만 적용을 합니다, Build나 QClass에 영향을 받지 않게 합니다
+// TODO 추후 suppressions 파일로 분리
+checkstyleMain.source = fileTree('src/main/java')
