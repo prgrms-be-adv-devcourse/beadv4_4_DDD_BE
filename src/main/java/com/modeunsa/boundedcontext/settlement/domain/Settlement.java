@@ -11,10 +11,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity
-@Table(name = "settlement_settlement")
+@Table(name = "SETTLEMENT_SETTLEMENT")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -25,18 +26,19 @@ public class Settlement {
 
     private long amount;
 
+    @Column(nullable = false)
     private Long sellerUserId;
 
-    @OneToMany(mappedBy = "settlement", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "settlement", cascade = CascadeType.PERSIST, fetch = LAZY)
     private List<SettlementItem> items = new ArrayList<>();
 
     private LocalDateTime payoutAt;
 
     @CreatedDate
+    @Column(nullable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate
+    @Column(nullable = false)
     private LocalDateTime updatedAt;
-
-    private LocalDateTime deletedAt;
 }

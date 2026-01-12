@@ -13,7 +13,7 @@ import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity
-@Table(name = "settlement_item")
+@Table(name = "SETTLEMENT_ITEM")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -25,23 +25,29 @@ public class SettlementItem {
     @ManyToOne(fetch = LAZY)
     private Settlement settlement;
 
+    @Column(nullable = false)
     private Long orderItemId;
 
+    @Column(nullable = false)
     private Long buyerUserId;
 
+    @Column(nullable = false)
     private Long sellerUserId;
 
     private long amount;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private SettlementEventType eventType;
 
+    @Column(nullable = false)
     private LocalDateTime paymentAt;
 
     @CreatedDate
+    @Column(nullable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate
+    @Column(nullable = false)
     private LocalDateTime updatedAt;
-
-    private LocalDateTime deletedAt;
 }
