@@ -1,14 +1,20 @@
 package com.modeunsa.boundedcontext.payment.domain.type;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 /**
  * @author : JAKE
  * @date : 26. 1. 12.
  */
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public enum MemberStatus {
-  활성,
-  정지,
-  탈퇴;
+  ACTIVE("활성 상태"),
+  INACTIVE("비활성 상태"),
+  WITHDRAWN("탈퇴 상태");
+
+  private String description;
 }

@@ -37,7 +37,7 @@ public class PaymentMember {
   @Builder.Default
   @Column(nullable = false, length = 20)
   @Enumerated(EnumType.STRING)
-  private MemberStatus status = MemberStatus.활성;
+  private MemberStatus status = MemberStatus.ACTIVE;
 
   @CreationTimestamp
   private LocalDateTime createdAt;
