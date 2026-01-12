@@ -3,6 +3,7 @@ plugins {
     id 'org.springframework.boot' version '4.0.1'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'checkstyle'
+    id "com.diffplug.spotless" version "6.25.0"
 }
 
 group = 'com'
@@ -45,6 +46,15 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
+spotless {
+    java {
+        googleJavaFormat("1.33.0")
+        // 아래는 선택
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
+
 checkstyle {
     toolVersion = '13.0.0'
     maxWarnings = 0 //경고가 0개 이상이라면 빌드시에 에러를 냅니다
@@ -62,7 +72,7 @@ tasks.withType(Checkstyle).configureEach {
 
 // 일반적으로 check에 checkstyle이 포함되도록
 tasks.named('check') {
-    dependsOn 'checkstyleMain', 'checkstyleTest'
+    dependsOn 'spotlessCheck', 'checkstyleMain', 'checkstyleTest'
 }
 
 checkstyleMain.source = fileTree('src/main/java') //java아래 폴더에만 적용을 합니다, Build나 QClass에 영향을 받지 않게 합니다
