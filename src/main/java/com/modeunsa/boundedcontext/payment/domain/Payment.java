@@ -54,6 +54,7 @@ public class Payment {
   @Lob
   private Integer pgRawResponse;
 
+  @Lob
   private String pgFailureReason;
 
   @CreationTimestamp

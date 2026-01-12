@@ -38,7 +38,7 @@ public class PaymentAccountLog {
 
   private long memberId;
 
-  @Column(nullable = false, length = 50)
+  @Column(nullable = false, length = 100)
   @Enumerated(EnumType.STRING)
   private PaymentEventType eventType;
 
