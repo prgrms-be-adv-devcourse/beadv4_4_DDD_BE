@@ -36,7 +36,7 @@ public class SettlementItem {
 
     private long amount;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     @Enumerated(EnumType.STRING)
     private SettlementEventType eventType;
 
