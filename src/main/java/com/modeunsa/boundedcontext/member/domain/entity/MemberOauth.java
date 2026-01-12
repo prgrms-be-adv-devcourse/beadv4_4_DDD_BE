@@ -10,15 +10,24 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Getter
 @Builder
 @AllArgsConstructor
-@Table(name = "member_oauth")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString(exclude = "member")
+@Table(
+    name = "member_oauth",
+    uniqueConstraints = {
+      @jakarta.persistence.UniqueConstraint(columnNames = {"oauth_provider", "provider_member_id"})
+    })
 public class MemberOauth extends GeneratedIdAndAuditedEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -34,6 +43,4 @@ public class MemberOauth extends GeneratedIdAndAuditedEntity {
 
   @Column(name = "provider_nickname", nullable = false, length = 50)
   private String providerNickname;
-
-  protected MemberOauth() {}
 }

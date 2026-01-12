@@ -8,23 +8,28 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
 @Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Table(name = "member")
 public class Member extends GeneratedIdAndAuditedEntity {
 
   @Enumerated(EnumType.STRING)
   @Column(name = "member_role", nullable = false)
+  @Builder.Default
   private MemberRole role = MemberRole.MEMBER;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "member_status", nullable = false)
+  @Builder.Default
   private MemberStatus status = MemberStatus.ACTIVE;
 
   @Column(unique = true, length = 255)
@@ -44,8 +49,6 @@ public class Member extends GeneratedIdAndAuditedEntity {
 
   @Column(name = "skin_type", length = 30)
   private String skinType;
-
-  protected Member() {}
 
   public void updateProfile(
       String nickname,
@@ -76,5 +79,9 @@ public class Member extends GeneratedIdAndAuditedEntity {
 
   public void changeRole(MemberRole role) {
     this.role = role;
+  }
+
+  public void changeStatus(MemberStatus status) {
+    this.status = status;
   }
 }
