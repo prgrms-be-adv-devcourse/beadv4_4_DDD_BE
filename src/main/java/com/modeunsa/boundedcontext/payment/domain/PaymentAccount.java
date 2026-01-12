@@ -1,5 +1,6 @@
 package com.modeunsa.boundedcontext.payment.domain;
 
+import com.modeunsa.boundedcontext.payment.domain.type.PaymentEventType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -28,6 +29,10 @@ public class PaymentAccount {
   private PaymentMember member;
 
   private long balance;
+
+  @Column(nullable = false, length = 50)
+  @Enumerated(EnumType.STRING)
+  private PaymentEventType eventType;
 
   @CreationTimestamp
   private LocalDateTime createdAt;
