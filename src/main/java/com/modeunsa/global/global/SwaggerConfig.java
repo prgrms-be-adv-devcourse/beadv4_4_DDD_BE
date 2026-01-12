@@ -1,5 +1,6 @@
 package com.modeunsa.global.global;
 
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
@@ -35,7 +36,7 @@ public class SwaggerConfig {
                 .info(info)
                 .addServersItem(devServer)
                 .addSecurityItem(securityRequirement)
-                .components(new io.swagger.v3.oas.models.Components()
+                .components(new Components()
                         .addSecuritySchemes("bearerAuth", bearerAuth)
                 );
     }
