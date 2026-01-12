@@ -18,6 +18,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 public abstract class GeneratedIdAndAuditedEntity implements BaseEntity {
+
   @Id
   @GeneratedValue(strategy = IDENTITY)
   private Long id;
