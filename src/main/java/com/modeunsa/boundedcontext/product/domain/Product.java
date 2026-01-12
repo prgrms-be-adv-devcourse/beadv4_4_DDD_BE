@@ -20,7 +20,7 @@ public class Product extends GeneratedIdAndAuditedEntity {
   private String name;
 
   @Enumerated(EnumType.STRING)
-  private ProductCategory categoryName;
+  private ProductCategory category;
 
   private String description;
   @Builder.Default private int salePrice = 0;

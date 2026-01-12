@@ -6,17 +6,11 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.Builder;
 import lombok.Getter;
 
 @Entity
-@Table(
-    name = "product_image",
-    uniqueConstraints =
-        @UniqueConstraint(
-            name = "uk_product_favorite_member_product",
-            columnNames = {"member_id", "product_id"}))
+@Table(name = "product_image")
 @Getter
 @Builder
 public class ProductImage extends GeneratedIdAndAuditedEntity {

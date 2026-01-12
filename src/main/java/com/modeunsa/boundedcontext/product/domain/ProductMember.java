@@ -12,5 +12,6 @@ import lombok.Getter;
 @Builder
 public class ProductMember extends GeneratedIdAndAuditedEntity {
   // TODO: member 생성 이후 추가 예정
+  private long memberId;
   private String name;
 }
