@@ -10,4 +10,5 @@ git-hooks:
 	@echo "Enabling repo hooks (.githooks)..."
 	@git config core.hooksPath .githooks
 	@chmod +x .githooks/commit-msg
-	@echo "Done. (commit-msg hook active)"
+  @chmod +x .githooks/pre-commit
+	@echo "Done. (commit-msg & pre-commit hook active)"

@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "[pre-commit] Running Checkstyle..."
+
+# staged된 java 파일이 없으면 스킵(속도 최적화)
+if ! git diff --cached --name-only --diff-filter=ACM | grep -E '\.java$' > /dev/null; then
+  echo "[pre-commit] No staged .java files. Skipping Checkstyle."
+  exit 0
+fi
+
+# Gradle Checkstyle 실행
+./gradlew -q checkstyleMain checkstyleTest
+
+echo "[pre-commit] Checkstyle passed."
