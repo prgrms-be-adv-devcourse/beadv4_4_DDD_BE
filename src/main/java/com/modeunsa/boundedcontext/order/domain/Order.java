@@ -34,7 +34,7 @@ public class Order extends GeneratedIdAndAuditedEntity {
     private OrderStatus status = OrderStatus.PENDING_PAYMENT;
 
     @Column(name = "total_amount", nullable = false)
-    private Integer totalAmount;
+    private long totalAmount;
 
     // --- 배송 정보 ---
     @Column(name = "receiver_name", nullable = false, length = 20)

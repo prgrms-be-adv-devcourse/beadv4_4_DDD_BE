@@ -30,8 +30,8 @@ public class OrderItem extends GeneratedIdAndAuditedEntity {
     private String productName;
 
     @Column(name = "sale_price", nullable = false)
-    private Integer salePrice; // 판매가
+    private long salePrice; // 판매가
 
     @Column(name = "price", nullable = false)
-    private Integer price; // 정가
+    private long price; // 정가
 }
