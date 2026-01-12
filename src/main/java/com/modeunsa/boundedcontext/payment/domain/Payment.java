@@ -2,10 +2,7 @@ package com.modeunsa.boundedcontext.payment.domain;
 
 import com.modeunsa.boundedcontext.payment.domain.type.PaymentStatus;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -21,6 +18,7 @@ import java.time.LocalDateTime;
     columnNames = {"member_id", "order_no"}
   )
 )
+@Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
@@ -46,6 +44,7 @@ public class Payment {
 
   private String pgCustomerEmail;
 
+  @Lob
   private Integer pgRawResponse;
 
   private String pgFailureReason;
