@@ -13,7 +13,7 @@ import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity
-@Table(name = "SETTLEMENT_ITEM")
+@Table(name = "settlement_item")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
