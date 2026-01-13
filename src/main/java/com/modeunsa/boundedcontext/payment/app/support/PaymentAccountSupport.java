@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.payment.app;
+package com.modeunsa.boundedcontext.payment.app.support;
 
 import com.modeunsa.boundedcontext.payment.out.PaymentAccountRepository;
 import lombok.RequiredArgsConstructor;

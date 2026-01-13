@@ -1,6 +1,6 @@
-package com.modeunsa.boundedcontext.payment.app;
+package com.modeunsa.boundedcontext.payment.app.usecase;
 
-import com.modeunsa.boundedcontext.payment.domain.PaymentAccount;
+import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.out.PaymentAccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

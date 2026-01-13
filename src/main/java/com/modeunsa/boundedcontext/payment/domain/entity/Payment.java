@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.payment.domain;
+package com.modeunsa.boundedcontext.payment.domain.entity;
 
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentStatus;
 import com.modeunsa.global.jpa.entity.AuditedEntity;

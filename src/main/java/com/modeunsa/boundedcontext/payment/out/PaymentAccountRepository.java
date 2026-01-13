@@ -1,6 +1,6 @@
 package com.modeunsa.boundedcontext.payment.out;
 
-import com.modeunsa.boundedcontext.payment.domain.PaymentAccount;
+import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**

@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.payment.domain;
+package com.modeunsa.boundedcontext.payment.domain.entity;
 
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import jakarta.persistence.Entity;

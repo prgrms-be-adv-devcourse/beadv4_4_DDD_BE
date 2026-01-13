@@ -2,6 +2,7 @@ package com.modeunsa.boundedcontext.payment.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
 import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;

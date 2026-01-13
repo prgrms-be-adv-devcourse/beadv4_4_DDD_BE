@@ -1,8 +1,8 @@
-package com.modeunsa.boundedcontext.payment.app;
+package com.modeunsa.boundedcontext.payment.app.usecase;
 
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentMemberDto;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentMemberCreatedEvent;
-import com.modeunsa.boundedcontext.payment.domain.PaymentMember;
+import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.out.PaymentMemberRepository;
 import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.payment.domain;
+package com.modeunsa.boundedcontext.payment.domain.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
