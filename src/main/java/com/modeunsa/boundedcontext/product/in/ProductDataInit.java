@@ -4,6 +4,7 @@ import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
 import com.modeunsa.boundedcontext.product.out.ProductRepository;
 import jakarta.transaction.Transactional;
+import java.math.BigDecimal;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,8 +35,8 @@ public class ProductDataInit {
         Product.builder()
             .name("코트")
             .category(ProductCategory.OUTER)
-            .price(10000)
-            .salePrice(20000)
+            .price(BigDecimal.valueOf(10000))
+            .salePrice(BigDecimal.valueOf(20000))
             .qty(10)
             .description("코트 설명입니다.")
             .build();
@@ -43,8 +44,8 @@ public class ProductDataInit {
         Product.builder()
             .name("맨투맨")
             .category(ProductCategory.UPPER)
-            .price(14000)
-            .salePrice(30000)
+            .price(BigDecimal.valueOf(14000))
+            .salePrice(BigDecimal.valueOf(30000))
             .qty(20)
             .description("맨투맨 설명입니다.")
             .build();

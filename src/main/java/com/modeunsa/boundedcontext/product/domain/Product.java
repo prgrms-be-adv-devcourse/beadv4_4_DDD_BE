@@ -4,6 +4,9 @@ import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
@@ -15,6 +18,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
@@ -23,7 +27,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 public class Product extends GeneratedIdAndAuditedEntity {
-  private long sellerId; // 판매자 id
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "seller_id")
+  @Setter
+  private ProductMemberSeller seller;
+
   private String name;
 
   @Enumerated(EnumType.STRING)
@@ -63,5 +72,9 @@ public class Product extends GeneratedIdAndAuditedEntity {
   public void removeImage(ProductImage image) {
     images.remove(image);
     image.setProduct(null);
+  }
+
+  public void updateSaleStatus(SaleStatus saleStatus) {
+    this.saleStatus = saleStatus;
   }
 }

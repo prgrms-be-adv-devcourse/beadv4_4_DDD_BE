@@ -18,7 +18,7 @@ public class ProductCreateProductUseCase {
   public Product createProduct(ProductDto productDto) {
 
     Product product = productMapper.toEntity(productDto);
-
+    // TODO: 파일 업로드 작업 이후에 이미지 추가 예정
     return productRepository.save(product);
   }
 }
