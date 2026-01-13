@@ -34,8 +34,8 @@ public class Order extends GeneratedIdAndAuditedEntity {
   @JoinColumn(name = "member_id")
   private OrderMember orderMember;
 
-  @Column(name = "order_num", nullable = false, length = 50, unique = true)
-  private String orderNum;
+  @Column(name = "order_no", nullable = false, length = 50, unique = true)
+  private String orderNo;
 
   @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<OrderItem> orderItems = new ArrayList<>();
