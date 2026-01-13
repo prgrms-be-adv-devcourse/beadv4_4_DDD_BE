@@ -1,36 +1,29 @@
 package com.modeunsa.boundedcontext.payment.domain;
 
-import com.modeunsa.boundedcontext.payment.domain.type.MemberStatus;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
+import com.modeunsa.global.jpa.entity.ManualIdAndAuditedEntity;
 import jakarta.persistence.Column;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
-import jakarta.persistence.Id;
-import lombok.Getter;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
-import java.time.LocalDateTime;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 /**
  * @author : JAKE
  * @date : 26. 1. 12.
  */
 @Entity
-@Table(name = "payment_member")
+@Table
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class PaymentMember {
-
-  @Id
-  private long id;
+public class PaymentMember extends ManualIdAndAuditedEntity {
 
   @Column(nullable = false, unique = true)
   private String email;
@@ -45,10 +38,4 @@ public class PaymentMember {
   @Column(nullable = false, length = 20)
   @Enumerated(EnumType.STRING)
   private MemberStatus status = MemberStatus.ACTIVE;
-
-  @CreationTimestamp
-  private LocalDateTime createdAt;
-
-  @UpdateTimestamp
-  private LocalDateTime updatedAt;
 }

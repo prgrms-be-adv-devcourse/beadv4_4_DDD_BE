@@ -1,7 +1,11 @@
 server:
   port: 8080
 spring:
-  application:
-    name: modeunsa
   profiles:
     active: local
+  application:
+    name: modeunsa
+  jpa:
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy

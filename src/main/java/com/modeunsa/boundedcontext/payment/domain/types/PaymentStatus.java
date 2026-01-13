@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.payment.domain.type;
+package com.modeunsa.boundedcontext.payment.domain.types;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
