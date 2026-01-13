@@ -33,10 +33,21 @@ public class PaymentDataInit {
 
   @Transactional
   public void makeBasePaymentMembers() {
-    PaymentMemberDto paymentMemberDto =
+
+    PaymentMemberDto paymentMember1 =
         new PaymentMemberDto(
             1L, "user1@naver.com", "사용자1", "customerKey-user1", MemberStatus.ACTIVE);
 
-    paymentFacade.registerMember(paymentMemberDto);
+    PaymentMemberDto paymentMember2 =
+        new PaymentMemberDto(
+            2L, "user2@naver.com", "사용자2", "customerKey-user2", MemberStatus.ACTIVE);
+
+    PaymentMemberDto paymentMember3 =
+        new PaymentMemberDto(
+            3L, "user3@naver.com", "사용자3", "customerKey-user3", MemberStatus.ACTIVE);
+
+    paymentFacade.createPaymentMember(paymentMember1);
+    paymentFacade.createPaymentMember(paymentMember2);
+    paymentFacade.createPaymentMember(paymentMember3);
   }
 }

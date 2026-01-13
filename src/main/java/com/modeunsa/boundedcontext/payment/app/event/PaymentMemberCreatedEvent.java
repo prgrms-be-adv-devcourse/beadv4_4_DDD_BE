@@ -1,7 +1,6 @@
 package com.modeunsa.boundedcontext.payment.app.event;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentMemberDto;
 import lombok.Getter;
 
 /**
@@ -11,9 +10,9 @@ import lombok.Getter;
 @Getter
 public class PaymentMemberCreatedEvent {
 
-  private final PaymentMemberDto member;
+  private final Long memberId;
 
-  public PaymentMemberCreatedEvent(@JsonProperty("member") PaymentMemberDto member) {
-    this.member = member;
+  public PaymentMemberCreatedEvent(@JsonProperty("member_id") Long memberId) {
+    this.memberId = memberId;
   }
 }

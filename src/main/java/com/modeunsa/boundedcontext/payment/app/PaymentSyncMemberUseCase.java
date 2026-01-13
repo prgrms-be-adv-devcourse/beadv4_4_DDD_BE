@@ -19,10 +19,10 @@ public class PaymentSyncMemberUseCase {
   private final PaymentMemberRepository paymentMemberRepository;
   private final SpringDomainEventPublisher eventPublisher;
 
-  public PaymentMember registerMember(PaymentMemberDto paymentMemberDto) {
+  public void createPaymentMember(PaymentMemberDto paymentMemberDto) {
 
     PaymentMember paymentMember =
-        PaymentMember.register(
+        PaymentMember.create(
             paymentMemberDto.getMemberId(),
             paymentMemberDto.getEmail(),
             paymentMemberDto.getName(),
@@ -30,8 +30,6 @@ public class PaymentSyncMemberUseCase {
 
     PaymentMember savedMember = paymentMemberRepository.save(paymentMember);
 
-    eventPublisher.publish(new PaymentMemberCreatedEvent(savedMember.toDto()));
-
-    return savedMember;
+    eventPublisher.publish(new PaymentMemberCreatedEvent(savedMember.getId()));
   }
 }

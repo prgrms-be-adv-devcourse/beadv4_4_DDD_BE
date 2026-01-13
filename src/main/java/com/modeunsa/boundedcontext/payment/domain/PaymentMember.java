@@ -1,6 +1,5 @@
 package com.modeunsa.boundedcontext.payment.domain;
 
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentMemberDto;
 import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
 import com.modeunsa.global.jpa.entity.ManualIdAndAuditedEntity;
 import jakarta.persistence.Column;
@@ -43,7 +42,7 @@ public class PaymentMember extends ManualIdAndAuditedEntity {
   @Enumerated(EnumType.STRING)
   private MemberStatus status = MemberStatus.ACTIVE;
 
-  public static PaymentMember register(Long id, String email, String name, MemberStatus status) {
+  public static PaymentMember create(Long id, String email, String name, MemberStatus status) {
     return PaymentMember.builder()
         .id(id)
         .email(email)
@@ -51,10 +50,6 @@ public class PaymentMember extends ManualIdAndAuditedEntity {
         .customerKey(generateCustomerKey(id))
         .status(status)
         .build();
-  }
-
-  public PaymentMemberDto toDto() {
-    return new PaymentMemberDto(getId(), getEmail(), getName(), getCustomerKey(), getStatus());
   }
 
   private static String generateCustomerKey(Long id) {

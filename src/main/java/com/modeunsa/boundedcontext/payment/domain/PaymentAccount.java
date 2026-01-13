@@ -34,7 +34,11 @@ public class PaymentAccount extends GeneratedIdAndAuditedEntity {
 
   private long balance;
 
-  @Column(nullable = false, length = 100)
+  @Column(length = 100)
   @Enumerated(EnumType.STRING)
   private PaymentEventType eventType;
+
+  public static PaymentAccount create(PaymentMember paymentMember) {
+    return PaymentAccount.builder().member(paymentMember).balance(0L).build();
+  }
 }

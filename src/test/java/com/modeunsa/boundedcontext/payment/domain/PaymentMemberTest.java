@@ -18,7 +18,7 @@ class PaymentMemberTest {
   @MethodSource("memberTestDataProvider")
   void registerPaymentMember(Long id, String email, String name, MemberStatus status) {
 
-    PaymentMember member = PaymentMember.register(id, email, name, status);
+    PaymentMember member = PaymentMember.create(id, email, name, status);
 
     assertThat(member.getId()).isEqualTo(id);
     assertThat(member.getEmail()).isEqualTo(email);
