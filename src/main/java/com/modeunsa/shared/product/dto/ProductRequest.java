@@ -9,7 +9,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ProductDto {
+public class ProductRequest {
   private long sellerId;
   private String name;
   private ProductCategory category;
