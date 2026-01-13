@@ -2,7 +2,7 @@ package com.modeunsa.boundedcontext.product.app;
 
 import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.boundedcontext.product.out.ProductRepository;
-import com.modeunsa.global.eventpublisher.EventPublisher;
+import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
 import com.modeunsa.shared.product.ProductCreatedEvent;
 import com.modeunsa.shared.product.dto.ProductRequest;
 import com.modeunsa.shared.product.dto.ProductResponse;
@@ -15,7 +15,7 @@ public class ProductCreateProductUseCase {
 
   private final ProductRepository productRepository;
   private final ProductMapper productMapper;
-  private final EventPublisher eventPublisher;
+  private final SpringDomainEventPublisher eventPublisher;
 
   public ProductResponse createProduct(ProductRequest productRequest) {
     Product product = productMapper.toEntity(productRequest);
