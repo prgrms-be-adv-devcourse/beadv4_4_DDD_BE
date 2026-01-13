@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "order_cartitem")
+@Table(name = "order_cart_item")
 public class CartItem extends GeneratedIdAndAuditedEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)

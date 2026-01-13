@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "order_orderitem")
+@Table(name = "order_order_item")
 public class OrderItem extends GeneratedIdAndAuditedEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
