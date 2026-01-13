@@ -1,33 +1,28 @@
-package com.modeunsa.boundedcontext.settlement.domain;
+package com.modeunsa.boundedcontext.settlement.domain.entity;
 
 import static jakarta.persistence.FetchType.LAZY;
-import static jakarta.persistence.GenerationType.IDENTITY;
 
+import com.modeunsa.boundedcontext.settlement.domain.types.SettlementEventType;
+import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
 @Entity
 @Table(name = "settlement_item")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SettlementItem {
-  @Id
-  @GeneratedValue(strategy = IDENTITY)
-  private Long id;
-
+@Getter
+public class SettlementItem extends GeneratedIdAndAuditedEntity {
   @ManyToOne(fetch = LAZY)
   private Settlement settlement;
 
@@ -35,10 +30,10 @@ public class SettlementItem {
   private Long orderItemId;
 
   @Column(nullable = false)
-  private Long buyerUserId;
+  private Long buyerMemberId;
 
   @Column(nullable = false)
-  private Long sellerUserId;
+  private Long sellerMemberId;
 
   private long amount;
 
@@ -48,12 +43,4 @@ public class SettlementItem {
 
   @Column(nullable = false)
   private LocalDateTime paymentAt;
-
-  @CreatedDate
-  @Column(nullable = false)
-  private LocalDateTime createdAt;
-
-  @LastModifiedDate
-  @Column(nullable = false)
-  private LocalDateTime updatedAt;
 }
