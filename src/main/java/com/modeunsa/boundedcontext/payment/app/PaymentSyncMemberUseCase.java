@@ -1,8 +1,10 @@
 package com.modeunsa.boundedcontext.payment.app;
 
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentMemberDto;
+import com.modeunsa.boundedcontext.payment.app.event.PaymentMemberCreatedEvent;
 import com.modeunsa.boundedcontext.payment.domain.PaymentMember;
 import com.modeunsa.boundedcontext.payment.out.PaymentMemberRepository;
+import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,8 +17,9 @@ import org.springframework.stereotype.Service;
 public class PaymentSyncMemberUseCase {
 
   private final PaymentMemberRepository paymentMemberRepository;
+  private final SpringDomainEventPublisher eventPublisher;
 
-  public PaymentMember syncMember(PaymentMemberDto paymentMemberDto) {
+  public PaymentMember registerMember(PaymentMemberDto paymentMemberDto) {
 
     PaymentMember paymentMember =
         PaymentMember.register(
@@ -25,6 +28,10 @@ public class PaymentSyncMemberUseCase {
             paymentMemberDto.getName(),
             paymentMemberDto.getStatus());
 
-    return paymentMemberRepository.save(paymentMember);
+    PaymentMember savedMember = paymentMemberRepository.save(paymentMember);
+
+    eventPublisher.publish(new PaymentMemberCreatedEvent(savedMember.toDto()));
+
+    return savedMember;
   }
 }

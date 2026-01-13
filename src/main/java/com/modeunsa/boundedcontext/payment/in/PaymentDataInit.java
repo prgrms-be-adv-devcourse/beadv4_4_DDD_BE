@@ -37,6 +37,6 @@ public class PaymentDataInit {
         new PaymentMemberDto(
             1L, "user1@naver.com", "사용자1", "customerKey-user1", MemberStatus.ACTIVE);
 
-    paymentFacade.syncMember(paymentMemberDto);
+    paymentFacade.registerMember(paymentMemberDto);
   }
 }

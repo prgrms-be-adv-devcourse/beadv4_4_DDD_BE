@@ -17,7 +17,7 @@ public class PaymentFacade {
   private final PaymentSyncMemberUseCase paymentSyncMemberUseCase;
 
   @Transactional
-  public PaymentMember syncMember(PaymentMemberDto paymentMemberDto) {
-    return paymentSyncMemberUseCase.syncMember(paymentMemberDto);
+  public PaymentMember registerMember(PaymentMemberDto paymentMemberDto) {
+    return paymentSyncMemberUseCase.registerMember(paymentMemberDto);
   }
 }
