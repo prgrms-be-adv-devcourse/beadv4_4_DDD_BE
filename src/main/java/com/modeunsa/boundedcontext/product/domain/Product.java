@@ -7,13 +7,19 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
 @Table(name = "product_product")
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 public class Product extends GeneratedIdAndAuditedEntity {
   private long sellerId; // 판매자 id
@@ -45,7 +51,8 @@ public class Product extends GeneratedIdAndAuditedEntity {
 
   @OneToMany(mappedBy = "product")
   @OrderBy("sortOrder ASC")
-  private List<ProductImage> images;
+  @Builder.Default
+  private List<ProductImage> images = new ArrayList<>();
 
   public void addImage(ProductImage image) {
     images.add(image);
