@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 /**
  * @author : JAKE
@@ -20,7 +21,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table
 @Getter
-@Builder
+@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class PaymentMember extends ManualIdAndAuditedEntity {
@@ -38,4 +39,15 @@ public class PaymentMember extends ManualIdAndAuditedEntity {
   @Column(nullable = false, length = 20)
   @Enumerated(EnumType.STRING)
   private MemberStatus status = MemberStatus.ACTIVE;
+
+  public static PaymentMember register(
+      Long id, String email, String name, String customerKey, MemberStatus status) {
+    return PaymentMember.builder()
+        .id(id)
+        .email(email)
+        .name(name)
+        .customerKey(customerKey)
+        .status(status)
+        .build();
+  }
 }
