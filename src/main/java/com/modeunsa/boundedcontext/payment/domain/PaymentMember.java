@@ -26,6 +26,8 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class PaymentMember extends ManualIdAndAuditedEntity {
 
+  private static String customerKeyPrefix = "CUSTOMER";
+
   @Column(nullable = false, unique = true)
   private String email;
 
@@ -40,14 +42,17 @@ public class PaymentMember extends ManualIdAndAuditedEntity {
   @Enumerated(EnumType.STRING)
   private MemberStatus status = MemberStatus.ACTIVE;
 
-  public static PaymentMember register(
-      Long id, String email, String name, String customerKey, MemberStatus status) {
+  public static PaymentMember register(Long id, String email, String name, MemberStatus status) {
     return PaymentMember.builder()
         .id(id)
         .email(email)
         .name(name)
-        .customerKey(customerKey)
+        .customerKey(generateCustomerKey(id))
         .status(status)
         .build();
+  }
+
+  private static String generateCustomerKey(Long id) {
+    return String.format("%08d", id);
   }
 }
