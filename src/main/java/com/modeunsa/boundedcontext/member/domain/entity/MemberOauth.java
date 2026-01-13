@@ -1,6 +1,6 @@
 package com.modeunsa.boundedcontext.member.domain.entity;
 
-import com.modeunsa.boundedcontext.member.domain.enums.OauthProvider;
+import com.modeunsa.boundedcontext.member.domain.types.OauthProvider;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,6 +10,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,9 +25,8 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(exclude = "member")
 @Table(
-    name = "member_oauth",
     uniqueConstraints = {
-      @jakarta.persistence.UniqueConstraint(columnNames = {"oauth_provider", "provider_member_id"})
+      @UniqueConstraint(columnNames = {"oauth_provider", "provider_member_id"})
     })
 public class MemberOauth extends GeneratedIdAndAuditedEntity {
 
@@ -43,4 +43,8 @@ public class MemberOauth extends GeneratedIdAndAuditedEntity {
 
   @Column(name = "provider_nickname", nullable = false, length = 50)
   private String providerNickname;
+
+  void setMember(Member member) {
+    this.member = member;
+  }
 }

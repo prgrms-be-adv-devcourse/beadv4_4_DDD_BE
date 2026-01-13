@@ -1,7 +1,10 @@
 package com.modeunsa.boundedcontext.member.domain.entity;
 
-import com.modeunsa.boundedcontext.member.domain.enums.SellerStatus;
+import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
+import com.modeunsa.boundedcontext.member.domain.types.SellerStatus;
+import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
+import com.modeunsa.global.status.ErrorStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -42,7 +45,6 @@ import lombok.ToString;
 @Getter
 @Builder
 @ToString(exclude = "member")
-@Table(name = "member_seller")
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MemberSeller extends GeneratedIdAndAuditedEntity {
@@ -124,11 +126,11 @@ public class MemberSeller extends GeneratedIdAndAuditedEntity {
    */
   public void approve() {
     if (this.status != SellerStatus.PENDING) {
-      throw new IllegalStateException(
-          "Cannot approve seller with status " + this.status + ". Only PENDING sellers can be approved.");
+      throw new GeneralException(ErrorStatus.SELLER_CANNOT_APPROVE);
     }
     this.status = SellerStatus.ACTIVE;
     this.activatedAt = LocalDateTime.now();
+    this.member.changeRole(MemberRole.SELLER);
   }
 
   /**
@@ -140,8 +142,7 @@ public class MemberSeller extends GeneratedIdAndAuditedEntity {
    */
   public void reject() {
     if (this.status != SellerStatus.PENDING) {
-      throw new IllegalStateException(
-          "Cannot approve seller with status " + this.status + ". Only PENDING sellers can be approved.");
+      throw new GeneralException(ErrorStatus.SELLER_CANNOT_REJECT);
     }
     this.status = SellerStatus.REJECTED;
   }

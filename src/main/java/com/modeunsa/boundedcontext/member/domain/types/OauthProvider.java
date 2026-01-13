@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.member.domain.enums;
+package com.modeunsa.boundedcontext.member.domain.types;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

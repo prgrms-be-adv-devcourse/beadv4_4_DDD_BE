@@ -1,6 +1,11 @@
 server:
   port: 8080
+
 spring:
+  jpa:
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
   security:
     oauth2:
       client:
