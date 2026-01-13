@@ -26,10 +26,10 @@ public class PaymentFacade {
 
   public void createPaymentAccount(Long memberId) {
 
-    PaymentMember _paymentMember = paymentSupport.getPaymentMemberById(memberId);
+    PaymentMember paymentMember = paymentSupport.getPaymentMemberById(memberId);
 
-    PaymentAccount paymentAccount = PaymentAccount.create(_paymentMember);
+    PaymentAccount saved = PaymentAccount.create(paymentMember);
 
-    paymentCreateAccountUseCase.createPaymentAccount(paymentAccount);
+    paymentCreateAccountUseCase.createPaymentAccount(saved);
   }
 }

@@ -6,6 +6,7 @@ import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMI
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentMemberCreatedEvent;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -14,6 +15,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
  * @author : JAKE
  * @date : 26. 1. 13.
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class PaymentEventListener {
@@ -23,6 +25,15 @@ public class PaymentEventListener {
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Transactional(propagation = REQUIRES_NEW)
   public void handleMemberCreateEvent(PaymentMemberCreatedEvent paymentMemberCreatedEvent) {
-    paymentFacade.createPaymentAccount(paymentMemberCreatedEvent.getMemberId());
+    Long memberId = paymentMemberCreatedEvent.getMemberId();
+    log.info("PaymentMemberCreatedEvent 수신 - memberId: {}", memberId);
+
+    try {
+      paymentFacade.createPaymentAccount(memberId);
+      log.info("PaymentAccount 생성 완료 - memberId: {}", memberId);
+    } catch (Exception e) {
+      log.error("PaymentAccount 생성 실패 - memberId: {}", memberId, e);
+      throw e;
+    }
   }
 }
