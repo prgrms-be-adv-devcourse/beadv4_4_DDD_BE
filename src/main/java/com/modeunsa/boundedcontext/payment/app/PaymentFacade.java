@@ -5,6 +5,7 @@ import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreateAccountUseCa
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreditAccountUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentSyncMemberUseCase;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
+import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +29,7 @@ public class PaymentFacade {
     paymentCreateAccountUseCase.createPaymentAccount(memberId);
   }
 
-  public void creditAccount(Long memberId, long amount, PaymentEventType paymentEventType) {
+  public void creditAccount(Long memberId, BigDecimal amount, PaymentEventType paymentEventType) {
     paymentCreditAccountUseCase.execute(memberId, amount, paymentEventType);
   }
 }

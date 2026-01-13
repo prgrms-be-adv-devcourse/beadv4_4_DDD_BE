@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -49,11 +50,14 @@ public class PaymentAccountLog {
   @Enumerated(EnumType.STRING)
   private PaymentEventType eventType;
 
-  private long amount;
+  @Column(nullable = false, precision = 19, scale = 2)
+  private BigDecimal amount;
 
-  private long balanceBefore;
+  @Column(nullable = false, precision = 19, scale = 2)
+  private BigDecimal balanceBefore;
 
-  private long balanceAfter;
+  @Column(nullable = false, precision = 19, scale = 2)
+  private BigDecimal balanceAfter;
 
   private long referenceId;
 
@@ -71,10 +75,10 @@ public class PaymentAccountLog {
 
   public static PaymentAccountLog addAccountLog(
       PaymentAccount paymentAccount,
-      long amount,
+      BigDecimal amount,
       PaymentEventType paymentEventType,
-      long balanceBefore,
-      long balanceAfter,
+      BigDecimal balanceBefore,
+      BigDecimal balanceAfter,
       Long relId,
       ReferenceType referenceType) {
     return PaymentAccountLog.builder()

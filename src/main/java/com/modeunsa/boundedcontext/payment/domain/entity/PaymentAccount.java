@@ -7,12 +7,14 @@ import com.modeunsa.boundedcontext.payment.domain.types.ReferenceType;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import com.modeunsa.global.status.ErrorStatus;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
@@ -43,30 +45,34 @@ public class PaymentAccount extends GeneratedIdAndAuditedEntity {
   @JoinColumn(name = "member_id", nullable = false, unique = true)
   private PaymentMember member;
 
-  private long balance;
+  @Column(nullable = false, precision = 19, scale = 2)
+  private BigDecimal balance;
 
   public static PaymentAccount create(PaymentMember paymentMember) {
-    return PaymentAccount.builder().member(paymentMember).balance(0L).build();
+    return PaymentAccount.builder().member(paymentMember).balance(BigDecimal.ZERO).build();
   }
 
   public void credit(
-      long amount, PaymentEventType paymentEventType, Long relId, ReferenceType referenceType) {
+      BigDecimal amount,
+      PaymentEventType paymentEventType,
+      Long relId,
+      ReferenceType referenceType) {
     validateAmount(amount);
-    long balanceBefore = this.balance;
-    this.balance += amount;
+    BigDecimal balanceBefore = this.balance;
+    this.balance = this.balance.add(amount);
     addPaymentAccountLog(
         amount, paymentEventType, balanceBefore, this.balance, relId, referenceType);
   }
 
-  public void credit(long amount, PaymentEventType paymentEventType) {
+  public void credit(BigDecimal amount, PaymentEventType paymentEventType) {
     credit(amount, paymentEventType, member.getId(), ReferenceType.PAYMENT_MEMBER);
   }
 
   private void addPaymentAccountLog(
-      long amount,
+      BigDecimal amount,
       PaymentEventType paymentEventType,
-      long balanceBefore,
-      long balanceAfter,
+      BigDecimal balanceBefore,
+      BigDecimal balanceAfter,
       Long relId,
       ReferenceType referenceType) {
     PaymentAccountLog paymentAccountLog =
@@ -75,8 +81,8 @@ public class PaymentAccount extends GeneratedIdAndAuditedEntity {
     this.paymentAccountLogs.add(paymentAccountLog);
   }
 
-  private void validateAmount(long amount) {
-    if (amount <= 0) {
+  private void validateAmount(BigDecimal amount) {
+    if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
       throw new GeneralException(ErrorStatus.PAYMENT_ACCOUNT_INVALID);
     }
   }
