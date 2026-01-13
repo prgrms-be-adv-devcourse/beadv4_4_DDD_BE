@@ -45,8 +45,6 @@ public class PaymentAccountLog {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  private Long memberId;
-
   @Column(nullable = false, length = 100)
   @Enumerated(EnumType.STRING)
   private PaymentEventType eventType;
@@ -73,7 +71,6 @@ public class PaymentAccountLog {
 
   public static PaymentAccountLog addAccountLog(
       PaymentAccount paymentAccount,
-      Long memberId,
       long amount,
       PaymentEventType paymentEventType,
       long balanceBefore,
@@ -82,7 +79,6 @@ public class PaymentAccountLog {
       ReferenceType referenceType) {
     return PaymentAccountLog.builder()
         .paymentAccount(paymentAccount)
-        .memberId(memberId)
         .eventType(paymentEventType)
         .amount(amount)
         .balanceBefore(balanceBefore)
