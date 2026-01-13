@@ -19,9 +19,9 @@ import lombok.NoArgsConstructor;
 @Getter
 public class PaymentId implements Serializable {
 
-  @Column(name = "member_id", nullable = false)
+  @Column(nullable = false)
   private Long memberId;
 
-  @Column(name = "order_num", nullable = false, length = 50)
+  @Column(nullable = false, length = 50)
   private String orderNo;
 }

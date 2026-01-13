@@ -1,16 +1,27 @@
 package com.modeunsa.boundedcontext.payment.domain;
 
-import com.modeunsa.boundedcontext.payment.domain.type.PaymentEventType;
+import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 /**
  * @author : JAKE
  * @date : 26. 1. 12.
  */
 @Entity
-@Table(name = "payment_account")
+@Table
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -21,10 +32,9 @@ public class PaymentAccount extends GeneratedIdAndAuditedEntity {
   @JoinColumn(name = "member_id")
   private PaymentMember member;
 
-  @Column(name = "balance")
   private long balance;
 
-  @Column(name = "event_type", nullable = false, length = 100)
+  @Column(nullable = false, length = 100)
   @Enumerated(EnumType.STRING)
   private PaymentEventType eventType;
 }

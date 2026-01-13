@@ -1,9 +1,21 @@
 package com.modeunsa.boundedcontext.payment.domain;
 
-import com.modeunsa.boundedcontext.payment.domain.type.PaymentEventType;
-import jakarta.persistence.*;
+import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.time.LocalDateTime;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -14,7 +26,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
  */
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "payment_account_log")
+@Table
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -23,39 +35,31 @@ public class PaymentAccountLog {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id")
   private Long id;
 
-  @Column(name = "account_id")
   private Long accountId;
 
-  @Column(name = "member_id")
   private Long memberId;
 
-  @Column(name = "event_type", nullable = false, length = 100)
+  @Column(nullable = false, length = 100)
   @Enumerated(EnumType.STRING)
   private PaymentEventType eventType;
 
-  @Column(name = "amount")
   private long amount;
 
-  @Column(name = "balance_before")
   private long balanceBefore;
 
-  @Column(name = "balance_after")
   private long balanceAfter;
 
-  @Column(name = "reference_id")
   private long referenceId;
 
-  @Column(name = "reference_type")
   private String referenceType;
 
-  @Column(name = "created_at", nullable = false, updatable = false)
+  @Column(nullable = false, updatable = false)
   @CreationTimestamp
   private LocalDateTime createdAt;
 
-  @Column(name = "created_by", nullable = false, updatable = false)
+  @Column(nullable = false, updatable = false)
   @CreatedBy
   private Long createdBy;
 }
