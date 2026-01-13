@@ -12,3 +12,12 @@ git-hooks:
 	@chmod +x .githooks/commit-msg
 	@chmod +x .githooks/pre-commit
 	@echo "Done. (commit-msg & pre-commit hook active)"
+
+# Code quality and formatting
+format-check:
+	@echo "Checking code formatting..."
+	@./gradlew spotlessCheck
+
+format-apply:
+	@echo "Applying code formatting..."
+	@./gradlew -q spotlessApply

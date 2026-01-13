@@ -35,17 +35,23 @@ public class Settlement extends GeneratedIdAndAuditedEntity {
 
   private LocalDateTime payoutAt;
 
-  public SettlementItem addItem(Long orderItemId, Long buyerMemberId,
-      Long sellerMemberId, long amount, SettlementEventType eventType, LocalDateTime paymentAt) {
-    SettlementItem settlementItem = SettlementItem.builder()
-        .settlement(this)
-        .orderItemId(orderItemId)
-        .buyerMemberId(buyerMemberId)
-        .sellerMemberId(sellerMemberId)
-        .amount(amount)
-        .eventType(eventType)
-        .paymentAt(paymentAt)
-        .build();
+  public SettlementItem addItem(
+      Long orderItemId,
+      Long buyerMemberId,
+      Long sellerMemberId,
+      long amount,
+      SettlementEventType eventType,
+      LocalDateTime paymentAt) {
+    SettlementItem settlementItem =
+        SettlementItem.builder()
+            .settlement(this)
+            .orderItemId(orderItemId)
+            .buyerMemberId(buyerMemberId)
+            .sellerMemberId(sellerMemberId)
+            .amount(amount)
+            .eventType(eventType)
+            .paymentAt(paymentAt)
+            .build();
 
     items.add(settlementItem);
 
