@@ -1,6 +1,5 @@
 package com.modeunsa.boundedcontext.payment.app.dto;
 
-import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -10,13 +9,10 @@ import lombok.RequiredArgsConstructor;
  */
 @Getter
 @RequiredArgsConstructor
-public class PaymentMemberDto {
-
+public class PaymentAccountDto {
   private final Long id;
 
-  private final String email;
+  private final long balance;
 
-  private final String name;
-
-  private final MemberStatus status;
+  private final PaymentAccountDto paymentAccount;
 }

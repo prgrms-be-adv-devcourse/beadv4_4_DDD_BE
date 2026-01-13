@@ -7,9 +7,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
@@ -34,11 +37,13 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class PaymentAccountLog {
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "account_id", nullable = false)
+  private PaymentAccount paymentAccount;
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
-
-  private Long accountId;
 
   private Long memberId;
 
@@ -62,12 +67,12 @@ public class PaymentAccountLog {
   @CreationTimestamp
   private LocalDateTime createdAt;
 
-  @Column(nullable = false, updatable = false)
+  @Column(updatable = false)
   @CreatedBy
   private Long createdBy;
 
   public static PaymentAccountLog addAccountLog(
-      Long accountId,
+      PaymentAccount paymentAccount,
       Long memberId,
       long amount,
       PaymentEventType paymentEventType,
@@ -76,7 +81,7 @@ public class PaymentAccountLog {
       Long relId,
       ReferenceType referenceType) {
     return PaymentAccountLog.builder()
-        .accountId(accountId)
+        .paymentAccount(paymentAccount)
         .memberId(memberId)
         .eventType(paymentEventType)
         .amount(amount)

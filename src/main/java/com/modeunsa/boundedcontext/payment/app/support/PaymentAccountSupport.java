@@ -1,5 +1,6 @@
 package com.modeunsa.boundedcontext.payment.app.support;
 
+import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.out.PaymentAccountRepository;
 import com.modeunsa.global.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
@@ -20,5 +21,12 @@ public class PaymentAccountSupport {
     if (exist) {
       throw new GeneralException("PaymentAccount already exists for memberId: " + memberId);
     }
+  }
+
+  public PaymentAccount getPaymentAccountByMemberId(Long memberId) {
+    return paymentAccountRepository
+        .findByMemberId(memberId)
+        .orElseThrow(
+            () -> new GeneralException("PaymentAccount not found with memberId: " + memberId));
   }
 }

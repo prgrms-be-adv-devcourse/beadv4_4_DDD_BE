@@ -7,6 +7,7 @@ import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreateAccountUseCa
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentSyncMemberUseCase;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
+import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,7 @@ public class PaymentFacade {
     paymentSyncMemberUseCase.createPaymentMember(paymentMemberDto);
   }
 
+  @Transactional
   public void createPaymentAccount(Long memberId) {
 
     paymentAccountSupport.validDuplicateAccount(memberId);
@@ -38,5 +40,11 @@ public class PaymentFacade {
     PaymentAccount saved = PaymentAccount.create(paymentMember);
 
     paymentCreateAccountUseCase.createPaymentAccount(saved);
+  }
+
+  @Transactional
+  public void creditAccount(Long memberId, long amount, PaymentEventType paymentEventType) {
+    PaymentAccount paymentAccount = paymentAccountSupport.getPaymentAccountByMemberId(memberId);
+    paymentAccount.credit(amount, paymentEventType);
   }
 }

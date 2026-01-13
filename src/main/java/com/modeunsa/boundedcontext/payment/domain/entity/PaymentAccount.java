@@ -68,7 +68,7 @@ public class PaymentAccount extends GeneratedIdAndAuditedEntity {
       ReferenceType referenceType) {
     PaymentAccountLog paymentAccountLog =
         PaymentAccountLog.addAccountLog(
-            this.getId(),
+            this,
             member.getId(),
             amount,
             paymentEventType,

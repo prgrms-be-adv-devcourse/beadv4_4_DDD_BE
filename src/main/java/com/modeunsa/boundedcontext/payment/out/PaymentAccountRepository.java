@@ -1,6 +1,7 @@
 package com.modeunsa.boundedcontext.payment.out;
 
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -9,4 +10,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface PaymentAccountRepository extends JpaRepository<PaymentAccount, Long> {
   boolean existsByMemberId(Long memberId);
+
+  Optional<PaymentAccount> findByMemberId(Long memberId);
 }

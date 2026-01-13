@@ -25,7 +25,7 @@ public class PaymentSyncMemberUseCase {
 
     PaymentMember paymentMember =
         PaymentMember.create(
-            paymentMemberDto.getMemberId(),
+            paymentMemberDto.getId(),
             paymentMemberDto.getEmail(),
             paymentMemberDto.getName(),
             paymentMemberDto.getStatus());
