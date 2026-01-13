@@ -24,7 +24,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Getter
@@ -64,8 +63,7 @@ public class Member extends GeneratedIdAndAuditedEntity {
   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<DeliveryAddress> addresses = new ArrayList<>();
 
-  @Column
-  private LocalDateTime withdrawalRequestedAt;
+  @Column private LocalDateTime withdrawalRequestedAt;
 
   // 프로필 설정
   public void setProfile(MemberProfile profile) {
