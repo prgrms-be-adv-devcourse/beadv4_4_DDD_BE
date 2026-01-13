@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @author : JAKE
  * @date : 26. 1. 13.
  */
-public interface PaymentAccountRepository extends JpaRepository<PaymentAccount, Long> {}
+public interface PaymentAccountRepository extends JpaRepository<PaymentAccount, Long> {
+  boolean existsByMemberId(Long memberId);
+}

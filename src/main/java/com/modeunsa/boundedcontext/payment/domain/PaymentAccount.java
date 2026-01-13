@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 public class PaymentAccount extends GeneratedIdAndAuditedEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "member_id")
+  @JoinColumn(name = "member_id", nullable = false, unique = true)
   private PaymentMember member;
 
   private long balance;

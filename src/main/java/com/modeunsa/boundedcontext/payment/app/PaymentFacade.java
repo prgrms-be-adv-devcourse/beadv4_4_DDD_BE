@@ -17,7 +17,8 @@ public class PaymentFacade {
 
   private final PaymentSyncMemberUseCase paymentSyncMemberUseCase;
   private final PaymentCreateAccountUseCase paymentCreateAccountUseCase;
-  private final PaymentSupport paymentSupport;
+  private final PaymentMemberSupport paymentMemberSupport;
+  private final PaymentAccountSupport paymentAccountSupport;
 
   @Transactional
   public void createPaymentMember(PaymentMemberDto paymentMemberDto) {
@@ -26,7 +27,9 @@ public class PaymentFacade {
 
   public void createPaymentAccount(Long memberId) {
 
-    PaymentMember paymentMember = paymentSupport.getPaymentMemberById(memberId);
+    paymentAccountSupport.validDuplicateAccount(memberId);
+
+    PaymentMember paymentMember = paymentMemberSupport.getPaymentMemberById(memberId);
 
     PaymentAccount saved = PaymentAccount.create(paymentMember);
 

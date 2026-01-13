@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @RequiredArgsConstructor
-public class PaymentSupport {
+public class PaymentMemberSupport {
 
   private final PaymentMemberRepository paymentMemberRepository;
 
