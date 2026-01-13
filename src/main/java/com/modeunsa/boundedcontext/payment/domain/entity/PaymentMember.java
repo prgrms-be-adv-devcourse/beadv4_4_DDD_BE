@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.payment.domain;
+package com.modeunsa.boundedcontext.payment.domain.entity;
 
 import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
 import com.modeunsa.global.jpa.entity.ManualIdAndAuditedEntity;
@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 /**
  * @author : JAKE
@@ -20,10 +21,12 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table
 @Getter
-@Builder
+@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class PaymentMember extends ManualIdAndAuditedEntity {
+
+  private static final String customerKeyPrefix = "CUSTOMER";
 
   @Column(nullable = false, unique = true)
   private String email;
@@ -38,4 +41,18 @@ public class PaymentMember extends ManualIdAndAuditedEntity {
   @Column(nullable = false, length = 20)
   @Enumerated(EnumType.STRING)
   private MemberStatus status = MemberStatus.ACTIVE;
+
+  public static PaymentMember create(Long id, String email, String name, MemberStatus status) {
+    return PaymentMember.builder()
+        .id(id)
+        .email(email)
+        .name(name)
+        .customerKey(generateCustomerKey(id))
+        .status(status)
+        .build();
+  }
+
+  private static String generateCustomerKey(Long id) {
+    return String.format("%s_%08d", customerKeyPrefix, id);
+  }
 }

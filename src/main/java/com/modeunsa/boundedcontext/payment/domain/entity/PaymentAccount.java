@@ -1,11 +1,7 @@
-package com.modeunsa.boundedcontext.payment.domain;
+package com.modeunsa.boundedcontext.payment.domain.entity;
 
-import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -29,12 +25,12 @@ import lombok.NoArgsConstructor;
 public class PaymentAccount extends GeneratedIdAndAuditedEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "member_id")
+  @JoinColumn(name = "member_id", nullable = false, unique = true)
   private PaymentMember member;
 
   private long balance;
 
-  @Column(nullable = false, length = 100)
-  @Enumerated(EnumType.STRING)
-  private PaymentEventType eventType;
+  public static PaymentAccount create(PaymentMember paymentMember) {
+    return PaymentAccount.builder().member(paymentMember).balance(0L).build();
+  }
 }
