@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity
@@ -30,8 +32,8 @@ public class OrderItem extends GeneratedIdAndAuditedEntity {
     private String productName;
 
     @Column(name = "sale_price", nullable = false)
-    private long salePrice; // 판매가
+    private BigDecimal salePrice; // 판매가
 
     @Column(name = "price", nullable = false)
-    private long price; // 정가
+    private BigDecimal price; // 정가
 }

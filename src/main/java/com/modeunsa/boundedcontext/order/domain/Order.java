@@ -4,6 +4,7 @@ import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,7 @@ public class Order extends GeneratedIdAndAuditedEntity {
     private OrderStatus status = OrderStatus.PENDING_PAYMENT;
 
     @Column(name = "total_amount", nullable = false)
-    private long totalAmount;
+    private BigDecimal totalAmount;
 
     // --- 배송 정보 ---
     @Column(name = "receiver_name", nullable = false, length = 20)
