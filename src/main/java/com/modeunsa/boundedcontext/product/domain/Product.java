@@ -7,6 +7,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
@@ -29,8 +30,8 @@ public class Product extends GeneratedIdAndAuditedEntity {
   private ProductCategory category;
 
   private String description;
-  @Builder.Default private int salePrice = 0;
-  @Builder.Default private int price = 0;
+  @Builder.Default private BigDecimal salePrice = BigDecimal.ZERO;
+  @Builder.Default private BigDecimal price = BigDecimal.ZERO;
 
   @Builder.Default
   @Enumerated(EnumType.STRING)
