@@ -5,6 +5,7 @@ import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.out.PaymentAccountRepository;
 import com.modeunsa.global.exception.GeneralException;
+import com.modeunsa.global.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +26,7 @@ public class PaymentCreateAccountUseCase {
 
     boolean exist = paymentAccountRepository.existsByMemberId(memberId);
     if (exist) {
-      throw new GeneralException("PaymentAccount already exists for memberId: " + memberId);
+      throw new GeneralException(ErrorStatus.PAYMENT_ACCOUNT_DUPLICATE);
     }
 
     PaymentMember paymentMember = paymentMemberSupport.getPaymentMemberById(memberId);
