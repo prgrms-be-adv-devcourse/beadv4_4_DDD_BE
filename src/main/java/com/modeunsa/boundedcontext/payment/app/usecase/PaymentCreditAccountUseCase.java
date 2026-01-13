@@ -1,0 +1,24 @@
+package com.modeunsa.boundedcontext.payment.app.usecase;
+
+import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
+import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+/**
+ * @author : JAKE
+ * @date : 26. 1. 13.
+ */
+@Service
+@RequiredArgsConstructor
+public class PaymentCreditAccountUseCase {
+
+  private final PaymentAccountSupport paymentAccountSupport;
+
+  @Transactional
+  public void execute(Long memberId, long amount, PaymentEventType paymentEventType) {
+    var paymentAccount = paymentAccountSupport.getPaymentAccountByMemberId(memberId);
+    paymentAccount.credit(amount, paymentEventType);
+  }
+}
