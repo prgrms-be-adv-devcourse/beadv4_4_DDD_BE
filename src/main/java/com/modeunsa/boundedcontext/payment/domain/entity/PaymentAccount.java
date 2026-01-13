@@ -1,11 +1,18 @@
 package com.modeunsa.boundedcontext.payment.domain.entity;
 
+import static jakarta.persistence.CascadeType.PERSIST;
+
+import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
+import com.modeunsa.boundedcontext.payment.domain.types.ReferenceType;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,6 +31,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class PaymentAccount extends GeneratedIdAndAuditedEntity {
 
+  @Builder.Default
+  @OneToMany(
+      mappedBy = "paymentAccount",
+      cascade = {PERSIST})
+  private List<PaymentAccountLog> paymentAccountLogs = new ArrayList<>();
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "member_id", nullable = false, unique = true)
   private PaymentMember member;
@@ -32,5 +45,37 @@ public class PaymentAccount extends GeneratedIdAndAuditedEntity {
 
   public static PaymentAccount create(PaymentMember paymentMember) {
     return PaymentAccount.builder().member(paymentMember).balance(0L).build();
+  }
+
+  public void credit(
+      long amount, PaymentEventType paymentEventType, Long relId, ReferenceType referenceType) {
+    long balanceBefore = this.balance;
+    this.balance += amount;
+    addPaymentAccountLog(
+        amount, paymentEventType, balanceBefore, this.balance, relId, referenceType);
+  }
+
+  public void credit(long amount, PaymentEventType paymentEventType) {
+    credit(amount, paymentEventType, member.getId(), ReferenceType.PAYMENT_MEMBER);
+  }
+
+  private void addPaymentAccountLog(
+      long amount,
+      PaymentEventType paymentEventType,
+      long balanceBefore,
+      long balanceAfter,
+      Long relId,
+      ReferenceType referenceType) {
+    PaymentAccountLog paymentAccountLog =
+        PaymentAccountLog.addAccountLog(
+            this.getId(),
+            member.getId(),
+            amount,
+            paymentEventType,
+            balanceBefore,
+            balanceAfter,
+            relId,
+            referenceType);
+    this.paymentAccountLogs.add(paymentAccountLog);
   }
 }

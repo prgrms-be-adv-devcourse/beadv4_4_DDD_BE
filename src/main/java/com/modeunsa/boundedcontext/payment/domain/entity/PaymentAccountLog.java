@@ -1,6 +1,7 @@
 package com.modeunsa.boundedcontext.payment.domain.entity;
 
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
+import com.modeunsa.boundedcontext.payment.domain.types.ReferenceType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -53,7 +54,9 @@ public class PaymentAccountLog {
 
   private long referenceId;
 
-  private String referenceType;
+  @Column(length = 50)
+  @Enumerated(EnumType.STRING)
+  private ReferenceType referenceType;
 
   @Column(nullable = false, updatable = false)
   @CreationTimestamp
@@ -62,4 +65,25 @@ public class PaymentAccountLog {
   @Column(nullable = false, updatable = false)
   @CreatedBy
   private Long createdBy;
+
+  public static PaymentAccountLog addAccountLog(
+      Long accountId,
+      Long memberId,
+      long amount,
+      PaymentEventType paymentEventType,
+      long balanceBefore,
+      long balanceAfter,
+      Long relId,
+      ReferenceType referenceType) {
+    return PaymentAccountLog.builder()
+        .accountId(accountId)
+        .memberId(memberId)
+        .eventType(paymentEventType)
+        .amount(amount)
+        .balanceBefore(balanceBefore)
+        .balanceAfter(balanceAfter)
+        .referenceId(relId)
+        .referenceType(referenceType)
+        .build();
+  }
 }
