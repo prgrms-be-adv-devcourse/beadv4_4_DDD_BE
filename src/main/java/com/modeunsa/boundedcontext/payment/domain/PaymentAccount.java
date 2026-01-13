@@ -1,11 +1,7 @@
 package com.modeunsa.boundedcontext.payment.domain;
 
-import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -33,10 +29,6 @@ public class PaymentAccount extends GeneratedIdAndAuditedEntity {
   private PaymentMember member;
 
   private long balance;
-
-  @Column(length = 100)
-  @Enumerated(EnumType.STRING)
-  private PaymentEventType eventType;
 
   public static PaymentAccount create(PaymentMember paymentMember) {
     return PaymentAccount.builder().member(paymentMember).balance(0L).build();

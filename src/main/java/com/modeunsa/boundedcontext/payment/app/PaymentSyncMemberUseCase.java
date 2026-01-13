@@ -7,6 +7,7 @@ import com.modeunsa.boundedcontext.payment.out.PaymentMemberRepository;
 import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author : JAKE
@@ -19,6 +20,7 @@ public class PaymentSyncMemberUseCase {
   private final PaymentMemberRepository paymentMemberRepository;
   private final SpringDomainEventPublisher eventPublisher;
 
+  @Transactional
   public void createPaymentMember(PaymentMemberDto paymentMemberDto) {
 
     PaymentMember paymentMember =

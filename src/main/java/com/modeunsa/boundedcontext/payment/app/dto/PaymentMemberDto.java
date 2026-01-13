@@ -18,7 +18,5 @@ public class PaymentMemberDto {
 
   private final String name;
 
-  private final String customerKey;
-
   private final MemberStatus status;
 }

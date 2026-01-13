@@ -26,7 +26,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class PaymentMember extends ManualIdAndAuditedEntity {
 
-  private static String customerKeyPrefix = "CUSTOMER";
+  private static final String customerKeyPrefix = "CUSTOMER";
 
   @Column(nullable = false, unique = true)
   private String email;

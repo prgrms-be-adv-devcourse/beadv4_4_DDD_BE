@@ -24,7 +24,6 @@ public class PaymentFacade {
     paymentSyncMemberUseCase.createPaymentMember(paymentMemberDto);
   }
 
-  @Transactional
   public void createPaymentAccount(Long memberId) {
 
     PaymentMember _paymentMember = paymentSupport.getPaymentMemberById(memberId);
