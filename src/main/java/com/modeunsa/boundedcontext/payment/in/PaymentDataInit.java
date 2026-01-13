@@ -53,6 +53,6 @@ public class PaymentDataInit {
   public void makeBaseCredits() {
     paymentFacade.creditAccount(1L, 150_000, PaymentEventType.CHARGE_BANK_TRANSFER);
     paymentFacade.creditAccount(2L, 100_000, PaymentEventType.CHARGE_BANK_TRANSFER);
-    paymentFacade.creditAccount(3L, 50_000, PaymentEventType.WITHDRAW_ACCOUNT_TRANSFER);
+    paymentFacade.creditAccount(3L, 50_000, PaymentEventType.CHARGE_BANK_TRANSFER);
   }
 }

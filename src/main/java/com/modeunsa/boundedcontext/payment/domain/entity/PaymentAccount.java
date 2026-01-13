@@ -4,7 +4,9 @@ import static jakarta.persistence.CascadeType.PERSIST;
 
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.boundedcontext.payment.domain.types.ReferenceType;
+import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
+import com.modeunsa.global.status.ErrorStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -49,6 +51,7 @@ public class PaymentAccount extends GeneratedIdAndAuditedEntity {
 
   public void credit(
       long amount, PaymentEventType paymentEventType, Long relId, ReferenceType referenceType) {
+    validateAmount(amount);
     long balanceBefore = this.balance;
     this.balance += amount;
     addPaymentAccountLog(
@@ -70,5 +73,11 @@ public class PaymentAccount extends GeneratedIdAndAuditedEntity {
         PaymentAccountLog.addAccountLog(
             this, amount, paymentEventType, balanceBefore, balanceAfter, relId, referenceType);
     this.paymentAccountLogs.add(paymentAccountLog);
+  }
+
+  private void validateAmount(long amount) {
+    if (amount <= 0) {
+      throw new GeneralException(ErrorStatus.PAYMENT_ACCOUNT_INVALID);
+    }
   }
 }
