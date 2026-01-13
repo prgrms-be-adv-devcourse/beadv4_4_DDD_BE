@@ -1,6 +1,7 @@
 package com.modeunsa.boundedcontext.payment.app.support;
 
 import com.modeunsa.boundedcontext.payment.out.PaymentAccountRepository;
+import com.modeunsa.global.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +18,7 @@ public class PaymentAccountSupport {
   public void validDuplicateAccount(Long memberId) {
     boolean exist = paymentAccountRepository.existsByMemberId(memberId);
     if (exist) {
-      throw new IllegalArgumentException("PaymentAccount already exists for memberId: " + memberId);
+      throw new GeneralException("PaymentAccount already exists for memberId: " + memberId);
     }
   }
 }
