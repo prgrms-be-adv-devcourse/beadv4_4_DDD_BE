@@ -12,7 +12,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -24,22 +23,17 @@ import lombok.ToString;
 /**
  * 판매자(MemberSeller) 정보를 나타내는 엔티티.
  *
- * <p>
- * 회원(Member) 중 판매자 전환을 신청한 사용자의 사업자 정보와
- * 판매자 상태를 관리한다.
- * </p>
+ * <p>회원(Member) 중 판매자 전환을 신청한 사용자의 사업자 정보와 판매자 상태를 관리한다.
  *
  * <h3>판매자 상태 전이 규칙</h3>
+ *
  * <ul>
- *   <li>PENDING → ACTIVE : 승인</li>
- *   <li>PENDING → REJECTED : 거절</li>
- *   <li>ACTIVE → SUSPENDED : 판매 정지</li>
+ *   <li>PENDING → ACTIVE : 승인
+ *   <li>PENDING → REJECTED : 거절
+ *   <li>ACTIVE → SUSPENDED : 판매 정지
  * </ul>
  *
- * <p>
- * 상태 변경은 비즈니스 규칙을 보장하기 위해
- * 엔티티 내부 메서드를 통해서만 수행된다.
- * </p>
+ * <p>상태 변경은 비즈니스 규칙을 보장하기 위해 엔티티 내부 메서드를 통해서만 수행된다.
  */
 @Entity
 @Getter
@@ -82,14 +76,9 @@ public class MemberSeller extends GeneratedIdAndAuditedEntity {
   /**
    * 판매자 프로필 정보를 수정한다.
    *
-   * <p>
-   * 전달된 파라미터 중 {@code null} 값은 무시되며,
-   * {@code null} 이 아닌 값만 기존 값에 반영된다.
-   * </p>
+   * <p>전달된 파라미터 중 {@code null} 값은 무시되며, {@code null} 이 아닌 값만 기존 값에 반영된다.
    *
-   * <p>
-   * 이 메서드는 부분 수정(Partial Update)을 지원한다.
-   * </p>
+   * <p>이 메서드는 부분 수정(Partial Update)을 지원한다.
    */
   public void updateProfile(
       String businessName,
@@ -117,10 +106,7 @@ public class MemberSeller extends GeneratedIdAndAuditedEntity {
   /**
    * 판매자 신청을 승인한다.
    *
-   * <p>
-   * 현재 상태가 PENDING인 경우에만 승인할 수 있으며,
-   * 승인 시 상태는 ACTIVE로 변경되고 활성화 시간이 기록된다.
-   * </p>
+   * <p>현재 상태가 PENDING인 경우에만 승인할 수 있으며, 승인 시 상태는 ACTIVE로 변경되고 활성화 시간이 기록된다.
    *
    * @throws IllegalStateException 상태가 PENDING이 아닌 경우
    */
@@ -136,9 +122,7 @@ public class MemberSeller extends GeneratedIdAndAuditedEntity {
   /**
    * 판매자 신청을 거절한다.
    *
-   * <p>
-   * PENDING 상태의 판매자만 거절할 수 있다.
-   * </p>
+   * <p>PENDING 상태의 판매자만 거절할 수 있다.
    */
   public void reject() {
     if (this.status != SellerStatus.PENDING) {
@@ -147,9 +131,7 @@ public class MemberSeller extends GeneratedIdAndAuditedEntity {
     this.status = SellerStatus.REJECTED;
   }
 
-  /**
-   * 활성화된 판매자를 판매 정지 상태로 변경한다.
-   */
+  /** 활성화된 판매자를 판매 정지 상태로 변경한다. */
   public void suspend() {
     this.status = SellerStatus.SUSPENDED;
   }

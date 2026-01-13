@@ -25,9 +25,7 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(exclude = "member")
 @Table(
-    uniqueConstraints = {
-      @UniqueConstraint(columnNames = {"oauth_provider", "provider_member_id"})
-    })
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"oauth_provider", "provider_member_id"})})
 public class MemberOauth extends GeneratedIdAndAuditedEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
