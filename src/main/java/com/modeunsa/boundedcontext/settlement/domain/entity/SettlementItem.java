@@ -1,7 +1,8 @@
-package com.modeunsa.boundedcontext.settlement.domain;
+package com.modeunsa.boundedcontext.settlement.domain.entity;
 
 import static jakarta.persistence.FetchType.LAZY;
 
+import com.modeunsa.boundedcontext.settlement.domain.types.SettlementEventType;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,6 +13,7 @@ import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
@@ -19,6 +21,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Getter
 public class SettlementItem extends GeneratedIdAndAuditedEntity {
   @ManyToOne(fetch = LAZY)
   private Settlement settlement;
@@ -27,10 +30,10 @@ public class SettlementItem extends GeneratedIdAndAuditedEntity {
   private Long orderItemId;
 
   @Column(nullable = false)
-  private Long buyerUserId;
+  private Long buyerMemberId;
 
   @Column(nullable = false)
-  private Long sellerUserId;
+  private Long sellerMemberId;
 
   private long amount;
 

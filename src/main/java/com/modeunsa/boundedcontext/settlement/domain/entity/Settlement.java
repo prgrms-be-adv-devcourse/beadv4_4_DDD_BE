@@ -1,7 +1,8 @@
-package com.modeunsa.boundedcontext.settlement.domain;
+package com.modeunsa.boundedcontext.settlement.domain.entity;
 
 import static jakarta.persistence.FetchType.LAZY;
 
+import com.modeunsa.boundedcontext.settlement.domain.types.SettlementEventType;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -26,11 +27,30 @@ public class Settlement extends GeneratedIdAndAuditedEntity {
   private long amount;
 
   @Column(nullable = false)
-  private Long sellerUserId;
+  private Long sellerMemberId;
 
   @OneToMany(mappedBy = "settlement", cascade = CascadeType.PERSIST, fetch = LAZY)
   @Builder.Default
   private List<SettlementItem> items = new ArrayList<>();
 
   private LocalDateTime payoutAt;
+
+  public SettlementItem addItem(Long orderItemId, Long buyerMemberId,
+      Long sellerMemberId, long amount, SettlementEventType eventType, LocalDateTime paymentAt) {
+    SettlementItem settlementItem = SettlementItem.builder()
+        .settlement(this)
+        .orderItemId(orderItemId)
+        .buyerMemberId(buyerMemberId)
+        .sellerMemberId(sellerMemberId)
+        .amount(amount)
+        .eventType(eventType)
+        .paymentAt(paymentAt)
+        .build();
+
+    items.add(settlementItem);
+
+    this.amount += amount;
+
+    return settlementItem;
+  }
 }
