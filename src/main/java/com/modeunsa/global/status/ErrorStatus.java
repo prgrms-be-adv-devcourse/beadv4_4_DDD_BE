@@ -50,8 +50,9 @@ public enum ErrorStatus {
   OAUTH_UNLINK_FAILED(HttpStatus.BAD_GATEWAY, "AUTH_502_003", "OAuth 연결 해제에 실패했습니다."),
 
   // Order
-  ORDERPRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_404_001", "없는 상품입니다."),
-  ORDERMEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_404_002", "없는 회원입니다."),
+  ORDER_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_404_001", "없는 상품입니다."),
+  ORDER_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_404_002", "없는 회원입니다."),
+  ORDER_STOCK_NOT_ENOUGH(HttpStatus.BAD_REQUEST, "ORDER_400_1", "상품의 재고가 부족합니다."),
 
   // Product 400
   PRODUCT_DESCRIPTION_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_001", "상품 설명은 필수입니다."),

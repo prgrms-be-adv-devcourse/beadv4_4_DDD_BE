@@ -28,13 +28,13 @@ public class OrderCreateCartItemUsecase {
     OrderMember member =
         orderMemberRepository
             .findById(memberId)
-            .orElseThrow(() -> new GeneralException(ErrorStatus.ORDERMEMBER_NOT_FOUND));
+            .orElseThrow(() -> new GeneralException(ErrorStatus.ORDER_MEMBER_NOT_FOUND));
 
     // 상품 확인
     OrderProduct product =
         orderProductRepository
             .findById(createCartItemRequestDto.getProductId())
-            .orElseThrow(() -> new GeneralException(ErrorStatus.ORDERPRODUCT_NOT_FOUND));
+            .orElseThrow(() -> new GeneralException(ErrorStatus.ORDER_PRODUCT_NOT_FOUND));
 
     CartItem cartItem = orderMapper.toCartItemEntity(memberId, createCartItemRequestDto);
 
