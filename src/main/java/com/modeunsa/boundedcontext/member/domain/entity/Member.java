@@ -3,6 +3,7 @@ package com.modeunsa.boundedcontext.member.domain.entity;
 import static com.modeunsa.global.status.ErrorStatus.MEMBER_ADDRESS_LIMIT_EXCEEDED;
 import static com.modeunsa.global.status.ErrorStatus.MEMBER_DEFAULT_ADDRESS_REQUIRED;
 
+import com.modeunsa.boundedcontext.auth.domain.entity.MemberOAuth;
 import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.boundedcontext.member.domain.types.MemberStatus;
 import com.modeunsa.global.exception.GeneralException;
@@ -54,7 +55,7 @@ public class Member extends GeneratedIdAndAuditedEntity {
 
   @Builder.Default
   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<MemberOauth> oauthAccounts = new ArrayList<>();
+  private List<MemberOAuth> oauthAccounts = new ArrayList<>();
 
   @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private MemberProfile profile;
@@ -122,7 +123,7 @@ public class Member extends GeneratedIdAndAuditedEntity {
     this.status = status;
   }
 
-  public void addOauthAccount(MemberOauth oauth) {
+  public void addOauthAccount(MemberOAuth oauth) {
     oauthAccounts.add(oauth);
   }
 }
