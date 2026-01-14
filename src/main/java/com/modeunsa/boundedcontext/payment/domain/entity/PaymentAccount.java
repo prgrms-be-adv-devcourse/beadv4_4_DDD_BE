@@ -64,6 +64,26 @@ public class PaymentAccount extends GeneratedIdAndAuditedEntity {
     credit(amount, paymentEventType, member.getId(), ReferenceType.PAYMENT_MEMBER);
   }
 
+  public boolean canPayOrder(BigDecimal salePrice) {
+    return this.balance.compareTo(salePrice) >= 0;
+  }
+
+  public void debit(
+      BigDecimal amount,
+      PaymentEventType paymentEventType,
+      Long relId,
+      ReferenceType referenceType) {
+    validateAmount(amount);
+    BigDecimal balanceBefore = this.balance;
+    this.balance = this.balance.subtract(amount);
+    addPaymentAccountLog(
+        amount.negate(), paymentEventType, balanceBefore, this.balance, relId, referenceType);
+  }
+
+  public BigDecimal getShortFailAmount(BigDecimal pgPaymentAmount) {
+    return pgPaymentAmount.subtract(this.balance);
+  }
+
   private void addPaymentAccountLog(
       BigDecimal amount,
       PaymentEventType paymentEventType,
