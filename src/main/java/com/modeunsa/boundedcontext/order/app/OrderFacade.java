@@ -48,4 +48,8 @@ public class OrderFacade {
       long memberId, @Valid CreateOrderRequestDto requestDto) {
     return orderCreateOrderUseCase.createOrder(memberId, requestDto);
   }
+
+  public long countOrder() {
+    return orderSupport.countOrder();
+  }
 }
