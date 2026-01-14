@@ -1,10 +1,11 @@
 package com.modeunsa.boundedcontext.product.in;
 
 import com.modeunsa.boundedcontext.product.app.ProductFacade;
-import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.status.SuccessStatus;
-import com.modeunsa.shared.product.dto.ProductDto;
+import com.modeunsa.shared.product.dto.ProductRequest;
+import com.modeunsa.shared.product.dto.ProductResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,8 +23,9 @@ public class ApiV1ProductController {
 
   @PostMapping
   @Transactional
-  public ResponseEntity<ApiResponse> createProduct(@RequestBody ProductDto productDto) {
-    Product product = productFacade.createProduct(productDto);
-    return ApiResponse.onSuccess(SuccessStatus._OK, product);
+  public ResponseEntity<ApiResponse> createProduct(
+      @Valid @RequestBody ProductRequest productRequest) {
+    ProductResponse productResponse = productFacade.createProduct(productRequest);
+    return ApiResponse.onSuccess(SuccessStatus._CREATED, productResponse);
   }
 }

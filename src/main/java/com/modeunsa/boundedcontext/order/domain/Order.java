@@ -37,7 +37,6 @@ public class Order extends GeneratedIdAndAuditedEntity {
   @Column(name = "order_no", nullable = false, length = 50, unique = true)
   private String orderNo;
 
-  @Builder.Default
   @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
   private List<OrderItem> orderItems = new ArrayList<>();
