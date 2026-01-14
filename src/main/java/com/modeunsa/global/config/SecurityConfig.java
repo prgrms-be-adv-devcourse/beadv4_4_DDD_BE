@@ -13,9 +13,15 @@ public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http.csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**"))
+    http.csrf(
+            csrf ->
+                csrf.ignoringRequestMatchers("/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**"))
         .authorizeHttpRequests(
-            auth -> auth.requestMatchers("/h2-console/**").permitAll().anyRequest().authenticated())
+            auth ->
+                auth.requestMatchers("/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
         .headers(headers -> headers.frameOptions(FrameOptionsConfig::sameOrigin));
     return http.build();
   }
