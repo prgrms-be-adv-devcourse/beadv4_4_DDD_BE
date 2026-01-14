@@ -1,6 +1,7 @@
 package com.modeunsa.boundedcontext.product.domain;
 
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -31,8 +32,10 @@ public class Product extends GeneratedIdAndAuditedEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "seller_id")
   @Setter
+  // TODO: 판매자 생성 이후 nullable = false 추가
   private ProductMemberSeller seller;
 
+  @Column(length = 100, nullable = false)
   private String name;
 
   @Enumerated(EnumType.STRING)

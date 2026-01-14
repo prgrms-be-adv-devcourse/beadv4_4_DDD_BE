@@ -20,9 +20,4 @@ public class ProductMemberSeller extends ManualIdAndAuditedEntity {
 
   @Column(nullable = false, length = 100)
   private String representativeName;
-
-  //  @Enumerated(EnumType.STRING)
-  //  @Column(nullable = false)
-  //  @Builder.Default
-  //  private SellerStatus status = SellerStatus.PENDING;
 }
