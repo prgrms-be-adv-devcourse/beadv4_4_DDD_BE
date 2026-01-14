@@ -1,7 +1,7 @@
 package com.modeunsa.shared.order.dto;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,8 +12,7 @@ import lombok.NoArgsConstructor;
 public class CreateOrderRequestDto {
   @NotNull private Long productId;
 
-  @Min(1)
-  private int quantity;
+  @Positive private int quantity;
 
   @NotNull private String receiverName;
   @NotNull private String receiverPhone;
