@@ -8,10 +8,12 @@ import com.modeunsa.boundedcontext.order.domain.OrderProduct;
 import com.modeunsa.boundedcontext.order.out.OrderMemberRepository;
 import com.modeunsa.boundedcontext.order.out.OrderProductRepository;
 import com.modeunsa.boundedcontext.order.out.OrderRepository;
+import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
 import com.modeunsa.shared.order.dto.CreateOrderResponseDto;
+import com.modeunsa.shared.order.event.OrderCreatedEvent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,7 @@ public class OrderCreateOrderUsecase {
   private final OrderRepository orderRepository;
   private final OrderProductRepository orderProductRepository;
   private final OrderMapper orderMapper;
+  private final SpringDomainEventPublisher eventPublisher;
 
   public CreateOrderResponseDto createOrder(
       long memberId, @Valid CreateOrderRequestDto requestDto) {
@@ -56,6 +59,8 @@ public class OrderCreateOrderUsecase {
 
     // 재고 차감
     product.decreaseStock(requestDto.getQuantity());
+
+    eventPublisher.publish(new OrderCreatedEvent(orderMapper.toOrderDto(order)));
 
     return orderMapper.toOrderCreateResponseDto(order);
   }
