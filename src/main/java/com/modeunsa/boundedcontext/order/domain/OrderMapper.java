@@ -5,6 +5,7 @@ import com.modeunsa.shared.order.dto.CreateCartItemResponseDto;
 import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
 import com.modeunsa.shared.order.dto.CreateOrderResponseDto;
 import com.modeunsa.shared.order.dto.OrderDto;
+import com.modeunsa.shared.order.dto.OrderItemDto;
 import com.modeunsa.shared.order.dto.OrderItemResponseDto;
 import jakarta.validation.Valid;
 import java.math.BigDecimal;
@@ -29,6 +30,9 @@ public interface OrderMapper {
 
   OrderItemResponseDto toOrderItemResponseDto(OrderItem orderItem);
 
+  @Mapping(target = "productId", source = "productId")
+  OrderItemDto toItemDto(OrderItem orderItem);
+
   // 주문
   @Mapping(target = "orderMember", source = "member")
   @Mapping(target = "totalAmount", source = "salePrice")
@@ -45,6 +49,8 @@ public interface OrderMapper {
   @Mapping(target = "memberId", source = "order.orderMember.id")
   CreateOrderResponseDto toOrderCreateResponseDto(Order order);
 
+  @Mapping(target = "orderId", source = "order.id")
+  @Mapping(target = "orderItems", source = "orderItems")
   @Mapping(target = "memberId", source = "order.orderMember.id")
   OrderDto toOrderDto(Order order);
 
