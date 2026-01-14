@@ -55,6 +55,10 @@ spring:
             redirect-uri: "http://127.0.0.1:8080/login/oauth2/code/naver"
             authorization-grant-type: authorization_code
             client-name: NAVER
+            scope:
+              - name
+              - email
+              - mobile
         provider:
           kakao:
             authorization-uri: https://kauth.kakao.com/oauth/authorize
