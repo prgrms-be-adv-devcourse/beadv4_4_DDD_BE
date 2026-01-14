@@ -14,7 +14,6 @@ import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
 import com.modeunsa.shared.order.dto.CreateOrderResponseDto;
 import com.modeunsa.shared.order.event.OrderCreatedEvent;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,8 +26,7 @@ public class OrderCreateOrderUsecase {
   private final OrderMapper orderMapper;
   private final SpringDomainEventPublisher eventPublisher;
 
-  public CreateOrderResponseDto createOrder(
-      long memberId, @Valid CreateOrderRequestDto requestDto) {
+  public CreateOrderResponseDto createOrder(long memberId, CreateOrderRequestDto requestDto) {
     // 회원 확인
     OrderMember member =
         orderMemberRepository

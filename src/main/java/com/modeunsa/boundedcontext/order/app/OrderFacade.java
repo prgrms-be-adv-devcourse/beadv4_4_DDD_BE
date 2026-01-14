@@ -6,7 +6,6 @@ import com.modeunsa.shared.order.dto.CreateCartItemRequestDto;
 import com.modeunsa.shared.order.dto.CreateCartItemResponseDto;
 import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
 import com.modeunsa.shared.order.dto.CreateOrderResponseDto;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,8 +43,7 @@ public class OrderFacade {
 
   // 단건 주문 생성
   @Transactional
-  public CreateOrderResponseDto createOrder(
-      long memberId, @Valid CreateOrderRequestDto requestDto) {
+  public CreateOrderResponseDto createOrder(long memberId, CreateOrderRequestDto requestDto) {
     return orderCreateOrderUseCase.createOrder(memberId, requestDto);
   }
 
