@@ -25,8 +25,6 @@ public class PaymentCompleteUseCase {
     PaymentAccount buyerAccount =
         paymentAccountSupport.getPaymentAccountByMemberId(paymentRequest.getBuyerId());
 
-    PaymentAccount holderAccount = paymentAccountSupport.getHolderAccount();
-
     if (paymentRequest.isPositive()) {
       buyerAccount.credit(
           paymentRequest.getPgPaymentAmount(),
@@ -51,6 +49,8 @@ public class PaymentCompleteUseCase {
         PaymentEventType.USE_ORDER_PAYMENT,
         paymentRequest.getOrderId(),
         ReferenceType.ORDER);
+
+    PaymentAccount holderAccount = paymentAccountSupport.getHolderAccount();
 
     holderAccount.credit(
         paymentRequest.getSalePrice(),

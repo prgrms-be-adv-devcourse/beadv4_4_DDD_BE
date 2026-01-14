@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Getter
 @Component
-@ConfigurationProperties(prefix = "payment.account")
+@ConfigurationProperties(prefix = "payment.accounts")
 public class PaymentAccountConfig {
 
   private Long systemMemberId;

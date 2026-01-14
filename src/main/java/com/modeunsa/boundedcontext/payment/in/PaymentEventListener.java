@@ -39,7 +39,7 @@ public class PaymentEventListener {
 
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Transactional(propagation = REQUIRES_NEW)
-  public void PaymentRequestEvent(PaymentRequestEvent paymentRequestEvent) {
+  public void handlePaymentRequestEvent(PaymentRequestEvent paymentRequestEvent) {
     log.info(
         "PaymentRequestEvent 수신 - buyerId: {}, orderNo: {}",
         paymentRequestEvent.getBuyerId(),
