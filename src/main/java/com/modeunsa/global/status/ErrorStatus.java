@@ -34,7 +34,7 @@ public enum ErrorStatus {
   SELLER_ALREADY_REGISTERED(HttpStatus.CONFLICT, "MEMBER_409_003", "이미 판매자 신청을 하셨습니다."),
 
   // Auth 400
-  OAUTH_INVALID_PROVIDER(HttpStatus.BAD_REQUEST, "AUTH_400_1", "지원하지 않는 OAuth 제공자입니다."),
+  OAUTH_INVALID_PROVIDER(HttpStatus.BAD_REQUEST, "AUTH_400_001", "지원하지 않는 OAuth 제공자입니다."),
   // Auth 401
   AUTH_INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_001", "유효하지 않은 토큰입니다."),
   AUTH_EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_002", "만료된 토큰입니다."),
