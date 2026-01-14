@@ -23,8 +23,8 @@ public class SettlementScheduler {
   private final JobOperator jobOperator;
   private final Job settlementCollectItemsAndCalculatePayoutsJob;
 
-  // 매일 03:00 (KST) - 테스트 시 application.yml에서 override 가능
-  @Scheduled(cron = "${settlement.scheduler.cron:0 0 3 * * *}", zone = "Asia/Seoul")
+  // 매일 03:00 (KST)
+  @Scheduled(cron = "0 0 3 * * *", zone = "Asia/Seoul")
   public void runAt03()
       throws JobInstanceAlreadyCompleteException,
           InvalidJobParametersException,
