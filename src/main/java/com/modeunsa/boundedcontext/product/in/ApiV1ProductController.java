@@ -52,7 +52,10 @@ public class ApiV1ProductController {
       @RequestParam(name = "category") ProductCategory category,
       @PageableDefault(size = 20, sort = "createdAt", direction = Direction.DESC)
           Pageable pageable) {
-    Page<ProductResponse> productResponses = productFacade.getProducts(category, pageable);
+    // TODO: memberId / role 받아와서 처리 예정
+    Long memberId = 1L;
+    Page<ProductResponse> productResponses =
+        productFacade.getProducts(memberId, category, pageable);
     return ApiResponse.onSuccess(SuccessStatus.OK, productResponses);
   }
 }

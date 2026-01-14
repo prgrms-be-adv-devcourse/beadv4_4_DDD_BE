@@ -2,8 +2,7 @@ package com.modeunsa.boundedcontext.product.app;
 
 import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
-import com.modeunsa.boundedcontext.product.domain.ProductStatus;
-import com.modeunsa.boundedcontext.product.domain.SaleStatus;
+import com.modeunsa.boundedcontext.product.domain.ProductPolicy;
 import com.modeunsa.boundedcontext.product.out.ProductMemberSellerRepository;
 import com.modeunsa.boundedcontext.product.out.ProductRepository;
 import com.modeunsa.global.exception.GeneralException;
@@ -16,10 +15,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class ProductSupport {
-
-  private static SaleStatus[] PRODUCT_DISPLAY_SALE_STATUSES = {
-    SaleStatus.SALE, SaleStatus.SOLD_OUT
-  };
 
   private final ProductMemberSellerRepository productMemberSellerRepository;
   private final ProductRepository productRepository;
@@ -34,8 +29,12 @@ public class ProductSupport {
         .orElseThrow(() -> new GeneralException(ErrorStatus.PRODUCT_NOT_FOUND));
   }
 
-  public Page<Product> getProducts(ProductCategory category, Pageable pageable) {
-    return productRepository.findAllByCategoryAndSaleStatusInAndProductStatus(
-        category, PRODUCT_DISPLAY_SALE_STATUSES, ProductStatus.COMPLETED, pageable);
+  public Page<Product> getProducts(Long memberId, ProductCategory category, Pageable pageable) {
+    // TODO: seller 가 보는 조회 쿼리와 member가 보는 조회 쿼리 다르게 가져가기
+    return productRepository.findAllByCategoryAndSaleStatusInAndProductStatusIn(
+        category,
+        ProductPolicy.DISPLAYABLE_SALE_STATUES_FOR_ALL,
+        ProductPolicy.DISPLAYABLE_PRODUCT_STATUSES_FOR_ALL,
+        pageable);
   }
 }

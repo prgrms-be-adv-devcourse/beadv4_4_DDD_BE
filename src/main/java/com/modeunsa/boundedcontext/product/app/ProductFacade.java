@@ -28,8 +28,9 @@ public class ProductFacade {
     return productMapper.toResponse(product);
   }
 
-  public Page<ProductResponse> getProducts(ProductCategory category, Pageable pageable) {
-    Page<Product> products = productSupport.getProducts(category, pageable);
+  public Page<ProductResponse> getProducts(
+      Long memberId, ProductCategory category, Pageable pageable) {
+    Page<Product> products = productSupport.getProducts(memberId, category, pageable);
     return products.map(productMapper::toResponse);
   }
 }
