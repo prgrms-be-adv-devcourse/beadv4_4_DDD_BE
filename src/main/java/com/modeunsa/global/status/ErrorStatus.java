@@ -33,6 +33,10 @@ public enum ErrorStatus {
   SELLER_CANNOT_APPROVE(HttpStatus.BAD_REQUEST, "SELLER400", "PENDING 상태의 판매자만 승인할 수 있습니다."),
   SELLER_CANNOT_REJECT(HttpStatus.BAD_REQUEST, "SELLER401", "PENDING 상태의 판매자만 거절할 수 있습니다."),
 
+  // Order
+  ORDERPRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER404", "없는 상품입니다."),
+  ORDERMEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER404", "없는 회원입니다."),
+
   // Product
   PRODUCT_DESCRIPTION_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT400_001", "상품 설명은 필수입니다."),
   PRODUCT_CATEGORY_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT400_002", "카테고리는 필수입니다."),
