@@ -38,11 +38,11 @@ public enum ErrorStatus {
   ORDERMEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER404", "없는 회원입니다."),
 
   // Product
-  PRODUCT_DESCRIPTION_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT400_001", "상품 설명은 필수입니다."),
-  PRODUCT_CATEGORY_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT400_002", "카테고리는 필수입니다."),
-  PRODUCT_SALE_PRICE_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT400_003", "판매가는 0원 이상이어야 합니다."),
-  PRODUCT_PRICE_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT400_004", "정가는 0원 이상이어야 합니다."),
-  PRODUCT_QTY_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT400_005", "재고 수량은 0보다 커야 합니다.");
+  PRODUCT_DESCRIPTION_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT400", "상품 설명은 필수입니다."),
+  PRODUCT_CATEGORY_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT400", "카테고리는 필수입니다."),
+  PRODUCT_SALE_PRICE_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT400", "판매가는 0원 이상이어야 합니다."),
+  PRODUCT_PRICE_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT400", "정가는 0원 이상이어야 합니다."),
+  PRODUCT_QTY_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT400", "재고 수량은 0보다 커야 합니다.");
   private final HttpStatus httpStatus;
   private final String code;
   private final String message;
