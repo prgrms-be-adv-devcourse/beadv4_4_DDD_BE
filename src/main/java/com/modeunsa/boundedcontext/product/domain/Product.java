@@ -60,7 +60,7 @@ public class Product extends GeneratedIdAndAuditedEntity {
   // TODO: 이벤트/트랜잭션으로 증감 관리 (정합성 전략 필요)
   @Builder.Default private int favoriteCount = 0;
 
-  @Builder.Default private int qty = 0;
+  @Builder.Default private int quantity = 0;
 
   @OneToMany(mappedBy = "product")
   @OrderBy("sortOrder ASC")

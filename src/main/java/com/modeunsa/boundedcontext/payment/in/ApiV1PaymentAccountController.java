@@ -28,6 +28,6 @@ public class ApiV1PaymentAccountController {
   public ResponseEntity<ApiResponse> depositAccount(
       @Valid @RequestBody PaymentAccountDepositRequest request) {
     PaymentAccountDepositResponse response = paymentFacade.creditAccount(request);
-    return ApiResponse.onSuccess(SuccessStatus._OK, response);
+    return ApiResponse.onSuccess(SuccessStatus.OK, response);
   }
 }

@@ -24,7 +24,7 @@ public class ProductResponse {
   private ProductCurrency currency;
   private ProductStatus productStatus;
   private SaleStatus saleStatus;
-  private int qty;
+  private int quantity;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
   private Long createdBy;
