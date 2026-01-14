@@ -53,7 +53,7 @@ class ApiV1PaymentAccountControllerTest {
   void depositAccountSuccess() throws Exception {
     // given
     Long memberId = 1L;
-    long amount = 10000L;
+    BigDecimal amount = new BigDecimal("10000.00");
     PaymentEventType eventType = PaymentEventType.CHARGE_BANK_TRANSFER;
     BigDecimal balanceAfter = new BigDecimal("10000.00");
 
@@ -79,7 +79,7 @@ class ApiV1PaymentAccountControllerTest {
   void depositAccountFailureAccountNotFound() throws Exception {
     // given
     Long memberId = 999L;
-    long amount = 10000L;
+    BigDecimal amount = new BigDecimal("10000.00");
     PaymentEventType eventType = PaymentEventType.CHARGE_BANK_TRANSFER;
 
     PaymentAccountDepositRequest request =
@@ -105,7 +105,7 @@ class ApiV1PaymentAccountControllerTest {
   void depositAccountFailureZeroAmount() throws Exception {
     // given
     Long memberId = 999L;
-    long amount = 0;
+    BigDecimal amount = BigDecimal.ZERO;
     PaymentEventType eventType = PaymentEventType.CHARGE_BANK_TRANSFER;
 
     PaymentAccountDepositRequest request =

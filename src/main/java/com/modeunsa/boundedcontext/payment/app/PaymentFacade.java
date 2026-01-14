@@ -8,9 +8,11 @@ import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreditAccountUseCa
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentSyncMemberUseCase;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymentFacade {
@@ -32,11 +34,16 @@ public class PaymentFacade {
   @Transactional
   public PaymentAccountDepositResponse creditAccount(
       PaymentAccountDepositRequest paymentAccountDepositRequest) {
-    BigDecimal balance =
-        paymentCreditAccountUseCase.execute(
-            paymentAccountDepositRequest.getMemberId(),
-            paymentAccountDepositRequest.convertAmountToBigDecimal(),
-            paymentAccountDepositRequest.getPaymentEventType());
+
+    log.info("계좌 입금 시작 - request: {}", paymentAccountDepositRequest);
+
+    BigDecimal balance = paymentCreditAccountUseCase.execute(paymentAccountDepositRequest);
+
+    log.info(
+        "계좌 입금 완료 - memberId: {}, balance: {}",
+        paymentAccountDepositRequest.getMemberId(),
+        balance);
+
     return new PaymentAccountDepositResponse(balance);
   }
 }

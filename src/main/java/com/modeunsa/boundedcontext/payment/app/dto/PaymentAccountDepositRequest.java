@@ -6,16 +6,14 @@ import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 @Getter
 @RequiredArgsConstructor
+@ToString
 public class PaymentAccountDepositRequest {
 
   @NotNull private final Long memberId;
-  @Positive private final long amount;
+  @Positive private final BigDecimal amount;
   @NotNull private final PaymentEventType paymentEventType;
-
-  public BigDecimal convertAmountToBigDecimal() {
-    return BigDecimal.valueOf(amount);
-  }
 }

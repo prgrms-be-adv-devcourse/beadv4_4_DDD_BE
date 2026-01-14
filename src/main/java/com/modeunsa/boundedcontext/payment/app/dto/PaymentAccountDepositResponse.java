@@ -5,9 +5,9 @@ import lombok.Getter;
 
 @Getter
 public class PaymentAccountDepositResponse {
-  private final long balance;
+  private final BigDecimal balance;
 
   public PaymentAccountDepositResponse(BigDecimal balance) {
-    this.balance = balance.longValue();
+    this.balance = balance;
   }
 }
