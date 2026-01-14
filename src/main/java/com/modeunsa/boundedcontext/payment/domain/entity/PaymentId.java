@@ -8,10 +8,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/**
- * @author : JAKE
- * @date : 26. 1. 12.
- */
 @Embeddable
 @NoArgsConstructor
 @AllArgsConstructor

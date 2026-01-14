@@ -7,10 +7,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
 import org.springframework.security.web.SecurityFilterChain;
 
-/**
- * @author : JAKE
- * @date : 26. 1. 13.
- */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {

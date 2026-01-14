@@ -7,10 +7,6 @@ import com.modeunsa.global.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-/**
- * @author : JAKE
- * @date : 26. 1. 13.
- */
 @Component
 @RequiredArgsConstructor
 public class PaymentAccountSupport {

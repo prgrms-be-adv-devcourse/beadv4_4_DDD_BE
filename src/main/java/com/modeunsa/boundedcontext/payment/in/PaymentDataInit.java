@@ -11,10 +11,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * @author : JAKE
- * @date : 26. 1. 13.
- */
 @Configuration
 public class PaymentDataInit {
 

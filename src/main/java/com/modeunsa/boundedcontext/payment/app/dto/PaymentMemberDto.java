@@ -4,10 +4,6 @@ import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-/**
- * @author : JAKE
- * @date : 26. 1. 13.
- */
 @Getter
 @RequiredArgsConstructor
 public class PaymentMemberDto {

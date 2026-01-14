@@ -9,10 +9,6 @@ import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-/**
- * @author : JAKE
- * @date : 26. 1. 13.
- */
 @Service
 @RequiredArgsConstructor
 public class PaymentFacade {

@@ -14,10 +14,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-/**
- * @author : JAKE
- * @date : 26. 1. 12.
- */
 @Entity
 @Table
 @Getter
