@@ -8,6 +8,7 @@ import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.boundedcontext.payment.domain.types.ReferenceType;
 import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
+import com.modeunsa.shared.payment.dto.PaymentDto;
 import com.modeunsa.shared.payment.event.PaymentFailedEvent;
 import com.modeunsa.shared.payment.event.PaymentSuccessEvent;
 import lombok.RequiredArgsConstructor;
@@ -36,10 +37,9 @@ public class PaymentCompleteUseCase {
     if (!buyerAccount.canPayOrder(paymentRequest.getSalePrice())) {
       eventPublisher.publish(
           new PaymentFailedEvent(
+              new PaymentDto(paymentRequest.getOrderId(), paymentRequest.getPgPaymentAmount()),
               PAYMENT_INSUFFICIENT_BALANCE.getCode(),
               PAYMENT_INSUFFICIENT_BALANCE.getMessage(),
-              paymentRequest.getOrderId(),
-              paymentRequest.getPgPaymentAmount(),
               buyerAccount.getShortFailAmount(paymentRequest.getPgPaymentAmount())));
       return;
     }
@@ -59,6 +59,7 @@ public class PaymentCompleteUseCase {
         ReferenceType.ORDER);
 
     eventPublisher.publish(
-        new PaymentSuccessEvent(paymentRequest.getOrderId(), paymentRequest.getPgPaymentAmount()));
+        new PaymentSuccessEvent(
+            new PaymentDto(paymentRequest.getOrderId(), paymentRequest.getPgPaymentAmount())));
   }
 }
