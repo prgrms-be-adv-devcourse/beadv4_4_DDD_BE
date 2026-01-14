@@ -1,7 +1,8 @@
-package com.modeunsa.boundedcontext.settlement.domain;
+package com.modeunsa.boundedcontext.settlement.domain.entity;
 
 import static jakarta.persistence.FetchType.LAZY;
 
+import com.modeunsa.boundedcontext.settlement.domain.types.SettlementEventType;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -13,31 +14,49 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
 @Entity
 @Table(name = "settlement_settlement")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Getter
 public class Settlement extends GeneratedIdAndAuditedEntity {
   private long amount;
 
   @Column(nullable = false)
-  private Long sellerUserId;
+  private Long sellerMemberId;
 
   @OneToMany(mappedBy = "settlement", cascade = CascadeType.PERSIST, fetch = LAZY)
+  @Builder.Default
   private List<SettlementItem> items = new ArrayList<>();
 
   private LocalDateTime payoutAt;
 
-  @CreatedDate
-  @Column(nullable = false)
-  private LocalDateTime createdAt;
+  public SettlementItem addItem(
+      Long orderItemId,
+      Long buyerMemberId,
+      Long sellerMemberId,
+      long amount,
+      SettlementEventType eventType,
+      LocalDateTime paymentAt) {
+    SettlementItem settlementItem =
+        SettlementItem.builder()
+            .settlement(this)
+            .orderItemId(orderItemId)
+            .buyerMemberId(buyerMemberId)
+            .sellerMemberId(sellerMemberId)
+            .amount(amount)
+            .eventType(eventType)
+            .paymentAt(paymentAt)
+            .build();
 
-  @LastModifiedDate
-  @Column(nullable = false)
-  private LocalDateTime updatedAt;
+    items.add(settlementItem);
+
+    this.amount += amount;
+
+    return settlementItem;
+  }
 }
