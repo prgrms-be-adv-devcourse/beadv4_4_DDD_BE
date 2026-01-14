@@ -7,8 +7,23 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum SuccessStatus {
-  _OK(HttpStatus.OK, "COMMON200", "성공입니다."),
-  _CREATED(HttpStatus.CREATED, "COMMON201", "리소스가 성공적으로 생성되었습니다.");
+  OK(HttpStatus.OK, "COMMON_200", "성공입니다."),
+  CREATED(HttpStatus.CREATED, "COMMON_201", "리소스가 성공적으로 생성되었습니다."),
+
+  // Auth 200
+  AUTH_LOGIN_SUCCESS(HttpStatus.OK, "AUTH_200_001", "로그인에 성공했습니다."),
+  AUTH_LOGOUT_SUCCESS(HttpStatus.OK, "AUTH_200_002", "로그아웃에 성공했습니다."),
+  AUTH_TOKEN_REFRESH_SUCCESS(HttpStatus.OK, "AUTH_200_003", "토큰 갱신에 성공했습니다."),
+  // Auth 201
+  AUTH_SIGNUP_SUCCESS(HttpStatus.CREATED, "AUTH_201_001", "회원가입에 성공했습니다."),
+
+  // Member
+  MEMBER_INFO_GET_SUCCESS(HttpStatus.OK, "MEMBER_200_1", "회원 정보 조회에 성공했습니다."),
+  MEMBER_INFO_UPDATE_SUCCESS(HttpStatus.OK, "MEMBER_200_2", "회원 정보 수정에 성공했습니다."),
+  MEMBER_ADDRESS_CREATE_SUCCESS(HttpStatus.CREATED, "MEMBER_201_1", "배송지 등록에 성공했습니다."),
+  MEMBER_ADDRESS_UPDATE_SUCCESS(HttpStatus.OK, "MEMBER_200_3", "배송지 수정에 성공했습니다."),
+  MEMBER_ADDRESS_DELETE_SUCCESS(HttpStatus.OK, "MEMBER_200_4", "배송지 삭제에 성공했습니다."),
+  ;
 
   private final HttpStatus httpStatus;
   private final String code;
