@@ -12,8 +12,9 @@ public class PaymentCreditAccountUseCase {
 
   private final PaymentAccountSupport paymentAccountSupport;
 
-  public void execute(Long memberId, BigDecimal amount, PaymentEventType paymentEventType) {
+  public BigDecimal execute(Long memberId, BigDecimal amount, PaymentEventType paymentEventType) {
     var paymentAccount = paymentAccountSupport.getPaymentAccountByMemberId(memberId);
     paymentAccount.credit(amount, paymentEventType);
+    return paymentAccount.getBalance();
   }
 }

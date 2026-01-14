@@ -1,10 +1,10 @@
 package com.modeunsa.boundedcontext.payment.in;
 
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
+import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentMemberDto;
 import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
-import java.math.BigDecimal;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -49,9 +49,10 @@ public class PaymentDataInit {
 
   public void makeBaseCredits() {
     paymentFacade.creditAccount(
-        1L, new BigDecimal("150000"), PaymentEventType.CHARGE_BANK_TRANSFER);
+        new PaymentAccountDepositRequest(1L, 150_000, PaymentEventType.CHARGE_BANK_TRANSFER));
     paymentFacade.creditAccount(
-        2L, new BigDecimal("100000"), PaymentEventType.CHARGE_BANK_TRANSFER);
-    paymentFacade.creditAccount(3L, new BigDecimal("50000"), PaymentEventType.CHARGE_BANK_TRANSFER);
+        new PaymentAccountDepositRequest(2L, 100_000, PaymentEventType.CHARGE_BANK_TRANSFER));
+    paymentFacade.creditAccount(
+        new PaymentAccountDepositRequest(3L, 50_000, PaymentEventType.CHARGE_BANK_TRANSFER));
   }
 }

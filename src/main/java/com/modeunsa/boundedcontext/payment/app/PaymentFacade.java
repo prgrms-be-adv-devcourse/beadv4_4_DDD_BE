@@ -1,10 +1,11 @@
 package com.modeunsa.boundedcontext.payment.app;
 
+import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositRequest;
+import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositResponse;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentMemberDto;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreateAccountUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreditAccountUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentSyncMemberUseCase;
-import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,13 @@ public class PaymentFacade {
   }
 
   @Transactional
-  public void creditAccount(Long memberId, BigDecimal amount, PaymentEventType paymentEventType) {
-    paymentCreditAccountUseCase.execute(memberId, amount, paymentEventType);
+  public PaymentAccountDepositResponse creditAccount(
+      PaymentAccountDepositRequest paymentAccountDepositRequest) {
+    BigDecimal balance =
+        paymentCreditAccountUseCase.execute(
+            paymentAccountDepositRequest.getMemberId(),
+            paymentAccountDepositRequest.convertAmountToBigDecimal(),
+            paymentAccountDepositRequest.getPaymentEventType());
+    return new PaymentAccountDepositResponse(balance);
   }
 }
