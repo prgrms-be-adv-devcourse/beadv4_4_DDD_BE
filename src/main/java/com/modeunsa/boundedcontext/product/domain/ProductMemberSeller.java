@@ -7,22 +7,17 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "product_member")
-@Getter
+@Table(name = "product_member_seller")
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ProductMember extends ManualIdAndAuditedEntity {
-  @Column(unique = true, length = 255)
-  private String email;
+@AllArgsConstructor
+public class ProductMemberSeller extends ManualIdAndAuditedEntity {
+  @Column(nullable = false, length = 200)
+  private String businessName;
 
-  @Column(length = 30)
-  private String realName;
-
-  @Column(length = 20)
-  private String phoneNumber;
+  @Column(nullable = false, length = 100)
+  private String representativeName;
 }
