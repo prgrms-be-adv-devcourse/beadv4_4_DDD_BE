@@ -6,6 +6,7 @@ import com.modeunsa.boundedcontext.order.domain.OrderProduct;
 import com.modeunsa.boundedcontext.order.out.OrderMemberRepository;
 import com.modeunsa.boundedcontext.order.out.OrderProductRepository;
 import com.modeunsa.shared.order.dto.CreateCartItemRequestDto;
+import java.math.BigDecimal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -74,22 +75,29 @@ public class OrderDataInit {
     }
 
     OrderMember user1 = orderFacade.findByMemberId(1L);
-    saveProduct(user1.getId(), 10_000);
-    saveProduct(user1.getId(), 15_000);
-    saveProduct(user1.getId(), 20_000);
+    saveProduct(user1.getId(), 10_000, "장갑");
+    saveProduct(user1.getId(), 15_000, "모자");
+    saveProduct(user1.getId(), 20_000, "목도리");
 
     OrderMember user2 = orderFacade.findByMemberId(2L);
-    saveProduct(user2.getId(), 25_000);
-    saveProduct(user2.getId(), 30_000);
+    saveProduct(user2.getId(), 25_000, "니트");
+    saveProduct(user2.getId(), 30_000, "셔츠");
 
     OrderMember user3 = orderFacade.findByMemberId(3L);
-    saveProduct(user3.getId(), 35_000);
+    saveProduct(user3.getId(), 35_000, "바지");
 
     log.info("Test Products Created");
   }
 
-  private void saveProduct(Long sellerId, int price) {
-    OrderProduct product = OrderProduct.builder().sellerId(sellerId).price(price).qty(100).build();
+  private void saveProduct(Long sellerId, int price, String name) {
+    OrderProduct product =
+        OrderProduct.builder()
+            .sellerId(sellerId)
+            .name(name)
+            .price(BigDecimal.valueOf(price))
+            .salePrice(BigDecimal.valueOf(price * 1.2))
+            .qty(100)
+            .build();
     orderProductRepository.save(product);
   }
 

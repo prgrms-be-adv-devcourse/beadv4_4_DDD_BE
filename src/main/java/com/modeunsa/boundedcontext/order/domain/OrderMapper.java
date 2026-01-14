@@ -2,6 +2,13 @@ package com.modeunsa.boundedcontext.order.domain;
 
 import com.modeunsa.shared.order.dto.CreateCartItemRequestDto;
 import com.modeunsa.shared.order.dto.CreateCartItemResponseDto;
+import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
+import com.modeunsa.shared.order.dto.CreateOrderResponseDto;
+import com.modeunsa.shared.order.dto.OrderItemResponseDto;
+import jakarta.validation.Valid;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -12,4 +19,36 @@ public interface OrderMapper {
   CartItem toCartItemEntity(long memberId, CreateCartItemRequestDto createCartItemRequestDto);
 
   CreateCartItemResponseDto toCreateCartItemResponseDto(CartItem cartItem);
+
+  @Mapping(target = "productName", source = "product.name")
+  OrderItem toOrderItemEntity(OrderProduct product, @Valid CreateOrderRequestDto requestDto);
+
+  @Mapping(target = "orderMember", source = "member")
+  @Mapping(target = "totalAmount", source = "salePrice")
+  @Mapping(target = "status", constant = "PENDING_PAYMENT")
+  @Mapping(target = "orderNo", expression = "java(generateOrderNo(member.getId()))")
+  @Mapping(target = "paymentDeadlineAt", expression = "java(calculateDeadline())")
+  @Mapping(target = "zipcode", source = "requestDto.zipcode")
+  @Mapping(target = "addressDetail", source = "requestDto.addressDetail")
+  Order toOrderEntity(
+      OrderMember member, BigDecimal salePrice, @Valid CreateOrderRequestDto requestDto);
+
+  @Mapping(target = "orderId", source = "id")
+  @Mapping(target = "memberId", source = "order.orderMember.id")
+  CreateOrderResponseDto toOrderCreateResponseDto(Order order);
+
+  OrderItemResponseDto toOrderItemResponseDto(OrderItem orderItem);
+
+  // 주문 생성시 결제 마감기한 설정
+  default LocalDateTime calculateDeadline() {
+    return LocalDateTime.now().plusMinutes(30);
+  }
+
+  // 주문번호 생성
+  default String generateOrderNo(Long memberId) {
+    // 날짜와 시간-유저 ID(yyyyMMddHHmmss-%04d 포맷팅)
+    return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
+        + "-"
+        + String.format("%04d", memberId % 10000);
+  }
 }

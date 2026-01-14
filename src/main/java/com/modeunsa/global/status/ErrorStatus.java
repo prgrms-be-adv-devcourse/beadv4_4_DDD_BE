@@ -34,8 +34,10 @@ public enum ErrorStatus {
   SELLER_CANNOT_REJECT(HttpStatus.BAD_REQUEST, "SELLER401", "PENDING 상태의 판매자만 거절할 수 있습니다."),
 
   // Order
-  ORDERPRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER404", "없는 상품입니다."),
-  ORDERMEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER404", "없는 회원입니다.");
+  ORDERPRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_404_1", "없는 상품입니다."),
+  ORDERMEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_404_2", "없는 회원입니다."),
+
+  ORDER_STOCK_NOT_ENOUGH(HttpStatus.BAD_REQUEST, "ORDER_400_1", "상품의 재고가 부족합니다.");
 
   private final HttpStatus httpStatus;
   private final String code;

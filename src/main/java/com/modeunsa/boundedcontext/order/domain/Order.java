@@ -39,7 +39,6 @@ public class Order extends GeneratedIdAndAuditedEntity {
 
   @Builder.Default
   @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-  @Builder.Default
   private List<OrderItem> orderItems = new ArrayList<>();
 
   @Builder.Default
@@ -72,5 +71,10 @@ public class Order extends GeneratedIdAndAuditedEntity {
     if (this.paymentDeadlineAt == null) {
       this.paymentDeadlineAt = LocalDateTime.now().plusMinutes(30);
     }
+  }
+
+  public void addOrderItem(OrderItem item) {
+    this.orderItems.add(item);
+    item.setOrder(this);
   }
 }

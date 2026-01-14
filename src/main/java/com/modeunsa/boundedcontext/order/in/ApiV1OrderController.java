@@ -5,6 +5,8 @@ import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.status.SuccessStatus;
 import com.modeunsa.shared.order.dto.CreateCartItemRequestDto;
 import com.modeunsa.shared.order.dto.CreateCartItemResponseDto;
+import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
+import com.modeunsa.shared.order.dto.CreateOrderResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -31,6 +33,19 @@ public class ApiV1OrderController {
     long memberId = 1;
 
     CreateCartItemResponseDto dto = orderFacade.createCartItem(memberId, requestDto);
+
+    return ApiResponse.onSuccess(SuccessStatus._OK, dto);
+  }
+
+  @Operation(summary = "단건 주문 생성 기능", description = "단건 상품을 주문하는 기능입니다.")
+  @PostMapping
+  public ResponseEntity<ApiResponse> createOrder(
+      // @AuthenticationPrincipal Long memberId // 나중에 시큐리티 적용 시
+      @RequestBody @Valid CreateOrderRequestDto requestDto) {
+    // [TODO] 실제 로그인한 유저 ID를 가져오는 로직 추가
+    long memberId = 1;
+
+    CreateOrderResponseDto dto = orderFacade.createOrder(memberId, requestDto);
 
     return ApiResponse.onSuccess(SuccessStatus._OK, dto);
   }
