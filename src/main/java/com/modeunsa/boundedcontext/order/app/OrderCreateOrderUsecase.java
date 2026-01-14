@@ -33,13 +33,13 @@ public class OrderCreateOrderUsecase {
     OrderMember member =
         orderMemberRepository
             .findById(memberId)
-            .orElseThrow(() -> new GeneralException(ErrorStatus.ORDERMEMBER_NOT_FOUND));
+            .orElseThrow(() -> new GeneralException(ErrorStatus.ORDER_MEMBER_NOT_FOUND));
 
     // TODO: 실시간 조회로 수정
     OrderProduct product =
         orderProductRepository
             .findById(requestDto.getProductId())
-            .orElseThrow(() -> new GeneralException(ErrorStatus.ORDERPRODUCT_NOT_FOUND));
+            .orElseThrow(() -> new GeneralException(ErrorStatus.ORDER_PRODUCT_NOT_FOUND));
 
     // 재고 확인
     if (!product.isStockAvailable(requestDto.getQuantity())) {
