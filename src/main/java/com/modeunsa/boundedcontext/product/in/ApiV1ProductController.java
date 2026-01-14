@@ -24,6 +24,6 @@ public class ApiV1ProductController {
   @Transactional
   public ResponseEntity<ApiResponse> createProduct(@RequestBody ProductDto productDto) {
     Product product = productFacade.createProduct(productDto);
-    return ApiResponse.onSuccess(SuccessStatus._OK, product);
+    return ApiResponse.onSuccess(SuccessStatus.OK, product);
   }
 }
