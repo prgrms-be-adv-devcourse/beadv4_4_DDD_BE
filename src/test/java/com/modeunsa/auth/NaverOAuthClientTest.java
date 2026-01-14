@@ -43,7 +43,7 @@ class NaverOAuthClientTest {
   @Test
   @DisplayName("기본 redirect URI로 OAuth URL 생성")
   void generateOAuthUrl_withDefaultRedirectUri() {
-    when(redisTemplate.opsForValue()).thenReturn(valueOperations);  // 추가
+    when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
     String url = naverOAuthClient.generateOAuthUrl(null);
 
@@ -57,7 +57,7 @@ class NaverOAuthClientTest {
   @Test
   @DisplayName("커스텀 redirect URI로 OAuth URL 생성")
   void generateOAuthUrl_withCustomRedirectUri() {
-    when(redisTemplate.opsForValue()).thenReturn(valueOperations);  // 추가
+    when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
     String customRedirectUri = "http://localhost:3000/callback";
     String url = naverOAuthClient.generateOAuthUrl(customRedirectUri);
@@ -68,7 +68,7 @@ class NaverOAuthClientTest {
   @Test
   @DisplayName("OAuth URL에 state 파라미터 포함 확인")
   void generateOAuthUrl_containsStateParameter() {
-    when(redisTemplate.opsForValue()).thenReturn(valueOperations);  // 추가
+    when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
     String url = naverOAuthClient.generateOAuthUrl(null);
 

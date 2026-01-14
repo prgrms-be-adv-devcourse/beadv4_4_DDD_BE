@@ -43,7 +43,7 @@ class KakaoOAuthClientTest {
   @Test
   @DisplayName("기본 redirect URI로 OAuth URL 생성")
   void generateOAuthUrl_withDefaultRedirectUri() {
-    when(redisTemplate.opsForValue()).thenReturn(valueOperations);  // 여기서 stubbing
+    when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
     String url = kakaoOAuthClient.generateOAuthUrl(null);
 
