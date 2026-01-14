@@ -6,6 +6,7 @@ import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,12 +14,8 @@ import org.springframework.stereotype.Service;
 public class OAuthUrlUseCase {
   private final OAuthClientFactory oauthClientFactory;
 
-  private static final List<String> ALLOWED_REDIRECT_DOMAINS = List.of(
-      "https://modeunsa.com",
-      "https://www.modeunsa.com",
-      "http://localhost:3000",
-      "http://localhost:8080"
-  );
+  @Value("${security.oauth2.allowed-redirect-domains:}")
+  private List<String> allowedRedirectDomains;
 
   /**
    * OAuth2 로그인 URL 생성
@@ -30,10 +27,14 @@ public class OAuthUrlUseCase {
 
   private void validateRedirectUri(String redirectUri) {
     if (redirectUri == null) {
-      return;  // null이면 기본값 사용하니까 OK
+      return; // null이면 기본 redirect-uri 사용
     }
 
-    boolean isAllowed = ALLOWED_REDIRECT_DOMAINS.stream()
+    if (allowedRedirectDomains.isEmpty()) {
+      throw new GeneralException(ErrorStatus.OAUTH_INVALID_REDIRECT_URI);
+    }
+
+    boolean isAllowed = allowedRedirectDomains.stream()
         .anyMatch(redirectUri::startsWith);
 
     if (!isAllowed) {
