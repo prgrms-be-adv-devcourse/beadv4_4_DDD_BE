@@ -66,6 +66,8 @@ public enum ErrorStatus {
   PAYMENT_MEMBER_DUPLICATE(HttpStatus.BAD_REQUEST, "PAYMENT_400_001", "이미 등록된 결제 회원 정보가 존재합니다."),
   PAYMENT_ACCOUNT_DUPLICATE(HttpStatus.BAD_REQUEST, "PAYMENT_400_002", "이미 등록된 결제 계좌 정보가 존재합니다."),
   PAYMENT_ACCOUNT_INVALID(HttpStatus.BAD_REQUEST, "PAYMENT_400_003", "잘못된 요청입니다."),
+  PAYMENT_INSUFFICIENT_BALANCE(
+      HttpStatus.BAD_REQUEST, "PAYMENT_400_004", "결제 계좌 잔액이 부족하여 결제를 진행할 수 없습니다."),
   PAYMENT_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_001", "결제 회원 정보를 찾을 수 없습니다."),
   PAYMENT_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_002", "결제 회원 정보를 찾을 수 없습니다.");
 

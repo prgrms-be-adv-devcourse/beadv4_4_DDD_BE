@@ -3,6 +3,8 @@ package com.modeunsa.boundedcontext.payment.app;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositResponse;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentMemberDto;
+import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequest;
+import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCompleteUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreateAccountUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreditAccountUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentSyncMemberUseCase;
@@ -20,6 +22,7 @@ public class PaymentFacade {
   private final PaymentSyncMemberUseCase paymentSyncMemberUseCase;
   private final PaymentCreateAccountUseCase paymentCreateAccountUseCase;
   private final PaymentCreditAccountUseCase paymentCreditAccountUseCase;
+  private final PaymentCompleteUseCase paymentCompleteUseCase;
 
   @Transactional
   public void createPaymentMember(PaymentMemberDto paymentMemberDto) {
@@ -45,5 +48,15 @@ public class PaymentFacade {
         balance);
 
     return new PaymentAccountDepositResponse(balance);
+  }
+
+  @Transactional
+  public void paymentRequest(PaymentRequest paymentRequest) {
+
+    log.info("결제 요청 시작 - request: {}", paymentRequest);
+
+    paymentCompleteUseCase.completePayment(paymentRequest);
+
+    log.info("결제 요청 완료 - request: {}", paymentRequest);
   }
 }
