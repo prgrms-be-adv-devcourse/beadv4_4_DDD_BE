@@ -17,12 +17,13 @@ public enum SuccessStatus {
   // Auth 201
   AUTH_SIGNUP_SUCCESS(HttpStatus.CREATED, "AUTH_201_001", "회원가입에 성공했습니다."),
 
-  // Member
-  MEMBER_INFO_GET_SUCCESS(HttpStatus.OK, "MEMBER_200_1", "회원 정보 조회에 성공했습니다."),
-  MEMBER_INFO_UPDATE_SUCCESS(HttpStatus.OK, "MEMBER_200_2", "회원 정보 수정에 성공했습니다."),
-  MEMBER_ADDRESS_CREATE_SUCCESS(HttpStatus.CREATED, "MEMBER_201_1", "배송지 등록에 성공했습니다."),
-  MEMBER_ADDRESS_UPDATE_SUCCESS(HttpStatus.OK, "MEMBER_200_3", "배송지 수정에 성공했습니다."),
-  MEMBER_ADDRESS_DELETE_SUCCESS(HttpStatus.OK, "MEMBER_200_4", "배송지 삭제에 성공했습니다."),
+  // Member 200
+  MEMBER_INFO_GET_SUCCESS(HttpStatus.OK, "MEMBER_200_001", "회원 정보 조회에 성공했습니다."),
+  MEMBER_INFO_UPDATE_SUCCESS(HttpStatus.OK, "MEMBER_200_002", "회원 정보 수정에 성공했습니다."),
+  MEMBER_ADDRESS_UPDATE_SUCCESS(HttpStatus.OK, "MEMBER_200_003", "배송지 수정에 성공했습니다."),
+  MEMBER_ADDRESS_DELETE_SUCCESS(HttpStatus.OK, "MEMBER_200_004", "배송지 삭제에 성공했습니다."),
+  // Member 201
+  MEMBER_ADDRESS_CREATE_SUCCESS(HttpStatus.CREATED, "MEMBER_201_001", "배송지 등록에 성공했습니다."),
   ;
 
   private final HttpStatus httpStatus;
