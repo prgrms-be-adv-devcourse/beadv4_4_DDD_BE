@@ -9,17 +9,17 @@ public class GeneralException extends RuntimeException {
 
   public GeneralException(String message) {
     super(message);
-    this.errorStatus = ErrorStatus._INTERNAL_SERVER_ERROR;
+    this.errorStatus = ErrorStatus.INTERNAL_SERVER_ERROR;
   }
 
   public GeneralException(String message, Throwable cause) {
     super(message, cause);
-    this.errorStatus = ErrorStatus._INTERNAL_SERVER_ERROR;
+    this.errorStatus = ErrorStatus.INTERNAL_SERVER_ERROR;
   }
 
   public GeneralException(Throwable cause) {
     super(cause.getMessage(), cause);
-    this.errorStatus = ErrorStatus._INTERNAL_SERVER_ERROR;
+    this.errorStatus = ErrorStatus.INTERNAL_SERVER_ERROR;
   }
 
   public GeneralException(ErrorStatus errorStatus) {

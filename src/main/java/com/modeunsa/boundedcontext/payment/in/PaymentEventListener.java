@@ -11,10 +11,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-/**
- * @author : JAKE
- * @date : 26. 1. 13.
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor

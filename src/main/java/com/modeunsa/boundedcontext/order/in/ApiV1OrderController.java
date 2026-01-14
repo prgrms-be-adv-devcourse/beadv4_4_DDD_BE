@@ -34,7 +34,7 @@ public class ApiV1OrderController {
 
     CreateCartItemResponseDto dto = orderFacade.createCartItem(memberId, requestDto);
 
-    return ApiResponse.onSuccess(SuccessStatus._OK, dto);
+    return ApiResponse.onSuccess(SuccessStatus.OK, dto);
   }
 
   @Operation(summary = "단건 주문 생성 기능", description = "단건 상품을 주문하는 기능입니다.")
