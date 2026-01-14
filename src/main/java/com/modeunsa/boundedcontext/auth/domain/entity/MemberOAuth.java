@@ -1,6 +1,7 @@
-package com.modeunsa.boundedcontext.member.domain.entity;
+package com.modeunsa.boundedcontext.auth.domain.entity;
 
-import com.modeunsa.boundedcontext.member.domain.types.OauthProvider;
+import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
+import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -25,22 +26,21 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(exclude = "member")
 @Table(
-    uniqueConstraints = {@UniqueConstraint(columnNames = {"oauth_provider", "provider_member_id"})})
-public class MemberOauth extends GeneratedIdAndAuditedEntity {
+    uniqueConstraints = {
+      @UniqueConstraint(columnNames = {"oauth_provider", "provider_account_id"})
+    })
+public class MemberOAuth extends GeneratedIdAndAuditedEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "member_id", nullable = false)
+  @JoinColumn(nullable = false)
   private Member member;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "oauth_provider", nullable = false)
-  private OauthProvider oauthProvider;
+  @Column(nullable = false)
+  private OAuthProvider oauthProvider;
 
-  @Column(name = "provider_member_id", nullable = false, length = 200)
-  private String providerMemberId;
-
-  @Column(name = "provider_nickname", nullable = false, length = 50)
-  private String providerNickname;
+  @Column(nullable = false, length = 200)
+  private String providerAccountId;
 
   void setMember(Member member) {
     this.member = member;

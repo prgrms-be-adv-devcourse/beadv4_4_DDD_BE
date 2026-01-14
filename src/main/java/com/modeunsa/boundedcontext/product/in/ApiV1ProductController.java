@@ -30,13 +30,13 @@ public class ApiV1ProductController {
   public ResponseEntity<ApiResponse> createProduct(
       @Valid @RequestBody ProductRequest productRequest) {
     ProductResponse productResponse = productFacade.createProduct(productRequest);
-    return ApiResponse.onSuccess(SuccessStatus._CREATED, productResponse);
+    return ApiResponse.onSuccess(SuccessStatus.CREATED, productResponse);
   }
 
   @Operation(summary = "상품 상세 조회", description = "상품 id를 이용해 상품 상세를 조회합니다.")
   @GetMapping("/{id}")
   public ResponseEntity<ApiResponse> getProduct(@PathVariable(name = "id") Long productId) {
     ProductResponse productResponse = productFacade.getProduct(productId);
-    return ApiResponse.onSuccess(SuccessStatus._OK, productResponse);
+    return ApiResponse.onSuccess(SuccessStatus.OK, productResponse);
   }
 }
