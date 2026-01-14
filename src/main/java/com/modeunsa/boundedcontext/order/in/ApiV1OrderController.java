@@ -32,6 +32,6 @@ public class ApiV1OrderController {
 
     CreateCartItemResponseDto dto = orderFacade.createCartItem(memberId, requestDto);
 
-    return ApiResponse.onSuccess(SuccessStatus._OK, dto);
+    return ApiResponse.onSuccess(SuccessStatus.OK, dto);
   }
 }

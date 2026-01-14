@@ -11,11 +11,15 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
+  private static final String[] PERMIT_URLS = {
+    "/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**", "/api/v1/**"
+  };
+
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http.csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**"))
+    http.csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(
-            auth -> auth.requestMatchers("/h2-console/**").permitAll().anyRequest().authenticated())
+            auth -> auth.requestMatchers(PERMIT_URLS).permitAll().anyRequest().authenticated())
         .headers(headers -> headers.frameOptions(FrameOptionsConfig::sameOrigin));
     return http.build();
   }
