@@ -10,9 +10,21 @@ import org.springframework.transaction.annotation.Transactional;
 public class SettlementFacade {
   // TODO: 판매자 가입시에 정산서 생성 이벤트
   private final SettlementCreateSettlementUseCase settlementCreateSettlementUseCase;
+  private final SettlementCollectSettlementItemsUseCase settlementAddSettlementItemsUseCase;
+  private final SettlementCalculatePayoutsUseCase settlementCalculatePayoutsUseCase;
 
   @Transactional
   public Settlement createSettlement(long sellerMemberId) {
     return settlementCreateSettlementUseCase.createSettlement(sellerMemberId);
+  }
+
+  @Transactional
+  public void collectSettlementItems() {
+    settlementAddSettlementItemsUseCase.collectSettlementItems();
+  }
+
+  @Transactional
+  public void calculatePayouts() {
+    settlementCalculatePayoutsUseCase.calculatePayouts();
   }
 }

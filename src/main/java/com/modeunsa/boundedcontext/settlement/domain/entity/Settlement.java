@@ -9,6 +9,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,10 +25,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @Getter
 public class Settlement extends GeneratedIdAndAuditedEntity {
-  private long amount;
+  @Builder.Default private BigDecimal amount = BigDecimal.ZERO;
 
   @Column(nullable = false)
-  private Long sellerMemberId;
+  private long sellerMemberId;
 
   @OneToMany(mappedBy = "settlement", cascade = CascadeType.PERSIST, fetch = LAZY)
   @Builder.Default
@@ -36,10 +37,10 @@ public class Settlement extends GeneratedIdAndAuditedEntity {
   private LocalDateTime payoutAt;
 
   public SettlementItem addItem(
-      Long orderItemId,
-      Long buyerMemberId,
-      Long sellerMemberId,
-      long amount,
+      long orderItemId,
+      long buyerMemberId,
+      long sellerMemberId,
+      BigDecimal amount,
       SettlementEventType eventType,
       LocalDateTime paymentAt) {
     SettlementItem settlementItem =
@@ -55,7 +56,7 @@ public class Settlement extends GeneratedIdAndAuditedEntity {
 
     items.add(settlementItem);
 
-    this.amount += amount;
+    this.amount = this.amount.add(amount);
 
     return settlementItem;
   }
