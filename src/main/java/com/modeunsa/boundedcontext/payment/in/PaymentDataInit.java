@@ -52,12 +52,12 @@ public class PaymentDataInit {
   public void makeBaseCredits() {
     paymentFacade.creditAccount(
         new PaymentAccountDepositRequest(
-            1L, new BigDecimal(150_000), PaymentEventType.CHARGE_BANK_TRANSFER));
+            1L, BigDecimal.valueOf(150_000), PaymentEventType.CHARGE_BANK_TRANSFER));
     paymentFacade.creditAccount(
         new PaymentAccountDepositRequest(
-            2L, new BigDecimal(100_000), PaymentEventType.CHARGE_BANK_TRANSFER));
+            2L, BigDecimal.valueOf(100_000), PaymentEventType.CHARGE_BANK_TRANSFER));
     paymentFacade.creditAccount(
         new PaymentAccountDepositRequest(
-            3L, new BigDecimal(50_000), PaymentEventType.CHARGE_BANK_TRANSFER));
+            3L, BigDecimal.valueOf(50_000), PaymentEventType.CHARGE_BANK_TRANSFER));
   }
 }
