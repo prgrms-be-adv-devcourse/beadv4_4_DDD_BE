@@ -1,7 +1,7 @@
 package com.modeunsa.boundedcontext.payment.app.usecase;
 
+import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositRequest;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
-import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,8 +12,13 @@ public class PaymentCreditAccountUseCase {
 
   private final PaymentAccountSupport paymentAccountSupport;
 
-  public void execute(Long memberId, BigDecimal amount, PaymentEventType paymentEventType) {
-    var paymentAccount = paymentAccountSupport.getPaymentAccountByMemberId(memberId);
-    paymentAccount.credit(amount, paymentEventType);
+  public BigDecimal execute(PaymentAccountDepositRequest paymentAccountDepositRequest) {
+    var paymentAccount =
+        paymentAccountSupport.getPaymentAccountByMemberId(
+            paymentAccountDepositRequest.getMemberId());
+    paymentAccount.credit(
+        paymentAccountDepositRequest.getAmount(),
+        paymentAccountDepositRequest.getPaymentEventType());
+    return paymentAccount.getBalance();
   }
 }
