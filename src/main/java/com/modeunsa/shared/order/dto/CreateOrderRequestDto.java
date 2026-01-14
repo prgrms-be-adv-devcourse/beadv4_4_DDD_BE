@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateOrderRequestDto {
-  @NotNull private long productId;
+  @NotNull private Long productId;
 
   @Min(1)
   private int quantity;

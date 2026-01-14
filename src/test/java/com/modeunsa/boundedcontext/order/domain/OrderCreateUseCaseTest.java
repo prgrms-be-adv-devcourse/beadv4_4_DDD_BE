@@ -31,7 +31,7 @@ class OrderCreateUseCaseTest {
     orderFacade.createOrder(
         memberId,
         new CreateOrderRequestDto(
-            2, // productId
+            2L, // productId
             7, // quantity (2개 구매)
             "세종대왕", // receiverName
             "010-1234-5678", // receiverPhone
