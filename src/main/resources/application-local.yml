@@ -21,3 +21,7 @@ spring:
   batch:
     jdbc:
       initialize-schema: always
+
+settlement:
+  scheduler:
+    cron-am3: "0 0 3 * * *"

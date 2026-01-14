@@ -24,7 +24,7 @@ public class SettlementScheduler {
   private final Job settlementCollectItemsAndCalculatePayoutsJob;
 
   // 매일 03:00 (KST)
-  @Scheduled(cron = "0 0 3 * * *", zone = "Asia/Seoul")
+  @Scheduled(cron = "${settlement.scheduler.cron-am3:}", zone = "Asia/Seoul")
   public void runAt03()
       throws JobInstanceAlreadyCompleteException,
           InvalidJobParametersException,
