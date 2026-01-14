@@ -23,7 +23,7 @@ public class ApiV1OrderController {
   private final OrderFacade orderFacade;
 
   @Operation(summary = "장바구니에 상품 추가 기능", description = "장바구니에 상품을 추가하는 기능입니다.")
-  @PostMapping("/cartItem")
+  @PostMapping("/cart/item")
   public ResponseEntity<ApiResponse> createCartItem(
       // @AuthenticationPrincipal Long memberId // 나중에 시큐리티 적용 시
       @RequestBody @Valid CreateCartItemRequestDto requestDto) {
