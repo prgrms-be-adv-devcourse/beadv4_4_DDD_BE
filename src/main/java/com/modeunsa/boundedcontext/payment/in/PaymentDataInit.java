@@ -48,6 +48,7 @@ public class PaymentDataInit {
     paymentFacade.createPaymentMember(paymentMember3);
   }
 
+  @Transactional
   public void makeBaseCredits() {
     paymentFacade.creditAccount(
         new PaymentAccountDepositRequest(
