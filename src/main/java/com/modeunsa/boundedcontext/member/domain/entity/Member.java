@@ -123,7 +123,7 @@ public class Member extends GeneratedIdAndAuditedEntity {
     this.status = status;
   }
 
-  public void addOauthAccount(MemberOAuth oauth) {
+  public void addOAuthAccount(MemberOAuth oauth) {
     oauthAccounts.add(oauth);
   }
 }
