@@ -2,6 +2,7 @@ package com.modeunsa.auth;
 
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import com.modeunsa.boundedcontext.auth.out.client.KakaoOAuthClient;
+import java.time.Duration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
 class KakaoOAuthClientTest {
@@ -47,11 +50,19 @@ class KakaoOAuthClientTest {
 
     String url = kakaoOAuthClient.generateOAuthUrl(null);
 
+    // URL 검증
     assertThat(url).contains("https://kauth.kakao.com/oauth/authorize");
     assertThat(url).contains("client_id=test-client-id");
     assertThat(url).contains("redirect_uri=http://127.0.0.1:8080/login/oauth2/code/kakao");
     assertThat(url).contains("response_type=code");
     assertThat(url).contains("state=");
+
+    // Redis 저장 검증
+    verify(valueOperations).set(
+        startsWith("oauth:state:"),
+        eq(OAuthProvider.KAKAO.name()),
+        any(Duration.class)
+    );
   }
 
   @Test

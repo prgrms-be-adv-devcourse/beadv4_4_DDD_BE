@@ -2,6 +2,7 @@ package com.modeunsa.auth;
 
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import com.modeunsa.boundedcontext.auth.out.client.NaverOAuthClient;
+import java.time.Duration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,8 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -47,11 +50,19 @@ class NaverOAuthClientTest {
 
     String url = naverOAuthClient.generateOAuthUrl(null);
 
+    // URL 검증
     assertThat(url).contains("https://nid.naver.com/oauth2.0/authorize");
     assertThat(url).contains("client_id=test-naver-client-id");
     assertThat(url).contains("redirect_uri=http://127.0.0.1:8080/login/oauth2/code/naver");
     assertThat(url).contains("response_type=code");
     assertThat(url).contains("state=");
+
+    // Redis 저장 검증
+    verify(valueOperations).set(
+        startsWith("oauth:state:"),
+        eq(OAuthProvider.NAVER.name()),
+        eq(Duration.ofMinutes(5))
+    );
   }
 
   @Test
