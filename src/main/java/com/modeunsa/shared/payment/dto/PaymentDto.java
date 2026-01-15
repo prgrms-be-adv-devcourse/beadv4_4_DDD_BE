@@ -1,13 +1,13 @@
 package com.modeunsa.shared.payment.dto;
 
 import java.math.BigDecimal;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 @Getter
 @Builder
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class PaymentDto {
   private final Long orderId;
   private final String orderNo;
