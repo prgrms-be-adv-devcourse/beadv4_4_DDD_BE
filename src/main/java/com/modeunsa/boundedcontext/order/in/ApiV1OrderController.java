@@ -7,11 +7,14 @@ import com.modeunsa.shared.order.dto.CreateCartItemRequestDto;
 import com.modeunsa.shared.order.dto.CreateCartItemResponseDto;
 import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
 import com.modeunsa.shared.order.dto.CreateOrderResponseDto;
+import com.modeunsa.shared.order.dto.OrderListResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/orders")
 @RequiredArgsConstructor
 public class ApiV1OrderController {
+
   private final OrderFacade orderFacade;
 
   @Operation(summary = "장바구니에 상품 추가 기능", description = "장바구니에 상품을 추가하는 기능입니다.")
@@ -46,6 +50,18 @@ public class ApiV1OrderController {
     long memberId = 1;
 
     CreateOrderResponseDto dto = orderFacade.createOrder(memberId, requestDto);
+
+    return ApiResponse.onSuccess(SuccessStatus.OK, dto);
+  }
+
+  @Operation(summary = "주문 목록 조회 기능", description = "생성한 주문들의 목록을 확인할 수 있는 기능입니다.")
+  @GetMapping
+  public ResponseEntity<ApiResponse> getOrders() {
+    // @AuthenticationPrincipal Long memberId // 나중에 시큐리티 적용 시
+    // [TODO] 실제 로그인한 유저 ID를 가져오는 로직 추가
+    long memberId = 1;
+
+    List<OrderListResponseDto> dto = orderFacade.getOrders(memberId);
 
     return ApiResponse.onSuccess(SuccessStatus.OK, dto);
   }

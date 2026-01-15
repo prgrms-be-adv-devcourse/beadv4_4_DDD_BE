@@ -9,6 +9,7 @@ import com.modeunsa.boundedcontext.member.domain.entity.MemberSeller;
 import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
 import com.modeunsa.boundedcontext.member.out.repository.MemberSellerRepository;
+import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -17,8 +18,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 
 @Configuration
 @Slf4j
@@ -32,8 +31,7 @@ public class MemberDataInit {
   public MemberDataInit(
       @Lazy MemberDataInit self,
       MemberRepository memberRepository,
-      MemberSellerRepository memberSellerRepository
-  ) {
+      MemberSellerRepository memberSellerRepository) {
     this.self = self;
     this.memberRepository = memberRepository;
     this.memberSellerRepository = memberSellerRepository;
@@ -64,7 +62,8 @@ public class MemberDataInit {
     // 2. 일반 회원 - 카카오 로그인
     Member user1 = createMember("user1@example.com", "김모든", "010-1111-1111", MemberRole.MEMBER);
     createProfile(user1, "모든이", "https://example.com/profile1.jpg", 175, 70, "지성");
-    createDefaultAddress(user1, "김모든", "010-1111-1111", "06234", "서울시 강남구 테헤란로 123", "101동 1001호", "집");
+    createDefaultAddress(
+        user1, "김모든", "010-1111-1111", "06234", "서울시 강남구 테헤란로 123", "101동 1001호", "집");
     addOAuthAccount(user1, OAuthProvider.KAKAO, "kakao_12345");
     memberRepository.save(user1);
 
@@ -78,7 +77,8 @@ public class MemberDataInit {
     // 4. 일반 회원 - 복수 소셜 계정 연동
     Member user3 = createMember("user3@example.com", "박연동", "010-3333-3333", MemberRole.MEMBER);
     createProfile(user3, "연동이", null, 180, 75, "복합성");
-    createDefaultAddress(user3, "박연동", "010-3333-3333", "13494", "경기도 성남시 분당구 판교로 256", "A동 502호", "집");
+    createDefaultAddress(
+        user3, "박연동", "010-3333-3333", "13494", "경기도 성남시 분당구 판교로 256", "A동 502호", "집");
     addAddress(user3, "박연동", "010-3333-3333", "06164", "서울시 강남구 삼성로 512", "15층", "회사", false);
     addOAuthAccount(user3, OAuthProvider.KAKAO, "kakao_11111");
     addOAuthAccount(user3, OAuthProvider.NAVER, "naver_22222");
@@ -87,19 +87,21 @@ public class MemberDataInit {
     // 5. 판매자 회원 (승인 완료)
     Member seller1 = createMember("seller1@example.com", "최판매", "010-4444-4444", MemberRole.SELLER);
     createProfile(seller1, "판매왕", "https://example.com/seller1.jpg", null, null, null);
-    createDefaultAddress(seller1, "최판매", "010-4444-4444", "07281", "서울시 영등포구 여의대로 108", "1201호", "사무실");
+    createDefaultAddress(
+        seller1, "최판매", "010-4444-4444", "07281", "서울시 영등포구 여의대로 108", "1201호", "사무실");
     addOAuthAccount(seller1, OAuthProvider.KAKAO, "kakao_seller1");
     memberRepository.save(seller1);
 
-    MemberSeller activeSeller = MemberSeller.builder()
-        .member(seller1)
-        .businessName("모든상점")
-        .representativeName("최판매")
-        .settlementBankName("신한은행")
-        .settlementBankAccount("110-123-456789")
-        .businessLicenseUrl("https://example.com/license1.pdf")
-        .requestedAt(LocalDateTime.now().minusDays(30))
-        .build();
+    MemberSeller activeSeller =
+        MemberSeller.builder()
+            .member(seller1)
+            .businessName("모든상점")
+            .representativeName("최판매")
+            .settlementBankName("신한은행")
+            .settlementBankAccount("110-123-456789")
+            .businessLicenseUrl("https://example.com/license1.pdf")
+            .requestedAt(LocalDateTime.now().minusDays(30))
+            .build();
     activeSeller.approve();
     memberSellerRepository.save(activeSeller);
 
@@ -109,15 +111,16 @@ public class MemberDataInit {
     addOAuthAccount(seller2, OAuthProvider.NAVER, "naver_seller2");
     memberRepository.save(seller2);
 
-    MemberSeller pendingSeller = MemberSeller.builder()
-        .member(seller2)
-        .businessName("대기상점")
-        .representativeName("정대기")
-        .settlementBankName("국민은행")
-        .settlementBankAccount("123-45-6789012")
-        .businessLicenseUrl("https://example.com/license2.pdf")
-        .requestedAt(LocalDateTime.now().minusDays(3))
-        .build();
+    MemberSeller pendingSeller =
+        MemberSeller.builder()
+            .member(seller2)
+            .businessName("대기상점")
+            .representativeName("정대기")
+            .settlementBankName("국민은행")
+            .settlementBankAccount("123-45-6789012")
+            .businessLicenseUrl("https://example.com/license2.pdf")
+            .requestedAt(LocalDateTime.now().minusDays(3))
+            .build();
     memberSellerRepository.save(pendingSeller);
 
     // 7. 프로필만 있는 회원 (배송지 없음)
@@ -126,7 +129,8 @@ public class MemberDataInit {
     addOAuthAccount(user4, OAuthProvider.KAKAO, "kakao_newuser");
     memberRepository.save(user4);
 
-    log.info("Member base data initialization completed. Total members: {}", memberRepository.count());
+    log.info(
+        "Member base data initialization completed. Total members: {}", memberRepository.count());
   }
 
   private Member createMember(String email, String realName, String phoneNumber, MemberRole role) {
@@ -138,52 +142,74 @@ public class MemberDataInit {
         .build();
   }
 
-  private void createProfile(Member member, String nickname, String profileImageUrl,
-      Integer heightCm, Integer weightKg, String skinType) {
-    MemberProfile profile = MemberProfile.builder()
-        .nickname(nickname)
-        .profileImageUrl(profileImageUrl)
-        .heightCm(heightCm)
-        .weightKg(weightKg)
-        .skinType(skinType)
-        .build();
+  private void createProfile(
+      Member member,
+      String nickname,
+      String profileImageUrl,
+      Integer heightCm,
+      Integer weightKg,
+      String skinType) {
+    MemberProfile profile =
+        MemberProfile.builder()
+            .nickname(nickname)
+            .profileImageUrl(profileImageUrl)
+            .heightCm(heightCm)
+            .weightKg(weightKg)
+            .skinType(skinType)
+            .build();
     member.setProfile(profile);
   }
 
-  private void createDefaultAddress(Member member, String recipientName, String recipientPhone,
-      String zipCode, String address, String addressDetail, String addressName) {
-    MemberDeliveryAddress deliveryAddress = MemberDeliveryAddress.builder()
-        .recipientName(recipientName)
-        .recipientPhone(recipientPhone)
-        .zipCode(zipCode)
-        .address(address)
-        .addressDetail(addressDetail)
-        .addressName(addressName)
-        .isDefault(true)
-        .build();
+  private void createDefaultAddress(
+      Member member,
+      String recipientName,
+      String recipientPhone,
+      String zipCode,
+      String address,
+      String addressDetail,
+      String addressName) {
+    MemberDeliveryAddress deliveryAddress =
+        MemberDeliveryAddress.builder()
+            .recipientName(recipientName)
+            .recipientPhone(recipientPhone)
+            .zipCode(zipCode)
+            .address(address)
+            .addressDetail(addressDetail)
+            .addressName(addressName)
+            .isDefault(true)
+            .build();
     member.addAddress(deliveryAddress);
   }
 
-  private void addAddress(Member member, String recipientName, String recipientPhone,
-      String zipCode, String address, String addressDetail, String addressName, boolean isDefault) {
-    MemberDeliveryAddress deliveryAddress = MemberDeliveryAddress.builder()
-        .recipientName(recipientName)
-        .recipientPhone(recipientPhone)
-        .zipCode(zipCode)
-        .address(address)
-        .addressDetail(addressDetail)
-        .addressName(addressName)
-        .isDefault(isDefault)
-        .build();
+  private void addAddress(
+      Member member,
+      String recipientName,
+      String recipientPhone,
+      String zipCode,
+      String address,
+      String addressDetail,
+      String addressName,
+      boolean isDefault) {
+    MemberDeliveryAddress deliveryAddress =
+        MemberDeliveryAddress.builder()
+            .recipientName(recipientName)
+            .recipientPhone(recipientPhone)
+            .zipCode(zipCode)
+            .address(address)
+            .addressDetail(addressDetail)
+            .addressName(addressName)
+            .isDefault(isDefault)
+            .build();
     member.addAddress(deliveryAddress);
   }
 
   private void addOAuthAccount(Member member, OAuthProvider provider, String providerAccountId) {
-    AuthSocialAccount socialAccount = AuthSocialAccount.builder()
-        .member(member)
-        .oauthProvider(provider)
-        .providerAccountId(providerAccountId)
-        .build();
+    AuthSocialAccount socialAccount =
+        AuthSocialAccount.builder()
+            .member(member)
+            .oauthProvider(provider)
+            .providerAccountId(providerAccountId)
+            .build();
     member.addOAuthAccount(socialAccount);
   }
 }

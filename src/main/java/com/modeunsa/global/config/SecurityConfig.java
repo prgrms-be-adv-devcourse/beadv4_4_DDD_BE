@@ -1,8 +1,6 @@
 package com.modeunsa.global.config;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,21 +18,16 @@ public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http
-        .csrf(csrf -> csrf.disable())
+    http.csrf(csrf -> csrf.disable())
         .headers(headers -> headers.frameOptions(FrameOptionsConfig::sameOrigin));
 
     if (securityProperties.isPermitAll()) {
-      http.authorizeHttpRequests(auth ->
-          auth.anyRequest().permitAll()
-      );
+      http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
     } else {
       String[] permittedUrls = securityProperties.getPermitUrls().toArray(new String[0]);
 
-      http.authorizeHttpRequests(auth ->
-          auth.requestMatchers(permittedUrls).permitAll()
-              .anyRequest().authenticated()
-      );
+      http.authorizeHttpRequests(
+          auth -> auth.requestMatchers(permittedUrls).permitAll().anyRequest().authenticated());
     }
 
     return http.build();
