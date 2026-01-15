@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum ReferenceType {
-  PAYMENT_MEMBER("결제_회원"),
+  PAYMENT_MEMBER("결제 회원"),
   PAYMENT("결제"),
   ORDER("주문"),
   PAYOUT("정산");
