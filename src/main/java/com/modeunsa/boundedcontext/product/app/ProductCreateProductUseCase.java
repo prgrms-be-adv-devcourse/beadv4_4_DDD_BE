@@ -56,7 +56,7 @@ public class ProductCreateProductUseCase {
           || productRequest.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
         throw new GeneralException(ErrorStatus.PRODUCT_PRICE_REQUIRED);
       }
-      if (productRequest.getQty() <= 0) {
+      if (productRequest.getQuantity() <= 0) {
         throw new GeneralException(ErrorStatus.PRODUCT_QTY_REQUIRED);
       }
     }

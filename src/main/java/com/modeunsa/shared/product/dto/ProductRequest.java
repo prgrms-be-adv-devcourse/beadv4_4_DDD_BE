@@ -25,5 +25,5 @@ public class ProductRequest {
   private ProductCurrency currency;
   private ProductStatus productStatus;
   private SaleStatus saleStatus;
-  private int qty;
+  private int quantity;
 }
