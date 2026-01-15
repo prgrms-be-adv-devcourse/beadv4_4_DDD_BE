@@ -6,7 +6,10 @@ import com.modeunsa.shared.order.dto.CreateCartItemRequestDto;
 import com.modeunsa.shared.order.dto.CreateCartItemResponseDto;
 import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
 import com.modeunsa.shared.order.dto.CreateOrderResponseDto;
+import com.modeunsa.shared.order.dto.OrderListResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +20,7 @@ public class OrderFacade {
   private final OrderCreateCartItemUsecase orderCreateCartItemUsecase;
   private final OrderSupport orderSupport;
   private final OrderCreateOrderUsecase orderCreateOrderUseCase;
+  private final OrderGetOrdersUseCase orderGetOrdersUseCase;
 
   // 장바구니 아이템 생성
   @Transactional
@@ -49,5 +53,9 @@ public class OrderFacade {
 
   public long countOrder() {
     return orderSupport.countOrder();
+  }
+
+  public Page<OrderListResponseDto> getOrders(long memberId, Pageable pageable) {
+    return orderGetOrdersUseCase.getOrders(memberId, pageable);
   }
 }
