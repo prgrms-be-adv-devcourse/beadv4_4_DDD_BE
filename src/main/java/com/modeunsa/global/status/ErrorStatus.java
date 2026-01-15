@@ -70,8 +70,11 @@ public enum ErrorStatus {
   PAYMENT_ACCOUNT_INVALID(HttpStatus.BAD_REQUEST, "PAYMENT_400_003", "잘못된 요청입니다."),
   PAYMENT_INSUFFICIENT_BALANCE(
       HttpStatus.BAD_REQUEST, "PAYMENT_400_004", "결제 계좌 잔액이 부족하여 결제를 진행할 수 없습니다."),
+  PAYMENT_DUPLICATE(HttpStatus.BAD_REQUEST, "PAYMENT_400_005", "이미 결제된 주문입니다."),
+  PAYMENT_MEMBER_IN_ACTIVE(HttpStatus.BAD_REQUEST, "PAYMENT_400_006", "결제 회원이 활성 상태가 아닙니다."),
   PAYMENT_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_001", "결제 회원 정보를 찾을 수 없습니다."),
-  PAYMENT_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_002", "결제 회원 정보를 찾을 수 없습니다.");
+  PAYMENT_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_002", "결제 회원 정보를 찾을 수 없습니다."),
+  PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_003", "결제 정보를 찾을 수 없습니다.");
 
   private final HttpStatus httpStatus;
   private final String code;

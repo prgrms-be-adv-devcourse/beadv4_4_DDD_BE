@@ -51,4 +51,8 @@ public class PaymentMember extends ManualIdAndAuditedEntity {
   private static String generateCustomerKey(Long id) {
     return String.format("%s_%08d", customerKeyPrefix, id);
   }
+
+  public boolean canOrder() {
+    return this.status == MemberStatus.ACTIVE;
+  }
 }

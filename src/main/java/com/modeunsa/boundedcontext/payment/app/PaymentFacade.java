@@ -5,11 +5,15 @@ import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositResponse
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentMemberDto;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentPayoutDto;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequest;
+import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequestResult;
+import com.modeunsa.boundedcontext.payment.app.dto.PaymentResponse;
+import com.modeunsa.boundedcontext.payment.app.usecase.PaymentChargePgUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCompleteUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreateAccountUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreditAccountUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentPayoutCompleteUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentRefundUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.PaymentRequestUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentSyncMemberUseCase;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
 import com.modeunsa.shared.payment.dto.PaymentDto;
@@ -27,9 +31,11 @@ public class PaymentFacade {
   private final PaymentSyncMemberUseCase paymentSyncMemberUseCase;
   private final PaymentCreateAccountUseCase paymentCreateAccountUseCase;
   private final PaymentCreditAccountUseCase paymentCreditAccountUseCase;
+  private final PaymentRequestUseCase paymentRequestUseCase;
   private final PaymentCompleteUseCase paymentCompleteUseCase;
   private final PaymentPayoutCompleteUseCase paymentPayoutCompleteUseCase;
   private final PaymentRefundUseCase paymentRefundUseCase;
+  private final PaymentChargePgUseCase paymentChargePgUseCase;
 
   @Transactional
   public void createPaymentMember(PaymentMemberDto paymentMemberDto) {
@@ -58,16 +64,6 @@ public class PaymentFacade {
   }
 
   @Transactional
-  public void paymentRequest(PaymentRequest paymentRequest) {
-
-    log.info("결제 요청 시작 - request: {}", paymentRequest);
-
-    paymentCompleteUseCase.execute(paymentRequest);
-
-    log.info("결제 요청 완료 - request: {}", paymentRequest);
-  }
-
-  @Transactional
   public void completePayout(PaymentPayoutDto payout) {
 
     log.info("정산 처리 시작 - payout: {}", payout);
@@ -85,5 +81,16 @@ public class PaymentFacade {
     paymentRefundUseCase.execute(payment, refundEventType);
 
     log.info("환불 처리 완료 - payment: {}", payment);
+  }
+
+  public PaymentResponse requestPayment(PaymentRequest paymentRequest) {
+    PaymentRequestResult result = paymentRequestUseCase.execute(paymentRequest);
+    paymentChargePgUseCase.execute(result);
+    paymentCompleteUseCase.execute(result);
+    return new PaymentResponse(
+        result.getBuyerId(),
+        result.getOrderNo(),
+        result.getOrderId(),
+        paymentRequest.getTotalAmount());
   }
 }

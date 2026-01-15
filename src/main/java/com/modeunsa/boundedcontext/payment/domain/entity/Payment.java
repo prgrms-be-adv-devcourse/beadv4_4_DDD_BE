@@ -1,5 +1,7 @@
 package com.modeunsa.boundedcontext.payment.domain.entity;
 
+import static jakarta.persistence.CascadeType.PERSIST;
+
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentStatus;
 import com.modeunsa.global.jpa.entity.AuditedEntity;
 import jakarta.persistence.Column;
@@ -8,7 +10,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Lob;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,11 +32,21 @@ public class Payment extends AuditedEntity {
   @EmbeddedId private PaymentId id;
 
   @Builder.Default
+  @OneToMany(
+      mappedBy = "payment",
+      cascade = {PERSIST})
+  private List<PaymentLog> paymentLogs = new ArrayList<>();
+
+  @Builder.Default
   @Column(nullable = false, length = 20)
   @Enumerated(EnumType.STRING)
   private PaymentStatus status = PaymentStatus.READY;
 
-  private long amount;
+  private Long orderId;
+
+  private BigDecimal totalAmount;
+
+  private BigDecimal pgPaymentAmount;
 
   private String pgProvider;
 
@@ -45,4 +61,35 @@ public class Payment extends AuditedEntity {
   @Lob private Integer pgRawResponse;
 
   @Lob private String pgFailureReason;
+
+  public static Payment create(
+      PaymentId id, Long orderId, BigDecimal totalAmount, BigDecimal pgPaymentAmount) {
+    Payment payment =
+        Payment.builder()
+            .id(id)
+            .orderId(orderId)
+            .totalAmount(totalAmount)
+            .pgPaymentAmount(pgPaymentAmount)
+            .status(PaymentStatus.READY)
+            .build();
+
+    payment.addInitialLog();
+    return payment;
+  }
+
+  public void changeStatus(PaymentStatus newStatus) {
+    PaymentStatus beforeStatus = this.status;
+    this.status = newStatus;
+    addPaymentLog(beforeStatus, newStatus);
+  }
+
+  private void addInitialLog() {
+    PaymentLog paymentLog = PaymentLog.addInitialLog(this, status);
+    this.paymentLogs.add(paymentLog);
+  }
+
+  private void addPaymentLog(PaymentStatus beforeStatus, PaymentStatus afterStatus) {
+    PaymentLog paymentLog = PaymentLog.addLog(this, beforeStatus, afterStatus);
+    this.paymentLogs.add(paymentLog);
+  }
 }

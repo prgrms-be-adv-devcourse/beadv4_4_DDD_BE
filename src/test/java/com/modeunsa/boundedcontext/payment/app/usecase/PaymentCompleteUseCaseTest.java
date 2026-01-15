@@ -3,8 +3,9 @@ package com.modeunsa.boundedcontext.payment.app.usecase;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequest;
+import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequestResult;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
+import com.modeunsa.boundedcontext.payment.app.support.PaymentSupport;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
@@ -24,6 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 public class PaymentCompleteUseCaseTest {
 
   @Mock private PaymentAccountSupport paymentAccountSupport;
+  @Mock private PaymentSupport paymentSupport;
   @Mock private SpringDomainEventPublisher eventPublisher;
 
   @InjectMocks private PaymentCompleteUseCase paymentCompleteUseCase;
@@ -45,17 +47,17 @@ public class PaymentCompleteUseCaseTest {
   }
 
   @Test
-  @DisplayName("결제 완료 처리 성공")
+  @DisplayName("PG 충전 없이 결제 처리")
   void executeCompletePayment() {
     // given
-    PaymentRequest request =
-        PaymentRequest.builder()
-            .orderId(1L)
-            .orderNo("ORDER12345")
-            .buyerId(buyerMember.getId())
-            .pgPaymentAmount(BigDecimal.valueOf(5000))
-            .salePrice(BigDecimal.valueOf(5000))
-            .build();
+    PaymentRequestResult paymentRequestResult =
+        new PaymentRequestResult(
+            buyerMember.getId(),
+            "ORDER12345",
+            1L,
+            false,
+            BigDecimal.valueOf(50000),
+            BigDecimal.valueOf(20000));
 
     when(paymentAccountSupport.getHolderAccount()).thenReturn(holderAccount);
     when(paymentAccountSupport.getPaymentAccountByMemberId(buyerMember.getId()))
@@ -65,13 +67,12 @@ public class PaymentCompleteUseCaseTest {
     BigDecimal buyerBalanceBefore = buyerAccount.getBalance();
 
     // when
-    paymentCompleteUseCase.execute(request);
+    paymentCompleteUseCase.execute(paymentRequestResult);
 
     // then
     assertThat(buyerAccount.getBalance())
-        .isEqualByComparingTo(
-            buyerBalanceBefore.add(request.getPgPaymentAmount()).subtract(request.getSalePrice()));
+        .isEqualByComparingTo(buyerBalanceBefore.subtract(paymentRequestResult.getTotalAmount()));
     assertThat(holderAccount.getBalance())
-        .isEqualByComparingTo(holderBalanceBefore.add(request.getSalePrice()));
+        .isEqualByComparingTo(holderBalanceBefore.add(paymentRequestResult.getTotalAmount()));
   }
 }
