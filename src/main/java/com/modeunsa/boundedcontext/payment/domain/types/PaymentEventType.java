@@ -23,7 +23,6 @@ public enum PaymentEventType {
     return switch (payoutEventType) {
       case FEE -> SETTLEMENT_PAY_PRODUCT_SALES_FEE;
       case AMOUNT -> SETTLEMENT_PAY_PRODUCT_SALES_AMOUNT;
-      default -> throw new IllegalArgumentException("Unknown PayoutEventType: " + payoutEventType);
     };
   }
 }
