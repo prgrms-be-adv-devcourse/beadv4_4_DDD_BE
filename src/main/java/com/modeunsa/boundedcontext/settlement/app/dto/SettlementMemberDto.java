@@ -1,4 +1,4 @@
-package com.modeunsa.shared.settlement.dto;
+package com.modeunsa.boundedcontext.settlement.app.dto;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -7,4 +7,5 @@ import lombok.Getter;
 @Builder
 public class SettlementMemberDto {
   private final Long memberId;
+  private final String name;
 }
