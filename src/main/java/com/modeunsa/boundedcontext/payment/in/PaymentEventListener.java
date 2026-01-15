@@ -7,6 +7,7 @@ import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentPayoutDto;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequest;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentMemberCreatedEvent;
+import com.modeunsa.boundedcontext.payment.app.event.PaymentOrderCanceledEvent;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentPayoutCompletedEvent;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentRequestEvent;
 import com.modeunsa.boundedcontext.payment.app.mapper.PaymentMapper;
@@ -105,7 +106,6 @@ public class PaymentEventListener {
 
     try {
       paymentFacade.refund(payment, RefundEventType.PAYMENT_FAILED);
-
       log.info(
           "PaymentFailedEvent 처리 완료 - buyerId: {}, orderNo: {}",
           payment.getBuyerId(),
@@ -115,6 +115,30 @@ public class PaymentEventListener {
           "PaymentFailedEvent 처리 실패 - buyerId: {}, orderNo: {}",
           payment.getBuyerId(),
           payment.getOrderNo(),
+          e);
+      throw e;
+    }
+  }
+
+  @TransactionalEventListener(phase = AFTER_COMMIT)
+  @Transactional(propagation = REQUIRES_NEW)
+  public void handleOrderCanceledEvent(PaymentOrderCanceledEvent paymentOrderCanceledEvent) {
+
+    PaymentDto payment = paymentMapper.toPaymentDto(paymentOrderCanceledEvent.getOrder());
+
+    log.info(
+        "PaymentOrderCanceledEvent 수신 - orderId: {}",
+        paymentOrderCanceledEvent.getOrder().getOrderId());
+
+    try {
+      paymentFacade.refund(payment, RefundEventType.ORDER_CANCELLED);
+      log.info(
+          "PaymentOrderCanceledEvent 처리 완료 - orderId: {}",
+          paymentOrderCanceledEvent.getOrder().getOrderId());
+    } catch (Exception e) {
+      log.error(
+          "PaymentOrderCanceledEvent 처리 실패 - orderId: {}",
+          paymentOrderCanceledEvent.getOrder().getOrderId(),
           e);
       throw e;
     }
