@@ -45,6 +45,7 @@ dependencies {
     // Security + OAuth2
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    testImplementation 'org.springframework.security:spring-security-test'
 
     // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
@@ -62,17 +63,12 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.springframework.batch:spring-batch-test'
-    testImplementation 'org.awaitility:awaitility:4.2.0'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.3'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
-    testLogging {
-        showStandardStreams = true  // 테스트 로그 출력
-        events "passed", "skipped", "failed"
-    }
 }
 
 spotless {

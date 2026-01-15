@@ -1,0 +1,8 @@
+security:
+  permit-all: false
+  permit-urls: /api/v1/auths/oauth/**
+spring:
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: validate

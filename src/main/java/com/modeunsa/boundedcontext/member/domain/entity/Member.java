@@ -3,7 +3,7 @@ package com.modeunsa.boundedcontext.member.domain.entity;
 import static com.modeunsa.global.status.ErrorStatus.MEMBER_ADDRESS_LIMIT_EXCEEDED;
 import static com.modeunsa.global.status.ErrorStatus.MEMBER_DEFAULT_ADDRESS_REQUIRED;
 
-import com.modeunsa.boundedcontext.auth.domain.entity.MemberOAuth;
+import com.modeunsa.boundedcontext.auth.domain.entity.AuthSocialAccount;
 import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.boundedcontext.member.domain.types.MemberStatus;
 import com.modeunsa.global.exception.GeneralException;
@@ -55,14 +55,14 @@ public class Member extends GeneratedIdAndAuditedEntity {
 
   @Builder.Default
   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<MemberOAuth> oauthAccounts = new ArrayList<>();
+  private List<AuthSocialAccount> oauthSocialAccounts = new ArrayList<>();
 
   @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private MemberProfile profile;
 
   @Builder.Default
   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<DeliveryAddress> addresses = new ArrayList<>();
+  private List<MemberDeliveryAddress> addresses = new ArrayList<>();
 
   @Column private LocalDateTime withdrawalRequestedAt;
 
@@ -73,7 +73,7 @@ public class Member extends GeneratedIdAndAuditedEntity {
   }
 
   // 배송지 추가
-  public void addAddress(DeliveryAddress address) {
+  public void addAddress(MemberDeliveryAddress address) {
     if (addresses.size() >= 10) {
       throw new GeneralException(MEMBER_ADDRESS_LIMIT_EXCEEDED);
     }
@@ -82,7 +82,7 @@ public class Member extends GeneratedIdAndAuditedEntity {
   }
 
   // 기존 기본 배송지 해제 후 새 기본 배송지 설정
-  public void setNewDefaultAddress(DeliveryAddress newDefault) {
+  public void setNewDefaultAddress(MemberDeliveryAddress newDefault) {
     if (newDefault == null) {
       throw new GeneralException(MEMBER_DEFAULT_ADDRESS_REQUIRED);
     }
@@ -98,7 +98,7 @@ public class Member extends GeneratedIdAndAuditedEntity {
     }
 
     // 기존 기본 배송지 해제
-    for (DeliveryAddress address : addresses) {
+    for (MemberDeliveryAddress address : addresses) {
       if (address.getIsDefault()) {
         address.unsetDefault();
       }
@@ -123,7 +123,7 @@ public class Member extends GeneratedIdAndAuditedEntity {
     this.status = status;
   }
 
-  public void addOAuthAccount(MemberOAuth oauth) {
-    oauthAccounts.add(oauth);
+  public void addOAuthAccount(AuthSocialAccount oauth) {
+    oauthSocialAccounts.add(oauth);
   }
 }
