@@ -19,9 +19,7 @@ public class OAuthUrlUseCase {
   @Value("${security.oauth2.allowed-redirect-domains:}")
   private List<String> allowedRedirectDomains;
 
-  /**
-   * OAuth2 로그인 URL 생성
-   */
+  /** OAuth2 로그인 URL 생성 */
   public String generateOAuthUrl(OAuthProvider provider, String redirectUri) {
     validateRedirectUri(redirectUri);
     return oauthClientFactory.getClient(provider).generateOAuthUrl(redirectUri);
@@ -53,15 +51,15 @@ public class OAuthUrlUseCase {
       throw new GeneralException(ErrorStatus.OAUTH_INVALID_REDIRECT_URI);
     }
 
-    boolean isAllowed = allowedRedirectDomains.stream()
-        .anyMatch(allowedHost ->
-            host.equalsIgnoreCase(allowedHost)
-                || host.toLowerCase().endsWith("." + allowedHost.toLowerCase())
-        );
+    boolean isAllowed =
+        allowedRedirectDomains.stream()
+            .anyMatch(
+                allowedHost ->
+                    host.equalsIgnoreCase(allowedHost)
+                        || host.toLowerCase().endsWith("." + allowedHost.toLowerCase()));
 
     if (!isAllowed) {
       throw new GeneralException(ErrorStatus.OAUTH_INVALID_REDIRECT_URI);
     }
   }
-
 }
