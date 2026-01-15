@@ -1,6 +1,7 @@
 package com.modeunsa.boundedcontext.payment.app.usecase;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
@@ -9,6 +10,8 @@ import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
+import com.modeunsa.global.exception.GeneralException;
+import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.payment.dto.PaymentDto;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;
@@ -99,5 +102,30 @@ public class PaymentRefundUseCaseTest {
         .isEqualByComparingTo(holderBalanceBefore.subtract(request.getPgPaymentAmount()));
     assertThat(buyerAccount.getBalance())
         .isEqualByComparingTo(buyerBalanceBefore.add(request.getPgPaymentAmount()));
+  }
+
+  @Test
+  @DisplayName("환불 처리 실패 - 홀더 계좌 잔액 부족")
+  void executeRefundFailureInsufficientBalance() {
+    // given
+    PaymentAccount insufficientHolderAccount = PaymentAccount.create(holderMember);
+    insufficientHolderAccount.credit(
+        BigDecimal.valueOf(3000), PaymentEventType.CHARGE_BANK_TRANSFER);
+
+    PaymentDto request =
+        PaymentDto.builder()
+            .orderId(1L)
+            .orderNo("ORDER12345")
+            .buyerId(buyerMember.getId())
+            .pgPaymentAmount(BigDecimal.valueOf(5000))
+            .build();
+
+    when(paymentAccountSupport.getHolderAccount()).thenReturn(insufficientHolderAccount);
+
+    // when, then
+    assertThatThrownBy(() -> paymentRefundUseCase.execute(request, RefundEventType.PAYMENT_FAILED))
+        .isInstanceOf(GeneralException.class)
+        .extracting("errorStatus")
+        .isEqualTo(ErrorStatus.PAYMENT_INSUFFICIENT_BALANCE);
   }
 }
