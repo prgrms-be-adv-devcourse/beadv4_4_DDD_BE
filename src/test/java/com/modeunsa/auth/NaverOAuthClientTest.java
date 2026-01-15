@@ -62,18 +62,19 @@ class NaverOAuthClientTest {
     when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
     String url = naverOAuthClient.generateOAuthUrl(null);
+    String provider = OAuthProvider.NAVER.name();
 
     // URL 검증
     assertThat(url).contains("https://nid.naver.com/oauth2.0/authorize");
     assertThat(url).contains("client_id=test-naver-client-id");
     assertThat(url).contains("redirect_uri=http://127.0.0.1:8080/login/oauth2/code/naver");
     assertThat(url).contains("response_type=code");
-    assertThat(url).contains("state="); // state 파라미터 존재 확인
+    assertThat(url).contains("state=");
 
     // Redis 저장 검증
     verify(valueOperations).set(
         startsWith("oauth:state:"),
-        eq("NAVER"), // 혹은 OAuthProvider.NAVER.name()
+        eq(provider),
         eq(Duration.ofMinutes(5))
     );
   }

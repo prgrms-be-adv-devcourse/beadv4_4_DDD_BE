@@ -62,6 +62,7 @@ class KakaoOAuthClientTest {
     when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
     String url = kakaoOAuthClient.generateOAuthUrl(null);
+    String provider = OAuthProvider.KAKAO.name();
 
     // URL 검증
     assertThat(url).contains("https://kauth.kakao.com/oauth/authorize");
@@ -73,8 +74,8 @@ class KakaoOAuthClientTest {
     // Redis 저장 검증
     verify(valueOperations).set(
         startsWith("oauth:state:"),
-        eq("KAKAO"),
-        any(Duration.class)
+        eq(provider),
+        eq(Duration.ofMinutes(5))
     );
   }
 
