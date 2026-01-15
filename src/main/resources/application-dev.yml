@@ -3,11 +3,8 @@ server:
 
 security:
   permit-all: false
-  permit-urls:
-    - /h2-console/**
-    - /swagger-ui/**
-    - /v3/api-docs/**
-    - /api/v1/auths/oauth/**
+  permit-urls: /h2-console/**,/swagger-ui/**,/v3/api-docs/**,/api/v1/auths/oauth/**
+
 
 spring:
   application:

@@ -2,5 +2,4 @@ server:
   port: 8080
 security:
   permit-all: false
-  permit-urls:
-    - /api/v1/auths/oauth/**
+  permit-urls: /api/v1/auths/oauth/**
