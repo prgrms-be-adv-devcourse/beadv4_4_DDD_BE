@@ -5,6 +5,8 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
@@ -25,80 +27,47 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Content extends GeneratedIdAndAuditedEntity {
 
-  private Long authorUserId; // 작성자 ID
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "content_author_id")
+  private ContentMember author;
 
   @Column(nullable = false, length = 500)
   private String text;
 
-  @Builder.Default
-  @OneToMany(
-    mappedBy = "content",
-    fetch = FetchType.LAZY,
-    cascade = CascadeType.ALL,
-    orphanRemoval = true
-  )
+  @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
   @OrderBy("id ASC")
   private List<ContentTag> tags = new ArrayList<>();
 
-  @Builder.Default
-  @OneToMany(
-    mappedBy = "content",
-    fetch = FetchType.LAZY,
-    cascade = CascadeType.ALL,
-    orphanRemoval = true
-  )
+  @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
   @OrderBy("sortOrder ASC, id ASC")
   private List<ContentImage> images = new ArrayList<>();
 
-  private LocalDateTime deletedAt;
 
-  // 생성
-  public static Content create(Long authorUserId, String text) {
-    return Content.builder()
-      .authorUserId(authorUserId)
-      .text(text)
-      .build();
-  }
-
-  // 수정
-  public void update(Long requesterId, String newText) {
-    if (!isAuthor(requesterId)) {
-      return;
-    }
-    this.text = newText;
-  }
-
-  // 삭제
-  public void delete(Long requesterId) {
-    if (!isAuthor(requesterId)) {
-      return;
-    }
-    this.deletedAt = LocalDateTime.now();
-  }
-
-  public boolean isDeleted() {
-    return this.deletedAt != null;
-  }
-
-  public boolean isAuthor(Long requesterId) {
-    return requesterId != null && requesterId.equals(this.authorUserId);
-  }
-
-  public void clearTags() {
-    this.tags.clear();
-  }
-
-  public void clearImages() {
-    this.images.clear();
-  }
-
+  // 태그 추가, 내부 연관관계 일관되게 유지
   public void addTag(ContentTag tag) {
+    tags.add(tag);
     tag.setContent(this);
-    this.tags.add(tag);
   }
 
+  // 태그 제거
+  public void removeTag(ContentTag tag) {
+    tags.remove(tag);
+    tag.setContent(null);
+  }
+
+  // 이미지 추가
   public void addImage(ContentImage image) {
+    images.add(image);
     image.setContent(this);
-    this.images.add(image);
+  }
+
+  // 이미지 제거
+  public void removeImage(ContentImage image) {
+    images.remove(image);
+    image.setContent(null);
+  }
+
+  public void setAuthor(ContentMember author) {
+    this.author = author;
   }
 }

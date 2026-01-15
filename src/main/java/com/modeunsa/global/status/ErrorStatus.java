@@ -31,7 +31,12 @@ public enum ErrorStatus {
   SELLER_NOT_FOUND(HttpStatus.NOT_FOUND, "SELLER404", "판매자 정보가 없습니다."),
   SELLER_ALREADY_REGISTERED(HttpStatus.CONFLICT, "SELLER409", "이미 판매자 신청을 하셨습니다."),
   SELLER_CANNOT_APPROVE(HttpStatus.BAD_REQUEST, "SELLER400", "PENDING 상태의 판매자만 승인할 수 있습니다."),
-  SELLER_CANNOT_REJECT(HttpStatus.BAD_REQUEST, "SELLER401", "PENDING 상태의 판매자만 거절할 수 있습니다.");
+  SELLER_CANNOT_REJECT(HttpStatus.BAD_REQUEST, "SELLER401", "PENDING 상태의 판매자만 거절할 수 있습니다."),
+
+  // Content
+  CONTENT_TAG_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "CONTENT400", "TAG는 NULL일 수 없습니다."),
+  CONTENT_TAG_LENGTH_EXCEEDED(HttpStatus.BAD_REQUEST, "CONTENT401", "TAG는 최대 10자입니다."),
+  CONTENT_IMAGE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "CONTENT402", "IMAGE는 NULL일 수 없습니다.");
 
   private final HttpStatus httpStatus;
   private final String code;

@@ -1,7 +1,9 @@
 package com.modeunsa.boundedcontext.content.domain.entity;
 
+import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 
+import com.modeunsa.global.status.ErrorStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -26,10 +28,25 @@ public class ContentImage extends GeneratedIdAndAuditedEntity {
 
   private String imageUrl;
   private Boolean isPrimary;  //노출 순서
+
   @Builder.Default
   private int sortOrder = 0;
 
-  public void setProduct(Content content) {
+  public ContentImage(String imageUrl, Boolean isPrimary, int sortOrder) {
+    validate(imageUrl);
+    this.imageUrl = imageUrl.trim();
+    this.isPrimary = isPrimary != null && isPrimary;
+    this.sortOrder = sortOrder;
+  }
+
+  // Aggregate 내부(Content)에서만 호출
+  void setContent(Content content) {
     this.content = content;
+  }
+
+  private void validate(String imageUrl) {
+    if (imageUrl == null || imageUrl.isBlank()) {
+      throw new GeneralException(ErrorStatus.CONTENT_IMAGE_LIMIT_EXCEEDED);
+    }
   }
 }

@@ -30,3 +30,6 @@ public class ContentSupport {
     return contentRepository.findByDeletedAtIsNullOrderByIdDesc(pageable);
   }
 }
+
+
+// 목록 조회를 위한 클래스
