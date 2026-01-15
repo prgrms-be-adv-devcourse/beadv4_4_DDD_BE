@@ -4,8 +4,10 @@ import static org.springframework.transaction.annotation.Propagation.REQUIRES_NE
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
+import com.modeunsa.boundedcontext.payment.app.dto.PaymentPayoutDto;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequest;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentMemberCreatedEvent;
+import com.modeunsa.boundedcontext.payment.app.event.PaymentPayoutCompletedEvent;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentRequestEvent;
 import com.modeunsa.boundedcontext.payment.app.mapper.PaymentMapper;
 import lombok.RequiredArgsConstructor;
@@ -57,6 +59,31 @@ public class PaymentEventListener {
           "PaymentRequestEvent 처리 실패 - buyerId: {}, orderNo: {}",
           paymentRequestEvent.getBuyerId(),
           paymentRequestEvent.getOrderNo(),
+          e);
+      throw e;
+    }
+  }
+
+  @TransactionalEventListener(phase = AFTER_COMMIT)
+  @Transactional(propagation = REQUIRES_NEW)
+  public void handlePayoutCompletedEvent(PaymentPayoutCompletedEvent paymentPayoutCompletedEvent) {
+    log.info(
+        "PayoutCompletedEvent 수신 - payoutId: {}, payeeId : {}",
+        paymentPayoutCompletedEvent.getPayout().getId(),
+        paymentPayoutCompletedEvent.getPayout().getPayeeId());
+
+    try {
+      PaymentPayoutDto payout = paymentPayoutCompletedEvent.getPayout();
+      paymentFacade.completePayout(payout);
+      log.info(
+          "PayoutCompletedEvent 처리 완료 - payoutId: {}, payeeId : {}",
+          paymentPayoutCompletedEvent.getPayout().getId(),
+          paymentPayoutCompletedEvent.getPayout().getPayeeId());
+    } catch (Exception e) {
+      log.error(
+          "PayoutCompletedEvent 처리 실패 - payoutId: {}, payeeId : {}",
+          paymentPayoutCompletedEvent.getPayout().getId(),
+          paymentPayoutCompletedEvent.getPayout().getPayeeId(),
           e);
       throw e;
     }
