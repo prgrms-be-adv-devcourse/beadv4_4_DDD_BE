@@ -95,14 +95,13 @@ public class JwtTokenProvider {
   /**
    * 토큰 유효성 검증
    */
-  public boolean validateTokenOrThrow(String token) {
+  public void validateTokenOrThrow(String token) {
     if (!StringUtils.hasText(token)) {
       throw new GeneralException(ErrorStatus.AUTH_INVALID_TOKEN);
     }
 
     try {
       parseClaims(token);
-      return true;
     } catch (ExpiredJwtException e) {
       throw new GeneralException(ErrorStatus.AUTH_EXPIRED_TOKEN);
     } catch (MalformedJwtException e) {

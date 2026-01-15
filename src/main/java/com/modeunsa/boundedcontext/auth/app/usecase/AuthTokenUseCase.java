@@ -53,9 +53,7 @@ public class AuthTokenUseCase {
   @Transactional
   public TokenResponse reissueTokens(String refreshToken) {
     // 1. 토큰 자체의 유효성 검사
-    if (!jwtTokenProvider.validateTokenOrThrow(refreshToken)) {
-      throw new GeneralException(ErrorStatus.AUTH_INVALID_REFRESH_TOKEN);
-    }
+    jwtTokenProvider.validateTokenOrThrow(refreshToken);
 
     // 2. Refresh Token 타입 검증
     if (!jwtTokenProvider.isRefreshToken(refreshToken)) {
