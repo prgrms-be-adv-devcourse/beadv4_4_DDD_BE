@@ -1,7 +1,5 @@
 package com.modeunsa.global.config;
 
-import java.util.Arrays;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,19 +16,22 @@ public class SecurityConfig {
   private boolean permitAll;
 
   @Value("${security.permit-urls}")
-  private List<String> permitUrls;
+  private String[] permitUrls;
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http.csrf(csrf -> csrf.disable())
+    http
+        .csrf(csrf -> csrf.disable())
         .headers(headers -> headers.frameOptions(FrameOptionsConfig::sameOrigin));
 
     if (permitAll) {
-      http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+      http.authorizeHttpRequests(auth ->
+          auth.anyRequest().permitAll()
+      );
     } else {
-      http.authorizeHttpRequests(auth -> auth
-          .requestMatchers(permitUrls.toArray(String[]::new)).permitAll()
-          .anyRequest().authenticated()
+      http.authorizeHttpRequests(auth ->
+          auth.requestMatchers(permitUrls).permitAll()
+              .anyRequest().authenticated()
       );
     }
 
