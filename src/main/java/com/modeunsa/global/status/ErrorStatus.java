@@ -35,8 +35,10 @@ public enum ErrorStatus {
 
   // Content
   CONTENT_TAG_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "CONTENT400", "TAG는 NULL일 수 없습니다."),
-  CONTENT_TAG_LENGTH_EXCEEDED(HttpStatus.BAD_REQUEST, "CONTENT401", "TAG는 최대 10자입니다."),
-  CONTENT_IMAGE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "CONTENT402", "IMAGE는 NULL일 수 없습니다.");
+  CONTENT_TAG_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "CONTENT401", "TAG는 최대 5개입니다."),
+  CONTENT_TAG_LENGTH_EXCEEDED(HttpStatus.BAD_REQUEST, "CONTENT402", "TAG는 최대 10자입니다."),
+  CONTENT_IMAGE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "CONTENT403", "IMAGE는 NULL일 수 없습니다."),
+  CONTENT_TEXT_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "CONTENT404", "TEXT는 최대 500자입니다.");
 
   private final HttpStatus httpStatus;
   private final String code;

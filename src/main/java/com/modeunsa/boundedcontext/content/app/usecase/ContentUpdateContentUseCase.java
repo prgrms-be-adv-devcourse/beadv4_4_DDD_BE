@@ -1,59 +1,45 @@
 package com.modeunsa.boundedcontext.content.app.usecase;
 
+import com.modeunsa.boundedcontext.content.app.ContentSupport;
 import com.modeunsa.boundedcontext.content.app.dto.ContentRequest;
 import com.modeunsa.boundedcontext.content.app.dto.ContentResponse;
 import com.modeunsa.boundedcontext.content.app.mapper.ContentMapper;
 import com.modeunsa.boundedcontext.content.domain.entity.Content;
-import com.modeunsa.boundedcontext.content.domain.entity.ContentImage;
 import com.modeunsa.boundedcontext.content.domain.entity.ContentMember;
-import com.modeunsa.boundedcontext.content.domain.entity.ContentTag;
-import com.modeunsa.boundedcontext.content.out.ContentRepository;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class ContentCreateContentUseCase {
+public class ContentUpdateContentUseCase {
 
-  private final ContentRepository contentRepository;
+  private final ContentSupport contentSupport;
   private final ContentMapper contentMapper;
 
   @Transactional
-  public ContentResponse createContent(ContentRequest contentRequest, ContentMember author) {
-    this.validateContent(contentRequest);
-    Content content = contentMapper.toEntity(contentRequest);
+  public ContentResponse updateContent(Long contentId, ContentRequest contentRequest, ContentMember author) {
+    Content content = contentSupport.findById(contentId)
+      .orElseThrow(() -> new GeneralException(ErrorStatus._NOT_FOUND));
 
-    // 작성자 설정
-    content.setAuthor(author);
+    // validate
+    this.validateContent(content, contentRequest, author);
 
-    // 태그 생성 및 연관관계 설정
-    contentRequest.getTags().forEach(tagValue ->
-      content.addTag(new ContentTag(tagValue))
-    );
-
-    // 이미지 생성 및 연관관계 설정
-    contentRequest.getImages().forEach(imageRequest ->
-      content.addImage(
-        new ContentImage(
-          imageRequest.getImageUrl(),
-          imageRequest.getIsPrimary(),
-          imageRequest.getSortOrder()
-        )
-      )
-    );
-
-    // 저장
-    contentRepository.save(content);
-
-    // 응답 변환
+    // 3. 상태 변경
+    applyUpdate(content, contentRequest);
+    // 4. 결과 반환
     return contentMapper.toResponse(content);
   }
 
-  // 예외 처리
-  private void validateContent(ContentRequest contentRequest) {
+  private void  validateContent(Content content, ContentRequest contentRequest, ContentMember author) {
+    // 작성자 검증
+    if (!content.getAuthor().equals(author)) {
+      throw new GeneralException(ErrorStatus._FORBIDDEN);
+    }
+
+    // text 검증
     if (contentRequest.getText() == null || contentRequest.getText().isBlank()) {
       throw new GeneralException(ErrorStatus.VALIDATION_ERROR);
     }
@@ -62,6 +48,19 @@ public class ContentCreateContentUseCase {
       throw new GeneralException(ErrorStatus.CONTENT_TEXT_LIMIT_EXCEEDED);
     }
 
+
+    // image
+    if (contentRequest.getImages() == null) {
+      throw new GeneralException(ErrorStatus.VALIDATION_ERROR);
+    }
+
+    for (var image : contentRequest.getImages()) {
+      if (image.getImageUrl() == null || image.getImageUrl().isBlank()) {
+        throw new GeneralException(ErrorStatus.CONTENT_IMAGE_LIMIT_EXCEEDED);
+      }
+    }
+
+    // tag
     if (contentRequest.getTags() == null) {
       throw new GeneralException(ErrorStatus.VALIDATION_ERROR);
     }
@@ -78,15 +77,9 @@ public class ContentCreateContentUseCase {
         throw new GeneralException(ErrorStatus.CONTENT_TAG_LENGTH_EXCEEDED);
       }
     }
+  }
 
-    if (contentRequest.getImages() == null) {
-      throw new GeneralException(ErrorStatus.VALIDATION_ERROR);
-    }
+  private void applyUpdate(Content content, ContentRequest contentRequest) {
 
-    for (var image : contentRequest.getImages()) {
-      if (image.getImageUrl() == null || image.getImageUrl().isBlank()) {
-        throw new GeneralException(ErrorStatus.CONTENT_IMAGE_LIMIT_EXCEEDED);
-      }
-    }
   }
 }

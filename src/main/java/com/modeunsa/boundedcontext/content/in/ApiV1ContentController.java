@@ -26,11 +26,19 @@ public class ApiV1ContentController {
 
   private final ContentFacade contentFacade;
 
-  @Operation(summary = "콘텐츠 생성", description = "콘텐츠 생성")
+  @Operation(summary = "콘텐츠 생성", description = "콘텐츠를 생성합니다.")
   @PostMapping
   public ResponseEntity<ApiResponse> createContent(
     @Valid @RequestBody ContentRequest contentRequest, ContentMember author) {
     ContentResponse contentResponse = contentFacade.createContent(contentRequest, author);
     return ApiResponse.onSuccess(SuccessStatus._CREATED, contentResponse);
+  }
+
+  @Operation(summary = "콘텐츠 수정", description = "콘텐츠를 수정합니다.")
+  @PatchMapping("/{content_Id")
+  public ResponseEntity<ApiResponse> updateContent(
+    @PathVariable Long contentId, @Valid @RequestBody ContentRequest contentRequest, ContentMember author) {
+    ContentResponse contentResponse = contentFacade.updateContent(contentId, contentRequest, author);
+    return ApiResponse.onSuccess(SuccessStatus._OK, contentResponse);
   }
 }
