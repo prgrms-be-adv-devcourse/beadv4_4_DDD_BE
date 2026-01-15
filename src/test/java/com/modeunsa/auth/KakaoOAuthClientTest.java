@@ -2,7 +2,9 @@ package com.modeunsa.auth;
 
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import com.modeunsa.boundedcontext.auth.out.client.KakaoOAuthClient;
+import com.modeunsa.boundedcontext.auth.out.client.OAuthClientProperties;
 import java.time.Duration;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,12 +13,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.Mockito.verify;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class KakaoOAuthClientTest {
@@ -27,14 +30,23 @@ class KakaoOAuthClientTest {
   @Mock
   private ValueOperations<String, String> valueOperations;
 
+  @Mock
+  private OAuthClientProperties properties;
+
   private KakaoOAuthClient kakaoOAuthClient;
 
   @BeforeEach
   void setUp() {
-    kakaoOAuthClient = new KakaoOAuthClient(redisTemplate);
-    ReflectionTestUtils.setField(kakaoOAuthClient, "kakaoClientId", "test-client-id");
-    ReflectionTestUtils.setField(kakaoOAuthClient, "kakaoRedirectUri",
-        "http://127.0.0.1:8080/login/oauth2/code/kakao");
+    // 1. 테스트용 프로퍼티 설정
+    OAuthClientProperties.Registration registration = new OAuthClientProperties.Registration();
+    registration.setClientId("test-kakao-client-id");
+    registration.setRedirectUri("http://127.0.0.1:8080/login/oauth2/code/kakao");
+
+    // 2. Mock 동작 정의
+    when(properties.getRegistration()).thenReturn(Map.of("kakao", registration));
+
+    // 3. 생성자 주입
+    kakaoOAuthClient = new KakaoOAuthClient(redisTemplate, properties);
   }
 
   @Test
@@ -52,7 +64,7 @@ class KakaoOAuthClientTest {
 
     // URL 검증
     assertThat(url).contains("https://kauth.kakao.com/oauth/authorize");
-    assertThat(url).contains("client_id=test-client-id");
+    assertThat(url).contains("client_id=test-kakao-client-id");
     assertThat(url).contains("redirect_uri=http://127.0.0.1:8080/login/oauth2/code/kakao");
     assertThat(url).contains("response_type=code");
     assertThat(url).contains("state=");
@@ -60,7 +72,7 @@ class KakaoOAuthClientTest {
     // Redis 저장 검증
     verify(valueOperations).set(
         startsWith("oauth:state:"),
-        eq(OAuthProvider.KAKAO.name()),
+        eq("KAKAO"),
         any(Duration.class)
     );
   }
