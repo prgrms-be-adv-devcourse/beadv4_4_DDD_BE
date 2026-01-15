@@ -33,7 +33,14 @@ public class ProductUpdateProductUseCase {
     // 정책 검증
     productPolicy.validate(product.getProductStatus(), request);
 
-    product.update(request);
+    product.update(
+        request.getName(),
+        request.getCategory(),
+        request.getDescription(),
+        request.getSaleStatus(),
+        request.getPrice(),
+        request.getSalePrice(),
+        request.getQuantity());
 
     ProductDto productDto = productMapper.toDto(productRepository.save(product));
 

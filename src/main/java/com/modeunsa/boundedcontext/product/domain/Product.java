@@ -1,8 +1,6 @@
 package com.modeunsa.boundedcontext.product.domain;
 
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
-import com.modeunsa.shared.product.dto.ProductCreateRequest;
-import com.modeunsa.shared.product.dto.ProductUpdateRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -68,41 +66,54 @@ public class Product extends GeneratedIdAndAuditedEntity {
   @Builder.Default
   private List<ProductImage> images = new ArrayList<>();
 
-  public static Product create(ProductMemberSeller seller, ProductCreateRequest request) {
+  public static Product create(
+      ProductMemberSeller seller,
+      String name,
+      ProductCategory category,
+      String description,
+      int quantity) {
     return Product.builder()
         .seller(seller)
-        .name(request.getName())
-        .category(request.getCategory())
-        .description(request.getDescription())
+        .name(name)
+        .category(category)
+        .description(description)
         .currency(ProductCurrency.KRW)
         .saleStatus(SaleStatus.NOT_SALE)
         .productStatus(ProductStatus.DRAFT)
         .favoriteCount(0)
-        .quantity(request.getQuantity())
+        .quantity(quantity)
         .build();
   }
 
-  public void update(ProductUpdateRequest request) {
-    if (request.getName() != null) {
-      this.name = request.getName();
+  public void update(
+      String name,
+      ProductCategory category,
+      String description,
+      SaleStatus saleStatus,
+      BigDecimal price,
+      BigDecimal salePrice,
+      Integer quantity) {
+
+    if (name != null) {
+      this.name = name;
     }
-    if (request.getCategory() != null) {
-      this.category = request.getCategory();
+    if (category != null) {
+      this.category = category;
     }
-    if (request.getDescription() != null) {
-      this.description = request.getDescription();
+    if (description != null) {
+      this.description = description;
     }
-    if (request.getSaleStatus() != null) {
-      this.saleStatus = request.getSaleStatus();
+    if (saleStatus != null) {
+      this.saleStatus = saleStatus;
     }
-    if (request.getPrice() != null) {
-      this.price = request.getPrice();
+    if (price != null) {
+      this.price = price;
     }
-    if (request.getSalePrice() != null) {
-      this.salePrice = request.getSalePrice();
+    if (salePrice != null) {
+      this.salePrice = salePrice;
     }
-    if (request.getQuantity() != null) {
-      this.quantity = request.getQuantity();
+    if (quantity != null) {
+      this.quantity = quantity;
     }
     // TODO: image 수정 추가
   }
