@@ -6,7 +6,6 @@ import com.modeunsa.global.status.ErrorStatus;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import java.util.Date;
@@ -104,7 +103,7 @@ public class JwtTokenProvider {
       parseClaims(token);
     } catch (ExpiredJwtException e) {
       throw new GeneralException(ErrorStatus.AUTH_EXPIRED_TOKEN);
-    } catch (MalformedJwtException e) {
+    } catch (Exception e) {
       throw new GeneralException(ErrorStatus.AUTH_INVALID_TOKEN);
     }
   }
@@ -114,7 +113,17 @@ public class JwtTokenProvider {
    */
   public Long getMemberIdFromToken(String token) {
     Claims claims = parseClaims(token);
-    return Long.parseLong(claims.getSubject());
+    String subject = claims.getSubject();
+
+    if (!StringUtils.hasText(subject)) {
+      throw new GeneralException(ErrorStatus.AUTH_INVALID_TOKEN);
+    }
+
+    try {
+      return Long.parseLong(subject);
+    } catch (NumberFormatException e) {
+      throw new GeneralException(ErrorStatus.AUTH_INVALID_TOKEN);
+    }
   }
 
   /**
@@ -122,7 +131,17 @@ public class JwtTokenProvider {
    */
   public MemberRole getRoleFromToken(String token) {
     Claims claims = parseClaims(token);
-    return MemberRole.valueOf(claims.get(KEY_ROLE, String.class));
+    String roleStr = claims.get(KEY_ROLE, String.class);
+
+    if (!StringUtils.hasText(roleStr)) {
+      throw new GeneralException(ErrorStatus.AUTH_INVALID_TOKEN);
+    }
+
+    try {
+      return MemberRole.valueOf(roleStr);
+    } catch (IllegalArgumentException e) {
+      throw new GeneralException(ErrorStatus.AUTH_INVALID_TOKEN);
+    }
   }
 
   /**
