@@ -28,7 +28,7 @@ public class Settlement extends GeneratedIdAndAuditedEntity {
   @Builder.Default private BigDecimal amount = BigDecimal.ZERO;
 
   @Column(nullable = false)
-  private long sellerMemberId;
+  private Long sellerMemberId;
 
   @OneToMany(mappedBy = "settlement", cascade = CascadeType.PERSIST, fetch = LAZY)
   @Builder.Default
@@ -36,10 +36,14 @@ public class Settlement extends GeneratedIdAndAuditedEntity {
 
   private LocalDateTime payoutAt;
 
+  public static Settlement create(Long sellerMemberId) {
+    return Settlement.builder().sellerMemberId(sellerMemberId).build();
+  }
+
   public SettlementItem addItem(
-      long orderItemId,
-      long buyerMemberId,
-      long sellerMemberId,
+      Long orderItemId,
+      Long buyerMemberId,
+      Long sellerMemberId,
       BigDecimal amount,
       SettlementEventType eventType,
       LocalDateTime paymentAt) {

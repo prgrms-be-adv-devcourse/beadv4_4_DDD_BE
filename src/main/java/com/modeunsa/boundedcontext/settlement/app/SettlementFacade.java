@@ -14,7 +14,7 @@ public class SettlementFacade {
   private final SettlementCalculatePayoutsUseCase settlementCalculatePayoutsUseCase;
 
   @Transactional
-  public Settlement createSettlement(long sellerMemberId) {
+  public Settlement createSettlement(Long sellerMemberId) {
     return settlementCreateSettlementUseCase.createSettlement(sellerMemberId);
   }
 

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 public class SettlementCreateSettlementUseCase {
   private final SettlementRepository settlementRepository;
 
-  public Settlement createSettlement(long sellerMemberId) {
-    return settlementRepository.save(Settlement.builder().sellerMemberId(sellerMemberId).build());
+  public Settlement createSettlement(Long sellerMemberId) {
+    return settlementRepository.save(Settlement.create(sellerMemberId));
   }
 }
