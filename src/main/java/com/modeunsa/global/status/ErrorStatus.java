@@ -17,9 +17,23 @@ public enum ErrorStatus {
   // 입력값 검증 관련 에러
   VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "VALID_401", "입력값이 올바르지 않습니다."),
 
+  // Auth 400
+  OAUTH_INVALID_PROVIDER(HttpStatus.BAD_REQUEST, "AUTH_400_001", "지원하지 않는 OAuth 제공자입니다."),
+  OAUTH_INVALID_REDIRECT_URI(HttpStatus.BAD_REQUEST, "AUTH_400_002", "유효하지 않은 리다이렉트 URI입니다."),
+  // Auth 401
+  AUTH_INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_001", "유효하지 않은 토큰입니다."),
+  AUTH_EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_002", "만료된 토큰입니다."),
+  AUTH_INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_003", "유효하지 않은 Refresh Token입니다."),
+  AUTH_REFRESH_TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AUTH_401_004", "Refresh Token이 존재하지 않습니다."),
+  // Auth 403
+  AUTH_ACCESS_DENIED(HttpStatus.FORBIDDEN, "AUTH_403_001", "접근 권한이 없습니다."),
+  // Auth 502
+  OAUTH_TOKEN_REQUEST_FAILED(HttpStatus.BAD_GATEWAY, "AUTH_502_001", "OAuth 토큰 요청에 실패했습니다."),
+  OAUTH_USER_INFO_FAILED(HttpStatus.BAD_GATEWAY, "AUTH_502_002", "OAuth 사용자 정보 요청에 실패했습니다."),
+  OAUTH_UNLINK_FAILED(HttpStatus.BAD_GATEWAY, "AUTH_502_003", "OAuth 연결 해제에 실패했습니다."),
+
   // Member 400
-  MEMBER_ADDRESS_LIMIT_EXCEEDED(
-      HttpStatus.BAD_REQUEST, "MEMBER_400_001", "배송지는 최대 10개까지 등록할 수 있습니다."),
+  MEMBER_ADDRESS_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "MEMBER_400_001", "배송지는 최대 10개까지 등록할 수 있습니다."),
   MEMBER_DEFAULT_ADDRESS_REQUIRED(HttpStatus.BAD_REQUEST, "MEMBER_400_002", "기본 배송지가 필요합니다."),
   SELLER_CANNOT_APPROVE(HttpStatus.BAD_REQUEST, "MEMBER_400_003", "승인 대기 상태가 아닌 판매자는 승인할 수 없습니다."),
   SELLER_CANNOT_REJECT(HttpStatus.BAD_REQUEST, "MEMBER_400_004", "승인 대기 상태가 아닌 판매자는 거절할 수 없습니다."),
@@ -34,26 +48,6 @@ public enum ErrorStatus {
   MEMBER_EMAIL_DUPLICATE(HttpStatus.CONFLICT, "MEMBER_409_002", "이미 사용 중인 이메일입니다."),
   SELLER_ALREADY_REGISTERED(HttpStatus.CONFLICT, "MEMBER_409_003", "이미 판매자 신청을 하셨습니다."),
 
-  // Auth 400
-  OAUTH_INVALID_PROVIDER(HttpStatus.BAD_REQUEST, "AUTH_400_001", "지원하지 않는 OAuth 제공자입니다."),
-  // Auth 401
-  AUTH_INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_001", "유효하지 않은 토큰입니다."),
-  AUTH_EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_002", "만료된 토큰입니다."),
-  AUTH_INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_003", "유효하지 않은 Refresh Token입니다."),
-  AUTH_REFRESH_TOKEN_NOT_FOUND(
-      HttpStatus.UNAUTHORIZED, "AUTH_401_004", "Refresh Token이 존재하지 않습니다."),
-  // Auth 403
-  AUTH_ACCESS_DENIED(HttpStatus.FORBIDDEN, "AUTH_403_001", "접근 권한이 없습니다."),
-  // Auth 502
-  OAUTH_TOKEN_REQUEST_FAILED(HttpStatus.BAD_GATEWAY, "AUTH_502_001", "OAuth 토큰 요청에 실패했습니다."),
-  OAUTH_USER_INFO_FAILED(HttpStatus.BAD_GATEWAY, "AUTH_502_002", "OAuth 사용자 정보 요청에 실패했습니다."),
-  OAUTH_UNLINK_FAILED(HttpStatus.BAD_GATEWAY, "AUTH_502_003", "OAuth 연결 해제에 실패했습니다."),
-
-  // Order
-  ORDER_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_404_001", "없는 상품입니다."),
-  ORDER_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_404_002", "없는 회원입니다."),
-  ORDER_STOCK_NOT_ENOUGH(HttpStatus.BAD_REQUEST, "ORDER_400_1", "상품의 재고가 부족합니다."),
-
   // Product 400
   PRODUCT_DESCRIPTION_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_001", "상품 설명은 필수입니다."),
   PRODUCT_CATEGORY_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_002", "카테고리는 필수입니다."),
@@ -67,8 +61,7 @@ public enum ErrorStatus {
   PAYMENT_MEMBER_DUPLICATE(HttpStatus.BAD_REQUEST, "PAYMENT_400_001", "이미 등록된 결제 회원 정보가 존재합니다."),
   PAYMENT_ACCOUNT_DUPLICATE(HttpStatus.BAD_REQUEST, "PAYMENT_400_002", "이미 등록된 결제 계좌 정보가 존재합니다."),
   PAYMENT_ACCOUNT_INVALID(HttpStatus.BAD_REQUEST, "PAYMENT_400_003", "잘못된 요청입니다."),
-  PAYMENT_INSUFFICIENT_BALANCE(
-      HttpStatus.BAD_REQUEST, "PAYMENT_400_004", "결제 계좌 잔액이 부족하여 결제를 진행할 수 없습니다."),
+  PAYMENT_INSUFFICIENT_BALANCE(HttpStatus.BAD_REQUEST, "PAYMENT_400_004", "결제 계좌 잔액이 부족하여 결제를 진행할 수 없습니다."),
   PAYMENT_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_001", "결제 회원 정보를 찾을 수 없습니다."),
   PAYMENT_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_002", "결제 회원 정보를 찾을 수 없습니다.");
 
