@@ -55,7 +55,7 @@ public class PaymentAccountLog {
   @Column(nullable = false, precision = 19, scale = 2)
   private BigDecimal balanceAfter;
 
-  private long referenceId;
+  private Long referenceId;
 
   @Column(length = 50)
   @Enumerated(EnumType.STRING)

@@ -1,12 +1,8 @@
 package com.modeunsa.boundedcontext.payment.domain.types;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
 public enum PaymentEventType {
   CHARGE_BANK_TRANSFER("충전_무통장입금"),
   CHARGE_PG_TOSS_PAYMENTS("충전_PG결제_토스페이먼츠"),
@@ -19,7 +15,11 @@ public enum PaymentEventType {
   SETTLEMENT_PAY_PRODUCT_SALES_AMOUNT("정산지급_상품판매_대금"),
   SETTLEMENT_RECEIVE_PRODUCT_SALES_AMOUNT("정산수령_상품판매_대금");
 
-  private String description;
+  private final String description;
+
+  PaymentEventType(String description) {
+    this.description = description;
+  }
 
   public static PaymentEventType fromPayoutEventType(PayoutEventType payoutEventType) {
     return switch (payoutEventType) {

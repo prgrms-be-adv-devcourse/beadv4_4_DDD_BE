@@ -4,8 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum RefundEventType {
-  PAYMENT_FAILED("결제 실패"),
-  ORDER_CANCELLED("주문 취소");
+  PAYMENT_FAILED("결제_실패"),
+  ORDER_CANCELLED("주문_취소");
 
   private final String description;
 
