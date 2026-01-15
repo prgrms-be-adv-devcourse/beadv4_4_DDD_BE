@@ -6,8 +6,8 @@ import com.modeunsa.global.status.SuccessStatus;
 import com.modeunsa.shared.order.dto.CreateCartItemRequestDto;
 import com.modeunsa.shared.order.dto.CreateCartItemResponseDto;
 import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
-import com.modeunsa.shared.order.dto.CreateOrderResponseDto;
 import com.modeunsa.shared.order.dto.OrderListResponseDto;
+import com.modeunsa.shared.order.dto.OrderResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -53,7 +53,7 @@ public class ApiV1OrderController {
     // [TODO] 실제 로그인한 유저 ID를 가져오는 로직 추가
     long memberId = 1;
 
-    CreateOrderResponseDto dto = orderFacade.createOrder(memberId, requestDto);
+    OrderResponseDto dto = orderFacade.createOrder(memberId, requestDto);
 
     return ApiResponse.onSuccess(SuccessStatus.OK, dto);
   }

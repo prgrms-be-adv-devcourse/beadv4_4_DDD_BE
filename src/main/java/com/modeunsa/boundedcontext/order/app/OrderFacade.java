@@ -5,8 +5,8 @@ import com.modeunsa.boundedcontext.order.domain.OrderProduct;
 import com.modeunsa.shared.order.dto.CreateCartItemRequestDto;
 import com.modeunsa.shared.order.dto.CreateCartItemResponseDto;
 import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
-import com.modeunsa.shared.order.dto.CreateOrderResponseDto;
 import com.modeunsa.shared.order.dto.OrderListResponseDto;
+import com.modeunsa.shared.order.dto.OrderResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -47,7 +47,7 @@ public class OrderFacade {
 
   // 단건 주문 생성
   @Transactional
-  public CreateOrderResponseDto createOrder(long memberId, CreateOrderRequestDto requestDto) {
+  public OrderResponseDto createOrder(long memberId, CreateOrderRequestDto requestDto) {
     return orderCreateOrderUseCase.createOrder(memberId, requestDto);
   }
 

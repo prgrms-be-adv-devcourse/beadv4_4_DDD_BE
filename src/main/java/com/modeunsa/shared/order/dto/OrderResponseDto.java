@@ -9,7 +9,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 @Builder
-public class CreateOrderResponseDto {
+public class OrderResponseDto {
   private long memberId;
   private long orderId;
   private String orderNo;
