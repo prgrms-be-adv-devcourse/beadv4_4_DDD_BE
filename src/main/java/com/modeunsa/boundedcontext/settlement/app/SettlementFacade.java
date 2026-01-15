@@ -1,6 +1,12 @@
 package com.modeunsa.boundedcontext.settlement.app;
 
+import com.modeunsa.boundedcontext.settlement.app.usecase.SettlementCalculatePayoutsUseCase;
+import com.modeunsa.boundedcontext.settlement.app.usecase.SettlementCollectSettlementItemsUseCase;
+import com.modeunsa.boundedcontext.settlement.app.usecase.SettlementCreateSettlementUseCase;
+import com.modeunsa.boundedcontext.settlement.app.usecase.SettlementSyncMemberUseCase;
 import com.modeunsa.boundedcontext.settlement.domain.entity.Settlement;
+import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementMember;
+import com.modeunsa.shared.settlement.dto.SettlementMemberDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +18,12 @@ public class SettlementFacade {
   private final SettlementCreateSettlementUseCase settlementCreateSettlementUseCase;
   private final SettlementCollectSettlementItemsUseCase settlementAddSettlementItemsUseCase;
   private final SettlementCalculatePayoutsUseCase settlementCalculatePayoutsUseCase;
+  private final SettlementSyncMemberUseCase settlementSyncMemberUseCase;
+
+  @Transactional
+  public SettlementMember syncMember(Long memberId, String memberRole) {
+    return settlementSyncMemberUseCase.syncMember(memberId, memberRole);
+  }
 
   @Transactional
   public Settlement createSettlement(Long sellerMemberId) {
