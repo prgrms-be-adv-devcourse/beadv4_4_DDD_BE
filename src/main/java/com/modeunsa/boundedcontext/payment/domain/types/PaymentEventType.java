@@ -18,4 +18,12 @@ public enum PaymentEventType {
   SETTLEMENT_RECEIVE_PRODUCT_SALES_AMOUNT("정산수령_상품판매_대금");
 
   private String description;
+
+  public static PaymentEventType fromPayoutEventType(PayoutEventType payoutEventType) {
+    return switch (payoutEventType) {
+      case FEE -> SETTLEMENT_PAY_PRODUCT_SALES_FEE;
+      case AMOUNT -> SETTLEMENT_PAY_PRODUCT_SALES_AMOUNT;
+      default -> throw new IllegalArgumentException("Unknown PayoutEventType: " + payoutEventType);
+    };
+  }
 }
