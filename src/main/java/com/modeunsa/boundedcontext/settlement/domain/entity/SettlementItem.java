@@ -10,6 +10,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,7 +36,7 @@ public class SettlementItem extends GeneratedIdAndAuditedEntity {
   @Column(nullable = false)
   private Long sellerMemberId;
 
-  private long amount;
+  @Builder.Default private BigDecimal amount = BigDecimal.ZERO;
 
   @Column(nullable = false, length = 50)
   @Enumerated(EnumType.STRING)

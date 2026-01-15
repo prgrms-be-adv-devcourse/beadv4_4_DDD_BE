@@ -1,5 +1,7 @@
 package com.modeunsa.global.config;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -9,18 +11,25 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@EnableConfigurationProperties(SecurityProperties.class)
+@RequiredArgsConstructor
 public class SecurityConfig {
-
-  private static final String[] PERMIT_URLS = {
-    "/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**", "/api/v1/**"
-  };
+  private final SecurityProperties securityProperties;
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.csrf(csrf -> csrf.disable())
-        .authorizeHttpRequests(
-            auth -> auth.requestMatchers(PERMIT_URLS).permitAll().anyRequest().authenticated())
         .headers(headers -> headers.frameOptions(FrameOptionsConfig::sameOrigin));
+
+    if (securityProperties.isPermitAll()) {
+      http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+    } else {
+      String[] permittedUrls = securityProperties.getPermitUrls().toArray(new String[0]);
+
+      http.authorizeHttpRequests(
+          auth -> auth.requestMatchers(permittedUrls).permitAll().anyRequest().authenticated());
+    }
+
     return http.build();
   }
 }

@@ -17,6 +17,22 @@ public enum ErrorStatus {
   // 입력값 검증 관련 에러
   VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "VALID_401", "입력값이 올바르지 않습니다."),
 
+  // Auth 400
+  OAUTH_INVALID_PROVIDER(HttpStatus.BAD_REQUEST, "AUTH_400_001", "지원하지 않는 OAuth 제공자입니다."),
+  OAUTH_INVALID_REDIRECT_URI(HttpStatus.BAD_REQUEST, "AUTH_400_002", "유효하지 않은 리다이렉트 URI입니다."),
+  // Auth 401
+  AUTH_INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_001", "유효하지 않은 토큰입니다."),
+  AUTH_EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_002", "만료된 토큰입니다."),
+  AUTH_INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_003", "유효하지 않은 Refresh Token입니다."),
+  AUTH_REFRESH_TOKEN_NOT_FOUND(
+      HttpStatus.UNAUTHORIZED, "AUTH_401_004", "Refresh Token이 존재하지 않습니다."),
+  // Auth 403
+  AUTH_ACCESS_DENIED(HttpStatus.FORBIDDEN, "AUTH_403_001", "접근 권한이 없습니다."),
+  // Auth 502
+  OAUTH_TOKEN_REQUEST_FAILED(HttpStatus.BAD_GATEWAY, "AUTH_502_001", "OAuth 토큰 요청에 실패했습니다."),
+  OAUTH_USER_INFO_FAILED(HttpStatus.BAD_GATEWAY, "AUTH_502_002", "OAuth 사용자 정보 요청에 실패했습니다."),
+  OAUTH_UNLINK_FAILED(HttpStatus.BAD_GATEWAY, "AUTH_502_003", "OAuth 연결 해제에 실패했습니다."),
+
   // Member 400
   MEMBER_ADDRESS_LIMIT_EXCEEDED(
       HttpStatus.BAD_REQUEST, "MEMBER_400_001", "배송지는 최대 10개까지 등록할 수 있습니다."),
@@ -33,21 +49,6 @@ public enum ErrorStatus {
   MEMBER_ALREADY_EXISTS(HttpStatus.CONFLICT, "MEMBER_409_001", "이미 존재하는 회원입니다."),
   MEMBER_EMAIL_DUPLICATE(HttpStatus.CONFLICT, "MEMBER_409_002", "이미 사용 중인 이메일입니다."),
   SELLER_ALREADY_REGISTERED(HttpStatus.CONFLICT, "MEMBER_409_003", "이미 판매자 신청을 하셨습니다."),
-
-  // Auth 400
-  OAUTH_INVALID_PROVIDER(HttpStatus.BAD_REQUEST, "AUTH_400_001", "지원하지 않는 OAuth 제공자입니다."),
-  // Auth 401
-  AUTH_INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_001", "유효하지 않은 토큰입니다."),
-  AUTH_EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_002", "만료된 토큰입니다."),
-  AUTH_INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_003", "유효하지 않은 Refresh Token입니다."),
-  AUTH_REFRESH_TOKEN_NOT_FOUND(
-      HttpStatus.UNAUTHORIZED, "AUTH_401_004", "Refresh Token이 존재하지 않습니다."),
-  // Auth 403
-  AUTH_ACCESS_DENIED(HttpStatus.FORBIDDEN, "AUTH_403_001", "접근 권한이 없습니다."),
-  // Auth 502
-  OAUTH_TOKEN_REQUEST_FAILED(HttpStatus.BAD_GATEWAY, "AUTH_502_001", "OAuth 토큰 요청에 실패했습니다."),
-  OAUTH_USER_INFO_FAILED(HttpStatus.BAD_GATEWAY, "AUTH_502_002", "OAuth 사용자 정보 요청에 실패했습니다."),
-  OAUTH_UNLINK_FAILED(HttpStatus.BAD_GATEWAY, "AUTH_502_003", "OAuth 연결 해제에 실패했습니다."),
 
   // Order
   ORDER_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_404_001", "없는 상품입니다."),
