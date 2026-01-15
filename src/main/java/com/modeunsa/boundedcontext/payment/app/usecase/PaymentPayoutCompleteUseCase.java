@@ -21,12 +21,9 @@ public class PaymentPayoutCompleteUseCase {
     PaymentEventType eventType = PaymentEventType.fromPayoutEventType(payout.getPayoutEventType());
 
     PaymentAccount holderAccount = paymentAccountSupport.getHolderAccount();
+    PaymentAccount payeeAccount = paymentAccountSupport.getPayeeAccount(payout);
 
     holderAccount.debit(payout.getAmount(), eventType, payout.getId(), ReferenceType.PAYOUT);
-
-    PaymentAccount payeeAccount =
-        paymentAccountSupport.getPaymentAccountByMemberId(payout.getPayeeId());
-
     payeeAccount.credit(payout.getAmount(), eventType, payout.getId(), ReferenceType.PAYOUT);
   }
 }
