@@ -6,12 +6,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositResponse;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
-import com.modeunsa.global.exception.ExceptionAdvice;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import java.math.BigDecimal;
@@ -19,33 +17,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 @DisplayName("PaymentAccountController 테스트")
-class ApiV1PaymentAccountControllerTest {
-
-  private MockMvc mockMvc;
-
-  private ObjectMapper objectMapper;
+class ApiV1PaymentAccountControllerTest extends BasePaymentControllerTest {
 
   @Mock private PaymentFacade paymentFacade;
 
   @BeforeEach
   void setUp() {
-    MockitoAnnotations.openMocks(this);
-    objectMapper = new ObjectMapper();
-    ApiV1PaymentAccountController controller = new ApiV1PaymentAccountController(paymentFacade);
-    LocalValidatorFactoryBean validatorFactory = new LocalValidatorFactoryBean();
-    validatorFactory.afterPropertiesSet();
-    mockMvc =
-        MockMvcBuilders.standaloneSetup(controller)
-            .setValidator(validatorFactory)
-            .setControllerAdvice(new ExceptionAdvice())
-            .build();
+    super.setUpBase();
+    setUpMockMvc(new ApiV1PaymentAccountController(paymentFacade));
   }
 
   @Test

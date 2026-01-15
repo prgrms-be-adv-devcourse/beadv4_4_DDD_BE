@@ -21,7 +21,7 @@ public class PaymentCompleteUseCase {
   private final PaymentAccountSupport paymentAccountSupport;
   private final SpringDomainEventPublisher eventPublisher;
 
-  public void completePayment(PaymentRequest paymentRequest) {
+  public void execute(PaymentRequest paymentRequest) {
 
     PaymentAccount buyerAccount =
         paymentAccountSupport.getPaymentAccountByMemberId(paymentRequest.getBuyerId());
