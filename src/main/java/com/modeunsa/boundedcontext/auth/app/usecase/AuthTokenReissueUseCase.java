@@ -35,7 +35,7 @@ public class AuthTokenReissueUseCase {
     AuthRefreshToken savedToken = authRefreshTokenRepository.findById(memberId)
         .orElseThrow(() -> new GeneralException(ErrorStatus.AUTH_REFRESH_TOKEN_NOT_FOUND));
 
-    if (!savedToken.getRefreshToken().equals(refreshToken)) {
+    if (!savedToken.isTokenMatching(refreshToken)) {
       throw new GeneralException(ErrorStatus.AUTH_INVALID_REFRESH_TOKEN);
     }
 
