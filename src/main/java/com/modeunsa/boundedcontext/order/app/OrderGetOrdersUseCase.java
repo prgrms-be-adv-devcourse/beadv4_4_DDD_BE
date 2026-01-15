@@ -7,13 +7,13 @@ import com.modeunsa.boundedcontext.order.out.OrderRepository;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.order.dto.OrderListResponseDto;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class OrderGetOrdersUseCase {
   private final OrderMemberRepository orderMemberRepository;
   private final OrderRepository orderRepository;
