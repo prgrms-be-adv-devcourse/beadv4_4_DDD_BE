@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.startsWith;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -43,7 +44,7 @@ class NaverOAuthClientTest {
     registration.setRedirectUri("http://127.0.0.1:8080/login/oauth2/code/naver");
 
     // 2. Mock 동작 정의 (Registration Map 반환)
-    when(properties.getRegistration()).thenReturn(Map.of("naver", registration));
+    lenient().when(properties.getRegistration()).thenReturn(Map.of("naver", registration));
 
     // 3. 생성자 주입
     naverOAuthClient = new NaverOAuthClient(redisTemplate, properties);
