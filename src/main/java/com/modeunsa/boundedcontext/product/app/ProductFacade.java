@@ -36,6 +36,7 @@ public class ProductFacade {
     return products.map(productMapper::toResponse);
   }
 
+  @Transactional
   public ProductResponse updateProduct(
       Long sellerId, Long productId, ProductUpdateRequest productRequest) {
     ProductResponse productResponse =

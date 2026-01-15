@@ -31,8 +31,22 @@ public class ProductPolicy {
           ProductUpdatableField.IMAGES,
           ProductUpdatableField.SALE_STATUS);
 
-  // 수정 . 허용 필드 검증
+  // 업데이트 정책 검증
   public void validate(ProductStatus productStatus, ProductUpdatableRequest request) {
+    // 1. 숫자 검증
+    if (request.getPrice() != null && request.getPrice().signum() < 0) {
+      throw new GeneralException(ErrorStatus.PRODUCT_PRICE_REQUIRED);
+    }
+
+    if (request.getSalePrice() != null && request.getSalePrice().signum() < 0) {
+      throw new GeneralException(ErrorStatus.PRODUCT_SALE_PRICE_REQUIRED);
+    }
+
+    if (request.getQuantity() != null && request.getQuantity() < 0) {
+      throw new GeneralException(ErrorStatus.PRODUCT_QTY_REQUIRED);
+    }
+
+    // 2. 수정 가능 필드 검증
     EnumSet<ProductUpdatableField> present = request.presentFields();
     EnumSet<ProductUpdatableField> allowed =
         switch (productStatus) {
