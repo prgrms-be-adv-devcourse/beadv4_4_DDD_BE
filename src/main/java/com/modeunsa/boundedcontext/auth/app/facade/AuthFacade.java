@@ -11,9 +11,7 @@ public class AuthFacade {
 
   private final OAuthUrlUseCase oauthUrlUseCase;
 
-  /**
-   * OAuth2 로그인 URL 생성
-   */
+  /** OAuth2 로그인 URL 생성 */
   public String getOAuthLoginUrl(OAuthProvider provider, String redirectUri) {
     return oauthUrlUseCase.generateOAuthUrl(provider, redirectUri);
   }

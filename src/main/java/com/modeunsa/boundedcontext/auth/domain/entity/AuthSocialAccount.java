@@ -27,7 +27,9 @@ import lombok.ToString;
 @ToString(exclude = "member")
 @Table(
     name = "auth_social_account",
-    uniqueConstraints = {@UniqueConstraint(columnNames = {"oauth_provider", "provider_account_id"})})
+    uniqueConstraints = {
+      @UniqueConstraint(columnNames = {"oauth_provider", "provider_account_id"})
+    })
 public class AuthSocialAccount extends GeneratedIdAndAuditedEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)

@@ -4,14 +4,13 @@ import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import java.time.Duration;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 @RequiredArgsConstructor
-public class NaverOAuthClient implements OAuthClient{
+public class NaverOAuthClient implements OAuthClient {
   private final StringRedisTemplate redisTemplate;
   private final OAuthClientProperties properties;
 
@@ -28,11 +27,7 @@ public class NaverOAuthClient implements OAuthClient{
     String state = UUID.randomUUID().toString();
 
     // Redis에 state 저장 (5분 TTL)
-    redisTemplate.opsForValue().set(
-        "oauth:state:" + state,
-        "NAVER",
-        Duration.ofMinutes(5)
-    );
+    redisTemplate.opsForValue().set("oauth:state:" + state, "NAVER", Duration.ofMinutes(5));
 
     return UriComponentsBuilder.fromUriString("https://nid.naver.com/oauth2.0/authorize")
         .queryParam("client_id", naverProps.getClientId())
