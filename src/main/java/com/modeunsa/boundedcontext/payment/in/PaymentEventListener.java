@@ -10,6 +10,9 @@ import com.modeunsa.boundedcontext.payment.app.event.PaymentMemberCreatedEvent;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentPayoutCompletedEvent;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentRequestEvent;
 import com.modeunsa.boundedcontext.payment.app.mapper.PaymentMapper;
+import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
+import com.modeunsa.shared.payment.dto.PaymentDto;
+import com.modeunsa.shared.payment.event.PaymentFailedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -84,6 +87,34 @@ public class PaymentEventListener {
           "PayoutCompletedEvent 처리 실패 - payoutId: {}, payeeId : {}",
           paymentPayoutCompletedEvent.getPayout().getId(),
           paymentPayoutCompletedEvent.getPayout().getPayeeId(),
+          e);
+      throw e;
+    }
+  }
+
+  @TransactionalEventListener(phase = AFTER_COMMIT)
+  @Transactional(propagation = REQUIRES_NEW)
+  public void handlePaymentFailedEvent(PaymentFailedEvent paymentFailedEvent) {
+
+    PaymentDto payment = paymentFailedEvent.getPayment();
+
+    log.info(
+        "PaymentFailedEvent 수신 - buyerId: {}, orderNo: {}",
+        payment.getBuyerId(),
+        payment.getOrderNo());
+
+    try {
+      paymentFacade.refund(payment, RefundEventType.PAYMENT_FAILED);
+
+      log.info(
+          "PaymentFailedEvent 처리 완료 - buyerId: {}, orderNo: {}",
+          payment.getBuyerId(),
+          payment.getOrderNo());
+    } catch (Exception e) {
+      log.error(
+          "PaymentFailedEvent 처리 실패 - buyerId: {}, orderNo: {}",
+          payment.getBuyerId(),
+          payment.getOrderNo(),
           e);
       throw e;
     }

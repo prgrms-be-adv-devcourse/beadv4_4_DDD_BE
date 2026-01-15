@@ -8,5 +8,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PaymentDto {
   private final Long orderId;
+  private final String orderNo;
+  private final Long buyerId;
   private final BigDecimal pgPaymentAmount;
 }
