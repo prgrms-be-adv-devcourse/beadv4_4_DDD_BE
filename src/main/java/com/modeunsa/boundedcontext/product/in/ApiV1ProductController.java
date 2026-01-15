@@ -4,7 +4,7 @@ import com.modeunsa.boundedcontext.product.app.ProductFacade;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.status.SuccessStatus;
-import com.modeunsa.shared.product.dto.ProductRequest;
+import com.modeunsa.shared.product.dto.ProductCreateRequest;
 import com.modeunsa.shared.product.dto.ProductResponse;
 import com.modeunsa.shared.product.dto.ProductUpdateRequest;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,10 +36,10 @@ public class ApiV1ProductController {
   @Operation(summary = "상품 생성", description = "상품을 생성합니다.")
   @PostMapping
   public ResponseEntity<ApiResponse> createProduct(
-      @Valid @RequestBody ProductRequest productRequest) {
+      @Valid @RequestBody ProductCreateRequest productCreateRequest) {
     // TODO: sellerId 는 나중에 security 에서 가져올 것
     Long sellerId = 1L;
-    ProductResponse productResponse = productFacade.createProduct(sellerId, productRequest);
+    ProductResponse productResponse = productFacade.createProduct(sellerId, productCreateRequest);
     return ApiResponse.onSuccess(SuccessStatus.CREATED, productResponse);
   }
 

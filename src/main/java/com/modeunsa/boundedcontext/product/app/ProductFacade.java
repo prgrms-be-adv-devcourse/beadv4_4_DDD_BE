@@ -2,7 +2,7 @@ package com.modeunsa.boundedcontext.product.app;
 
 import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
-import com.modeunsa.shared.product.dto.ProductRequest;
+import com.modeunsa.shared.product.dto.ProductCreateRequest;
 import com.modeunsa.shared.product.dto.ProductResponse;
 import com.modeunsa.shared.product.dto.ProductUpdateRequest;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +21,8 @@ public class ProductFacade {
   private final ProductMapper productMapper;
 
   @Transactional
-  public ProductResponse createProduct(Long sellerId, ProductRequest productRequest) {
-    return productCreateProductUseCase.createProduct(sellerId, productRequest);
+  public ProductResponse createProduct(Long sellerId, ProductCreateRequest productCreateRequest) {
+    return productCreateProductUseCase.createProduct(sellerId, productCreateRequest);
   }
 
   public ProductResponse getProduct(Long productId) {

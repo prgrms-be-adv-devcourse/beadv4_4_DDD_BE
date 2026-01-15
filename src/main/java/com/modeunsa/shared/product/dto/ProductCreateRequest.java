@@ -10,7 +10,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ProductRequest {
+public class ProductCreateRequest {
   @NotBlank(message = "name은 필수입니다.")
   private String name;
 

@@ -1,7 +1,7 @@
 package com.modeunsa.boundedcontext.product.domain;
 
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
-import com.modeunsa.shared.product.dto.ProductRequest;
+import com.modeunsa.shared.product.dto.ProductCreateRequest;
 import com.modeunsa.shared.product.dto.ProductUpdateRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -68,7 +68,7 @@ public class Product extends GeneratedIdAndAuditedEntity {
   @Builder.Default
   private List<ProductImage> images = new ArrayList<>();
 
-  public static Product create(ProductMemberSeller seller, ProductRequest request) {
+  public static Product create(ProductMemberSeller seller, ProductCreateRequest request) {
     return Product.builder()
         .seller(seller)
         .name(request.getName())
