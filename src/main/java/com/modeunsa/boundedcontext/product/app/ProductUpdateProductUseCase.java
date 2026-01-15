@@ -6,7 +6,7 @@ import com.modeunsa.boundedcontext.product.out.ProductRepository;
 import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
-import com.modeunsa.shared.product.dto.ProductResponse;
+import com.modeunsa.shared.product.dto.ProductDto;
 import com.modeunsa.shared.product.dto.ProductUpdateRequest;
 import com.modeunsa.shared.product.event.ProductUpdatedEvent;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +22,7 @@ public class ProductUpdateProductUseCase {
   private final SpringDomainEventPublisher eventPublisher;
   private final ProductPolicy productPolicy;
 
-  public ProductResponse updateProduct(
-      Long sellerId, Long productId, ProductUpdateRequest request) {
+  public Product updateProduct(Long sellerId, Long productId, ProductUpdateRequest request) {
     // 판매자 검증
     if (sellerId == null || !productSupport.existsBySellerId(sellerId)) {
       throw new GeneralException(ErrorStatus.SELLER_NOT_FOUND);
@@ -36,10 +35,10 @@ public class ProductUpdateProductUseCase {
 
     product.update(request);
 
-    ProductResponse productResponse = productMapper.toResponse(productRepository.save(product));
+    ProductDto productDto = productMapper.toDto(productRepository.save(product));
 
-    eventPublisher.publish(new ProductUpdatedEvent(productResponse));
+    eventPublisher.publish(new ProductUpdatedEvent(productDto));
 
-    return productResponse;
+    return product;
   }
 }

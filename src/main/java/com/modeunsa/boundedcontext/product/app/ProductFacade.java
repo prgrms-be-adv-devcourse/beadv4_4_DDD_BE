@@ -40,8 +40,8 @@ public class ProductFacade {
   @Transactional
   public ProductResponse updateProduct(
       Long sellerId, Long productId, ProductUpdateRequest productRequest) {
-    ProductResponse productResponse =
+    Product product =
         productUpdateProductUseCase.updateProduct(sellerId, productId, productRequest);
-    return productResponse;
+    return productMapper.toResponse(product);
   }
 }
