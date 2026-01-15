@@ -13,12 +13,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequiredArgsConstructor
 public class KakaoOAuthClient implements OAuthClient {
   private final StringRedisTemplate redisTemplate;
-
-  @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
-  private String kakaoClientId;
-
-  @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
-  private String kakaoRedirectUri;
+  private final OAuthClientProperties properties;
 
   @Override
   public OAuthProvider getProvider() {
@@ -27,18 +22,20 @@ public class KakaoOAuthClient implements OAuthClient {
 
   @Override
   public String generateOAuthUrl(String redirectUri) {
-    String finalRedirectUri = redirectUri != null ? redirectUri : kakaoRedirectUri;
+    OAuthClientProperties.Registration kakaoProps = properties.getRegistration().get("kakao");
+
+    String finalRedirectUri = redirectUri != null ? redirectUri : kakaoProps.getRedirectUri();
     String state = UUID.randomUUID().toString();
 
     // Redis에 state 저장 (5분 TTL)
     redisTemplate.opsForValue().set(
         "oauth:state:" + state,
-        "KAKAO",  // provider 정보도 같이 저장
+        "KAKAO",
         Duration.ofMinutes(5)
     );
 
     return UriComponentsBuilder.fromUriString("https://kauth.kakao.com/oauth/authorize")
-        .queryParam("client_id", kakaoClientId)
+        .queryParam("client_id", kakaoProps.getClientId())
         .queryParam("redirect_uri", finalRedirectUri)
         .queryParam("response_type", "code")
         .queryParam("state", state)
