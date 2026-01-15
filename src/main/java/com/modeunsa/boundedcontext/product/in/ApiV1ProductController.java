@@ -6,6 +6,7 @@ import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.status.SuccessStatus;
 import com.modeunsa.shared.product.dto.ProductRequest;
 import com.modeunsa.shared.product.dto.ProductResponse;
+import com.modeunsa.shared.product.dto.ProductUpdateRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,7 +37,9 @@ public class ApiV1ProductController {
   @PostMapping
   public ResponseEntity<ApiResponse> createProduct(
       @Valid @RequestBody ProductRequest productRequest) {
-    ProductResponse productResponse = productFacade.createProduct(productRequest);
+    // TODO: sellerId 는 나중에 security 에서 가져올 것
+    Long sellerId = 1L;
+    ProductResponse productResponse = productFacade.createProduct(sellerId, productRequest);
     return ApiResponse.onSuccess(SuccessStatus.CREATED, productResponse);
   }
 
@@ -57,5 +61,17 @@ public class ApiV1ProductController {
     Page<ProductResponse> productResponses =
         productFacade.getProducts(memberId, category, pageable);
     return ApiResponse.onSuccess(SuccessStatus.OK, productResponses);
+  }
+
+  @Operation(summary = "상품 수정", description = "상품을 수정합니다.")
+  @PatchMapping("/{id}")
+  public ResponseEntity<ApiResponse> updateProduct(
+      @PathVariable(name = "id") Long productId,
+      @Valid @RequestBody ProductUpdateRequest productRequest) {
+    // TODO: sellerId 는 나중에 security 에서 가져올것
+    Long sellerId = 1L;
+    ProductResponse productResponse =
+        productFacade.updateProduct(sellerId, productId, productRequest);
+    return ApiResponse.onSuccess(SuccessStatus.OK, productResponse);
   }
 }

@@ -1,6 +1,8 @@
 package com.modeunsa.boundedcontext.product.domain;
 
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
+import com.modeunsa.shared.product.dto.ProductRequest;
+import com.modeunsa.shared.product.dto.ProductUpdateRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -30,9 +32,8 @@ import lombok.Setter;
 public class Product extends GeneratedIdAndAuditedEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "seller_id")
+  @JoinColumn(name = "seller_id", nullable = false)
   @Setter
-  // TODO: 판매자 생성 이후 nullable = false 추가
   private ProductMemberSeller seller;
 
   @Column(length = 100, nullable = false)
@@ -67,6 +68,45 @@ public class Product extends GeneratedIdAndAuditedEntity {
   @Builder.Default
   private List<ProductImage> images = new ArrayList<>();
 
+  public static Product create(ProductMemberSeller seller, ProductRequest request) {
+    return Product.builder()
+        .seller(seller)
+        .name(request.getName())
+        .category(request.getCategory())
+        .description(request.getDescription())
+        .currency(ProductCurrency.KRW)
+        .saleStatus(SaleStatus.NOT_SALE)
+        .productStatus(request.getProductStatus())
+        .favoriteCount(0)
+        .quantity(request.getQuantity())
+        .build();
+  }
+
+  public void update(ProductUpdateRequest request) {
+    if (request.getName() != null) {
+      this.name = request.getName();
+    }
+    if (request.getCategory() != null) {
+      this.category = request.getCategory();
+    }
+    if (request.getDescription() != null) {
+      this.description = request.getDescription();
+    }
+    if (request.getSaleStatus() != null) {
+      this.saleStatus = request.getSaleStatus();
+    }
+    if (request.getPrice() != null) {
+      this.price = request.getPrice();
+    }
+    if (request.getSalePrice() != null) {
+      this.salePrice = request.getSalePrice();
+    }
+    if (request.getQuantity() != null) {
+      this.quantity = request.getQuantity();
+    }
+    // TODO: image 수정 추가
+  }
+
   public void addImage(ProductImage image) {
     images.add(image);
     image.setProduct(this);
@@ -75,9 +115,5 @@ public class Product extends GeneratedIdAndAuditedEntity {
   public void removeImage(ProductImage image) {
     images.remove(image);
     image.setProduct(null);
-  }
-
-  public void updateSaleStatus(SaleStatus saleStatus) {
-    this.saleStatus = saleStatus;
   }
 }

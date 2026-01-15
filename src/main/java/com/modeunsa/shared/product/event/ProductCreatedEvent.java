@@ -1,4 +1,4 @@
-package com.modeunsa.shared.product;
+package com.modeunsa.shared.product.event;
 
 import com.modeunsa.shared.product.dto.ProductResponse;
 import lombok.AllArgsConstructor;
