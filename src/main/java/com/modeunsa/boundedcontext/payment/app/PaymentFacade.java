@@ -80,10 +80,10 @@ public class PaymentFacade {
   @Transactional
   public void refund(PaymentDto payment, RefundEventType refundEventType) {
 
-    log.info("결제 실패 환불 처리 시작 - payment: {}", payment);
+    log.info("환불 처리 시작 - payment: {}", payment);
 
     paymentRefundUseCase.execute(payment, refundEventType);
 
-    log.info("결제 실패 환불 처리 완료 - payment: {}", payment);
+    log.info("환불 처리 완료 - payment: {}", payment);
   }
 }
