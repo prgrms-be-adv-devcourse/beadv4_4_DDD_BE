@@ -1,5 +1,5 @@
 package com.modeunsa.shared.product.event;
 
-import com.modeunsa.shared.product.dto.ProductResponse;
+import com.modeunsa.shared.product.dto.ProductDto;
 
-public record ProductCreatedEvent(ProductResponse productResponse) {}
+public record ProductCreatedEvent(ProductDto productDto) {}

@@ -1,14 +1,15 @@
 package com.modeunsa.boundedcontext.product.in;
 
+import com.modeunsa.boundedcontext.product.app.ProductCreateProductUseCase;
 import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
 import com.modeunsa.boundedcontext.product.domain.ProductMemberSeller;
-import com.modeunsa.boundedcontext.product.domain.ProductStatus;
-import com.modeunsa.boundedcontext.product.domain.SaleStatus;
 import com.modeunsa.boundedcontext.product.out.ProductMemberSellerRepository;
 import com.modeunsa.boundedcontext.product.out.ProductRepository;
+import com.modeunsa.shared.product.dto.ProductCreateRequest;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
+import java.util.List;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,14 +21,18 @@ public class ProductDataInit {
   private final ProductDataInit self;
   private final ProductRepository productRepository;
   private final ProductMemberSellerRepository productMemberSellerRepository;
+  private final ProductCreateProductUseCase productCreateProductUseCase;
 
   public ProductDataInit(
       @Lazy ProductDataInit self,
       ProductRepository productRepository,
-      ProductMemberSellerRepository productMemberSellerRepository) {
+      ProductMemberSellerRepository productMemberSellerRepository,
+      ProductCreateProductUseCase productCreateProductUseCase) {
+
     this.self = self;
     this.productRepository = productRepository;
     this.productMemberSellerRepository = productMemberSellerRepository;
+    this.productCreateProductUseCase = productCreateProductUseCase;
   }
 
   @Bean
@@ -44,51 +49,52 @@ public class ProductDataInit {
     ProductMemberSeller seller2 = productMemberSellerRepository.findById(2L).get();
 
     Product product1 =
-        Product.builder()
-            .seller(seller1)
-            .name("코트")
-            .category(ProductCategory.OUTER)
-            .price(BigDecimal.valueOf(10000))
-            .salePrice(BigDecimal.valueOf(20000))
-            .quantity(10)
-            .saleStatus(SaleStatus.SALE)
-            .description("코트 설명입니다.")
-            .build();
+        productCreateProductUseCase.createProduct(
+            seller1.getId(),
+            new ProductCreateRequest(
+                "코트",
+                ProductCategory.OUTER,
+                "설명설명",
+                BigDecimal.valueOf(10_000),
+                BigDecimal.valueOf(20_000),
+                10,
+                List.of("img1", "img2")));
+
     Product product2 =
-        Product.builder()
-            .seller(seller1)
-            .name("맨투맨")
-            .category(ProductCategory.OUTER)
-            .price(BigDecimal.valueOf(14000))
-            .salePrice(BigDecimal.valueOf(30000))
-            .quantity(20)
-            .description("맨투맨 설명입니다.")
-            .saleStatus(SaleStatus.SALE)
-            .productStatus(ProductStatus.COMPLETED)
-            .build();
+        productCreateProductUseCase.createProduct(
+            seller1.getId(),
+            new ProductCreateRequest(
+                "맨투맨",
+                ProductCategory.UPPER,
+                "설명설명222",
+                BigDecimal.valueOf(20_000),
+                BigDecimal.valueOf(30_000),
+                100,
+                List.of("img1", "img2")));
+
     Product product3 =
-        Product.builder()
-            .name("가디건")
-            .seller(seller2)
-            .category(ProductCategory.OUTER)
-            .price(BigDecimal.valueOf(14000))
-            .salePrice(BigDecimal.valueOf(30000))
-            .quantity(20)
-            .description("가디건 설명입니다.")
-            .saleStatus(SaleStatus.SOLD_OUT)
-            .build();
+        productCreateProductUseCase.createProduct(
+            seller1.getId(),
+            new ProductCreateRequest(
+                "양말",
+                ProductCategory.SHOES,
+                "설명설명3",
+                BigDecimal.valueOf(10_000),
+                BigDecimal.valueOf(20_000),
+                50,
+                List.of("img1", "img2")));
 
     Product product4 =
-        Product.builder()
-            .name("후드티")
-            .seller(seller2)
-            .category(ProductCategory.OUTER)
-            .price(BigDecimal.valueOf(14000))
-            .salePrice(BigDecimal.valueOf(30000))
-            .quantity(20)
-            .description("후드티 설명입니다.")
-            .saleStatus(SaleStatus.NOT_SALE)
-            .build();
+        productCreateProductUseCase.createProduct(
+            seller1.getId(),
+            new ProductCreateRequest(
+                "패딩",
+                ProductCategory.OUTER,
+                "설명설명4",
+                BigDecimal.valueOf(10_000),
+                BigDecimal.valueOf(20_000),
+                120,
+                List.of("img1", "img2")));
 
     productRepository.save(product1);
     productRepository.save(product2);

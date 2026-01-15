@@ -1,7 +1,6 @@
 package com.modeunsa.shared.product.dto;
 
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
-import com.modeunsa.boundedcontext.product.domain.ProductStatus;
 import jakarta.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 import java.util.List;
@@ -18,7 +17,6 @@ public class ProductCreateRequest {
   private String description;
   private BigDecimal price;
   private BigDecimal salePrice;
-  private ProductStatus productStatus;
   private Integer quantity;
   private List<String> images;
 }

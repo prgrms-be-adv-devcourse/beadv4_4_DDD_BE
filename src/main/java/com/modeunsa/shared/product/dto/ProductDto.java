@@ -13,7 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class ProductResponse {
+public class ProductDto {
   private Long id;
   private Long sellerId;
   private String name;

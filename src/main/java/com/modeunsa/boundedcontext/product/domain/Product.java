@@ -76,7 +76,7 @@ public class Product extends GeneratedIdAndAuditedEntity {
         .description(request.getDescription())
         .currency(ProductCurrency.KRW)
         .saleStatus(SaleStatus.NOT_SALE)
-        .productStatus(request.getProductStatus())
+        .productStatus(ProductStatus.DRAFT)
         .favoriteCount(0)
         .quantity(request.getQuantity())
         .build();

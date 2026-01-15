@@ -22,7 +22,8 @@ public class ProductFacade {
 
   @Transactional
   public ProductResponse createProduct(Long sellerId, ProductCreateRequest productCreateRequest) {
-    return productCreateProductUseCase.createProduct(sellerId, productCreateRequest);
+    Product product = productCreateProductUseCase.createProduct(sellerId, productCreateRequest);
+    return productMapper.toResponse(product);
   }
 
   public ProductResponse getProduct(Long productId) {
