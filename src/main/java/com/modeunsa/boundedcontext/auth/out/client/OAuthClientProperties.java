@@ -1,5 +1,6 @@
 package com.modeunsa.boundedcontext.auth.out.client;
 
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -20,6 +21,11 @@ public class OAuthClientProperties {
   @Setter
   public static class Registration {
     private String clientId;
+    private String clientSecret;
+    private String clientAuthenticationMethod;
+    private String authorizationGrantType;
+    private String clientName;
+    private Set<String> scope;
     private String redirectUri;
   }
 }
