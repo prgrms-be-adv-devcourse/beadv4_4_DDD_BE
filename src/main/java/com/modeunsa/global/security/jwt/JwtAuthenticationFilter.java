@@ -2,6 +2,7 @@ package com.modeunsa.global.security.jwt;
 
 import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.global.exception.GeneralException;
+import com.modeunsa.global.status.ErrorStatus;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,6 +42,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     if (StringUtils.hasText(token)) {
       try {
         jwtTokenProvider.validateTokenOrThrow(token);
+
+        if (!jwtTokenProvider.isAccessToken(token)) {
+          throw new GeneralException(ErrorStatus.AUTH_INVALID_ACCESS_TOKEN);
+        }
 
         Long memberId = jwtTokenProvider.getMemberIdFromToken(token);
         MemberRole role = jwtTokenProvider.getRoleFromToken(token);
