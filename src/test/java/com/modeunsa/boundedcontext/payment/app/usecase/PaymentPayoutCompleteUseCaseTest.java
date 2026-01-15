@@ -55,7 +55,7 @@ class PaymentPayoutCompleteUseCaseTest {
     // given
     BigDecimal payoutAmount = BigDecimal.valueOf(5000);
     PaymentPayoutDto payout =
-        new PaymentPayoutDto(1L, 2L, "판매자", LocalDateTime.now(), payoutAmount, PayoutEventType.FEE);
+        new PaymentPayoutDto(1L, 2L, LocalDateTime.now(), payoutAmount, PayoutEventType.FEE);
 
     when(paymentAccountSupport.getHolderAccount()).thenReturn(holderAccount);
     when(paymentAccountSupport.getPayeeAccount(payout)).thenReturn(systemAccount);
@@ -82,8 +82,7 @@ class PaymentPayoutCompleteUseCaseTest {
     // given
     BigDecimal payoutAmount = BigDecimal.valueOf(10000);
     PaymentPayoutDto payout =
-        new PaymentPayoutDto(
-            1L, 2L, "판매자", LocalDateTime.now(), payoutAmount, PayoutEventType.AMOUNT);
+        new PaymentPayoutDto(1L, 2L, LocalDateTime.now(), payoutAmount, PayoutEventType.AMOUNT);
 
     when(paymentAccountSupport.getHolderAccount()).thenReturn(holderAccount);
     when(paymentAccountSupport.getPayeeAccount(payout)).thenReturn(payeeAccount);
@@ -110,7 +109,7 @@ class PaymentPayoutCompleteUseCaseTest {
     // given
     PaymentPayoutDto payout =
         new PaymentPayoutDto(
-            1L, 2L, "판매자", LocalDateTime.now(), BigDecimal.valueOf(10000), PayoutEventType.AMOUNT);
+            1L, 2L, LocalDateTime.now(), BigDecimal.valueOf(10000), PayoutEventType.AMOUNT);
 
     when(paymentAccountSupport.getHolderAccount()).thenReturn(holderAccount);
     when(paymentAccountSupport.getPayeeAccount(payout)).thenReturn(payeeAccount);
@@ -133,7 +132,7 @@ class PaymentPayoutCompleteUseCaseTest {
     // given
     PaymentPayoutDto payout =
         new PaymentPayoutDto(
-            1L, 2L, "판매자", LocalDateTime.now(), BigDecimal.valueOf(2000), PayoutEventType.FEE);
+            1L, 2L, LocalDateTime.now(), BigDecimal.valueOf(2000), PayoutEventType.FEE);
 
     when(paymentAccountSupport.getHolderAccount()).thenReturn(holderAccount);
     when(paymentAccountSupport.getPayeeAccount(payout)).thenReturn(payeeAccount);

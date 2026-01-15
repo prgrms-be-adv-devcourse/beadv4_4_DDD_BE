@@ -13,7 +13,6 @@ import lombok.ToString;
 public class PaymentPayoutDto {
   private final Long id;
   private final Long payeeId;
-  private final String payeeName;
   private final LocalDateTime payoutDate;
   private final BigDecimal amount;
   private final PayoutEventType payoutEventType;
