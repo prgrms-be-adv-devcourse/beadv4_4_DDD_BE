@@ -58,7 +58,7 @@ public class PaymentFacade {
 
     log.info("결제 요청 시작 - request: {}", paymentRequest);
 
-    paymentCompleteUseCase.completePayment(paymentRequest);
+    paymentCompleteUseCase.execute(paymentRequest);
 
     log.info("결제 요청 완료 - request: {}", paymentRequest);
   }

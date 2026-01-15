@@ -38,9 +38,9 @@ class PaymentPayoutCompleteUseCaseTest {
 
   @BeforeEach
   void setUp() {
-    holderMember = PaymentMember.create(1000L, "user1@example.com", "수령인", MemberStatus.ACTIVE);
-    payeeMember = PaymentMember.create(2L, "holder@example.com", "홀더", MemberStatus.ACTIVE);
     systemMember = PaymentMember.create(1L, "system@example.com", "시스템", MemberStatus.ACTIVE);
+    holderMember = PaymentMember.create(2L, "holder@example.com", "홀더", MemberStatus.ACTIVE);
+    payeeMember = PaymentMember.create(1000L, "user1@example.com", "수령인", MemberStatus.ACTIVE);
 
     holderAccount = PaymentAccount.create(holderMember);
     holderAccount.credit(BigDecimal.valueOf(100000), PaymentEventType.CHARGE_BANK_TRANSFER);
