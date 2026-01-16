@@ -5,8 +5,8 @@ import com.modeunsa.boundedcontext.order.domain.OrderProduct;
 import com.modeunsa.shared.order.dto.CreateCartItemRequestDto;
 import com.modeunsa.shared.order.dto.CreateCartItemResponseDto;
 import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
-import com.modeunsa.shared.order.dto.CreateOrderResponseDto;
 import com.modeunsa.shared.order.dto.OrderListResponseDto;
+import com.modeunsa.shared.order.dto.OrderResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +21,7 @@ public class OrderFacade {
   private final OrderSupport orderSupport;
   private final OrderCreateOrderUsecase orderCreateOrderUseCase;
   private final OrderGetOrdersUseCase orderGetOrdersUseCase;
+  private final OrderCancelOrderUseCase orderCancelOrderUseCase;
 
   // 장바구니 아이템 생성
   @Transactional
@@ -47,7 +48,7 @@ public class OrderFacade {
 
   // 단건 주문 생성
   @Transactional
-  public CreateOrderResponseDto createOrder(long memberId, CreateOrderRequestDto requestDto) {
+  public OrderResponseDto createOrder(long memberId, CreateOrderRequestDto requestDto) {
     return orderCreateOrderUseCase.createOrder(memberId, requestDto);
   }
 
@@ -57,5 +58,11 @@ public class OrderFacade {
 
   public Page<OrderListResponseDto> getOrders(long memberId, Pageable pageable) {
     return orderGetOrdersUseCase.getOrders(memberId, pageable);
+  }
+
+  // 주문 취소 요청
+  @Transactional
+  public OrderResponseDto cancelOrder(long memberId, Long orderId) {
+    return orderCancelOrderUseCase.cancelOrder(memberId, orderId);
   }
 }

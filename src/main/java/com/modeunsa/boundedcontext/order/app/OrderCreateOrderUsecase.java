@@ -12,7 +12,7 @@ import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
-import com.modeunsa.shared.order.dto.CreateOrderResponseDto;
+import com.modeunsa.shared.order.dto.OrderResponseDto;
 import com.modeunsa.shared.order.event.OrderCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ public class OrderCreateOrderUsecase {
   private final OrderMapper orderMapper;
   private final SpringDomainEventPublisher eventPublisher;
 
-  public CreateOrderResponseDto createOrder(long memberId, CreateOrderRequestDto requestDto) {
+  public OrderResponseDto createOrder(long memberId, CreateOrderRequestDto requestDto) {
     // 회원 확인
     OrderMember member =
         orderMemberRepository
@@ -60,6 +60,6 @@ public class OrderCreateOrderUsecase {
 
     eventPublisher.publish(new OrderCreatedEvent(orderMapper.toOrderDto(order)));
 
-    return orderMapper.toOrderCreateResponseDto(order);
+    return orderMapper.toOrderResponseDto(order);
   }
 }
