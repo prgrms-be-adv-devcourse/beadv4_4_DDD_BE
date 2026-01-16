@@ -40,6 +40,8 @@ spring:
 settlement:
   scheduler:
     cron-am3: "0 0 3 * * *"
+  policy:
+    fee-rate: 0.1
 
 jwt:
   secret: ${JWT_SECRET:local-test-jwt-secret-key-which-is-long-enough-32bytes}

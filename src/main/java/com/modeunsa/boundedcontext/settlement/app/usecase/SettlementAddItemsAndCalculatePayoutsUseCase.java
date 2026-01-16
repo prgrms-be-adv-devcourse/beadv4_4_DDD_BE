@@ -1,6 +1,7 @@
 package com.modeunsa.boundedcontext.settlement.app.usecase;
 
 import com.modeunsa.boundedcontext.settlement.app.dto.SettlementOrderItemDto;
+import com.modeunsa.boundedcontext.settlement.domain.PayoutAmounts;
 import com.modeunsa.boundedcontext.settlement.domain.entity.Settlement;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementItem;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementMember;
@@ -9,8 +10,6 @@ import com.modeunsa.boundedcontext.settlement.out.SettlementMemberRepository;
 import com.modeunsa.boundedcontext.settlement.out.SettlementRepository;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +18,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class SettlementAddItemsAndCalculatePayoutsUseCase {
-  private static final BigDecimal FEE_RATE = BigDecimal.valueOf(0.1);
-
   private final SettlementRepository settlementRepository;
   private final SettlementMemberRepository settlementMemberRepository;
 
@@ -40,8 +37,7 @@ public class SettlementAddItemsAndCalculatePayoutsUseCase {
             .findBySellerMemberId(systemMember.getId())
             .orElseThrow(() -> new GeneralException(ErrorStatus.SETTLEMENT_NOT_FOUND));
 
-    BigDecimal feeAmount = order.amount().multiply(FEE_RATE).setScale(0, RoundingMode.HALF_UP);
-    BigDecimal sellerAmount = order.amount().subtract(feeAmount);
+    PayoutAmounts payoutAmounts = Settlement.calculatePayouts(order.amount());
 
     List<SettlementItem> items = new ArrayList<>();
 
@@ -50,7 +46,7 @@ public class SettlementAddItemsAndCalculatePayoutsUseCase {
             order.orderItemId(),
             order.buyerMemberId(),
             order.sellerMemberId(),
-            sellerAmount,
+            payoutAmounts.feeAmount(),
             SettlementEventType.SETTLEMENT_PRODUCT_SALES_AMOUNT,
             order.paymentAt()));
 
@@ -59,7 +55,7 @@ public class SettlementAddItemsAndCalculatePayoutsUseCase {
             order.orderItemId(),
             order.buyerMemberId(),
             systemMember.getId(),
-            feeAmount,
+            payoutAmounts.sellerAmount(),
             SettlementEventType.SETTLEMENT_PRODUCT_SALES_FEE,
             order.paymentAt()));
 

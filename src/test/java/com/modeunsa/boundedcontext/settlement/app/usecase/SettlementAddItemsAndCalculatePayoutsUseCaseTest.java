@@ -8,6 +8,7 @@ import com.modeunsa.boundedcontext.settlement.app.dto.SettlementOrderItemDto;
 import com.modeunsa.boundedcontext.settlement.domain.entity.Settlement;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementItem;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementMember;
+import com.modeunsa.boundedcontext.settlement.domain.policy.SettlementPolicy;
 import com.modeunsa.boundedcontext.settlement.domain.types.SettlementEventType;
 import com.modeunsa.boundedcontext.settlement.out.SettlementMemberRepository;
 import com.modeunsa.boundedcontext.settlement.out.SettlementRepository;
@@ -96,7 +97,8 @@ class SettlementAddItemsAndCalculatePayoutsUseCaseTest {
     BigDecimal feeAmount = items.get(1).getAmount();
 
     assertThat(sellerAmount.add(feeAmount)).isEqualByComparingTo(orderDto.amount());
-    assertThat(feeAmount).isEqualByComparingTo(orderDto.amount().multiply(new BigDecimal("0.1")));
+    assertThat(feeAmount)
+        .isEqualByComparingTo(orderDto.amount().multiply(SettlementPolicy.FEE_RATE));
   }
 
   @Test
