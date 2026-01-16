@@ -89,7 +89,7 @@ public class Order extends GeneratedIdAndAuditedEntity {
   }
 
   // 정적 메서드
-  public static Order createFromCart(
+  public static Order createOrder(
       OrderMember member,
       List<OrderItem> orderItems,
       String receiverName,

@@ -12,6 +12,7 @@ import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
 import com.modeunsa.shared.order.dto.OrderResponseDto;
 import com.modeunsa.shared.order.event.OrderCreatedEvent;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +29,7 @@ public class OrderCreateOrderUseCase {
     OrderMember member = orderSupport.findByMemberId(memberId);
 
     // TODO: 실시간 조회로 수정
-    OrderProduct product = orderSupport.findByProductId(memberId);
+    OrderProduct product = orderSupport.findByProductId(requestDto.getProductId());
 
     // 재고 확인
     if (!product.isStockAvailable(requestDto.getQuantity())) {
@@ -39,9 +40,14 @@ public class OrderCreateOrderUseCase {
     OrderItem orderItem = orderMapper.toOrderItemEntity(product, requestDto);
 
     // 주문 생성 (단건 주문이라서 상품의 가격이 총금액) TODO: 주문 할인 도입
-    Order order = orderMapper.toOrderEntity(member, orderItem.getSalePrice(), requestDto);
-
-    order.addOrderItem(orderItem);
+    Order order =
+        Order.createOrder(
+            member,
+            List.of(orderItem),
+            requestDto.getReceiverName(),
+            requestDto.getReceiverPhone(),
+            requestDto.getZipcode(),
+            requestDto.getAddressDetail());
 
     // 주문을 저장하면 주문상품도 같이 저장
     orderRepository.save(order);

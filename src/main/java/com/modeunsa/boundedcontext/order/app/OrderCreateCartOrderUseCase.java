@@ -36,7 +36,7 @@ public class OrderCreateCartOrderUseCase {
 
     // 주문 생성
     Order order =
-        Order.createFromCart(
+        Order.createOrder(
             member,
             orderItems,
             requestDto.getReceiverName(),
