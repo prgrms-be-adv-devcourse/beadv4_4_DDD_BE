@@ -33,17 +33,17 @@ public class MemberDeliveryAddress extends GeneratedIdAndAuditedEntity {
   private String zipCode;
 
   @Column(nullable = false, length = 255)
-  private String address;
+  private String address; // 기본 주소
 
   @Column(nullable = false, length = 255)
-  private String addressDetail;
+  private String addressDetail; // 상세 주소
 
   @Column(nullable = false)
   @Builder.Default
   private Boolean isDefault = false;
 
   @Column(length = 30)
-  private String addressName;
+  private String addressName; // 주소 별칭
 
   void setMember(Member member) {
     this.member = member;
