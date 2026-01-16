@@ -46,6 +46,7 @@ public enum ErrorStatus {
   SELLER_CANNOT_APPROVE(HttpStatus.BAD_REQUEST, "MEMBER_400_003", "승인 대기 상태가 아닌 판매자는 승인할 수 없습니다."),
   SELLER_CANNOT_REJECT(HttpStatus.BAD_REQUEST, "MEMBER_400_004", "승인 대기 상태가 아닌 판매자는 거절할 수 없습니다."),
   SELLER_CANNOT_SUSPEND(HttpStatus.BAD_REQUEST, "MEMBER_400_005", "활성화 상태가 아닌 판매자는 정지할 수 없습니다."),
+  SELLER_INVALID_BANK_ACCOUNT(HttpStatus.BAD_REQUEST, "MEMBER_400_006", "계좌번호 형식이 올바르지 않습니다."),
   // Member 403
   MEMBER_SUSPENDED(HttpStatus.FORBIDDEN, "MEMBER_403_001", "정지된 회원입니다."),
   MEMBER_WITHDRAWN(HttpStatus.FORBIDDEN, "MEMBER_403_002", "탈퇴한 회원입니다."),

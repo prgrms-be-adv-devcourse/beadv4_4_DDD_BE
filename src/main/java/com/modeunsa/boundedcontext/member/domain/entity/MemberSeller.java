@@ -42,6 +42,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MemberSeller extends GeneratedIdAndAuditedEntity {
+  private static final String BANK_ACCOUNT_PATTERN = "^[0-9-]{10,20}$";
 
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "member_id", nullable = false, unique = true)
@@ -56,7 +57,7 @@ public class MemberSeller extends GeneratedIdAndAuditedEntity {
   @Column(name = "settlement_bank_name", nullable = false, length = 50)
   private String settlementBankName;
 
-  @Column(name = "settlement_bank_account", nullable = false, length = 100)
+  @Column(name = "settlement_bank_account", nullable = false, length = 20)
   private String settlementBankAccount;
 
   @Column(name = "business_license_url", nullable = false, length = 1000)
@@ -96,6 +97,7 @@ public class MemberSeller extends GeneratedIdAndAuditedEntity {
       this.settlementBankName = settlementBankName;
     }
     if (settlementBankAccount != null) {
+      validateBankAccount(settlementBankAccount);
       this.settlementBankAccount = settlementBankAccount;
     }
     if (businessLicenseUrl != null) {
@@ -137,5 +139,12 @@ public class MemberSeller extends GeneratedIdAndAuditedEntity {
       throw new GeneralException(ErrorStatus.SELLER_CANNOT_SUSPEND);
     }
     this.status = SellerStatus.SUSPENDED;
+  }
+
+  /** 판매자 계좌 번호 형식을 검증한다. */
+  private void validateBankAccount(String account) {
+    if (!account.matches(BANK_ACCOUNT_PATTERN)) {
+      throw new GeneralException(ErrorStatus.SELLER_INVALID_BANK_ACCOUNT);
+    }
   }
 }
