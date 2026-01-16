@@ -1,6 +1,6 @@
 security:
   permit-all: false
-  permit-urls: /h2-console/**,/swagger-ui/**,/v3/api-docs/**,/api/v1/auths/**
+  permit-urls: /h2-console/**,/swagger-ui/**,/v3/api-docs/**,/api/v1/**
   oauth2:
     allowed-redirect-domains:
       - http://localhost:3000
@@ -52,7 +52,3 @@ spring:
       enabled: false
     jdbc:
       initialize-schema: never
-jwt:
-  secret: ${JWT_SECRET}
-  access-token-expiration: 1800000   # 30분
-  refresh-token-expiration: 604800000 # 7일
