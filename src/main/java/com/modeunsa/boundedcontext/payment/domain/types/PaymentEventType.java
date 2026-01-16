@@ -12,6 +12,8 @@ public enum PaymentEventType {
   CHARGE_PG_TOSS_PAYMENTS("충전_PG결제_토스페이먼츠"),
   USE_ORDER_PAYMENT("사용_주문결제"),
   HOLD_STORE_ORDER_PAYMENT("임시보관_주문결제"),
+  REFUND_PAYMENT_FAILED("환불_결제실패"),
+  REFUND_ORDER_CANCELLED("환불_주문취소"),
   SETTLEMENT_PAY_PRODUCT_SALES_FEE("정산지급_상품판매_수수료"),
   SETTLEMENT_ADJUST_PRODUCT_SALES_FEE("정산수정_상품판매_수수료"),
   SETTLEMENT_PAY_PRODUCT_SALES_AMOUNT("정산지급_상품판매_대금"),
@@ -23,6 +25,13 @@ public enum PaymentEventType {
     return switch (payoutEventType) {
       case FEE -> SETTLEMENT_PAY_PRODUCT_SALES_FEE;
       case AMOUNT -> SETTLEMENT_PAY_PRODUCT_SALES_AMOUNT;
+    };
+  }
+
+  public static PaymentEventType fromRefundEventType(RefundEventType refundEventType) {
+    return switch (refundEventType) {
+      case PAYMENT_FAILED -> REFUND_PAYMENT_FAILED;
+      case ORDER_CANCELLED -> REFUND_ORDER_CANCELLED;
     };
   }
 }

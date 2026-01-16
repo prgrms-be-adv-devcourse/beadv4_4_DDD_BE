@@ -1,18 +1,17 @@
 package com.modeunsa.auth;
 
-import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
-import com.modeunsa.boundedcontext.auth.out.client.OAuthClient;
-import com.modeunsa.boundedcontext.auth.out.client.OAuthClientFactory;
-import com.modeunsa.global.exception.GeneralException;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
+import com.modeunsa.boundedcontext.auth.out.client.OAuthClient;
+import com.modeunsa.boundedcontext.auth.out.client.OAuthClientFactory;
+import com.modeunsa.global.exception.GeneralException;
+import java.util.List;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 class OAuthClientFactoryTest {
 

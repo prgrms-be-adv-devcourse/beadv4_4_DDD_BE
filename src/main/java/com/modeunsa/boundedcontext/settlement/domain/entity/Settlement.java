@@ -9,6 +9,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +25,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Getter
 public class Settlement extends GeneratedIdAndAuditedEntity {
-  private long amount;
+  @Builder.Default private BigDecimal amount = BigDecimal.ZERO;
 
   @Column(nullable = false)
   private Long sellerMemberId;
@@ -35,11 +36,15 @@ public class Settlement extends GeneratedIdAndAuditedEntity {
 
   private LocalDateTime payoutAt;
 
+  public static Settlement create(Long sellerMemberId) {
+    return Settlement.builder().sellerMemberId(sellerMemberId).build();
+  }
+
   public SettlementItem addItem(
       Long orderItemId,
       Long buyerMemberId,
       Long sellerMemberId,
-      long amount,
+      BigDecimal amount,
       SettlementEventType eventType,
       LocalDateTime paymentAt) {
     SettlementItem settlementItem =
@@ -55,7 +60,7 @@ public class Settlement extends GeneratedIdAndAuditedEntity {
 
     items.add(settlementItem);
 
-    this.amount += amount;
+    this.amount = this.amount.add(amount);
 
     return settlementItem;
   }

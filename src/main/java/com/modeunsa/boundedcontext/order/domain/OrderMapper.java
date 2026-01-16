@@ -7,10 +7,12 @@ import com.modeunsa.shared.order.dto.CreateOrderResponseDto;
 import com.modeunsa.shared.order.dto.OrderDto;
 import com.modeunsa.shared.order.dto.OrderItemDto;
 import com.modeunsa.shared.order.dto.OrderItemResponseDto;
+import com.modeunsa.shared.order.dto.OrderListResponseDto;
 import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -33,7 +35,7 @@ public interface OrderMapper {
   @Mapping(target = "productId", source = "productId")
   OrderItemDto toItemDto(OrderItem orderItem);
 
-  // 주문
+  // ---- 주문 ----
   @Mapping(target = "orderMember", source = "member")
   @Mapping(target = "totalAmount", source = "salePrice")
   @Mapping(target = "status", constant = "PENDING_PAYMENT")
@@ -54,6 +56,19 @@ public interface OrderMapper {
   @Mapping(target = "memberId", source = "order.orderMember.id")
   OrderDto toOrderDto(Order order);
 
+  // 리스트 변환 메서드
+  List<OrderListResponseDto> toOrderListResponseDtos(List<Order> orders);
+
+  // 단건 변환 메서드
+  @Mapping(target = "orderId", source = "id")
+  @Mapping(
+      target = "repProductName",
+      expression = "java(makeRepProductName(order.getOrderItems()))")
+  @Mapping(target = "totalAmount", source = "totalAmount")
+  @Mapping(target = "status", source = "status")
+  @Mapping(target = "orderedAt", source = "createdAt")
+  OrderListResponseDto toOrderListResponseDto(Order order);
+
   // --- 메서드 ---
   // 주문 생성시 결제 마감기한 설정
   default LocalDateTime calculateDeadline() {
@@ -66,5 +81,17 @@ public interface OrderMapper {
     return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"))
         + "-"
         + String.format("%04d", memberId % 10000);
+  }
+
+  // --- 대표 상품명 생성 ---
+  default String makeRepProductName(List<OrderItem> items) {
+    if (items == null || items.isEmpty()) {
+      return "상품 정보 없음";
+    }
+
+    String firstItemName = items.get(0).getProductName();
+    int size = items.size();
+
+    return (size == 1) ? firstItemName : firstItemName + " 외 " + (size - 1) + "건";
   }
 }

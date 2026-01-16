@@ -37,7 +37,11 @@ public class PaymentCompleteUseCase {
     if (!buyerAccount.canPayOrder(paymentRequest.getSalePrice())) {
       eventPublisher.publish(
           new PaymentFailedEvent(
-              new PaymentDto(paymentRequest.getOrderId(), paymentRequest.getPgPaymentAmount()),
+              new PaymentDto(
+                  paymentRequest.getOrderId(),
+                  paymentRequest.getOrderNo(),
+                  paymentRequest.getBuyerId(),
+                  paymentRequest.getPgPaymentAmount()),
               PAYMENT_INSUFFICIENT_BALANCE.getCode(),
               PAYMENT_INSUFFICIENT_BALANCE.getMessage(),
               buyerAccount.getShortFailAmount(paymentRequest.getPgPaymentAmount())));
@@ -60,6 +64,10 @@ public class PaymentCompleteUseCase {
 
     eventPublisher.publish(
         new PaymentSuccessEvent(
-            new PaymentDto(paymentRequest.getOrderId(), paymentRequest.getPgPaymentAmount())));
+            new PaymentDto(
+                paymentRequest.getOrderId(),
+                paymentRequest.getOrderNo(),
+                paymentRequest.getBuyerId(),
+                paymentRequest.getPgPaymentAmount())));
   }
 }

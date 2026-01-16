@@ -35,16 +35,12 @@ public class SecurityConfig {
         );
 
     if (securityProperties.isPermitAll()) {
-      http.authorizeHttpRequests(auth ->
-          auth.anyRequest().permitAll()
-      );
+      http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
     } else {
       String[] permittedUrls = securityProperties.getPermitUrls().toArray(new String[0]);
 
-      http.authorizeHttpRequests(auth ->
-          auth.requestMatchers(permittedUrls).permitAll()
-              .anyRequest().authenticated()
-      );
+      http.authorizeHttpRequests(
+          auth -> auth.requestMatchers(permittedUrls).permitAll().anyRequest().authenticated());
     }
 
     http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

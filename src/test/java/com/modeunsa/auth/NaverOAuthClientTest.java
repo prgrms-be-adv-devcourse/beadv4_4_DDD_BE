@@ -1,5 +1,12 @@
 package com.modeunsa.auth;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.startsWith;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import com.modeunsa.boundedcontext.auth.out.client.NaverOAuthClient;
 import com.modeunsa.boundedcontext.auth.out.client.OAuthClientProperties;
@@ -14,25 +21,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.startsWith;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 class NaverOAuthClientTest {
 
-  @Mock
-  private StringRedisTemplate redisTemplate;
+  @Mock private StringRedisTemplate redisTemplate;
 
-  @Mock
-  private ValueOperations<String, String> valueOperations;
+  @Mock private ValueOperations<String, String> valueOperations;
 
-  @Mock
-  private OAuthClientProperties properties;
+  @Mock private OAuthClientProperties properties;
 
   private NaverOAuthClient naverOAuthClient;
 
@@ -72,11 +68,8 @@ class NaverOAuthClientTest {
     assertThat(url).contains("state=");
 
     // Redis 저장 검증
-    verify(valueOperations).set(
-        startsWith("oauth:state:"),
-        eq(provider),
-        eq(Duration.ofMinutes(5))
-    );
+    verify(valueOperations)
+        .set(startsWith("oauth:state:"), eq(provider), eq(Duration.ofMinutes(5)));
   }
 
   @Test
