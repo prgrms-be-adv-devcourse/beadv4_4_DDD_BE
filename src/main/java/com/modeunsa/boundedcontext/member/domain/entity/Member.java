@@ -144,6 +144,6 @@ public class Member extends GeneratedIdAndAuditedEntity {
 
   public void addOAuthAccount(AuthSocialAccount oauth) {
     oauthSocialAccounts.add(oauth);
-    oauth.setMember(this);
+    oauth.assignMember(this);
   }
 }
