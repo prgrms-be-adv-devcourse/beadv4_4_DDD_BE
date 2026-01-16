@@ -62,6 +62,17 @@ public class PaymentFacade {
     paymentRefundUseCase.execute(payment, refundEventType);
   }
 
+  /*
+   * 결제 요청에서는 크게 3가지 단계로 나누어 순차적으로 실행합니다.
+   * 1. 결제 요청 생성 및 검증
+   * 2. 외부 PG사 결제 요청
+   * 3. 결제 완료로 계좌에서 입출금 처리
+   *
+   * 트랜잭션 처리
+   * 이 메서드에서는 각 UseCase 별로 트랜잭션을 분리하여 처리합니다.
+   * 특정 단계에서 실패하면 데이터를 롤백처리하는 것이 아니라 실패에 대한 상태로 저장하여 관리합니다.
+   * 각 UseCase 내부에서 필요한 트랜잭션 처리를 수행합니다.
+   */
   public PaymentResponse requestPayment(PaymentRequest paymentRequest) {
     PaymentRequestResult result = paymentRequestUseCase.execute(paymentRequest);
     paymentChargePgUseCase.execute(result);
