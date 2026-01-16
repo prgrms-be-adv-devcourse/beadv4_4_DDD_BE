@@ -2,6 +2,7 @@ package com.modeunsa.boundedcontext.product.app;
 
 import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
+import com.modeunsa.boundedcontext.product.domain.ProductMemberSeller;
 import com.modeunsa.boundedcontext.product.domain.ProductPolicy;
 import com.modeunsa.boundedcontext.product.out.ProductMemberSellerRepository;
 import com.modeunsa.boundedcontext.product.out.ProductRepository;
@@ -36,5 +37,11 @@ public class ProductSupport {
         ProductPolicy.DISPLAYABLE_SALE_STATUES_FOR_ALL,
         ProductPolicy.DISPLAYABLE_PRODUCT_STATUSES_FOR_ALL,
         pageable);
+  }
+
+  public ProductMemberSeller getProductMemberSeller(Long sellerId) {
+    return productMemberSellerRepository
+        .findById(sellerId)
+        .orElseThrow(() -> new GeneralException(ErrorStatus.SELLER_NOT_FOUND));
   }
 }

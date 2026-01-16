@@ -14,8 +14,8 @@ import lombok.Setter;
 @Setter
 @RequiredArgsConstructor
 public class ProductResponse {
-  private long id;
-  private long sellerId;
+  private Long id;
+  private Long sellerId;
   private String name;
   private ProductCategory category;
   private String description;

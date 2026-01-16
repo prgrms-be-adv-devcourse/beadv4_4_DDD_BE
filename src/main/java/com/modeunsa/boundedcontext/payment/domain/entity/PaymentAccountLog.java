@@ -34,13 +34,13 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class PaymentAccountLog {
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "account_id", nullable = false)
-  private PaymentAccount paymentAccount;
-
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "account_id", nullable = false)
+  private PaymentAccount paymentAccount;
 
   @Column(nullable = false, length = 100)
   @Enumerated(EnumType.STRING)
@@ -55,7 +55,7 @@ public class PaymentAccountLog {
   @Column(nullable = false, precision = 19, scale = 2)
   private BigDecimal balanceAfter;
 
-  private long referenceId;
+  private Long referenceId;
 
   @Column(length = 50)
   @Enumerated(EnumType.STRING)
