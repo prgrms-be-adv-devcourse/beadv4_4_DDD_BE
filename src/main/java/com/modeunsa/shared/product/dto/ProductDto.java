@@ -4,20 +4,19 @@ import com.modeunsa.boundedcontext.product.domain.ProductCategory;
 import com.modeunsa.boundedcontext.product.domain.ProductCurrency;
 import com.modeunsa.boundedcontext.product.domain.ProductStatus;
 import com.modeunsa.boundedcontext.product.domain.SaleStatus;
-import jakarta.validation.constraints.NotBlank;
 import java.math.BigDecimal;
-import lombok.AllArgsConstructor;
+import java.time.LocalDateTime;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 @Getter
-@AllArgsConstructor
-public class ProductRequest {
-  // TODO: @NotNull(message = "sellerId는 필수입니다.")
+@Setter
+@RequiredArgsConstructor
+public class ProductDto {
+  private Long id;
   private Long sellerId;
-
-  @NotBlank(message = "name은 필수입니다.")
   private String name;
-
   private ProductCategory category;
   private String description;
   private BigDecimal price;
@@ -26,4 +25,8 @@ public class ProductRequest {
   private ProductStatus productStatus;
   private SaleStatus saleStatus;
   private int quantity;
+  private LocalDateTime createdAt;
+  private LocalDateTime updatedAt;
+  private Long createdBy;
+  private Long updatedBy;
 }

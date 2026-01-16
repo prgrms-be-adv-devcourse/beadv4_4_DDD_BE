@@ -1,6 +1,6 @@
 package com.modeunsa.boundedcontext.product.domain;
 
-import com.modeunsa.global.jpa.entity.ManualIdAndAuditedEntity;
+import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class ProductMemberSeller extends ManualIdAndAuditedEntity {
+public class ProductMemberSeller extends GeneratedIdAndAuditedEntity {
   @Column(nullable = false, length = 200)
   private String businessName;
 
