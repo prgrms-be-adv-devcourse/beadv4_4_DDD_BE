@@ -51,11 +51,7 @@ public class ApiV1AuthController {
       @Parameter(description = "인증 코드", required = true) @RequestParam String code) {
     OAuthProvider oauthProvider = findProvider(provider);
 
-    /**
-     * TODO: 실제 구현 시에는 provider와 code를 Facade에 넘겨서
-     * 1. 소셜 회원 정보 조회 -> 2. 회원가입/로그인 처리 -> 3.MemberId 추출 과정을 거쳐야 합니다.
-     * 현재는 구조 설명을 위해 임의의 ID(1L)와 Role(USER)을 넘깁니다.
-     */
+    // TODO: 실제 구현 시 provider와 code를 Facade로 전달해 소셜 조회 → 회원가입/로그인 → memberId 추출 흐름으로 변경 필요
     TokenResponse tokenResponse = authFacade.login(1L, MemberRole.MEMBER);
 
     return ApiResponse.onSuccess(SuccessStatus.AUTH_LOGIN_SUCCESS, tokenResponse);

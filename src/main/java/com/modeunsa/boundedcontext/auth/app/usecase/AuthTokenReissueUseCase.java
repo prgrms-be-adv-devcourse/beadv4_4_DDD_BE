@@ -18,13 +18,12 @@ public class AuthTokenReissueUseCase {
   private final AuthRefreshTokenRepository authRefreshTokenRepository;
   private final AuthTokenIssueUseCase authTokenIssueUseCase;
 
-  /**
-   * Refresh Token으로 Access Token 재발급
-   * TODO: Refresh Token Rotation Race Condition 방어 필요
-   * - 동시 요청 시 둘다 성공할 수 있는 문제
-   * - Redisson 분산 락 또는 Redis Lua 스크립트로 원자적 처리 고려
-   */
+  /** Refresh Token으로 Access Token 재발급 */
   public TokenResponse execute(String refreshToken) {
+    // TODO: Refresh Token Rotation 및 동시성(Race Condition) 방어 필요
+    // - 동시 요청 시 둘 다 성공할 수 있는 문제
+    // - Redisson 분산 락 또는 Redis Lua Script로 원자적 처리 고려
+
     // 1. 토큰 유효성 및 타입 검증
     validateRefreshToken(refreshToken);
 
