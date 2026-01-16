@@ -1,6 +1,6 @@
 package com.modeunsa.boundedcontext.product.domain;
 
-import com.modeunsa.global.jpa.entity.ManualIdAndAuditedEntity;
+import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ProductMember extends ManualIdAndAuditedEntity {
+public class ProductMember extends GeneratedIdAndAuditedEntity {
   @Column(unique = true, length = 255)
   private String email;
 

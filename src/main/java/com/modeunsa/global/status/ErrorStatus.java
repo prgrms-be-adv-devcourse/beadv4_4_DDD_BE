@@ -77,6 +77,8 @@ public enum ErrorStatus {
   INVALID_PRODUCT_MEMBER(HttpStatus.BAD_REQUEST, "PRODUCT_400_009", "판매자 정보가 다릅니다."),
   // PRODUCT 404
   PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT_404_001", "상품이 존재하지 않습니다."),
+  PRODUCT_MEMBER_NOT_FOUND(HttpStatus.BAD_REQUEST, "PRODUCT_400_002", "존재하지 않는 회원입니다."),
+  PRODUCT_SELLER_NOT_FOUND(HttpStatus.BAD_REQUEST, "PRODUCT_400_003", "존재하지 않는 판매자입니다."),
 
   // Payment
   PAYMENT_MEMBER_DUPLICATE(HttpStatus.BAD_REQUEST, "PAYMENT_400_001", "이미 등록된 결제 회원 정보가 존재합니다."),

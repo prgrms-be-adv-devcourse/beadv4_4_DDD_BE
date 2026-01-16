@@ -88,4 +88,13 @@ public class ApiV1ProductController {
         productFacade.updateProductStatus(sellerId, productId, productStatus);
     return ApiResponse.onSuccess(SuccessStatus.OK, productResponse);
   }
+
+  @Operation(summary = "관심상품 추가", description = "상품을 관심상품에 추가합니다.")
+  @PostMapping("/{id}/favorite")
+  public ResponseEntity<ApiResponse> create(@Valid @PathVariable(name = "id") Long productId) {
+    // TODO: sellerId 는 나중에 security 에서 가져올것
+    Long memberId = 1L;
+    productFacade.createProductFavorite(memberId, productId);
+    return ApiResponse.onSuccess(SuccessStatus.CREATED);
+  }
 }
