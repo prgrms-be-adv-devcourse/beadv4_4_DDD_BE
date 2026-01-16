@@ -1,10 +1,10 @@
 package com.modeunsa.boundedcontext.settlement.in;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
-import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -15,12 +15,12 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 @ActiveProfiles("test")
 @EnableScheduling
 class SettlementSchedulerTest {
-  @MockitoSpyBean private SettlementScheduler settlementScheduler;
+  @MockitoSpyBean SettlementScheduler settlementScheduler;
 
   @Test
-  void schedulerJobTest() {
+  void scheduler_should_run_at_least_once() {
     await()
-        .atMost(5, SECONDS)
-        .untilAsserted(() -> verify(settlementScheduler, atLeast(1)).runAt03());
+        .atMost(5, TimeUnit.SECONDS)
+        .untilAsserted(() -> verify(settlementScheduler, atLeastOnce()).runAt03());
   }
 }

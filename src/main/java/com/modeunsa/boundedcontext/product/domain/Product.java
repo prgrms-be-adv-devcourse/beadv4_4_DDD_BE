@@ -118,6 +118,10 @@ public class Product extends GeneratedIdAndAuditedEntity {
     // TODO: image 수정 추가
   }
 
+  public void updateProductStatus(ProductStatus productStatus) {
+    this.productStatus = productStatus;
+  }
+
   public void addImage(ProductImage image) {
     images.add(image);
     image.setProduct(this);

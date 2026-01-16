@@ -32,6 +32,7 @@ public enum ErrorStatus {
   AUTH_REFRESH_TOKEN_NOT_FOUND(
       HttpStatus.UNAUTHORIZED, "AUTH_401_004", "Refresh Token이 존재하지 않습니다."),
   AUTH_INVALID_TOKEN_TYPE(HttpStatus.UNAUTHORIZED, "AUTH_401_005", "유효하지 않은 토큰 타입입니다."),
+
   // Auth 403
   AUTH_ACCESS_DENIED(HttpStatus.FORBIDDEN, "AUTH_403_001", "접근 권한이 없습니다."),
   // Auth 502
@@ -72,8 +73,9 @@ public enum ErrorStatus {
   PRODUCT_SALE_PRICE_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_003", "판매가는 0원 이상이어야 합니다."),
   PRODUCT_PRICE_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_004", "정가는 0원 이상이어야 합니다."),
   PRODUCT_QTY_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_005", "재고 수량은 0보다 커야 합니다."),
-  INVALID_PRODUCT_STATE(HttpStatus.BAD_REQUEST, "PRODUCT_400_007", "잘못된 상품 등록 상태입니다."),
+  INVALID_PRODUCT_STATUS(HttpStatus.BAD_REQUEST, "PRODUCT_400_007", "잘못된 상품 등록 상태입니다."),
   INVALID_PRODUCT_UPDATE_FIELD(HttpStatus.BAD_REQUEST, "PRODUCT_400_008", "수정 불가한 필드입니다."),
+  INVALID_PRODUCT_MEMBER(HttpStatus.BAD_REQUEST, "PRODUCT_400_009", "판매자 정보가 다릅니다."),
   // PRODUCT 404
   PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT_404_001", "상품이 존재하지 않습니다."),
 
@@ -97,7 +99,11 @@ public enum ErrorStatus {
   CONTENT_IMAGE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "CONTENT_400_004", "IMAGE는 NULL일 수 없습니다."),
   CONTENT_IMAGE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "CONTENT_400_005", "IMAGE는 최대 5개입니다."),
   CONTENT_TEXT_LENGTH_EXCEEDED(HttpStatus.BAD_REQUEST, "CONTENT_400_006", "TEXT는 최대 500자입니다."),
-  CONTENT_TEXT_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "CONTENT_400_007", "TEXT는 NULL일 수 없습니다.");
+  CONTENT_TEXT_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "CONTENT_400_007", "TEXT는 NULL일 수 없습니다."),
+
+  // Settlement 404
+  SETTLEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "SETTLEMENT_404_001", "정산서가 존재하지 않습니다."),
+  SETTLEMENT_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "SETTLEMENT_404_002", "회원을 찾을 수 없습니다.");
 
   private final HttpStatus httpStatus;
   private final String code;

@@ -2,6 +2,7 @@ package com.modeunsa.boundedcontext.product.in;
 
 import com.modeunsa.boundedcontext.product.app.ProductFacade;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
+import com.modeunsa.boundedcontext.product.domain.ProductStatus;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.status.SuccessStatus;
 import com.modeunsa.shared.product.dto.ProductCreateRequest;
@@ -72,6 +73,19 @@ public class ApiV1ProductController {
     Long sellerId = 1L;
     ProductResponse productResponse =
         productFacade.updateProduct(sellerId, productId, productRequest);
+    return ApiResponse.onSuccess(SuccessStatus.OK, productResponse);
+  }
+
+  @Operation(summary = "상품 상태 변경", description = "상품의 등록 상태를 변경합니다 (DRAFT, COMPLETED, CANCELED)")
+  @PatchMapping("/{id}/status")
+  public ResponseEntity<ApiResponse> updateProductStatus(
+      @PathVariable(name = "id") Long productId,
+      @RequestParam(name = "status") ProductStatus productStatus) {
+
+    // TODO: sellerId 는 나중에 security 에서 가져올것
+    Long sellerId = 1L;
+    ProductResponse productResponse =
+        productFacade.updateProductStatus(sellerId, productId, productStatus);
     return ApiResponse.onSuccess(SuccessStatus.OK, productResponse);
   }
 }

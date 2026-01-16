@@ -31,6 +31,9 @@ public class ProductPolicy {
           ProductUpdatableField.IMAGES,
           ProductUpdatableField.SALE_STATUS);
 
+  private static final EnumSet<ProductStatus> DRAFT_ALLOWED_STATUSES =
+      EnumSet.of(ProductStatus.COMPLETED, ProductStatus.CANCELED);
+
   public void validate(ProductStatus productStatus, ProductUpdatableRequest request) {
     // 1. 수정 가능 필드 검증
     EnumSet<ProductUpdatableField> present = request.presentFields();
@@ -38,7 +41,7 @@ public class ProductPolicy {
         switch (productStatus) {
           case DRAFT -> DRAFT_ALLOWED;
           case COMPLETED -> COMPLETED_ALLOWED;
-          default -> throw new GeneralException(ErrorStatus.INVALID_PRODUCT_STATE);
+          default -> throw new GeneralException(ErrorStatus.INVALID_PRODUCT_STATUS);
         };
 
     // 허용하지 않는 필드 체크 = present - allowed
@@ -46,6 +49,18 @@ public class ProductPolicy {
     forbidden.removeAll(allowed);
     if (!forbidden.isEmpty()) {
       throw new GeneralException(ErrorStatus.INVALID_PRODUCT_UPDATE_FIELD);
+    }
+  }
+
+  public void validateProductStatus(ProductStatus oldStatus, ProductStatus newStatus) {
+    // 1. 임시저장 -> 완료 / 취소
+    if (ProductStatus.DRAFT.equals(oldStatus) && !DRAFT_ALLOWED_STATUSES.contains(newStatus)) {
+      throw new GeneralException(ErrorStatus.INVALID_PRODUCT_STATUS);
+    }
+
+    // 2. 완료 & 취소 -> no action
+    if (ProductStatus.COMPLETED.equals(oldStatus) || ProductStatus.CANCELED.equals(oldStatus)) {
+      throw new GeneralException(ErrorStatus.INVALID_PRODUCT_STATUS);
     }
   }
 }
