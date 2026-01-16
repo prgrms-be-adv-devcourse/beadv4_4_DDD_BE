@@ -34,15 +34,18 @@ class KakaoOAuthClientTest {
 
   @BeforeEach
   void setUp() {
-    // 1. 테스트용 프로퍼티 설정
-    OAuthClientProperties.Registration registration = new OAuthClientProperties.Registration();
-    registration.setClientId("test-kakao-client-id");
-    registration.setRedirectUri("http://127.0.0.1:8080/login/oauth2/code/kakao");
+    OAuthClientProperties.Registration registration = new OAuthClientProperties.Registration(
+        "test-kakao-client-id",
+        null,
+        null,
+        null,
+        null,
+        null,
+        "http://127.0.0.1:8080/login/oauth2/code/kakao"
+    );
 
-    // 2. Mock 동작 정의
-    lenient().when(properties.getRegistration()).thenReturn(Map.of("kakao", registration));
+    lenient().when(properties.registration()).thenReturn(Map.of("kakao", registration));
 
-    // 3. 생성자 주입
     kakaoOAuthClient = new KakaoOAuthClient(redisTemplate, properties);
   }
 

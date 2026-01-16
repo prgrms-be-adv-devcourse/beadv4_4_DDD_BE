@@ -34,15 +34,18 @@ class NaverOAuthClientTest {
 
   @BeforeEach
   void setUp() {
-    // 1. 테스트용 프로퍼티 설정
-    OAuthClientProperties.Registration registration = new OAuthClientProperties.Registration();
-    registration.setClientId("test-naver-client-id");
-    registration.setRedirectUri("http://127.0.0.1:8080/login/oauth2/code/naver");
+    OAuthClientProperties.Registration registration = new OAuthClientProperties.Registration(
+        "test-naver-client-id",
+        null,
+        null,
+        null,
+        null,
+        null,
+        "http://127.0.0.1:8080/login/oauth2/code/naver"
+    );
 
-    // 2. Mock 동작 정의 (Registration Map 반환)
-    lenient().when(properties.getRegistration()).thenReturn(Map.of("naver", registration));
+    lenient().when(properties.registration()).thenReturn(Map.of("naver", registration));
 
-    // 3. 생성자 주입
     naverOAuthClient = new NaverOAuthClient(redisTemplate, properties);
   }
 
