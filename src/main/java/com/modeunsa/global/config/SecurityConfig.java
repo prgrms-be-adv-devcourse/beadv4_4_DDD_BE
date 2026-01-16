@@ -24,15 +24,12 @@ public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http
-        .csrf(csrf -> csrf.disable())
-        .sessionManagement(session ->
-            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        )
+    http.csrf(csrf -> csrf.disable())
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .headers(headers -> headers.frameOptions(FrameOptionsConfig::sameOrigin))
-        .exceptionHandling(exception ->
-            exception.authenticationEntryPoint(jwtAuthenticationEntryPoint)
-        );
+        .exceptionHandling(
+            exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint));
 
     if (securityProperties.isPermitAll()) {
       http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
