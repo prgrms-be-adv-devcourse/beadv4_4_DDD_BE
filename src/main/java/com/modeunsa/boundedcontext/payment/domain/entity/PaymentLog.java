@@ -40,8 +40,8 @@ public class PaymentLog {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumns({
-    @JoinColumn(name = "member_id", referencedColumnName = "memberId", nullable = false),
-    @JoinColumn(name = "order_no", referencedColumnName = "orderNo", nullable = false)
+    @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false),
+    @JoinColumn(name = "order_no", referencedColumnName = "order_no", nullable = false)
   })
   private Payment payment;
 
