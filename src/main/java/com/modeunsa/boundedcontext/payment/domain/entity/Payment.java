@@ -16,8 +16,6 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,10 +57,13 @@ public class Payment extends AuditedEntity {
   @Enumerated(EnumType.STRING)
   private PaymentStatus status = PaymentStatus.READY;
 
-  @NotNull private Long orderId;
+  @Column(nullable = false)
+  private Long orderId;
 
-  @NotNull @Positive private BigDecimal totalAmount;
+  @Column(nullable = false, precision = 19, scale = 2)
+  private BigDecimal totalAmount;
 
+  @Column(precision = 19, scale = 2)
   private BigDecimal pgPaymentAmount;
 
   private String pgProvider;
