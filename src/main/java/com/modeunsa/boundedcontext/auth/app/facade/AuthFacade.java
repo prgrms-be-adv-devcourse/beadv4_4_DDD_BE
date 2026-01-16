@@ -22,16 +22,12 @@ public class AuthFacade {
     return oauthUrlUseCase.generateOAuthUrl(provider, redirectUri);
   }
 
-  /**
-   * 로그인 성공 후 토큰 발급
-   */
+  /** 로그인 성공 후 토큰 발급 */
   public TokenResponse login(Long memberId, MemberRole role) {
     return authTokenIssueUseCase.execute(memberId, role);
   }
 
-  /**
-   * 토큰 재발급
-   */
+  /** 토큰 재발급 */
   public TokenResponse reissueToken(String refreshToken) {
     return authTokenReissueUseCase.execute(refreshToken);
   }

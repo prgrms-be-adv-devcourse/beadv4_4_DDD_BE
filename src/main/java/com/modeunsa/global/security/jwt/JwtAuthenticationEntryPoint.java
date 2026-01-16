@@ -26,8 +26,8 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
   public void commence(
       HttpServletRequest request,
       HttpServletResponse response,
-      AuthenticationException authException
-  ) throws IOException {
+      AuthenticationException authException)
+      throws IOException {
 
     // Filter에서 저장한 예외 확인
     GeneralException exception = (GeneralException) request.getAttribute("exception");

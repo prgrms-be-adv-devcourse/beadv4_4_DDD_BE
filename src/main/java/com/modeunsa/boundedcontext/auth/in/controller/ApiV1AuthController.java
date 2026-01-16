@@ -47,17 +47,14 @@ public class ApiV1AuthController {
   @Operation(summary = "소셜 로그인", description = "소셜 로그인 인증 코드를 사용하여 로그인 및 토큰을 발급합니다.")
   @PostMapping("/login/{provider}")
   public ResponseEntity<ApiResponse> login(
-      @Parameter(description = "OAuth 제공자", example = "kakao")
-      @PathVariable String provider,
-      @Parameter(description = "인증 코드", required = true)
-      @RequestParam String code
-  ) {
+      @Parameter(description = "OAuth 제공자", example = "kakao") @PathVariable String provider,
+      @Parameter(description = "인증 코드", required = true) @RequestParam String code) {
     OAuthProvider oauthProvider = findProvider(provider);
 
     /**
-    /* TODO: 실제 구현 시에는 provider와 code를 Facade에 넘겨서
-    /* 1. 소셜 회원 정보 조회 -> 2. 회원가입/로그인 처리 -> 3. MemberId 추출 과정을 거쳐야 합니다.
-    /* 현재는 구조 설명을 위해 임의의 ID(1L)와 Role(USER)을 넘깁니다.
+     * TODO: 실제 구현 시에는 provider와 code를 Facade에 넘겨서
+     * 1. 소셜 회원 정보 조회 -> 2. 회원가입/로그인 처리 -> 3.MemberId 추출 과정을 거쳐야 합니다.
+     * 현재는 구조 설명을 위해 임의의 ID(1L)와 Role(USER)을 넘깁니다.
      */
     TokenResponse tokenResponse = authFacade.login(1L, MemberRole.MEMBER);
 
@@ -67,9 +64,8 @@ public class ApiV1AuthController {
   @Operation(summary = "토큰 재발급", description = "Refresh Token을 사용하여 Access Token을 재발급합니다.")
   @PostMapping("/reissue")
   public ResponseEntity<ApiResponse> reissue(
-      @Parameter(description = "Refresh Token", required = true)
-      @RequestHeader("RefreshToken") String refreshToken
-  ) {
+      @Parameter(description = "Refresh Token", required = true) @RequestHeader("RefreshToken")
+          String refreshToken) {
     // TODO: 실제로는 Refresh Token 내부의 정보나 DB 조회를 통해 Role을 가져와야 할 수 있습니다.
     TokenResponse tokenResponse = authFacade.reissueToken(refreshToken);
 

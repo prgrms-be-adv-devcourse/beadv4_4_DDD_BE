@@ -21,8 +21,8 @@ public class AuthTokenReissueUseCase {
   /**
    * Refresh Token으로 Access Token 재발급
    * TODO: Refresh Token Rotation Race Condition 방어 필요
-   *   - 동시 요청 시 둘 다 성공할 수 있는 문제
-   *   - Redisson 분산 락 또는 Redis Lua 스크립트로 원자적 처리 고려
+   * - 동시 요청 시 둘다 성공할 수 있는 문제
+   * - Redisson 분산 락 또는 Redis Lua 스크립트로 원자적 처리 고려
    */
   public TokenResponse execute(String refreshToken) {
     // 1. 토큰 유효성 및 타입 검증
@@ -32,8 +32,10 @@ public class AuthTokenReissueUseCase {
     MemberRole role = jwtTokenProvider.getRoleFromToken(refreshToken);
 
     // 2. Redis 조회 및 검증
-    AuthRefreshToken savedToken = authRefreshTokenRepository.findById(memberId)
-        .orElseThrow(() -> new GeneralException(ErrorStatus.AUTH_REFRESH_TOKEN_NOT_FOUND));
+    AuthRefreshToken savedToken =
+        authRefreshTokenRepository
+            .findById(memberId)
+            .orElseThrow(() -> new GeneralException(ErrorStatus.AUTH_REFRESH_TOKEN_NOT_FOUND));
 
     if (!savedToken.isTokenMatching(refreshToken)) {
       throw new GeneralException(ErrorStatus.AUTH_INVALID_REFRESH_TOKEN);
