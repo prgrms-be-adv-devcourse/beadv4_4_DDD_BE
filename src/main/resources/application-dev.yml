@@ -1,3 +1,7 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
 security:
   permit-all: false
   permit-urls: /h2-console/**,/swagger-ui/**,/v3/api-docs/**,/api/v1/**
@@ -6,7 +10,6 @@ security:
       - http://localhost:3000
       - http://localhost:8080
       - http://127.0.0.1:8080
-spring:
   datasource:
     url: jdbc:h2:./db_dev;MODE=MySQL
     username: sa

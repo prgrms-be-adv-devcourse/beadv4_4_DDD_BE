@@ -2,6 +2,8 @@ server:
   port: 8080
 
 spring:
+  profiles:
+    active: dev
   application:
     name: modeunsa
   data:
@@ -48,3 +50,8 @@ jwt:
   secret: ${JWT_SECRET:local-test-jwt-secret-key-which-is-long-enough-32bytes}
   access-token-expiration: 1800000   # 30분
   refresh-token-expiration: 604800000 # 7일
+
+payment:
+  accounts:
+    system-member-id: 1
+    holder-member-id: 2
