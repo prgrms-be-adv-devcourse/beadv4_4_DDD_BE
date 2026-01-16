@@ -17,6 +17,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 @Entity
@@ -32,6 +33,7 @@ import lombok.ToString;
     })
 public class AuthSocialAccount extends GeneratedIdAndAuditedEntity {
 
+  @Setter
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(nullable = false)
   private Member member;
@@ -42,8 +44,4 @@ public class AuthSocialAccount extends GeneratedIdAndAuditedEntity {
 
   @Column(nullable = false, length = 200)
   private String providerAccountId;
-
-  void setMember(Member member) {
-    this.member = member;
-  }
 }
