@@ -3,11 +3,11 @@ package com.modeunsa.boundedcontext.order.domain;
 import com.modeunsa.shared.order.dto.CreateCartItemRequestDto;
 import com.modeunsa.shared.order.dto.CreateCartItemResponseDto;
 import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
-import com.modeunsa.shared.order.dto.CreateOrderResponseDto;
 import com.modeunsa.shared.order.dto.OrderDto;
 import com.modeunsa.shared.order.dto.OrderItemDto;
 import com.modeunsa.shared.order.dto.OrderItemResponseDto;
 import com.modeunsa.shared.order.dto.OrderListResponseDto;
+import com.modeunsa.shared.order.dto.OrderResponseDto;
 import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -49,7 +49,7 @@ public interface OrderMapper {
 
   @Mapping(target = "orderId", source = "id")
   @Mapping(target = "memberId", source = "order.orderMember.id")
-  CreateOrderResponseDto toOrderCreateResponseDto(Order order);
+  OrderResponseDto toOrderResponseDto(Order order);
 
   @Mapping(target = "orderId", source = "order.id")
   @Mapping(target = "orderItems", source = "orderItems")

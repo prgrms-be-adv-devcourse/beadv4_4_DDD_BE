@@ -66,6 +66,7 @@ public class Order extends GeneratedIdAndAuditedEntity {
   @Column(name = "payment_deadline_at", nullable = false)
   private LocalDateTime paymentDeadlineAt;
 
+  /** 도메인 메서드 */
   @PrePersist
   public void calculatePaymentDeadline() {
     if (this.paymentDeadlineAt == null) {
@@ -76,5 +77,13 @@ public class Order extends GeneratedIdAndAuditedEntity {
   public void addOrderItem(OrderItem item) {
     this.orderItems.add(item);
     item.setOrder(this);
+  }
+
+  public boolean isCancellable() {
+    return status == OrderStatus.PENDING_PAYMENT || status == OrderStatus.PAID;
+  }
+
+  public void requestCancel() {
+    this.status = OrderStatus.CANCEL_REQUESTED;
   }
 }

@@ -55,7 +55,7 @@ public class PaymentRefundUseCaseTest {
             .orderId(1L)
             .orderNo("ORDER12345")
             .buyerId(buyerMember.getId())
-            .pgPaymentAmount(BigDecimal.valueOf(5000))
+            .totalAmount(BigDecimal.valueOf(5000))
             .build();
 
     when(paymentAccountSupport.getHolderAccount()).thenReturn(holderAccount);
@@ -70,9 +70,9 @@ public class PaymentRefundUseCaseTest {
 
     // then
     assertThat(holderAccount.getBalance())
-        .isEqualByComparingTo(holderBalanceBefore.subtract(request.getPgPaymentAmount()));
+        .isEqualByComparingTo(holderBalanceBefore.subtract(request.getTotalAmount()));
     assertThat(buyerAccount.getBalance())
-        .isEqualByComparingTo(buyerBalanceBefore.add(request.getPgPaymentAmount()));
+        .isEqualByComparingTo(buyerBalanceBefore.add(request.getTotalAmount()));
   }
 
   @Test
@@ -84,7 +84,7 @@ public class PaymentRefundUseCaseTest {
             .orderId(1L)
             .orderNo("ORDER12345")
             .buyerId(buyerMember.getId())
-            .pgPaymentAmount(BigDecimal.valueOf(5000))
+            .totalAmount(BigDecimal.valueOf(5000))
             .build();
 
     when(paymentAccountSupport.getHolderAccount()).thenReturn(holderAccount);
@@ -99,9 +99,9 @@ public class PaymentRefundUseCaseTest {
 
     // then
     assertThat(holderAccount.getBalance())
-        .isEqualByComparingTo(holderBalanceBefore.subtract(request.getPgPaymentAmount()));
+        .isEqualByComparingTo(holderBalanceBefore.subtract(request.getTotalAmount()));
     assertThat(buyerAccount.getBalance())
-        .isEqualByComparingTo(buyerBalanceBefore.add(request.getPgPaymentAmount()));
+        .isEqualByComparingTo(buyerBalanceBefore.add(request.getTotalAmount()));
   }
 
   @Test
@@ -117,7 +117,7 @@ public class PaymentRefundUseCaseTest {
             .orderId(1L)
             .orderNo("ORDER12345")
             .buyerId(buyerMember.getId())
-            .pgPaymentAmount(BigDecimal.valueOf(5000))
+            .totalAmount(BigDecimal.valueOf(5000))
             .build();
 
     when(paymentAccountSupport.getHolderAccount()).thenReturn(insufficientHolderAccount);

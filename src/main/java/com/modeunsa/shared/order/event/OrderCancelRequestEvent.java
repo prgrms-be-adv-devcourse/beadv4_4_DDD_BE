@@ -6,6 +6,6 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class OrderCreatedEvent {
-  public final OrderDto orderDto;
+public class OrderCancelRequestEvent {
+  private final OrderDto orderDto;
 }

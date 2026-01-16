@@ -58,9 +58,14 @@ public enum ErrorStatus {
   SELLER_ALREADY_REGISTERED(HttpStatus.CONFLICT, "MEMBER_409_003", "이미 판매자 신청을 하셨습니다."),
 
   // Order
+  ORDER_STOCK_NOT_ENOUGH(HttpStatus.BAD_REQUEST, "ORDER_400_001", "상품의 재고가 부족합니다."),
+  ORDER_CANNOT_CANCEL(HttpStatus.BAD_REQUEST, "ORDER_400_002", "현재 주문 상태에서는 주문을 취소할 수 없습니다."),
+
   ORDER_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_404_001", "없는 상품입니다."),
   ORDER_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_404_002", "없는 회원입니다."),
-  ORDER_STOCK_NOT_ENOUGH(HttpStatus.BAD_REQUEST, "ORDER_400_001", "상품의 재고가 부족합니다."),
+  ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_404_003", "없는 주문입니다."),
+
+  ORDER_ACCESS_DENIED(HttpStatus.FORBIDDEN, "ORDER_403_001", "해당 주문에 대한 접근 권한이 없습니다."),
 
   // Product 400
   PRODUCT_DESCRIPTION_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_001", "상품 설명은 필수입니다."),
@@ -79,8 +84,12 @@ public enum ErrorStatus {
   PAYMENT_ACCOUNT_INVALID(HttpStatus.BAD_REQUEST, "PAYMENT_400_003", "잘못된 요청입니다."),
   PAYMENT_INSUFFICIENT_BALANCE(
       HttpStatus.BAD_REQUEST, "PAYMENT_400_004", "결제 계좌 잔액이 부족하여 결제를 진행할 수 없습니다."),
+  PAYMENT_DUPLICATE(HttpStatus.BAD_REQUEST, "PAYMENT_400_005", "이미 결제된 주문입니다."),
+  PAYMENT_MEMBER_IN_ACTIVE(HttpStatus.BAD_REQUEST, "PAYMENT_400_006", "결제 회원이 활성 상태가 아닙니다."),
+  PAYMENT_INVALID(HttpStatus.BAD_REQUEST, "PAYMENT_400_007", "결제 요청이 올바르지 않습니다."),
   PAYMENT_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_001", "결제 회원 정보를 찾을 수 없습니다."),
-  PAYMENT_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_002", "결제 회원 정보를 찾을 수 없습니다."),
+  PAYMENT_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_002", "결제 계좌 정보를 찾을 수 없습니다."),
+  PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_003", "결제 정보를 찾을 수 없습니다."),
 
   // Settlement 404
   SETTLEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "SETTLEMENT_404_001", "정산서가 존재하지 않습니다."),
