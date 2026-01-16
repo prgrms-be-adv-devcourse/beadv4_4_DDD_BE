@@ -129,6 +129,18 @@ public class MemberDataInit {
     addOAuthAccount(user4, OAuthProvider.KAKAO, "kakao_newuser");
     memberRepository.save(user4);
 
+    // 8. 시스템 계정
+    Member systemMember = createMember(null, "시스템", null, MemberRole.SYSTEM);
+    createProfile(systemMember, "SYSTEM", null, null, null, null);
+    memberRepository.save(systemMember);
+
+    // 9. 홀더 계정
+    Member holderMember = createMember(null, "홀더", null, MemberRole.HOLDER);
+    createProfile(holderMember, "HOLDER", null, null, null, null);
+    memberRepository.save(holderMember);
+
+    log.info("System and Holder accounts created for payment/settlement processing");
+
     log.info(
         "Member base data initialization completed. Total members: {}", memberRepository.count());
   }
