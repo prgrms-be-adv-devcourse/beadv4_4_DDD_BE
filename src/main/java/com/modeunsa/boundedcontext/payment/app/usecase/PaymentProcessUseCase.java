@@ -1,7 +1,8 @@
 package com.modeunsa.boundedcontext.payment.app.usecase;
 
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequestResult;
-import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
+import com.modeunsa.boundedcontext.payment.app.lock.LockedPaymentAccounts;
+import com.modeunsa.boundedcontext.payment.app.lock.PaymentAccountLockManager;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentSupport;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
@@ -20,27 +21,19 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class PaymentProcessUseCase {
 
-  private final PaymentAccountSupport paymentAccountSupport;
   private final PaymentSupport paymentSupport;
+  private final PaymentAccountLockManager paymentAccountLockManager;
   private final SpringDomainEventPublisher eventPublisher;
   private final PaymentAccountConfig paymentAccountConfig;
 
   public void execute(PaymentRequestResult paymentRequestResult) {
 
-    Long buyerId = paymentRequestResult.getBuyerId();
-    Long holderId = paymentAccountConfig.getHolderMemberId();
+    LockedPaymentAccounts accounts =
+        paymentAccountLockManager.getEntitiesForUpdateInOrder(
+            paymentAccountConfig.getHolderMemberId(), paymentRequestResult.getBuyerId());
 
-    // 항상 작은 ID 부터 락 획득
-    PaymentAccount buyerAccount;
-    PaymentAccount holderAccount;
-
-    if (buyerId < holderId) {
-      buyerAccount = paymentAccountSupport.getPaymentAccountByMemberIdForUpdate(buyerId);
-      holderAccount = paymentAccountSupport.getHolderAccountByMemberIdForUpdate();
-    } else {
-      holderAccount = paymentAccountSupport.getHolderAccountByMemberIdForUpdate();
-      buyerAccount = paymentAccountSupport.getPaymentAccountByMemberIdForUpdate(buyerId);
-    }
+    PaymentAccount holderAccount = accounts.get(paymentAccountConfig.getHolderMemberId());
+    PaymentAccount buyerAccount = accounts.get(paymentRequestResult.getBuyerId());
 
     if (paymentRequestResult.isNeedsCharge()) {
       executeWithCharge(holderAccount, buyerAccount, paymentRequestResult);

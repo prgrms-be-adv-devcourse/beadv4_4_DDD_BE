@@ -2,12 +2,12 @@ package com.modeunsa.boundedcontext.payment.app.usecase;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequestResult;
-import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
+import com.modeunsa.boundedcontext.payment.app.lock.LockedPaymentAccounts;
+import com.modeunsa.boundedcontext.payment.app.lock.PaymentAccountLockManager;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentSupport;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
@@ -19,12 +19,13 @@ import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
 import com.modeunsa.shared.payment.dto.PaymentDto;
 import com.modeunsa.shared.payment.event.PaymentSuccessEvent;
 import java.math.BigDecimal;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -33,10 +34,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("PaymentProcessUseCase 테스트")
 class PaymentProcessUseCaseTest {
 
-  @Mock private PaymentAccountSupport paymentAccountSupport;
   @Mock private PaymentSupport paymentSupport;
   @Mock private SpringDomainEventPublisher eventPublisher;
   @Mock private PaymentAccountConfig paymentAccountConfig;
+  @Mock private PaymentAccountLockManager paymentAccountLockManager;
 
   @InjectMocks private PaymentProcessUseCase paymentProcessUseCase;
 
@@ -64,14 +65,19 @@ class PaymentProcessUseCaseTest {
   void executeWithoutCharge_whenBuyerIdGreaterThanHolderId() {
     // given
     Long buyerId = 1000L; // holderId(2)보다 큼
-    PaymentRequestResult paymentRequestResult =
+    final PaymentRequestResult paymentRequestResult =
         new PaymentRequestResult(
             buyerId, "ORDER12345", 1L, false, BigDecimal.ZERO, BigDecimal.valueOf(20000));
 
-    // 락 순서: holderAccount → buyerAccount (작은 ID부터)
-    when(paymentAccountSupport.getHolderAccountByMemberIdForUpdate()).thenReturn(holderAccount);
-    when(paymentAccountSupport.getPaymentAccountByMemberIdForUpdate(buyerId))
-        .thenReturn(buyerAccount);
+    // LockedPaymentAccounts 생성 (작은 ID부터 순서대로)
+    Map<Long, PaymentAccount> accountsMap = new LinkedHashMap<>();
+    accountsMap.put(HOLDER_ID, holderAccount);
+    accountsMap.put(buyerId, buyerAccount);
+    LockedPaymentAccounts lockedAccounts = new LockedPaymentAccounts(accountsMap);
+
+    // PaymentAccountLockManager Mock 설정
+    when(paymentAccountLockManager.getEntitiesForUpdateInOrder(HOLDER_ID, buyerId))
+        .thenReturn(lockedAccounts);
 
     // 테스트코드에서 잔액은 변경되지 않고 증감, 감소된 금액으로만 검증
     final BigDecimal holderBalanceBefore = holderAccount.getBalance();
@@ -81,10 +87,8 @@ class PaymentProcessUseCaseTest {
     paymentProcessUseCase.execute(paymentRequestResult);
 
     // then
-    // 메서드 호출 순서를 확인하는 테스트 코드로 락 획득 순서 검증
-    InOrder inOrder = inOrder(paymentAccountSupport);
-    inOrder.verify(paymentAccountSupport).getHolderAccountByMemberIdForUpdate();
-    inOrder.verify(paymentAccountSupport).getPaymentAccountByMemberIdForUpdate(buyerId);
+    // PaymentAccountLockManager가 올바른 순서로 호출되었는지 확인
+    verify(paymentAccountLockManager).getEntitiesForUpdateInOrder(HOLDER_ID, buyerId);
 
     // 잔액 변경 확인
     assertThat(buyerAccount.getBalance())
@@ -108,13 +112,18 @@ class PaymentProcessUseCaseTest {
     BigDecimal chargeAmount = BigDecimal.valueOf(30000);
     BigDecimal totalAmount = BigDecimal.valueOf(50000);
 
-    PaymentRequestResult paymentRequestResult =
+    final PaymentRequestResult paymentRequestResult =
         new PaymentRequestResult(buyerId, "ORDER12345", 1L, true, chargeAmount, totalAmount);
 
-    // 락 순서: holderAccount → buyerAccount (작은 ID부터)
-    when(paymentAccountSupport.getHolderAccountByMemberIdForUpdate()).thenReturn(holderAccount);
-    when(paymentAccountSupport.getPaymentAccountByMemberIdForUpdate(buyerId))
-        .thenReturn(buyerAccount);
+    // LockedPaymentAccounts 생성 (작은 ID부터 순서대로)
+    Map<Long, PaymentAccount> accountsMap = new LinkedHashMap<>();
+    accountsMap.put(HOLDER_ID, holderAccount);
+    accountsMap.put(buyerId, buyerAccount);
+    LockedPaymentAccounts lockedAccounts = new LockedPaymentAccounts(accountsMap);
+
+    // PaymentAccountLockManager Mock 설정
+    when(paymentAccountLockManager.getEntitiesForUpdateInOrder(HOLDER_ID, buyerId))
+        .thenReturn(lockedAccounts);
 
     // 테스트코드에서 잔액은 변경되지 않고 증감, 감소된 금액으로만 검증
     final BigDecimal holderBalanceBefore = holderAccount.getBalance();
@@ -124,10 +133,8 @@ class PaymentProcessUseCaseTest {
     paymentProcessUseCase.execute(paymentRequestResult);
 
     // then
-    // 메서드 호출 순서를 확인하는 테스트 코드로 락 획득 순서 검증
-    InOrder inOrder = inOrder(paymentAccountSupport);
-    inOrder.verify(paymentAccountSupport).getHolderAccountByMemberIdForUpdate();
-    inOrder.verify(paymentAccountSupport).getPaymentAccountByMemberIdForUpdate(buyerId);
+    // PaymentAccountLockManager가 올바른 순서로 호출되었는지 확인
+    verify(paymentAccountLockManager).getEntitiesForUpdateInOrder(HOLDER_ID, buyerId);
 
     // 잔액 변경 확인
     // buyerAccount: PG 충전(credit) → 결제(debit)
@@ -155,12 +162,18 @@ class PaymentProcessUseCaseTest {
     Long orderId = 1L;
     BigDecimal totalAmount = BigDecimal.valueOf(20000);
 
-    PaymentRequestResult paymentRequestResult =
+    final PaymentRequestResult paymentRequestResult =
         new PaymentRequestResult(buyerId, orderNo, orderId, false, BigDecimal.ZERO, totalAmount);
 
-    when(paymentAccountSupport.getHolderAccountByMemberIdForUpdate()).thenReturn(holderAccount);
-    when(paymentAccountSupport.getPaymentAccountByMemberIdForUpdate(buyerId))
-        .thenReturn(buyerAccount);
+    // LockedPaymentAccounts 생성
+    Map<Long, PaymentAccount> accountsMap = new LinkedHashMap<>();
+    accountsMap.put(HOLDER_ID, holderAccount);
+    accountsMap.put(buyerId, buyerAccount);
+    LockedPaymentAccounts lockedAccounts = new LockedPaymentAccounts(accountsMap);
+
+    // PaymentAccountLockManager Mock 설정
+    when(paymentAccountLockManager.getEntitiesForUpdateInOrder(HOLDER_ID, buyerId))
+        .thenReturn(lockedAccounts);
 
     // when
     paymentProcessUseCase.execute(paymentRequestResult);
