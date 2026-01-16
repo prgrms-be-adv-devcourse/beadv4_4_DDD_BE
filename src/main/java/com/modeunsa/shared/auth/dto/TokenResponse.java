@@ -18,8 +18,7 @@ public class TokenResponse {
       String accessToken,
       String refreshToken,
       long accessTokenExpiresIn,
-      long refreshTokenExpiresIn
-  ) {
+      long refreshTokenExpiresIn) {
     return TokenResponse.builder()
         .accessToken(accessToken)
         .refreshToken(refreshToken)

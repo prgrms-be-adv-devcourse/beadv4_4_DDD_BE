@@ -1,8 +1,8 @@
 package com.modeunsa.boundedcontext.auth.out.client;
 
-import java.util.Set;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;

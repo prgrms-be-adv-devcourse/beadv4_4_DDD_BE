@@ -26,7 +26,6 @@ public class JwtTokenProvider {
   private static final String TYPE_ACCESS = "access";
   private static final String TYPE_REFRESH = "refresh";
 
-
   private SecretKey secretKey;
 
   @PostConstruct
@@ -41,9 +40,7 @@ public class JwtTokenProvider {
     log.info("JWT SecretKey initialized successfully");
   }
 
-  /**
-   * Access Token 생성
-   */
+  /** Access Token 생성 */
   public String createAccessToken(Long memberId, MemberRole role) {
     Date now = new Date();
     Date expiry = new Date(now.getTime() + jwtProperties.accessTokenExpiration());
@@ -58,9 +55,7 @@ public class JwtTokenProvider {
         .compact();
   }
 
-  /**
-   * Refresh Token 생성
-   */
+  /** Refresh Token 생성 */
   public String createRefreshToken(Long memberId, MemberRole role) {
     Date now = new Date();
     Date expiry = new Date(now.getTime() + jwtProperties.refreshTokenExpiration());
@@ -75,25 +70,19 @@ public class JwtTokenProvider {
         .compact();
   }
 
-  /**
-   * Refresh Token 여부 확인
-   */
+  /** Refresh Token 여부 확인 */
   public boolean isRefreshToken(String token) {
     Claims claims = parseClaims(token);
     return TYPE_REFRESH.equals(claims.get(KEY_TYPE, String.class));
   }
 
-  /**
-   * Access Token 여부 확인
-   */
+  /** Access Token 여부 확인 */
   public boolean isAccessToken(String token) {
     Claims claims = parseClaims(token);
     return TYPE_ACCESS.equals(claims.get(KEY_TYPE, String.class));
   }
 
-  /**
-   * 토큰 유효성 검증
-   */
+  /** 토큰 유효성 검증 */
   public void validateTokenOrThrow(String token) {
     if (!StringUtils.hasText(token)) {
       throw new GeneralException(ErrorStatus.AUTH_INVALID_TOKEN);
@@ -108,9 +97,7 @@ public class JwtTokenProvider {
     }
   }
 
-  /**
-   * 토큰에서 memberId 추출
-   */
+  /** 토큰에서 memberId 추출 */
   public Long getMemberIdFromToken(String token) {
     Claims claims = parseClaims(token);
     String subject = claims.getSubject();
@@ -126,9 +113,7 @@ public class JwtTokenProvider {
     }
   }
 
-  /**
-   * 토큰에서 role 추출
-   */
+  /** 토큰에서 role 추출 */
   public MemberRole getRoleFromToken(String token) {
     Claims claims = parseClaims(token);
     String roleStr = claims.get(KEY_ROLE, String.class);
@@ -144,15 +129,9 @@ public class JwtTokenProvider {
     }
   }
 
-  /**
-   * Claims 파싱
-   */
+  /** Claims 파싱 */
   private Claims parseClaims(String token) {
-    return Jwts.parser()
-        .verifyWith(secretKey)
-        .build()
-        .parseSignedClaims(token)
-        .getPayload();
+    return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
   }
 
   public long getAccessTokenExpiration() {
