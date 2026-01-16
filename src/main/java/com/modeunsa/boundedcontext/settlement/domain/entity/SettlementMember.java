@@ -18,7 +18,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class SettlementMember extends ManualIdAndAuditedEntity {
-  @Column(nullable = false, length = 20)
+  @Column(nullable = false, length = 50)
   private String name;
 
   public static SettlementMember create(Long memberId, String name) {
