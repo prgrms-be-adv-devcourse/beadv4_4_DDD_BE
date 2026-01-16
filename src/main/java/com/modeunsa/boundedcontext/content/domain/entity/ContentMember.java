@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ContentMember extends ManualIdAndAuditedEntity {
+
   @Column(length = 30)
   private String author;
 }

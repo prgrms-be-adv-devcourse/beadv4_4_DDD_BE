@@ -5,7 +5,9 @@ import com.modeunsa.boundedcontext.content.app.dto.ContentRequest;
 import com.modeunsa.boundedcontext.content.app.dto.ContentResponse;
 import com.modeunsa.boundedcontext.content.app.mapper.ContentMapper;
 import com.modeunsa.boundedcontext.content.domain.entity.Content;
+import com.modeunsa.boundedcontext.content.domain.entity.ContentImage;
 import com.modeunsa.boundedcontext.content.domain.entity.ContentMember;
+import com.modeunsa.boundedcontext.content.domain.entity.ContentTag;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import jakarta.transaction.Transactional;
@@ -20,20 +22,25 @@ public class ContentUpdateContentUseCase {
   private final ContentMapper contentMapper;
 
   @Transactional
-  public ContentResponse updateContent(Long contentId, ContentRequest contentRequest, ContentMember author) {
-    Content content = contentSupport.findById(contentId)
-      .orElseThrow(() -> new GeneralException(ErrorStatus._NOT_FOUND));
+  public ContentResponse updateContent(
+      Long contentId, ContentRequest contentRequest, ContentMember author) {
+    Content content =
+        contentSupport
+            .findById(contentId)
+            .orElseThrow(() -> new GeneralException(ErrorStatus._NOT_FOUND));
 
     // validate
     this.validateContent(content, contentRequest, author);
 
-    // 3. 상태 변경
+    // 수정 상태
     applyUpdate(content, contentRequest);
-    // 4. 결과 반환
+
+    // 결과 반환
     return contentMapper.toResponse(content);
   }
 
-  private void  validateContent(Content content, ContentRequest contentRequest, ContentMember author) {
+  private void validateContent(
+      Content content, ContentRequest contentRequest, ContentMember author) {
     // 작성자 검증
     if (!content.getAuthor().equals(author)) {
       throw new GeneralException(ErrorStatus._FORBIDDEN);
@@ -47,7 +54,6 @@ public class ContentUpdateContentUseCase {
     if (contentRequest.getText().length() > 500) {
       throw new GeneralException(ErrorStatus.CONTENT_TEXT_LIMIT_EXCEEDED);
     }
-
 
     // image
     if (contentRequest.getImages() == null) {
@@ -81,5 +87,20 @@ public class ContentUpdateContentUseCase {
 
   private void applyUpdate(Content content, ContentRequest contentRequest) {
 
+    // text
+    content.updateText(contentRequest.getText()); // or content.setText() 대신 도메인 메서드 권장
+
+    // tags
+    content.getTags().clear();
+    for (String tagValue : contentRequest.getTags()) {
+      content.addTag(new ContentTag(tagValue));
+    }
+
+    // images
+    content.getImages().clear();
+    int order = 0;
+    for (var imageReq : contentRequest.getImages()) {
+      content.addImage(new ContentImage(imageReq.getImageUrl(), imageReq.getIsPrimary(), order++));
+    }
   }
 }

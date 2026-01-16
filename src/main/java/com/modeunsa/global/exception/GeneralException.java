@@ -1,11 +1,11 @@
 package com.modeunsa.global.exception;
 
 import com.modeunsa.global.status.ErrorStatus;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
 public class GeneralException extends RuntimeException {
+
   private ErrorStatus errorStatus;
 
   public GeneralException(String message) {

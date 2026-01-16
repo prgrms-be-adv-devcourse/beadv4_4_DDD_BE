@@ -15,6 +15,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 @Slf4j
 @RestControllerAdvice
 public class ExceptionAdvice {
+
   @ExceptionHandler
   public ResponseEntity<ApiResponse> validation(ConstraintViolationException e) {
     String errorMessage =

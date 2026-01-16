@@ -8,12 +8,10 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class ContentImageResponse {
-  @NotBlank
-  private String imageUrl;
 
-  @NotNull
-  private Boolean isPrimary;
+  @NotBlank private String imageUrl;
 
-  @NotNull
-  private Integer sortOrder;
+  @NotNull private Boolean isPrimary;
+
+  @NotNull private Integer sortOrder;
 }

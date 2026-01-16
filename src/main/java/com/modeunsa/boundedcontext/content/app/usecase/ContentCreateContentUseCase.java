@@ -30,20 +30,18 @@ public class ContentCreateContentUseCase {
     content.setAuthor(author);
 
     // 태그 생성 및 연관관계 설정
-    contentRequest.getTags().forEach(tagValue ->
-      content.addTag(new ContentTag(tagValue))
-    );
+    contentRequest.getTags().forEach(tagValue -> content.addTag(new ContentTag(tagValue)));
 
     // 이미지 생성 및 연관관계 설정
-    contentRequest.getImages().forEach(imageRequest ->
-      content.addImage(
-        new ContentImage(
-          imageRequest.getImageUrl(),
-          imageRequest.getIsPrimary(),
-          imageRequest.getSortOrder()
-        )
-      )
-    );
+    contentRequest
+        .getImages()
+        .forEach(
+            imageRequest ->
+                content.addImage(
+                    new ContentImage(
+                        imageRequest.getImageUrl(),
+                        imageRequest.getIsPrimary(),
+                        imageRequest.getSortOrder())));
 
     // 저장
     contentRepository.save(content);
@@ -54,6 +52,7 @@ public class ContentCreateContentUseCase {
 
   // 예외 처리
   private void validateContent(ContentRequest contentRequest) {
+    // 텍스트 검증
     if (contentRequest.getText() == null || contentRequest.getText().isBlank()) {
       throw new GeneralException(ErrorStatus.VALIDATION_ERROR);
     }
@@ -62,6 +61,7 @@ public class ContentCreateContentUseCase {
       throw new GeneralException(ErrorStatus.CONTENT_TEXT_LIMIT_EXCEEDED);
     }
 
+    // 태그 검증
     if (contentRequest.getTags() == null) {
       throw new GeneralException(ErrorStatus.VALIDATION_ERROR);
     }
@@ -79,6 +79,7 @@ public class ContentCreateContentUseCase {
       }
     }
 
+    // 이미지 검증
     if (contentRequest.getImages() == null) {
       throw new GeneralException(ErrorStatus.VALIDATION_ERROR);
     }

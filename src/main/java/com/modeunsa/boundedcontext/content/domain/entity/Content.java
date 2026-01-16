@@ -42,6 +42,12 @@ public class Content extends GeneratedIdAndAuditedEntity {
   @OrderBy("sortOrder ASC, id ASC")
   private List<ContentImage> images = new ArrayList<>();
 
+  @Column(name = "deleted_at")
+  private LocalDateTime deletedAt;
+
+  public void updateText(String text) {
+    this.text = text;
+  }
 
   // 태그 추가, 내부 연관관계 일관되게 유지
   public void addTag(ContentTag tag) {
@@ -69,5 +75,13 @@ public class Content extends GeneratedIdAndAuditedEntity {
 
   public void setAuthor(ContentMember author) {
     this.author = author;
+  }
+
+  public void delete() {
+    this.deletedAt = LocalDateTime.now();
+  }
+
+  public boolean isDeleted() {
+    return this.deletedAt != null;
   }
 }

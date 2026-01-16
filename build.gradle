@@ -72,7 +72,7 @@ tasks.named('test') {
 
 spotless {
     java {
-        googleJavaFormat("1.33.0")
+        googleJavaFormat("1.23.0")
         // diff 안정화를 위해 하기 옵션 추가
         trimTrailingWhitespace() // 줄 끝 공백 제거
         endWithNewline() // 파일 끝에 newline 강제

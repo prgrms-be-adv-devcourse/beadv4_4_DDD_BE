@@ -2,7 +2,6 @@ package com.modeunsa.boundedcontext.content.domain.entity;
 
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
-
 import com.modeunsa.global.status.ErrorStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -22,15 +21,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ContentImage extends GeneratedIdAndAuditedEntity {
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "content_id", nullable = false)
   private Content content;
 
   private String imageUrl;
-  private Boolean isPrimary;  //노출 순서
+  private Boolean isPrimary; // 노출 순서
 
-  @Builder.Default
-  private int sortOrder = 0;
+  @Builder.Default private int sortOrder = 0;
 
   public ContentImage(String imageUrl, Boolean isPrimary, int sortOrder) {
     validate(imageUrl);
