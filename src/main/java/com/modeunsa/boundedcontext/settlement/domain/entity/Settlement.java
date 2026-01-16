@@ -2,6 +2,8 @@ package com.modeunsa.boundedcontext.settlement.domain.entity;
 
 import static jakarta.persistence.FetchType.LAZY;
 
+import com.modeunsa.boundedcontext.settlement.domain.PayoutAmounts;
+import com.modeunsa.boundedcontext.settlement.domain.policy.SettlementPolicy;
 import com.modeunsa.boundedcontext.settlement.domain.types.SettlementEventType;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import jakarta.persistence.CascadeType;
@@ -10,9 +12,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,8 +24,8 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "settlement_settlement")
-@AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Getter
 public class Settlement extends GeneratedIdAndAuditedEntity {
@@ -63,5 +67,12 @@ public class Settlement extends GeneratedIdAndAuditedEntity {
     this.amount = this.amount.add(amount);
 
     return settlementItem;
+  }
+
+  public static PayoutAmounts calculatePayouts(BigDecimal amount) {
+    BigDecimal feeAmount =
+        amount.multiply(SettlementPolicy.FEE_RATE).setScale(0, RoundingMode.HALF_UP);
+    BigDecimal sellerAmount = amount.subtract(feeAmount);
+    return new PayoutAmounts(sellerAmount, feeAmount);
   }
 }
