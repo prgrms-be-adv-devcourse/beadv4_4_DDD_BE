@@ -15,6 +15,7 @@ import com.modeunsa.boundedcontext.payment.out.PaymentRepository;
 import com.modeunsa.global.exception.GeneralException;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +37,11 @@ public class PaymentRequestUseCase {
 
     PaymentId paymentId = new PaymentId(paymentRequest.getBuyerId(), paymentRequest.getOrderNo());
 
+    /*
+     중복 결제 초기 검증 : 이미 존재하는 결제인지 확인 동시 요청 시 existsById 통과 후 중복 결제 발생 가능성 존재 최종 검증은 DB 저장 시도 중
+     DataIntegrityViolationException 발생 여부로 판단 Lock 은 데이터 생성이 아닌 수정 시에 사용하도록 한다. (존재하지 않는 데이터에 락을
+     걸 수 없음)
+    */
     boolean exists = paymentRepository.existsById(paymentId);
     if (exists) {
       throw new GeneralException(PAYMENT_DUPLICATE);
@@ -54,14 +60,17 @@ public class PaymentRequestUseCase {
         Payment.create(
             paymentId, paymentRequest.getOrderId(), paymentRequest.getTotalAmount(), shortAmount);
 
-    Payment saved = paymentRepository.save(payment);
-
-    return new PaymentRequestResult(
-        saved.getId().getMemberId(),
-        saved.getId().getOrderNo(),
-        paymentRequest.getOrderId(),
-        needCharge,
-        shortAmount,
-        paymentRequest.getTotalAmount());
+    try {
+      Payment saved = paymentRepository.save(payment);
+      return new PaymentRequestResult(
+          saved.getId().getMemberId(),
+          saved.getId().getOrderNo(),
+          paymentRequest.getOrderId(),
+          needCharge,
+          shortAmount,
+          paymentRequest.getTotalAmount());
+    } catch (DataIntegrityViolationException e) {
+      throw new GeneralException(PAYMENT_DUPLICATE);
+    }
   }
 }

@@ -12,6 +12,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table
+@Table(
+    name = "payment_payment",
+    uniqueConstraints = {
+      @UniqueConstraint(
+          name = "uk_payment_member_order",
+          columnNames = {"member_id", "order_no"})
+    })
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
