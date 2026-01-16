@@ -31,10 +31,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class PaymentAccount extends GeneratedIdAndAuditedEntity {
 
+  /*
+   * 로그데이터의 경우 fetch, orphanRemoval 설정을 명시한다.
+   */
   @Builder.Default
   @OneToMany(
       mappedBy = "paymentAccount",
-      cascade = {PERSIST})
+      cascade = {PERSIST},
+      fetch = FetchType.LAZY,
+      orphanRemoval = false)
   private List<PaymentAccountLog> paymentAccountLogs = new ArrayList<>();
 
   @ManyToOne(fetch = FetchType.LAZY)

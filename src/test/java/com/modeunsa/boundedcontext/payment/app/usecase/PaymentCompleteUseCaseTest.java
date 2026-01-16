@@ -56,7 +56,7 @@ public class PaymentCompleteUseCaseTest {
             "ORDER12345",
             1L,
             false,
-            BigDecimal.valueOf(50000),
+            BigDecimal.ZERO,
             BigDecimal.valueOf(20000));
 
     when(paymentAccountSupport.getHolderAccount()).thenReturn(holderAccount);

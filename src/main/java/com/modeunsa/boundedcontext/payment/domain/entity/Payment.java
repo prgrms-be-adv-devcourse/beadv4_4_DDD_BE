@@ -9,6 +9,7 @@ import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -38,10 +39,15 @@ public class Payment extends AuditedEntity {
 
   @EmbeddedId private PaymentId id;
 
+  /*
+   * 로그데이터의 경우 fetch, orphanRemoval 설정을 명시한다.
+   */
   @Builder.Default
   @OneToMany(
       mappedBy = "payment",
-      cascade = {PERSIST})
+      cascade = {PERSIST},
+      fetch = FetchType.LAZY,
+      orphanRemoval = false)
   private List<PaymentLog> paymentLogs = new ArrayList<>();
 
   @Builder.Default

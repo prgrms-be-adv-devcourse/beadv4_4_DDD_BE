@@ -45,7 +45,7 @@ public class PaymentLog {
   })
   private Payment payment;
 
-  @Column(nullable = false, length = 20)
+  @Column(length = 20)
   @Enumerated(EnumType.STRING)
   private PaymentStatus beforeStatus;
 
@@ -62,16 +62,6 @@ public class PaymentLog {
   @Column(nullable = false, updatable = false)
   @CreatedBy
   private Long createdBy;
-
-  public static PaymentLog addLog(
-      Payment payment, PaymentStatus beforeStatus, PaymentStatus afterStatus, String reason) {
-    return PaymentLog.builder()
-        .payment(payment)
-        .beforeStatus(beforeStatus)
-        .afterStatus(afterStatus)
-        .reason(reason)
-        .build();
-  }
 
   public static PaymentLog addLog(
       Payment payment, PaymentStatus beforeStatus, PaymentStatus afterStatus) {
