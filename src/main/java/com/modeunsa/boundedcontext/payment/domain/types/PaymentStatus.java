@@ -1,21 +1,21 @@
 package com.modeunsa.boundedcontext.payment.domain.types;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
 public enum PaymentStatus {
-  READY("결제_준비"),
-  IN_PROGRESS("결제_진행"),
-  APPROVED("결제_승인"),
-  CANCELED("결제_취소"),
-  FAILED("결제_실패"),
-  COMPLETED("결제_완료"),
-  REFUND_REQUESTED("환불_요청"),
-  REFUNDED("환불_완료");
+  READY("결제 준비"),
+  IN_PROGRESS("결제 진행"),
+  APPROVED("결제 승인"),
+  CANCELED("결제 취소"),
+  FAILED("결제 실패"),
+  COMPLETED("결제 완료"),
+  REFUND_REQUESTED("환불 요청"),
+  REFUNDED("환불 완료");
 
-  private String description;
+  private final String description;
+
+  PaymentStatus(String description) {
+    this.description = description;
+  }
 }

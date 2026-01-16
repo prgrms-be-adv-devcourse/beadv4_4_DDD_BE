@@ -14,6 +14,6 @@ import lombok.ToString;
 public class PaymentAccountDepositRequest {
 
   @NotNull private final Long memberId;
-  @Positive private final BigDecimal amount;
+  @NotNull @Positive private final BigDecimal amount;
   @NotNull private final PaymentEventType paymentEventType;
 }

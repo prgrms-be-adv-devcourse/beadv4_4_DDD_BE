@@ -23,7 +23,7 @@ public class PaymentRefundUseCase {
 
     PaymentAccount holderAccount = paymentAccountSupport.getHolderAccount();
 
-    if (!holderAccount.canPayOrder(payment.getPgPaymentAmount())) {
+    if (!holderAccount.canPayOrder(payment.getTotalAmount())) {
       throw new GeneralException(ErrorStatus.PAYMENT_INSUFFICIENT_BALANCE);
     }
 
@@ -31,8 +31,8 @@ public class PaymentRefundUseCase {
         paymentAccountSupport.getPaymentAccountByMemberId(payment.getBuyerId());
 
     holderAccount.debit(
-        payment.getPgPaymentAmount(), eventType, payment.getOrderId(), ReferenceType.PAYMENT);
+        payment.getTotalAmount(), eventType, payment.getOrderId(), ReferenceType.PAYMENT);
     buyerAccount.credit(
-        payment.getPgPaymentAmount(), eventType, payment.getOrderId(), ReferenceType.PAYMENT);
+        payment.getTotalAmount(), eventType, payment.getOrderId(), ReferenceType.PAYMENT);
   }
 }

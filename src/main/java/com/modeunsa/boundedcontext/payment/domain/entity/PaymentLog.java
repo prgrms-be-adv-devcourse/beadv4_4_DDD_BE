@@ -6,10 +6,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
 import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
@@ -34,13 +38,14 @@ public class PaymentLog {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(nullable = false)
-  private Long memberId;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumns({
+    @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false),
+    @JoinColumn(name = "order_no", referencedColumnName = "order_no", nullable = false)
+  })
+  private Payment payment;
 
-  @Column(nullable = false)
-  private String orderNo;
-
-  @Column(nullable = false, length = 20)
+  @Column(length = 20)
   @Enumerated(EnumType.STRING)
   private PaymentStatus beforeStatus;
 
@@ -57,4 +62,17 @@ public class PaymentLog {
   @Column(nullable = false, updatable = false)
   @CreatedBy
   private Long createdBy;
+
+  public static PaymentLog addLog(
+      Payment payment, PaymentStatus beforeStatus, PaymentStatus afterStatus) {
+    return PaymentLog.builder()
+        .payment(payment)
+        .beforeStatus(beforeStatus)
+        .afterStatus(afterStatus)
+        .build();
+  }
+
+  public static PaymentLog addInitialLog(Payment payment, PaymentStatus afterStatus) {
+    return PaymentLog.builder().payment(payment).afterStatus(afterStatus).build();
+  }
 }
