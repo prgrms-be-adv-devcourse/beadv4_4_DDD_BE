@@ -1,8 +1,10 @@
 package com.modeunsa.boundedcontext.payment.domain.entity;
 
+import static com.modeunsa.global.status.ErrorStatus.PAYMENT_INVALID;
 import static jakarta.persistence.CascadeType.PERSIST;
 
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentStatus;
+import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.jpa.entity.AuditedEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
@@ -77,6 +79,8 @@ public class Payment extends AuditedEntity {
 
   public static Payment create(
       PaymentId id, Long orderId, BigDecimal totalAmount, BigDecimal pgPaymentAmount) {
+    validateTotalAmount(totalAmount);
+
     Payment payment =
         Payment.builder()
             .id(id)
@@ -104,5 +108,11 @@ public class Payment extends AuditedEntity {
   private void addPaymentLog(PaymentStatus beforeStatus, PaymentStatus afterStatus) {
     PaymentLog paymentLog = PaymentLog.addLog(this, beforeStatus, afterStatus);
     this.paymentLogs.add(paymentLog);
+  }
+
+  private static void validateTotalAmount(BigDecimal totalAmount) {
+    if (totalAmount.compareTo(BigDecimal.ZERO) < 0) {
+      throw new GeneralException(PAYMENT_INVALID);
+    }
   }
 }
