@@ -27,6 +27,7 @@ public class KakaoOAuthClient implements OAuthClient {
     String state = UUID.randomUUID().toString();
 
     // Redis에 state 저장 (5분 TTL)
+    // TODO: OAuth 콜백 시 state 검증 로직 추가 예정
     redisTemplate.opsForValue().set("oauth:state:" + state, "KAKAO", Duration.ofMinutes(5));
 
     return UriComponentsBuilder.fromUriString("https://kauth.kakao.com/oauth/authorize")
