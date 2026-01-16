@@ -2,6 +2,10 @@ security:
   permit-all: false
   permit-urls: /api/v1/auths/oauth/**
 spring:
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
   jpa:
     show-sql: false
     hibernate:
