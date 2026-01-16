@@ -1,6 +1,6 @@
 security:
   permit-all: false
-  permit-urls: /h2-console/**,/swagger-ui/**,/v3/api-docs/**,/api/v1/auths/**
+  permit-urls: /h2-console/**,/swagger-ui/**,/v3/api-docs/**,/api/v1/**
   oauth2:
     allowed-redirect-domains:
       - http://localhost:3000
