@@ -9,6 +9,7 @@ import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobOperator;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -16,11 +17,15 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class SettlementScheduler {
+
   private final JobOperator jobOperator;
   private final Job settlementCollectItemsAndCalculatePayoutsJob;
 
-  // 매일 03:00 (KST)
-  @Scheduled(cron = "${settlement.scheduler.cron-am3:}", zone = "Asia/Seoul")
+  @ConditionalOnProperty(
+      name = "settlement.scheduler.enabled",
+      havingValue = "true",
+      matchIfMissing = true)
+  @Scheduled(cron = "${settlement.scheduler.cron-am3}", zone = "Asia/Seoul")
   public void runAt03() {
     log.info("[SettlementScheduler] 정산 수집 배치 시작");
 
