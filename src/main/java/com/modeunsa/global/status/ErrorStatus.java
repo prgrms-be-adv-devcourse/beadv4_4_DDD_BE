@@ -17,15 +17,19 @@ public enum ErrorStatus {
   // 입력값 검증 관련 에러
   VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "VALID_401", "입력값이 올바르지 않습니다."),
 
+  // Config 500
+  CONFIG_INVALID_JWT_SECRET(HttpStatus.INTERNAL_SERVER_ERROR, "CONFIG_500_001", "JWT secret은 최소 32바이트 이상이어야 합니다."),
+
   // Auth 400
   OAUTH_INVALID_PROVIDER(HttpStatus.BAD_REQUEST, "AUTH_400_001", "지원하지 않는 OAuth 제공자입니다."),
   OAUTH_INVALID_REDIRECT_URI(HttpStatus.BAD_REQUEST, "AUTH_400_002", "유효하지 않은 리다이렉트 URI입니다."),
   // Auth 401
   AUTH_INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_001", "유효하지 않은 토큰입니다."),
   AUTH_EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_002", "만료된 토큰입니다."),
+  AUTH_INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_006", "유효하지 않은 Access Token입니다."),
   AUTH_INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_003", "유효하지 않은 Refresh Token입니다."),
-  AUTH_REFRESH_TOKEN_NOT_FOUND(
-      HttpStatus.UNAUTHORIZED, "AUTH_401_004", "Refresh Token이 존재하지 않습니다."),
+  AUTH_REFRESH_TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AUTH_401_004", "Refresh Token이 존재하지 않습니다."),
+  AUTH_INVALID_TOKEN_TYPE(HttpStatus.UNAUTHORIZED, "AUTH_401_005", "유효하지 않은 토큰 타입입니다."),
   // Auth 403
   AUTH_ACCESS_DENIED(HttpStatus.FORBIDDEN, "AUTH_403_001", "접근 권한이 없습니다."),
   // Auth 502
