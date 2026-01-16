@@ -45,31 +45,59 @@ public class MemberDeliveryAddress extends GeneratedIdAndAuditedEntity {
   @Column(length = 30)
   private String addressName;
 
-  // 연관관계 편의 메서드
   void setMember(Member member) {
     this.member = member;
   }
 
-  public void updateAddress(
-      String recipientName,
-      String recipientPhone,
-      String zipCode,
-      String address,
-      String addressDetail,
-      String addressName) {
-    this.recipientName = recipientName;
-    this.recipientPhone = recipientPhone;
-    this.zipCode = zipCode;
-    this.address = address;
-    this.addressDetail = addressDetail;
-    this.addressName = addressName;
+  public MemberDeliveryAddress updateRecipientName(String recipientName) {
+    if (recipientName != null) {
+      this.recipientName = recipientName;
+    }
+    return this;
   }
 
-  public void setAsDefault() {
+  public MemberDeliveryAddress updateRecipientPhone(String recipientPhone) {
+    if (recipientPhone != null) {
+      this.recipientPhone = recipientPhone;
+    }
+    return this;
+  }
+
+  public MemberDeliveryAddress updateZipCode(String zipCode) {
+    if (zipCode != null) {
+      this.zipCode = zipCode;
+    }
+    return this;
+  }
+
+  public MemberDeliveryAddress updateAddress(String address) {
+    if (address != null) {
+      this.address = address;
+    }
+    return this;
+  }
+
+  public MemberDeliveryAddress updateAddressDetail(String addressDetail) {
+    if (addressDetail != null) {
+      this.addressDetail = addressDetail;
+    }
+    return this;
+  }
+
+  public MemberDeliveryAddress updateAddressName(String addressName) {
+    if (addressName != null) {
+      this.addressName = addressName;
+    }
+    return this;
+  }
+
+  public MemberDeliveryAddress setAsDefault() {
     this.isDefault = true;
+    return this;
   }
 
-  public void unsetDefault() {
+  public MemberDeliveryAddress unsetAsDefault() {
     this.isDefault = false;
+    return this;
   }
 }

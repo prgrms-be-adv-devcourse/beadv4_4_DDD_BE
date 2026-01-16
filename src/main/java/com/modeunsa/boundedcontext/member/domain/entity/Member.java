@@ -100,7 +100,7 @@ public class Member extends GeneratedIdAndAuditedEntity {
     // 기존 기본 배송지 해제
     for (MemberDeliveryAddress address : addresses) {
       if (address.getIsDefault()) {
-        address.unsetDefault();
+        address.unsetAsDefault();
       }
     }
 
@@ -109,10 +109,25 @@ public class Member extends GeneratedIdAndAuditedEntity {
   }
 
   // 개인 정보 입력
-  public void updateMemberInfo(String realName, String phoneNumber, String email) {
-    this.realName = realName;
-    this.phoneNumber = phoneNumber;
-    this.email = email;
+  public Member updateRealName(String realName) {
+    if (realName != null) {
+      this.realName = realName;
+    }
+    return this;
+  }
+
+  public Member updatePhoneNumber(String phoneNumber) {
+    if (phoneNumber != null) {
+      this.phoneNumber = phoneNumber;
+    }
+    return this;
+  }
+
+  public Member updateEmail(String email) {
+    if (email != null) {
+      this.email = email;
+    }
+    return this;
   }
 
   public void changeRole(MemberRole role) {
