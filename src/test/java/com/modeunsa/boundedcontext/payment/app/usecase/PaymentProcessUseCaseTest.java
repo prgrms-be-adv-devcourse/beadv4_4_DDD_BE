@@ -22,13 +22,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("PaymentCompleteUseCase 테스트")
-public class PaymentCompleteUseCaseTest {
+public class PaymentProcessUseCaseTest {
 
   @Mock private PaymentAccountSupport paymentAccountSupport;
   @Mock private PaymentSupport paymentSupport;
   @Mock private SpringDomainEventPublisher eventPublisher;
 
-  @InjectMocks private PaymentCompleteUseCase paymentCompleteUseCase;
+  @InjectMocks private PaymentProcessUseCase paymentProcessUseCase;
 
   private PaymentMember buyerMember;
   private PaymentMember holderMember;
@@ -67,7 +67,7 @@ public class PaymentCompleteUseCaseTest {
     BigDecimal buyerBalanceBefore = buyerAccount.getBalance();
 
     // when
-    paymentCompleteUseCase.execute(paymentRequestResult);
+    paymentProcessUseCase.execute(paymentRequestResult);
 
     // then
     assertThat(buyerAccount.getBalance())

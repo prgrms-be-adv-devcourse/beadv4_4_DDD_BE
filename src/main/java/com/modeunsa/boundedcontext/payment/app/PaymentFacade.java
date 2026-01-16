@@ -8,10 +8,10 @@ import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequestResult;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentResponse;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentChargePgUseCase;
-import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCompleteUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreateAccountUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreditAccountUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentPayoutCompleteUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.PaymentProcessUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentRefundUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentRequestUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentSyncMemberUseCase;
@@ -30,7 +30,7 @@ public class PaymentFacade {
   private final PaymentCreateAccountUseCase paymentCreateAccountUseCase;
   private final PaymentCreditAccountUseCase paymentCreditAccountUseCase;
   private final PaymentRequestUseCase paymentRequestUseCase;
-  private final PaymentCompleteUseCase paymentCompleteUseCase;
+  private final PaymentProcessUseCase paymentProcessUseCase;
   private final PaymentPayoutCompleteUseCase paymentPayoutCompleteUseCase;
   private final PaymentRefundUseCase paymentRefundUseCase;
   private final PaymentChargePgUseCase paymentChargePgUseCase;
@@ -76,7 +76,7 @@ public class PaymentFacade {
   public PaymentResponse requestPayment(PaymentRequest paymentRequest) {
     PaymentRequestResult result = paymentRequestUseCase.execute(paymentRequest);
     paymentChargePgUseCase.execute(result);
-    paymentCompleteUseCase.execute(result);
+    paymentProcessUseCase.execute(result);
     return new PaymentResponse(
         result.getBuyerId(),
         result.getOrderNo(),
