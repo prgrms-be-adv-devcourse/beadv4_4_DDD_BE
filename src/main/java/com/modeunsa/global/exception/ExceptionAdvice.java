@@ -40,13 +40,13 @@ public class ExceptionAdvice {
   public ResponseEntity<ApiResponse> handleNoResourceFoundException(NoResourceFoundException e) {
     e.printStackTrace();
 
-    return ApiResponse.onFailure(ErrorStatus._NOT_FOUND);
+    return ApiResponse.onFailure(ErrorStatus.NOT_FOUND);
   }
 
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ApiResponse> handleException(Exception e) {
     log.error("Unhandled Exception: ", e);
-    return ApiResponse.onFailure((ErrorStatus._INTERNAL_SERVER_ERROR));
+    return ApiResponse.onFailure((ErrorStatus.INTERNAL_SERVER_ERROR));
   }
 
   @ExceptionHandler(GeneralException.class)
@@ -58,6 +58,6 @@ public class ExceptionAdvice {
 
   @ExceptionHandler({MethodArgumentTypeMismatchException.class, ConversionFailedException.class})
   public ResponseEntity<ApiResponse> handleConversionFailedException(Exception e) {
-    return ApiResponse.onFailure((ErrorStatus._BAD_REQUEST));
+    return ApiResponse.onFailure((ErrorStatus.BAD_REQUEST));
   }
 }

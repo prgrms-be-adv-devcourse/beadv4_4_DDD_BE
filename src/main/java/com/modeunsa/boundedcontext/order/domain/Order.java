@@ -37,6 +37,7 @@ public class Order extends GeneratedIdAndAuditedEntity {
   @Column(name = "order_no", nullable = false, length = 50, unique = true)
   private String orderNo;
 
+  @Builder.Default
   @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<OrderItem> orderItems = new ArrayList<>();
 
@@ -65,10 +66,24 @@ public class Order extends GeneratedIdAndAuditedEntity {
   @Column(name = "payment_deadline_at", nullable = false)
   private LocalDateTime paymentDeadlineAt;
 
+  /** 도메인 메서드 */
   @PrePersist
   public void calculatePaymentDeadline() {
     if (this.paymentDeadlineAt == null) {
       this.paymentDeadlineAt = LocalDateTime.now().plusMinutes(30);
     }
+  }
+
+  public void addOrderItem(OrderItem item) {
+    this.orderItems.add(item);
+    item.setOrder(this);
+  }
+
+  public boolean isCancellable() {
+    return status == OrderStatus.PENDING_PAYMENT || status == OrderStatus.PAID;
+  }
+
+  public void requestCancel() {
+    this.status = OrderStatus.CANCEL_REQUESTED;
   }
 }

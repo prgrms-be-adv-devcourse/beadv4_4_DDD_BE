@@ -32,7 +32,7 @@ public class ApiV1ContentController {
   public ResponseEntity<ApiResponse> createContent(
       @Valid @RequestBody ContentRequest contentRequest, ContentMember author) {
     ContentResponse contentResponse = contentFacade.createContent(contentRequest, author);
-    return ApiResponse.onSuccess(SuccessStatus._CREATED, contentResponse);
+    return ApiResponse.onSuccess(SuccessStatus.CREATED, contentResponse);
   }
 
   @Operation(summary = "콘텐츠 수정", description = "콘텐츠를 수정합니다.")
@@ -43,13 +43,13 @@ public class ApiV1ContentController {
       ContentMember author) {
     ContentResponse contentResponse =
         contentFacade.updateContent(contentId, contentRequest, author);
-    return ApiResponse.onSuccess(SuccessStatus._OK, contentResponse);
+    return ApiResponse.onSuccess(SuccessStatus.OK, contentResponse);
   }
 
   @Operation(summary = "콘텐츠 삭제", description = "콘텐츠를 삭제합니다.")
   @DeleteMapping
   public ResponseEntity<ApiResponse> deleteContent(Long contentId, ContentMember author) {
     contentFacade.deleteContent(contentId, author);
-    return ApiResponse.onSuccess(SuccessStatus._OK);
+    return ApiResponse.onSuccess(SuccessStatus.OK);
   }
 }

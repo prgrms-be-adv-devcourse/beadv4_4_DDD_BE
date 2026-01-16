@@ -2,7 +2,7 @@
 
 
 * 코드 스타일 관련 xml 파일은 config/checkstyle 하위에 모아두었습니다.
-* intellij-java-google-style.xml 파일은 설정 > 에디터 > 코드 스타일 > 구성표에 import 해주세요.
+### ⭐️ intellij-java-google-style.xml 파일은 설정 > 에디터 > 코드 스타일 > 구성표에 import 해주세요.
 
 ## 동작 방법
 ### 커밋 전 git hook 실행

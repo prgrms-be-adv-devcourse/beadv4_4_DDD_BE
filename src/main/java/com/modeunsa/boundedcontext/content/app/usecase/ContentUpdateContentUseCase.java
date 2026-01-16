@@ -27,7 +27,7 @@ public class ContentUpdateContentUseCase {
     Content content =
         contentSupport
             .findById(contentId)
-            .orElseThrow(() -> new GeneralException(ErrorStatus._NOT_FOUND));
+            .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND));
 
     // validate
     this.validateContent(content, contentRequest, author);
@@ -43,7 +43,7 @@ public class ContentUpdateContentUseCase {
       Content content, ContentRequest contentRequest, ContentMember author) {
     // 작성자 검증
     if (!content.getAuthor().equals(author)) {
-      throw new GeneralException(ErrorStatus._FORBIDDEN);
+      throw new GeneralException(ErrorStatus.FORBIDDEN);
     }
 
     // text 검증
