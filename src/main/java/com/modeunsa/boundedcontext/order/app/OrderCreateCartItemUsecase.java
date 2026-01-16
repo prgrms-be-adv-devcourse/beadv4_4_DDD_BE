@@ -4,7 +4,7 @@ import com.modeunsa.boundedcontext.order.domain.CartItem;
 import com.modeunsa.boundedcontext.order.domain.OrderMapper;
 import com.modeunsa.boundedcontext.order.domain.OrderMember;
 import com.modeunsa.boundedcontext.order.domain.OrderProduct;
-import com.modeunsa.boundedcontext.order.out.CartItemRepository;
+import com.modeunsa.boundedcontext.order.out.OrderCartItemRepository;
 import com.modeunsa.shared.order.dto.CreateCartItemRequestDto;
 import com.modeunsa.shared.order.dto.CreateCartItemResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class OrderCreateCartItemUsecase {
-  private final CartItemRepository cartItemRepository;
+  private final OrderCartItemRepository orderCartItemRepository;
   private final OrderMapper orderMapper;
   private final OrderSupport orderSupport;
 
@@ -27,7 +27,7 @@ public class OrderCreateCartItemUsecase {
 
     CartItem cartItem = orderMapper.toCartItemEntity(memberId, createCartItemRequestDto);
 
-    cartItemRepository.save(cartItem);
+    orderCartItemRepository.save(cartItem);
 
     return orderMapper.toCreateCartItemResponseDto(cartItem);
   }
