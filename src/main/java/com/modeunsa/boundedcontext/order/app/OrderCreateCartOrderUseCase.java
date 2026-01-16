@@ -7,8 +7,10 @@ import com.modeunsa.boundedcontext.order.domain.OrderMapper;
 import com.modeunsa.boundedcontext.order.domain.OrderMember;
 import com.modeunsa.boundedcontext.order.domain.OrderProduct;
 import com.modeunsa.boundedcontext.order.out.OrderRepository;
+import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
 import com.modeunsa.shared.order.dto.CreateCartOrderRequestDto;
 import com.modeunsa.shared.order.dto.OrderResponseDto;
+import com.modeunsa.shared.order.event.OrderCreatedEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +24,7 @@ public class OrderCreateCartOrderUseCase {
   private final OrderSupport orderSupport;
   private final OrderRepository orderRepository;
   private final OrderMapper orderMapper;
+  private final SpringDomainEventPublisher eventPublisher;
 
   public OrderResponseDto createCartOrder(long memberId, CreateCartOrderRequestDto requestDto) {
     // 회원 및 장바구니 목록 조회
@@ -49,6 +52,8 @@ public class OrderCreateCartOrderUseCase {
 
     // 장바구니 비우기
     orderSupport.clearCart(memberId);
+
+    eventPublisher.publish(new OrderCreatedEvent(orderMapper.toOrderDto(order)));
 
     return orderMapper.toOrderResponseDto(order);
   }
