@@ -16,7 +16,7 @@ spring:
     jdbc:
       initialize-schema: never
 
-## Custom Security 설정은 다른 이름으로 구분해서 사용 필요
-security:
-  permit-all: false
-  permit-urls: /api/v1/auths/oauth/**
+custom:
+  security:
+    permit-all: false
+    permit-urls: /api/v1/auths/oauth/**
