@@ -14,6 +14,7 @@ spring:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
     properties:
+      jakarta.persistence.lock.timeout: 5000 # jpa lock timeout 5 seconds
       hibernate:
         default_batch_fetch_size: 100
 

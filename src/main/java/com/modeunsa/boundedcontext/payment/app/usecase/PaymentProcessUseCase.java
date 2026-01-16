@@ -7,6 +7,7 @@ import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentStatus;
 import com.modeunsa.boundedcontext.payment.domain.types.ReferenceType;
+import com.modeunsa.global.config.PaymentAccountConfig;
 import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
 import com.modeunsa.shared.payment.dto.PaymentDto;
 import com.modeunsa.shared.payment.event.PaymentSuccessEvent;
@@ -22,28 +23,45 @@ public class PaymentProcessUseCase {
   private final PaymentAccountSupport paymentAccountSupport;
   private final PaymentSupport paymentSupport;
   private final SpringDomainEventPublisher eventPublisher;
+  private final PaymentAccountConfig paymentAccountConfig;
 
   public void execute(PaymentRequestResult paymentRequestResult) {
 
-    PaymentAccount buyerAccount =
-        paymentAccountSupport.getPaymentAccountByMemberId(paymentRequestResult.getBuyerId());
+    Long buyerId = paymentRequestResult.getBuyerId();
+    Long holderId = paymentAccountConfig.getHolderMemberId();
+
+    // 항상 작은 ID 부터 락 획득
+    PaymentAccount buyerAccount;
+    PaymentAccount holderAccount;
+
+    if (buyerId < holderId) {
+      buyerAccount = paymentAccountSupport.getPaymentAccountByMemberIdForUpdate(buyerId);
+      holderAccount = paymentAccountSupport.getHolderAccountByMemberIdForUpdate();
+    } else {
+      holderAccount = paymentAccountSupport.getHolderAccountByMemberIdForUpdate();
+      buyerAccount = paymentAccountSupport.getPaymentAccountByMemberIdForUpdate(buyerId);
+    }
 
     if (paymentRequestResult.isNeedsCharge()) {
-      executeWithCharge(buyerAccount, paymentRequestResult);
+      executeWithCharge(holderAccount, buyerAccount, paymentRequestResult);
     } else {
-      executeWithoutCharge(buyerAccount, paymentRequestResult);
+      executeWithoutCharge(holderAccount, buyerAccount, paymentRequestResult);
     }
   }
 
   private void executeWithoutCharge(
-      PaymentAccount buyerAccount, PaymentRequestResult paymentRequestResult) {
-    processPayment(buyerAccount, paymentRequestResult);
+      PaymentAccount holderAccount,
+      PaymentAccount buyerAccount,
+      PaymentRequestResult paymentRequestResult) {
+    processPayment(holderAccount, buyerAccount, paymentRequestResult);
   }
 
   private void executeWithCharge(
-      PaymentAccount buyerAccount, PaymentRequestResult paymentRequestResult) {
+      PaymentAccount holderAccount,
+      PaymentAccount buyerAccount,
+      PaymentRequestResult paymentRequestResult) {
     chargeFromPg(buyerAccount, paymentRequestResult);
-    processPayment(buyerAccount, paymentRequestResult);
+    processPayment(holderAccount, buyerAccount, paymentRequestResult);
   }
 
   private void chargeFromPg(
@@ -56,14 +74,14 @@ public class PaymentProcessUseCase {
   }
 
   private void processPayment(
-      PaymentAccount buyerAccount, PaymentRequestResult paymentRequestResult) {
+      PaymentAccount holderAccount,
+      PaymentAccount buyerAccount,
+      PaymentRequestResult paymentRequestResult) {
     buyerAccount.debit(
         paymentRequestResult.getTotalAmount(),
         PaymentEventType.USE_ORDER_PAYMENT,
         paymentRequestResult.getOrderId(),
         ReferenceType.ORDER);
-
-    PaymentAccount holderAccount = paymentAccountSupport.getHolderAccount();
 
     holderAccount.credit(
         paymentRequestResult.getTotalAmount(),
