@@ -2,14 +2,6 @@ spring:
   config:
     activate:
       on-profile: dev
-security:
-  permit-all: false
-  permit-urls: /h2-console/**,/swagger-ui/**,/v3/api-docs/**,/api/v1/**
-  oauth2:
-    allowed-redirect-domains:
-      - http://localhost:3000
-      - http://localhost:8080
-      - http://127.0.0.1:8080
   datasource:
     url: jdbc:h2:./db_dev;MODE=MySQL
     username: sa
@@ -55,3 +47,13 @@ security:
       enabled: false
     jdbc:
       initialize-schema: never
+
+## Custom Security 설정은 다른 이름으로 구분해서 사용 필요
+security:
+  permit-all: false
+  permit-urls: /h2-console/**,/swagger-ui/**,/v3/api-docs/**,/api/v1/**
+  oauth2:
+    allowed-redirect-domains:
+      - http://localhost:3000
+      - http://localhost:8080
+      - http://127.0.0.1:8080
