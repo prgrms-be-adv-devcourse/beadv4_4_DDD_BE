@@ -133,6 +133,9 @@ public class MemberSeller extends GeneratedIdAndAuditedEntity {
 
   /** 활성화된 판매자를 판매 정지 상태로 변경한다. */
   public void suspend() {
+    if (this.status != SellerStatus.ACTIVE) {
+      throw new GeneralException(ErrorStatus.SELLER_CANNOT_SUSPEND);
+    }
     this.status = SellerStatus.SUSPENDED;
   }
 }
