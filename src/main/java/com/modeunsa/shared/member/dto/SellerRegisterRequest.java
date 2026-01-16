@@ -8,7 +8,7 @@ public record SellerRegisterRequest(
     @NotBlank String representativeName,
     @NotBlank String settlementBankName,
     @NotBlank @Pattern(regexp = BANK_ACCOUNT_REGEX, message = "계좌번호 형식이 올바르지 않습니다")
-    String settlementBankAccount,
+        String settlementBankAccount,
     @NotBlank String businessLicenseUrl) {
-        public static final String BANK_ACCOUNT_REGEX = "^[0-9-]{10,20}$";
+  public static final String BANK_ACCOUNT_REGEX = "^[0-9-]{10,20}$";
 }
