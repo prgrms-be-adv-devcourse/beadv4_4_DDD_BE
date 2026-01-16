@@ -2,6 +2,7 @@ package com.modeunsa.boundedcontext.product.app;
 
 import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
+import com.modeunsa.boundedcontext.product.domain.ProductStatus;
 import com.modeunsa.shared.product.dto.ProductCreateRequest;
 import com.modeunsa.shared.product.dto.ProductResponse;
 import com.modeunsa.shared.product.dto.ProductUpdateRequest;
@@ -18,6 +19,7 @@ public class ProductFacade {
 
   private final ProductCreateProductUseCase productCreateProductUseCase;
   private final ProductUpdateProductUseCase productUpdateProductUseCase;
+  private final ProductUpdateProductStatusUseCase productUpdateProductStatusUseCase;
   private final ProductSupport productSupport;
   private final ProductMapper productMapper;
 
@@ -43,6 +45,14 @@ public class ProductFacade {
       Long sellerId, Long productId, ProductUpdateRequest productRequest) {
     Product product =
         productUpdateProductUseCase.updateProduct(sellerId, productId, productRequest);
+    return productMapper.toResponse(product);
+  }
+
+  @Transactional
+  public ProductResponse updateProductStatus(
+      Long sellerId, Long productId, ProductStatus productStatus) {
+    Product product =
+        productUpdateProductStatusUseCase.updateProductStatus(sellerId, productId, productStatus);
     return productMapper.toResponse(product);
   }
 }
