@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class OrderCreateCartItemUsecase {
+public class OrderCreateCartItemUseCase {
   private final OrderCartItemRepository orderCartItemRepository;
   private final OrderMapper orderMapper;
   private final OrderSupport orderSupport;

@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class OrderCreateOrderUsecase {
+public class OrderCreateOrderUseCase {
   private final OrderSupport orderSupport;
   private final OrderRepository orderRepository;
   private final OrderMapper orderMapper;

@@ -18,9 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class OrderFacade {
-  private final OrderCreateCartItemUsecase orderCreateCartItemUsecase;
+  private final OrderCreateCartItemUseCase orderCreateCartItemUseCase;
   private final OrderSupport orderSupport;
-  private final OrderCreateOrderUsecase orderCreateOrderUseCase;
+  private final OrderCreateOrderUseCase orderCreateOrderUseCase;
   private final OrderGetOrdersUseCase orderGetOrdersUseCase;
   private final OrderCancelOrderUseCase orderCancelOrderUseCase;
   private final OrderCreateCartOrderUseCase orderCreateCartOrderUseCase;
@@ -29,7 +29,7 @@ public class OrderFacade {
   @Transactional
   public CreateCartItemResponseDto createCartItem(
       long memberId, CreateCartItemRequestDto requestDto) {
-    return orderCreateCartItemUsecase.createCartItem(memberId, requestDto);
+    return orderCreateCartItemUseCase.createCartItem(memberId, requestDto);
   }
 
   public long countProduct() {
