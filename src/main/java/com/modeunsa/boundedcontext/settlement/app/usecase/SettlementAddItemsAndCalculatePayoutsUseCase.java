@@ -46,7 +46,7 @@ public class SettlementAddItemsAndCalculatePayoutsUseCase {
             order.orderItemId(),
             order.buyerMemberId(),
             order.sellerMemberId(),
-            payoutAmounts.feeAmount(),
+            payoutAmounts.sellerAmount(),
             SettlementEventType.SETTLEMENT_PRODUCT_SALES_AMOUNT,
             order.paymentAt()));
 
@@ -55,7 +55,7 @@ public class SettlementAddItemsAndCalculatePayoutsUseCase {
             order.orderItemId(),
             order.buyerMemberId(),
             systemMember.getId(),
-            payoutAmounts.sellerAmount(),
+            payoutAmounts.feeAmount(),
             SettlementEventType.SETTLEMENT_PRODUCT_SALES_FEE,
             order.paymentAt()));
 

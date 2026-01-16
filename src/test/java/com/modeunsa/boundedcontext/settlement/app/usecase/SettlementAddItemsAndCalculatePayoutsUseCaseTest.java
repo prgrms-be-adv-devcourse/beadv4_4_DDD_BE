@@ -44,6 +44,8 @@ class SettlementAddItemsAndCalculatePayoutsUseCaseTest {
     Long sellerId = 1L;
     Long systemId = 0L;
 
+    SettlementPolicy.FEE_RATE = new BigDecimal("0.1");
+
     sellerSettlement = Settlement.create(sellerId);
     systemMember = SettlementMember.create(systemId, "SYSTEM");
     feeSettlement = Settlement.create(systemId);
