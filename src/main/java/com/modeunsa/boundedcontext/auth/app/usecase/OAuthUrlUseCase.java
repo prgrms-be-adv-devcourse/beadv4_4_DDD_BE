@@ -28,7 +28,8 @@ public class OAuthUrlUseCase {
       return;
     }
 
-    List<String> allowedRedirectDomains = securityProperties.getOauth2().getAllowedRedirectDomains();
+    List<String> allowedRedirectDomains =
+        securityProperties.getOauth2().getAllowedRedirectDomains();
 
     if (allowedRedirectDomains.isEmpty()) {
       throw new GeneralException(ErrorStatus.OAUTH_INVALID_REDIRECT_URI);
