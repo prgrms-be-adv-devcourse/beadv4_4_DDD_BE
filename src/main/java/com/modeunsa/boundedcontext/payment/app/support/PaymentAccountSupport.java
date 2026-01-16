@@ -42,4 +42,17 @@ public class PaymentAccountSupport {
       case AMOUNT -> getPaymentAccountByMemberId(payout.getPayeeId());
     };
   }
+
+  public PaymentAccount getPaymentAccountByMemberIdForUpdate(Long memberId) {
+    return paymentAccountRepository
+        .findByMemberIdWithLock(memberId)
+        .orElseThrow(() -> new GeneralException(ErrorStatus.PAYMENT_ACCOUNT_NOT_FOUND));
+  }
+
+  public PaymentAccount getHolderAccountByMemberIdForUpdate() {
+    Long holderMemberId = paymentAccountConfig.getHolderMemberId();
+    return paymentAccountRepository
+        .findByMemberIdWithLock(holderMemberId)
+        .orElseThrow(() -> new GeneralException(ErrorStatus.PAYMENT_ACCOUNT_NOT_FOUND));
+  }
 }

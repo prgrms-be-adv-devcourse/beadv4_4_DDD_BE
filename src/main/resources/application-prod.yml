@@ -1,7 +1,10 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
 security:
   permit-all: false
   permit-urls: /api/v1/auths/oauth/**
-spring:
   data:
     redis:
       host: ${REDIS_HOST}
