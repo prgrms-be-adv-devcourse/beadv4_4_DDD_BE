@@ -50,15 +50,12 @@ public class PaymentRequestUseCase {
     PaymentAccount paymentAccount =
         paymentAccountSupport.getPaymentAccountByMemberId(paymentRequest.getBuyerId());
 
-    BigDecimal shortAmount = BigDecimal.ZERO;
-    boolean needCharge = !paymentAccount.canPayOrder(paymentRequest.getTotalAmount());
-    if (needCharge) {
-      shortAmount = paymentAccount.getShortFailAmount(paymentRequest.getTotalAmount());
-    }
+    BigDecimal totalAmount = paymentRequest.getTotalAmount();
+    BigDecimal shortAmount = paymentAccount.calculateInsufficientAmount(totalAmount);
+    boolean needCharge = shortAmount.compareTo(BigDecimal.ZERO) > 0;
 
     Payment payment =
-        Payment.create(
-            paymentId, paymentRequest.getOrderId(), paymentRequest.getTotalAmount(), shortAmount);
+        Payment.create(paymentId, paymentRequest.getOrderId(), totalAmount, shortAmount);
 
     try {
       Payment saved = paymentRepository.save(payment);
@@ -68,7 +65,7 @@ public class PaymentRequestUseCase {
           paymentRequest.getOrderId(),
           needCharge,
           shortAmount,
-          paymentRequest.getTotalAmount());
+          totalAmount);
     } catch (DataIntegrityViolationException e) {
       throw new GeneralException(PAYMENT_DUPLICATE);
     }

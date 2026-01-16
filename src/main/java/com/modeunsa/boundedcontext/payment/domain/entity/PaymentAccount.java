@@ -73,6 +73,13 @@ public class PaymentAccount extends GeneratedIdAndAuditedEntity {
     return this.balance.compareTo(salePrice) >= 0;
   }
 
+  public BigDecimal calculateInsufficientAmount(BigDecimal totalAmount) {
+    if (canPayOrder(totalAmount)) {
+      return BigDecimal.ZERO;
+    }
+    return totalAmount.subtract(this.balance);
+  }
+
   public void debit(
       BigDecimal amount,
       PaymentEventType paymentEventType,
@@ -83,10 +90,6 @@ public class PaymentAccount extends GeneratedIdAndAuditedEntity {
     this.balance = this.balance.subtract(amount);
     addPaymentAccountLog(
         amount.negate(), paymentEventType, balanceBefore, this.balance, relId, referenceType);
-  }
-
-  public BigDecimal getShortFailAmount(BigDecimal pgPaymentAmount) {
-    return pgPaymentAmount.subtract(this.balance);
   }
 
   private void addPaymentAccountLog(
