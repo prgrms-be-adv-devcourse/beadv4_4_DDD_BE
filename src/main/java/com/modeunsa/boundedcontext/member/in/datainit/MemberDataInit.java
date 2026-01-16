@@ -54,12 +54,22 @@ public class MemberDataInit {
 
     log.info("Initializing member base data...");
 
-    // 1. 관리자 회원
+    // 시스템 계정
+    Member systemMember = createMember(null, "시스템", null, MemberRole.SYSTEM);
+    createProfile(systemMember, "SYSTEM", null, null, null, null);
+    memberRepository.save(systemMember);
+
+    // 홀더 계정
+    Member holderMember = createMember(null, "홀더", null, MemberRole.HOLDER);
+    createProfile(holderMember, "HOLDER", null, null, null, null);
+    memberRepository.save(holderMember);
+
+    // 관리자 회원
     Member admin = createMember("admin@modeunsa.com", "관리자", "010-0000-0000", MemberRole.ADMIN);
     createProfile(admin, "admin", null, null, null, null);
     memberRepository.save(admin);
 
-    // 2. 일반 회원 - 카카오 로그인
+    // 일반 회원 - 카카오 로그인
     Member user1 = createMember("user1@example.com", "김모든", "010-1111-1111", MemberRole.MEMBER);
     createProfile(user1, "모든이", "https://example.com/profile1.jpg", 175, 70, "지성");
     createDefaultAddress(
@@ -67,14 +77,14 @@ public class MemberDataInit {
     addOAuthAccount(user1, OAuthProvider.KAKAO, "kakao_12345");
     memberRepository.save(user1);
 
-    // 3. 일반 회원 - 네이버 로그인
+    // 일반 회원 - 네이버 로그인
     Member user2 = createMember("user2@example.com", "이사람", "010-2222-2222", MemberRole.MEMBER);
     createProfile(user2, "사람이", "https://example.com/profile2.jpg", 165, 55, "건성");
     createDefaultAddress(user2, "이사람", "010-2222-2222", "04524", "서울시 중구 명동길 45", "203호", "회사");
     addOAuthAccount(user2, OAuthProvider.NAVER, "naver_67890");
     memberRepository.save(user2);
 
-    // 4. 일반 회원 - 복수 소셜 계정 연동
+    // 일반 회원 - 복수 소셜 계정 연동
     Member user3 = createMember("user3@example.com", "박연동", "010-3333-3333", MemberRole.MEMBER);
     createProfile(user3, "연동이", null, 180, 75, "복합성");
     createDefaultAddress(
@@ -84,7 +94,7 @@ public class MemberDataInit {
     addOAuthAccount(user3, OAuthProvider.NAVER, "naver_22222");
     memberRepository.save(user3);
 
-    // 5. 판매자 회원 (승인 완료)
+    // 판매자 회원 (승인 완료)
     Member seller1 = createMember("seller1@example.com", "최판매", "010-4444-4444", MemberRole.SELLER);
     createProfile(seller1, "판매왕", "https://example.com/seller1.jpg", null, null, null);
     createDefaultAddress(
@@ -105,7 +115,7 @@ public class MemberDataInit {
     activeSeller.approve();
     memberSellerRepository.save(activeSeller);
 
-    // 6. 판매자 신청 대기 회원
+    // 판매자 신청 대기 회원
     Member seller2 = createMember("seller2@example.com", "정대기", "010-5555-5555", MemberRole.MEMBER);
     createProfile(seller2, "예비판매자", null, null, null, null);
     addOAuthAccount(seller2, OAuthProvider.NAVER, "naver_seller2");
@@ -123,21 +133,11 @@ public class MemberDataInit {
             .build();
     memberSellerRepository.save(pendingSeller);
 
-    // 7. 프로필만 있는 회원 (배송지 없음)
+    // 프로필만 있는 회원 (배송지 없음)
     Member user4 = createMember("user4@example.com", "강신규", "010-6666-6666", MemberRole.MEMBER);
     createProfile(user4, "신규회원", null, null, null, null);
     addOAuthAccount(user4, OAuthProvider.KAKAO, "kakao_newuser");
     memberRepository.save(user4);
-
-    // 8. 시스템 계정
-    Member systemMember = createMember(null, "시스템", null, MemberRole.SYSTEM);
-    createProfile(systemMember, "SYSTEM", null, null, null, null);
-    memberRepository.save(systemMember);
-
-    // 9. 홀더 계정
-    Member holderMember = createMember(null, "홀더", null, MemberRole.HOLDER);
-    createProfile(holderMember, "HOLDER", null, null, null, null);
-    memberRepository.save(holderMember);
 
     log.info("System and Holder accounts created for payment/settlement processing");
 
