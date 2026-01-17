@@ -36,8 +36,7 @@ class NaverOAuthClientTest {
   void setUp() {
     OAuthClientProperties.Registration registration =
         OAuthClientProperties.Registration.ofTest(
-            "test-naver-client-id",
-            "http://127.0.0.1:8080/login/oauth2/code/naver");
+            "test-naver-client-id", "http://127.0.0.1:8080/login/oauth2/code/naver");
 
     lenient().when(properties.registration()).thenReturn(Map.of("naver", registration));
 

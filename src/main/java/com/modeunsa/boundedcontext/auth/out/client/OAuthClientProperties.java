@@ -18,6 +18,5 @@ public record OAuthClientProperties(Map<String, Registration> registration) {
     public static Registration ofTest(String clientId, String redirectUri) {
       return new Registration(clientId, null, null, null, null, null, redirectUri);
     }
-
   }
 }
