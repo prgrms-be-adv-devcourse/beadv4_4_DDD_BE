@@ -48,11 +48,11 @@ public class ContentUpdateContentUseCase {
 
     // text 검증
     if (contentRequest.getText() == null || contentRequest.getText().isBlank()) {
-      throw new GeneralException(ErrorStatus.VALIDATION_ERROR);
+      throw new GeneralException(ErrorStatus.CONTENT_TEXT_REQUIRED);
     }
 
     if (contentRequest.getText().length() > 500) {
-      throw new GeneralException(ErrorStatus.CONTENT_TEXT_LIMIT_EXCEEDED);
+      throw new GeneralException(ErrorStatus.CONTENT_TEXT_LENGTH_EXCEEDED);
     }
 
     // image
@@ -62,7 +62,7 @@ public class ContentUpdateContentUseCase {
 
     for (var image : contentRequest.getImages()) {
       if (image.getImageUrl() == null || image.getImageUrl().isBlank()) {
-        throw new GeneralException(ErrorStatus.CONTENT_IMAGE_LIMIT_EXCEEDED);
+        throw new GeneralException(ErrorStatus.CONTENT_IMAGE_REQUIRED);
       }
     }
 
@@ -77,7 +77,7 @@ public class ContentUpdateContentUseCase {
 
     for (String tag : contentRequest.getTags()) {
       if (tag == null || tag.isBlank()) {
-        throw new GeneralException(ErrorStatus.CONTENT_TAG_LIMIT_EXCEEDED);
+        throw new GeneralException(ErrorStatus.CONTENT_TAG_REQUIRED);
       }
       if (tag.length() > 10) {
         throw new GeneralException(ErrorStatus.CONTENT_TAG_LENGTH_EXCEEDED);

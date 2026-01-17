@@ -36,7 +36,7 @@ public class ApiV1ContentController {
   }
 
   @Operation(summary = "콘텐츠 수정", description = "콘텐츠를 수정합니다.")
-  @PatchMapping("/{content_Id")
+  @PatchMapping("/{content_Id}")
   public ResponseEntity<ApiResponse> updateContent(
       @PathVariable Long contentId,
       @Valid @RequestBody ContentRequest contentRequest,
@@ -48,7 +48,8 @@ public class ApiV1ContentController {
 
   @Operation(summary = "콘텐츠 삭제", description = "콘텐츠를 삭제합니다.")
   @DeleteMapping
-  public ResponseEntity<ApiResponse> deleteContent(Long contentId, ContentMember author) {
+  public ResponseEntity<ApiResponse> deleteContent(
+      @PathVariable Long contentId, ContentMember author) {
     contentFacade.deleteContent(contentId, author);
     return ApiResponse.onSuccess(SuccessStatus.OK);
   }

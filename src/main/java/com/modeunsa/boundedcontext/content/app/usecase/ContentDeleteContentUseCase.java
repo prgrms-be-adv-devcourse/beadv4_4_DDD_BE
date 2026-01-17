@@ -20,7 +20,7 @@ public class ContentDeleteContentUseCase {
     Content content =
         contentSupport
             .findById(contentId)
-            .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND));
+            .orElseThrow(() -> new GeneralException(ErrorStatus.CONTENT_NOT_FOUND));
 
     validateDelete(content, author);
 
@@ -30,12 +30,12 @@ public class ContentDeleteContentUseCase {
   private void validateDelete(Content content, ContentMember author) {
     // 작성자 검증
     if (!content.getAuthor().equals(author)) {
-      throw new GeneralException(ErrorStatus.FORBIDDEN);
+      throw new GeneralException(ErrorStatus.CONTENT_FORBIDDEN);
     }
 
     // 이미 삭제된 콘텐츠 방어
     if (content.isDeleted()) {
-      throw new GeneralException(ErrorStatus.BAD_REQUEST);
+      throw new GeneralException(ErrorStatus.CONTENT_ALREADY_DELETE);
     }
   }
 }

@@ -45,7 +45,7 @@ public class ContentImage extends GeneratedIdAndAuditedEntity {
 
   private void validate(String imageUrl) {
     if (imageUrl == null || imageUrl.isBlank()) {
-      throw new GeneralException(ErrorStatus.CONTENT_IMAGE_LIMIT_EXCEEDED);
+      throw new GeneralException(ErrorStatus.CONTENT_IMAGE_REQUIRED);
     }
   }
 }

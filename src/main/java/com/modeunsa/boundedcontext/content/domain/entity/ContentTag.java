@@ -39,11 +39,11 @@ public class ContentTag extends GeneratedIdAndAuditedEntity {
 
   private void validate(String value) {
     if (value == null || value.isBlank()) {
-      throw new GeneralException(ErrorStatus.CONTENT_TAG_LIMIT_EXCEEDED);
+      throw new GeneralException(ErrorStatus.CONTENT_TAG_REQUIRED);
     }
 
     if (value.length() > MAX_LENGTH) {
-      throw new GeneralException(ErrorStatus.CONTENT_TAG_LENGTH_EXCEEDED);
+      throw new GeneralException(ErrorStatus.CONTENT_TAG_SIZE_EXCEEDED);
     }
   }
 }
