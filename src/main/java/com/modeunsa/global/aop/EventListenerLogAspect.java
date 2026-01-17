@@ -1,6 +1,6 @@
 package com.modeunsa.global.aop;
 
-import com.modeunsa.shared.event.BaseEvent;
+import com.modeunsa.global.event.TraceableEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -82,8 +82,8 @@ public class EventListenerLogAspect {
   }
 
   private String extractTraceIdFromEvent(Object[] args) {
-    if (args.length > 0 && args[0] instanceof BaseEvent baseEvent) {
-      String traceId = baseEvent.getTraceId();
+    if (args.length > 0 && args[0] instanceof TraceableEvent traceableEvent) {
+      String traceId = traceableEvent.traceId();
       if (StringUtils.hasText(traceId)) {
         return traceId;
       }
