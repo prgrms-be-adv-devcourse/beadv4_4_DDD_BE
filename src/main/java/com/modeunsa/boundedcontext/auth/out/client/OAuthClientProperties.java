@@ -13,5 +13,11 @@ public record OAuthClientProperties(Map<String, Registration> registration) {
       String authorizationGrantType,
       String clientName,
       Set<String> scope,
-      String redirectUri) {}
+      String redirectUri) {
+
+    public static Registration ofTest(String clientId, String redirectUri) {
+      return new Registration(clientId, null, null, null, null, null, redirectUri);
+    }
+
+  }
 }

@@ -35,13 +35,8 @@ class KakaoOAuthClientTest {
   @BeforeEach
   void setUp() {
     OAuthClientProperties.Registration registration =
-        new OAuthClientProperties.Registration(
+        OAuthClientProperties.Registration.ofTest(
             "test-kakao-client-id",
-            null,
-            null,
-            null,
-            null,
-            null,
             "http://127.0.0.1:8080/login/oauth2/code/kakao");
 
     lenient().when(properties.registration()).thenReturn(Map.of("kakao", registration));
