@@ -1,5 +1,6 @@
 package com.modeunsa.global.aop;
 
+import com.modeunsa.shared.event.BaseEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -23,6 +24,9 @@ public class EventListenerLogAspect {
       "[{}] [traceId: {}] Event Failed - eventType: {}, handler: {}, "
           + "executionTime: {}ms, error: {}";
 
+  private static final String TRACE_ID_MDC_KEY = "TRACE_ID";
+  private static final String UNKNOWN_TRACE_ID = "Unknown";
+
   @Pointcut("@annotation(org.springframework.transaction.event.TransactionalEventListener)")
   public void transactionalEventListener() {}
 
@@ -37,11 +41,12 @@ public class EventListenerLogAspect {
     String handlerName = joinPoint.getTarget().getClass().getSimpleName();
     String methodName = joinPoint.getSignature().getName();
     Object[] args = joinPoint.getArgs();
-    String eventType = args.length > 0 ? args[0].getClass().getSimpleName() : "Unknown";
+    String eventType = args.length > 0 ? args[0].getClass().getSimpleName() : UNKNOWN_TRACE_ID;
 
-    String traceId = MDC.get("TRACE_ID");
-    if (!StringUtils.hasText(traceId)) {
-      traceId = "N/A";
+    String traceId = extractTraceIdFromEvent(args);
+
+    if (StringUtils.hasText(traceId)) {
+      MDC.put(TRACE_ID_MDC_KEY, traceId);
     }
 
     log.info(LOG_FORMAT_EVENT_STARTED, handlerName, traceId, eventType, methodName);
@@ -74,5 +79,17 @@ public class EventListenerLogAspect {
 
       throw e;
     }
+  }
+
+  private String extractTraceIdFromEvent(Object[] args) {
+    if (args.length > 0 && args[0] instanceof BaseEvent baseEvent) {
+      String traceId = baseEvent.getTraceId();
+      if (StringUtils.hasText(traceId)) {
+        return traceId;
+      }
+    }
+
+    String traceId = MDC.get(TRACE_ID_MDC_KEY);
+    return StringUtils.hasText(traceId) ? traceId : UNKNOWN_TRACE_ID;
   }
 }

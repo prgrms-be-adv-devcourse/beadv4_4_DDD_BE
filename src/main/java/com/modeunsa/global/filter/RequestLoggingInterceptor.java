@@ -25,6 +25,9 @@ public class RequestLoggingInterceptor implements HandlerInterceptor {
   private static final String LOG_FORMAT_REQUEST_FAILED =
       "[{}] [traceId: {}] {} {} - Request failed, executionTime: {}ms, status: {}, error: {}";
 
+  private static final String TRACE_ID_MDC_KEY = "TRACE_ID";
+  private static final String UNKNOWN_TRACE_ID = "Unknown";
+
   private record RequestInfo(
       String controllerName, String traceId, String method, String fullUri) {}
 
@@ -120,13 +123,13 @@ public class RequestLoggingInterceptor implements HandlerInterceptor {
   }
 
   private String getTraceId() {
-    String traceId = MDC.get("TRACE_ID");
-    return StringUtils.hasText(traceId) ? traceId : "N/A";
+    String traceId = MDC.get(TRACE_ID_MDC_KEY);
+    return StringUtils.hasText(traceId) ? traceId : UNKNOWN_TRACE_ID;
   }
 
   private String extractHandlerName(Object handler) {
     if (handler == null) {
-      return "N/A";
+      return UNKNOWN_TRACE_ID;
     }
     if (handler instanceof HandlerMethod) {
       HandlerMethod handlerMethod = (HandlerMethod) handler;
