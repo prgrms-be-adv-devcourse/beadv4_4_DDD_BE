@@ -40,7 +40,7 @@ public class PaymentEventListener {
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Transactional(propagation = REQUIRES_NEW)
   public void handlePaymentFailedEvent(PaymentFailedEvent paymentFailedEvent) {
-    paymentFacade.refund(paymentFailedEvent.getPayment(), RefundEventType.PAYMENT_FAILED);
+    paymentFacade.refund(paymentFailedEvent.payment(), RefundEventType.PAYMENT_FAILED);
   }
 
   @TransactionalEventListener(phase = AFTER_COMMIT)
