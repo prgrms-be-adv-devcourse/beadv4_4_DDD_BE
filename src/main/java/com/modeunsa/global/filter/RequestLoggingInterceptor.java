@@ -2,6 +2,10 @@ package com.modeunsa.global.filter;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.MDC;
@@ -15,18 +19,17 @@ import org.springframework.web.servlet.HandlerInterceptor;
 @Component
 public class RequestLoggingInterceptor implements HandlerInterceptor {
 
+  private static final String EXECUTION_START_TIME = "executionStartTime";
   private static final String EXECUTION_STOP_WATCH = "executionStopWatch";
   private static final String EXCEPTION_ATTRIBUTE = "handledException";
 
-  private static final String LOG_FORMAT_REQUEST_STARTED =
-      "[{}] [traceId: {}] {} {} - Request Started";
-  private static final String LOG_FORMAT_REQUEST_SUCCEEDED =
-      "[{}] [traceId: {}] {} {} - Request succeeded, executionTime: {}ms, status: {}";
+  private static final String LOG_FORMAT_REQUEST_COMPLETED =
+      "[{}] [traceId: {}] {} {} - startTime: {}, executionTime: {}ms, status: {}";
   private static final String LOG_FORMAT_REQUEST_FAILED =
-      "[{}] [traceId: {}] {} {} - Request failed, executionTime: {}ms, status: {}, error: {}";
+      "[{}] [traceId: {}] {} {} - startTime: {}, executionTime: {}ms, status: {}, error: {}";
 
   private static final String TRACE_ID_MDC_KEY = "TRACE_ID";
-  private static final String UNKNOWN_TRACE_ID = "Unknown";
+  private static final String UNKNOWN = "Unknown";
 
   private record RequestInfo(
       String controllerName, String traceId, String method, String fullUri) {}
@@ -35,18 +38,12 @@ public class RequestLoggingInterceptor implements HandlerInterceptor {
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
       throws Exception {
 
+    long startTime = System.currentTimeMillis();
+    request.setAttribute(EXECUTION_START_TIME, startTime);
+
     StopWatch stopWatch = new StopWatch();
     stopWatch.start();
     request.setAttribute(EXECUTION_STOP_WATCH, stopWatch);
-
-    RequestInfo requestInfo = extractRequestInfo(request, handler);
-
-    log.info(
-        LOG_FORMAT_REQUEST_STARTED,
-        requestInfo.controllerName(),
-        requestInfo.traceId(),
-        requestInfo.method(),
-        requestInfo.fullUri());
 
     return HandlerInterceptor.super.preHandle(request, response, handler);
   }
@@ -64,27 +61,34 @@ public class RequestLoggingInterceptor implements HandlerInterceptor {
       stopWatch.stop();
     }
 
-    RequestInfo requestInfo = extractRequestInfo(request, handler);
+    Long startTime = (Long) request.getAttribute(EXECUTION_START_TIME);
     long executionTime = (stopWatch != null) ? stopWatch.getTotalTimeMillis() : 0;
+
+    RequestInfo requestInfo = extractRequestInfo(request, handler);
     Exception exception = getException(ex, request);
     int statusCode = response.getStatus();
 
     if (exception != null) {
-      logErrorRequest(requestInfo, executionTime, statusCode, exception);
+      logErrorRequest(requestInfo, startTime, executionTime, statusCode, exception);
     } else {
       log.info(
-          LOG_FORMAT_REQUEST_SUCCEEDED,
+          LOG_FORMAT_REQUEST_COMPLETED,
           requestInfo.controllerName(),
           requestInfo.traceId(),
           requestInfo.method(),
           requestInfo.fullUri(),
+          formatTimestamp(startTime),
           executionTime,
           statusCode);
     }
   }
 
   private void logErrorRequest(
-      RequestInfo requestInfo, long executionTime, int statusCode, Exception exception) {
+      RequestInfo requestInfo,
+      Long startTime,
+      long executionTime,
+      int statusCode,
+      Exception exception) {
 
     boolean loggingStackTrace = statusCode >= 500;
     if (loggingStackTrace) {
@@ -94,6 +98,7 @@ public class RequestLoggingInterceptor implements HandlerInterceptor {
           requestInfo.traceId(),
           requestInfo.method(),
           requestInfo.fullUri(),
+          formatTimestamp(startTime),
           executionTime,
           statusCode,
           exception.getMessage(),
@@ -105,6 +110,7 @@ public class RequestLoggingInterceptor implements HandlerInterceptor {
           requestInfo.traceId(),
           requestInfo.method(),
           requestInfo.fullUri(),
+          formatTimestamp(startTime),
           executionTime,
           statusCode,
           exception.getMessage());
@@ -124,12 +130,12 @@ public class RequestLoggingInterceptor implements HandlerInterceptor {
 
   private String getTraceId() {
     String traceId = MDC.get(TRACE_ID_MDC_KEY);
-    return StringUtils.hasText(traceId) ? traceId : UNKNOWN_TRACE_ID;
+    return StringUtils.hasText(traceId) ? traceId : UNKNOWN;
   }
 
   private String extractHandlerName(Object handler) {
     if (handler == null) {
-      return UNKNOWN_TRACE_ID;
+      return UNKNOWN;
     }
     if (handler instanceof HandlerMethod) {
       HandlerMethod handlerMethod = (HandlerMethod) handler;
@@ -144,5 +150,14 @@ public class RequestLoggingInterceptor implements HandlerInterceptor {
     }
     Object exceptionAttr = request.getAttribute(EXCEPTION_ATTRIBUTE);
     return exceptionAttr instanceof Exception ? (Exception) exceptionAttr : null;
+  }
+
+  private String formatTimestamp(Long timestamp) {
+    if (timestamp == null) {
+      return UNKNOWN;
+    }
+    Instant instant = Instant.ofEpochMilli(timestamp);
+    LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+    return dateTime.format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
   }
 }
