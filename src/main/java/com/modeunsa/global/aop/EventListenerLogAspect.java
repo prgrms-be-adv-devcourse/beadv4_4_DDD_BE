@@ -43,13 +43,15 @@ public class EventListenerLogAspect {
     Object[] args = joinPoint.getArgs();
     String eventType = args.length > 0 ? args[0].getClass().getSimpleName() : UNKNOWN_TRACE_ID;
 
-    String traceId = extractTraceIdFromEvent(args);
-
-    if (StringUtils.hasText(traceId)) {
-      MDC.put(TRACE_ID_MDC_KEY, traceId);
+    String eventTraceId = extractTraceIdFromEvent(args);
+    String originalTraceId = MDC.get(TRACE_ID_MDC_KEY);
+    boolean mdcModified = false;
+    if (StringUtils.hasText(eventTraceId)) {
+      MDC.put(TRACE_ID_MDC_KEY, eventTraceId);
+      mdcModified = true;
     }
 
-    log.info(LOG_FORMAT_EVENT_STARTED, handlerName, traceId, eventType, methodName);
+    log.info(LOG_FORMAT_EVENT_STARTED, handlerName, eventTraceId, eventType, methodName);
 
     try {
       Object result = joinPoint.proceed();
@@ -58,7 +60,7 @@ public class EventListenerLogAspect {
       log.info(
           LOG_FORMAT_EVENT_SUCCEEDED,
           handlerName,
-          traceId,
+          eventTraceId,
           eventType,
           methodName,
           stopWatch.getTotalTimeMillis());
@@ -70,7 +72,7 @@ public class EventListenerLogAspect {
       log.error(
           LOG_FORMAT_EVENT_FAILED,
           handlerName,
-          traceId,
+          eventTraceId,
           eventType,
           methodName,
           stopWatch.getTotalTimeMillis(),
@@ -78,6 +80,14 @@ public class EventListenerLogAspect {
           e);
 
       throw e;
+    } finally {
+      if (mdcModified) {
+        if (originalTraceId != null) {
+          MDC.put(TRACE_ID_MDC_KEY, originalTraceId);
+        } else {
+          MDC.remove(TRACE_ID_MDC_KEY);
+        }
+      }
     }
   }
 
