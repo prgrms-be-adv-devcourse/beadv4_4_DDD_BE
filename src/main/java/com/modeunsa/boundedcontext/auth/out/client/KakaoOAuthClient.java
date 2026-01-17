@@ -21,16 +21,17 @@ public class KakaoOAuthClient implements OAuthClient {
 
   @Override
   public String generateOAuthUrl(String redirectUri) {
-    OAuthClientProperties.Registration kakaoProps = properties.getRegistration().get("kakao");
+    OAuthClientProperties.Registration kakaoProps = properties.registration().get("kakao");
 
-    String finalRedirectUri = redirectUri != null ? redirectUri : kakaoProps.getRedirectUri();
+    String finalRedirectUri = redirectUri != null ? redirectUri : kakaoProps.redirectUri();
     String state = UUID.randomUUID().toString();
 
     // Redis에 state 저장 (5분 TTL)
+    // TODO: OAuth 콜백 시 state 검증 로직 추가 예정
     redisTemplate.opsForValue().set("oauth:state:" + state, "KAKAO", Duration.ofMinutes(5));
 
     return UriComponentsBuilder.fromUriString("https://kauth.kakao.com/oauth/authorize")
-        .queryParam("client_id", kakaoProps.getClientId())
+        .queryParam("client_id", kakaoProps.clientId())
         .queryParam("redirect_uri", finalRedirectUri)
         .queryParam("response_type", "code")
         .queryParam("state", state)

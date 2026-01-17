@@ -36,31 +36,42 @@ public class MemberProfile extends GeneratedIdAndAuditedEntity {
   @Column(length = 30)
   private String skinType;
 
-  // 연관관계 편의 메서드
   void setMember(Member member) {
     this.member = member;
   }
 
-  public void updateProfile(
-      String nickname,
-      String profileImageUrl,
-      Integer heightCm,
-      Integer weightKg,
-      String skinType) {
+  public MemberProfile updateNickname(String nickname) {
     if (nickname != null) {
       this.nickname = nickname;
     }
+    return this;
+  }
+
+  public MemberProfile updateProfileImageUrl(String profileImageUrl) {
     if (profileImageUrl != null) {
       this.profileImageUrl = profileImageUrl;
     }
+    return this;
+  }
+
+  public MemberProfile updateHeightCm(Integer heightCm) {
     if (heightCm != null) {
       this.heightCm = heightCm;
     }
+    return this;
+  }
+
+  public MemberProfile updateWeightKg(Integer weightKg) {
     if (weightKg != null) {
       this.weightKg = weightKg;
     }
+    return this;
+  }
+
+  public MemberProfile updateSkinType(String skinType) {
     if (skinType != null) {
       this.skinType = skinType;
     }
+    return this;
   }
 }

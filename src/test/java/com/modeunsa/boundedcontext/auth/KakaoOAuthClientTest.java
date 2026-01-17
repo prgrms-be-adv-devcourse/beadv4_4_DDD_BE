@@ -1,4 +1,4 @@
-package com.modeunsa.auth;
+package com.modeunsa.boundedcontext.auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
-import com.modeunsa.boundedcontext.auth.out.client.NaverOAuthClient;
+import com.modeunsa.boundedcontext.auth.out.client.KakaoOAuthClient;
 import com.modeunsa.boundedcontext.auth.out.client.OAuthClientProperties;
 import java.time.Duration;
 import java.util.Map;
@@ -22,7 +22,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
 @ExtendWith(MockitoExtension.class)
-class NaverOAuthClientTest {
+class KakaoOAuthClientTest {
 
   @Mock private StringRedisTemplate redisTemplate;
 
@@ -30,26 +30,23 @@ class NaverOAuthClientTest {
 
   @Mock private OAuthClientProperties properties;
 
-  private NaverOAuthClient naverOAuthClient;
+  private KakaoOAuthClient kakaoOAuthClient;
 
   @BeforeEach
   void setUp() {
-    // 1. 테스트용 프로퍼티 설정
-    OAuthClientProperties.Registration registration = new OAuthClientProperties.Registration();
-    registration.setClientId("test-naver-client-id");
-    registration.setRedirectUri("http://127.0.0.1:8080/login/oauth2/code/naver");
+    OAuthClientProperties.Registration registration =
+        OAuthClientProperties.Registration.ofTest(
+            "test-kakao-client-id", "http://127.0.0.1:8080/login/oauth2/code/kakao");
 
-    // 2. Mock 동작 정의 (Registration Map 반환)
-    lenient().when(properties.getRegistration()).thenReturn(Map.of("naver", registration));
+    lenient().when(properties.registration()).thenReturn(Map.of("kakao", registration));
 
-    // 3. 생성자 주입
-    naverOAuthClient = new NaverOAuthClient(redisTemplate, properties);
+    kakaoOAuthClient = new KakaoOAuthClient(redisTemplate, properties);
   }
 
   @Test
-  @DisplayName("네이버 OAuth Provider 반환")
-  void getProvider_returnsNaver() {
-    assertThat(naverOAuthClient.getProvider()).isEqualTo(OAuthProvider.NAVER);
+  @DisplayName("카카오 OAuth Provider 반환")
+  void getProvider_returnsKakao() {
+    assertThat(kakaoOAuthClient.getProvider()).isEqualTo(OAuthProvider.KAKAO);
   }
 
   @Test
@@ -57,13 +54,13 @@ class NaverOAuthClientTest {
   void generateOAuthUrl_withDefaultRedirectUri() {
     when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
-    String url = naverOAuthClient.generateOAuthUrl(null);
-    String provider = OAuthProvider.NAVER.name();
+    String url = kakaoOAuthClient.generateOAuthUrl(null);
+    String provider = OAuthProvider.KAKAO.name();
 
     // URL 검증
-    assertThat(url).contains("https://nid.naver.com/oauth2.0/authorize");
-    assertThat(url).contains("client_id=test-naver-client-id");
-    assertThat(url).contains("redirect_uri=http://127.0.0.1:8080/login/oauth2/code/naver");
+    assertThat(url).contains("https://kauth.kakao.com/oauth/authorize");
+    assertThat(url).contains("client_id=test-kakao-client-id");
+    assertThat(url).contains("redirect_uri=http://127.0.0.1:8080/login/oauth2/code/kakao");
     assertThat(url).contains("response_type=code");
     assertThat(url).contains("state=");
 
@@ -78,9 +75,10 @@ class NaverOAuthClientTest {
     when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
     String customRedirectUri = "http://localhost:3000/callback";
-    String url = naverOAuthClient.generateOAuthUrl(customRedirectUri);
+    String url = kakaoOAuthClient.generateOAuthUrl(customRedirectUri);
 
     assertThat(url).contains("redirect_uri=http://localhost:3000/callback");
+    assertThat(url).doesNotContain("redirect_uri=http://127.0.0.1:8080");
   }
 
   @Test
@@ -88,7 +86,7 @@ class NaverOAuthClientTest {
   void generateOAuthUrl_containsStateParameter() {
     when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
-    String url = naverOAuthClient.generateOAuthUrl(null);
+    String url = kakaoOAuthClient.generateOAuthUrl(null);
 
     assertThat(url).containsPattern("state=[a-f0-9\\-]{36}");
   }

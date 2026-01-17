@@ -19,6 +19,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -53,6 +54,7 @@ public class Member extends GeneratedIdAndAuditedEntity {
   @Column(length = 20)
   private String phoneNumber;
 
+  @Getter(AccessLevel.NONE)
   @Builder.Default
   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<AuthSocialAccount> oauthSocialAccounts = new ArrayList<>();
@@ -60,19 +62,26 @@ public class Member extends GeneratedIdAndAuditedEntity {
   @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private MemberProfile profile;
 
+  @Getter(AccessLevel.NONE)
   @Builder.Default
   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<MemberDeliveryAddress> addresses = new ArrayList<>();
 
   @Column private LocalDateTime withdrawalRequestedAt;
 
-  // 프로필 설정
+  public List<AuthSocialAccount> getOauthSocialAccounts() {
+    return Collections.unmodifiableList(oauthSocialAccounts);
+  }
+
+  public List<MemberDeliveryAddress> getAddresses() {
+    return Collections.unmodifiableList(addresses);
+  }
+
   public void setProfile(MemberProfile profile) {
     this.profile = profile;
     profile.setMember(this);
   }
 
-  // 배송지 추가
   public void addAddress(MemberDeliveryAddress address) {
     if (addresses.size() >= 10) {
       throw new GeneralException(MEMBER_ADDRESS_LIMIT_EXCEEDED);
@@ -87,32 +96,42 @@ public class Member extends GeneratedIdAndAuditedEntity {
       throw new GeneralException(MEMBER_DEFAULT_ADDRESS_REQUIRED);
     }
 
-    // 주소가 아직 등록되지 않았다면 추가
     if (!addresses.contains(newDefault)) {
       addAddress(newDefault);
     }
 
-    // 이미 기본 배송지라면 불필요한 작업 생략
     if (newDefault.getIsDefault()) {
       return;
     }
 
-    // 기존 기본 배송지 해제
     for (MemberDeliveryAddress address : addresses) {
       if (address.getIsDefault()) {
-        address.unsetDefault();
+        address.unsetAsDefault();
       }
     }
 
-    // 새 기본 배송지 설정
     newDefault.setAsDefault();
   }
 
-  // 개인 정보 입력
-  public void updateMemberInfo(String realName, String phoneNumber, String email) {
-    this.realName = realName;
-    this.phoneNumber = phoneNumber;
-    this.email = email;
+  public Member updateRealName(String realName) {
+    if (realName != null) {
+      this.realName = realName;
+    }
+    return this;
+  }
+
+  public Member updatePhoneNumber(String phoneNumber) {
+    if (phoneNumber != null) {
+      this.phoneNumber = phoneNumber;
+    }
+    return this;
+  }
+
+  public Member updateEmail(String email) {
+    if (email != null) {
+      this.email = email;
+    }
+    return this;
   }
 
   public void changeRole(MemberRole role) {
@@ -125,5 +144,6 @@ public class Member extends GeneratedIdAndAuditedEntity {
 
   public void addOAuthAccount(AuthSocialAccount oauth) {
     oauthSocialAccounts.add(oauth);
+    oauth.assignMember(this);
   }
 }

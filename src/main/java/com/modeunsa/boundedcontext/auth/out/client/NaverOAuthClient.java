@@ -21,16 +21,17 @@ public class NaverOAuthClient implements OAuthClient {
 
   @Override
   public String generateOAuthUrl(String redirectUri) {
-    OAuthClientProperties.Registration naverProps = properties.getRegistration().get("naver");
+    OAuthClientProperties.Registration naverProps = properties.registration().get("naver");
 
-    String finalRedirectUri = redirectUri != null ? redirectUri : naverProps.getRedirectUri();
+    String finalRedirectUri = redirectUri != null ? redirectUri : naverProps.redirectUri();
     String state = UUID.randomUUID().toString();
 
     // Redis에 state 저장 (5분 TTL)
+    // TODO: OAuth 콜백 시 state 검증 로직 추가 예정
     redisTemplate.opsForValue().set("oauth:state:" + state, "NAVER", Duration.ofMinutes(5));
 
     return UriComponentsBuilder.fromUriString("https://nid.naver.com/oauth2.0/authorize")
-        .queryParam("client_id", naverProps.getClientId())
+        .queryParam("client_id", naverProps.clientId())
         .queryParam("redirect_uri", finalRedirectUri)
         .queryParam("response_type", "code")
         .queryParam("state", state)
