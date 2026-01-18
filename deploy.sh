@@ -21,12 +21,7 @@ export DOCKER_IMAGE=$DOCKER_IMAGE
 docker network create modeunsa-net 2>/dev/null || true
 
 # Redis 실행
-# 정지된 컨테이너로 인한 충돌 방지를 위해 존재 여부(ps -aq) 확인 후 삭제
-if [ "$(docker ps -aq -f name=^/redis$)" ]; then
-    echo "기존 Redis 컨테이너 정리..."
-    docker rm -f redis
-fi
-echo "Redis 컨테이너 시작..."
+echo "Redis 컨테이너 확인..."
 docker-compose -f $COMPOSE_FILE up -d redis
 
 
@@ -78,19 +73,69 @@ for i in {1..5}; do
 done
 echo "Warm-up 완료!"
 
-# Nginx 실행 및 설정 교체
-cp $APP_DIR/nginx-$NEW.conf $APP_DIR/nginx.conf
+# Nginx 설정 교체 및 검증 로직 개선
+NGINX_CONTAINER="nginx"
+NEW_CONF="$APP_DIR/nginx-$NEW.conf"
 
-if [ "$(docker ps -q -f name=^/nginx$)" ]; then
-    # 실행 중이면 reload
-    echo "Nginx 설정 재로딩..."
-    docker cp $APP_DIR/nginx.conf nginx:/etc/nginx/nginx.conf
-    docker exec nginx nginx -s reload
+echo "Nginx 설정 전환 준비 중..."
+
+# Nginx 컨테이너 실행 여부 확인
+if [ "$(docker ps -q -f name=^/${NGINX_CONTAINER}$)" ]; then
+    echo "Nginx가 실행 중입니다. 설정 검증을 시작합니다."
+
+    # 1. 검증을 위해 임시 경로로 설정 파일 복사
+    docker cp "$NEW_CONF" "${NGINX_CONTAINER}:/etc/nginx/nginx.conf.test"
+
+    # 2. nginx -t 명령어로 설정 파일 유효성 검사 (테스트 파일 사용)
+    if docker exec "$NGINX_CONTAINER" nginx -t -c /etc/nginx/nginx.conf.test; then
+        echo "Nginx 설정 문법 검사 통과."
+
+        # 3. 검증된 설정을 실제 경로로 덮어쓰기
+        docker cp "$NEW_CONF" "${NGINX_CONTAINER}:/etc/nginx/nginx.conf"
+
+        # 4. 설정 재로딩
+        if docker exec "$NGINX_CONTAINER" nginx -s reload; then
+            echo "Nginx 재로딩 완료."
+            # 호스트의 메인 설정 파일도 최신화 (참고용)
+            cp "$NEW_CONF" "$APP_DIR/nginx.conf"
+        else
+            echo "❌ Nginx 재로딩 실패! (프로세스 오류)"
+            # reload 실패 시 롤백 수행
+            docker stop "app-$NEW"
+            docker rm "app-$NEW"
+            exit 1
+        fi
+    else
+        echo "❌ Nginx 설정 문법 오류 발견! 배포를 중단합니다."
+        # 문법 오류 상세 출력
+        docker exec "$NGINX_CONTAINER" nginx -t -c /etc/nginx/nginx.conf.test || true
+
+        # 롤백 수행 (새로 띄운 앱 컨테이너 종료)
+        docker stop "app-$NEW"
+        docker rm "app-$NEW"
+        exit 1
+    fi
+
 else
-    # 실행 중이 아니면(정지 상태 포함) 삭제 후 실행
-    echo "Nginx 컨테이너 재시작..."
-    docker rm -f nginx 2>/dev/null || true
-    docker run -d --name nginx --network modeunsa-net -p 80:80 -v $APP_DIR/nginx.conf:/etc/nginx/nginx.conf nginx:alpine
+    # Nginx가 실행 중이 아니면 (최초 실행 또는 정지 상태)
+    echo "Nginx가 실행 중이 아닙니다. 컨테이너를 새로 시작합니다."
+
+    # 기존에 멈춰있는 컨테이너가 있다면 삭제
+    if [ "$(docker ps -aq -f name=^/${NGINX_CONTAINER}$)" ]; then
+        docker rm -f "$NGINX_CONTAINER"
+    fi
+
+    # 호스트 설정 파일 최신화
+    cp "$NEW_CONF" "$APP_DIR/nginx.conf"
+
+    # Nginx 컨테이너 실행
+    docker run -d --name "$NGINX_CONTAINER" \
+        --network modeunsa-net \
+        -p 80:80 \
+        -v "$APP_DIR/nginx.conf:/etc/nginx/nginx.conf" \
+        nginx:alpine
+
+    echo "Nginx 컨테이너 시작 완료."
 fi
 
 echo "Nginx 전환 완료: app-$NEW"
