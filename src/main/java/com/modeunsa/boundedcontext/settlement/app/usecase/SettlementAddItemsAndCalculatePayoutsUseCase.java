@@ -57,7 +57,7 @@ public class SettlementAddItemsAndCalculatePayoutsUseCase {
     return items;
   }
 
-  public Settlement getOrCreateSettlement(Long sellerMemberId, LocalDateTime paymentAt) {
+  private Settlement getOrCreateSettlement(Long sellerMemberId, LocalDateTime paymentAt) {
     int year = paymentAt.getYear();
     int month = paymentAt.getMonthValue();
 
