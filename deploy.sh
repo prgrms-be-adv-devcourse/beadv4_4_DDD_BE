@@ -20,7 +20,7 @@ fi
 echo "현재: $OLD → 새로운: $NEW"
 
 # 새 컨테이너 실행
-DOCKER_IMAGE=$DOCKER_IMAGE docker compose -f $COMPOSE_FILE --profile $NEW up -d app-$NEW
+DOCKER_IMAGE=$DOCKER_IMAGE docker-compose -f $COMPOSE_FILE --profile $NEW up -d app-$NEW
 
 # 헬스체크 (최대 30초 대기)
 echo "헬스체크 중..."
