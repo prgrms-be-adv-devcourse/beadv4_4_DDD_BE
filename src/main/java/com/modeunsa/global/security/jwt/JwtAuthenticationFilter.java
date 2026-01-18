@@ -1,5 +1,6 @@
 package com.modeunsa.global.security.jwt;
 
+import com.modeunsa.boundedcontext.auth.out.repository.AuthAccessTokenBlacklistRepository;
 import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
@@ -25,6 +26,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private final JwtTokenProvider jwtTokenProvider;
+  private final AuthAccessTokenBlacklistRepository blacklistRepository;
 
   private static final String AUTHORIZATION_HEADER = "Authorization";
   private static final String BEARER_PREFIX = "Bearer ";
@@ -43,6 +45,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (!jwtTokenProvider.isAccessToken(token)) {
           throw new GeneralException(ErrorStatus.AUTH_INVALID_ACCESS_TOKEN);
+        }
+
+        // 블랙리스트 체크
+        if (blacklistRepository.existsById(token)) {
+          throw new GeneralException(ErrorStatus.AUTH_BLACKLISTED_TOKEN);
         }
 
         Long memberId = jwtTokenProvider.getMemberIdFromToken(token);

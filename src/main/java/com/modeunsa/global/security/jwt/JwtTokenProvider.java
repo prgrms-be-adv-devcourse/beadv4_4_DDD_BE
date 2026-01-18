@@ -141,4 +141,12 @@ public class JwtTokenProvider {
   public long getRefreshTokenExpiration() {
     return jwtProperties.refreshTokenExpiration();
   }
+
+  /** 토큰의 남은 만료시간 계산 (밀리초) */
+  public long getRemainingExpiration(String token) {
+    Claims claims = parseClaims(token);
+    Date expiration = claims.getExpiration();
+    long remainingTime = expiration.getTime() - System.currentTimeMillis();
+    return Math.max(0, remainingTime);
+  }
 }
