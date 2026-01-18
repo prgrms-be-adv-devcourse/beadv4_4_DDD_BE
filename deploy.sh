@@ -49,20 +49,33 @@ fi
 echo "새 컨테이너 실행: app-$NEW"
 docker-compose -f $COMPOSE_FILE --profile $NEW up -d app-$NEW
 
-# 헬스체크 (최대 60초 대기)
-echo "헬스체크 중..."
-for i in {1..60}; do
-    if curl -s http://localhost:$NEW_PORT/actuator/health | grep -q '"status":"UP"'; then
+# 애플리케이션 구동 대기
+echo "애플리케이션 구동을 위해 30초 대기합니다..."
+sleep 30
+
+# 헬스체크 (1초 간격으로 10회 추가 시도)
+echo "헬스체크 시작..."
+for i in {1..10}; do
+    RESPONSE=$(curl -s http://localhost:$NEW_PORT/actuator/health)
+    UP_COUNT=$(echo $RESPONSE | grep -c '"status":"UP"')
+
+    if [ $UP_COUNT -ge 1 ]; then
         echo "헬스체크 성공!"
         break
+    else
+        echo "헬스체크 응답 없음 또는 실패. 재시도 중... ($i/10)"
     fi
-    if [ $i -eq 60 ]; then
-        echo "헬스체크 실패. 롤백."
+
+    if [ $i -eq 10 ]; then
+        echo "헬스체크 최종 실패. 롤백을 수행합니다."
+        echo "실패 로그 확인:"
+        docker logs --tail 50 app-$NEW
+
         docker stop app-$NEW || true
         docker rm app-$NEW || true
         exit 1
     fi
-    sleep 1
+    sleep 3 # 재시도 간격 3초
 done
 
 # JVM Warm-up (5회 요청)
