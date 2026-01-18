@@ -2,14 +2,41 @@ spring:
   config:
     activate:
       on-profile: prod
+  datasource: # TODO: 추후 실제 운영 DB로 변경
+    url: jdbc:h2:./db_prod;MODE=MySQL
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
   data:
-    redis:
-      host: ${REDIS_HOST}
+    redis: # TODO: 실제 운영 Redis로 변경
+      host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
   jpa:
     show-sql: false
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update # TODO: validate 로 변경 검토
+# TODO: OAuth2 설정
+#  security:
+#    oauth2:
+#      client:
+#        registration:
+#          kakao:
+#            client-id: ${KAKAO_CLIENT_ID}
+#            client-secret: ${KAKAO_CLIENT_SECRET}
+#            redirect-uri: ${KAKAO_REDIRECT_URI}
+#            authorization-grant-type: authorization_code
+#            client-authentication-method: client_secret_post
+#            client-name: KAKAO
+#          naver:
+#            client-id: ${NAVER_CLIENT_ID}
+#            client-secret: ${NAVER_CLIENT_SECRET}
+#            redirect-uri: ${NAVER_REDIRECT_URI}
+#            authorization-grant-type: authorization_code
+#            client-name: NAVER
+#            scope:
+#              - name
+#              - email
+#              - mobile
   batch:
     job:
       enabled: false
@@ -19,4 +46,4 @@ spring:
 custom:
   security:
     permit-all: false
-    permit-urls: /api/v1/auths/oauth/**
+    permit-urls: /swagger-ui/**,/v3/api-docs/**,/api/v1/auths/oauth/**
