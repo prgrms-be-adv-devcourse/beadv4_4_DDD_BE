@@ -47,8 +47,13 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_KEY }}
           script: |
+            # 네트워크 생성 (없으면)
+            docker network create modeunsa-net || true
+            # Redis 실행 (없으면)
+            docker ps | grep redis || docker run -d --name redis --network modeunsa-net -p 6379:6379 redis:7-alpine
+            # 앱 배포
             docker pull ${{ secrets.DOCKER_USERNAME }}/modeunsa:latest
             docker stop modeunsa || true
             docker rm modeunsa || true
-            docker run -d --name modeunsa -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/modeunsa:latest
+            docker run -d --name modeunsa --network modeunsa-net -p 8080:8080 -e REDIS_HOST=redis ${{ secrets.DOCKER_USERNAME }}/modeunsa:latest
             docker image prune -f
