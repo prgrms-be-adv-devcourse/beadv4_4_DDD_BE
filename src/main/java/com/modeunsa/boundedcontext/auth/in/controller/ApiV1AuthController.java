@@ -87,4 +87,10 @@ public class ApiV1AuthController {
 
     return ApiResponse.onSuccess(SuccessStatus.AUTH_LOGOUT_SUCCESS);
   }
+
+  @Operation(summary = "[테스트용] 인증 확인", description = "Access Token 유효성을 확인합니다.")
+  @GetMapping("/me")
+  public ResponseEntity<ApiResponse> checkAuth() {
+    return ApiResponse.onSuccess(SuccessStatus.OK, "인증 성공");
+  }
 }
