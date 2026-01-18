@@ -1,5 +1,6 @@
 package com.modeunsa.boundedcontext.auth.app.facade;
 
+import com.modeunsa.boundedcontext.auth.app.usecase.AuthLogoutUseCase;
 import com.modeunsa.boundedcontext.auth.app.usecase.AuthTokenIssueUseCase;
 import com.modeunsa.boundedcontext.auth.app.usecase.AuthTokenReissueUseCase;
 import com.modeunsa.boundedcontext.auth.app.usecase.OAuthUrlUseCase;
@@ -16,6 +17,7 @@ public class AuthFacade {
   private final OAuthUrlUseCase oauthUrlUseCase;
   private final AuthTokenIssueUseCase authTokenIssueUseCase;
   private final AuthTokenReissueUseCase authTokenReissueUseCase;
+  private final AuthLogoutUseCase authLogoutUseCase;
 
   /** OAuth2 로그인 URL 생성 */
   public String getOAuthLoginUrl(OAuthProvider provider, String redirectUri) {
@@ -30,5 +32,10 @@ public class AuthFacade {
   /** 토큰 재발급 */
   public TokenResponse reissueToken(String refreshToken) {
     return authTokenReissueUseCase.execute(refreshToken);
+  }
+
+  /** 로그아웃 */
+  public void logout(String accessToken) {
+    authLogoutUseCase.execute(accessToken);
   }
 }

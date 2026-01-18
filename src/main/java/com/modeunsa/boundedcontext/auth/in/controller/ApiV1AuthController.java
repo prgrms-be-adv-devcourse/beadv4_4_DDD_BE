@@ -75,4 +75,16 @@ public class ApiV1AuthController {
         .findFirst()
         .orElseThrow(() -> new GeneralException(ErrorStatus.OAUTH_INVALID_PROVIDER));
   }
+
+  @Operation(summary = "로그아웃", description = "Access Token을 블랙리스트에 등록하고 Refresh Token을 삭제합니다.")
+  @PostMapping("/logout")
+  public ResponseEntity<ApiResponse> logout(
+      @Parameter(description = "Access Token", required = true)
+      @RequestHeader("Authorization") String authorizationHeader) {
+
+    String accessToken = authorizationHeader.replace("Bearer ", "");
+    authFacade.logout(accessToken);
+
+    return ApiResponse.onSuccess(SuccessStatus.AUTH_LOGOUT_SUCCESS);
+  }
 }
