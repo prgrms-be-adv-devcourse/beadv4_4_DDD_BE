@@ -25,7 +25,7 @@ public class ContentTag extends GeneratedIdAndAuditedEntity {
   @JoinColumn(name = "content_id", nullable = false)
   private Content content;
 
-  @Column(length = MAX_LENGTH, nullable = false)
+  @Column(name="\"value\"", length = MAX_LENGTH, nullable = false)
   private String value;
 
   public ContentTag(String value) {
