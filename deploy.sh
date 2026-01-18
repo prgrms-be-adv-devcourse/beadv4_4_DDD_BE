@@ -44,6 +44,14 @@ for i in {1..30}; do
     sleep 1
 done
 
+# JVM Warm-up (5회 요청)
+echo "JVM Warm-up 중..."
+for i in {1..5}; do
+    curl -s http://localhost:$NEW_PORT/swagger-ui/index.html > /dev/null 2>&1
+    sleep 1
+done
+echo "Warm-up 완료!"
+
 # Nginx 설정 변경
 sed -i "s/app-$OLD/app-$NEW/g" $NGINX_CONF
 docker exec nginx nginx -s reload
