@@ -82,4 +82,12 @@ public class Settlement extends GeneratedIdAndAuditedEntity {
     BigDecimal sellerAmount = amount.subtract(feeAmount);
     return new PayoutAmounts(sellerAmount, feeAmount);
   }
+
+  public void completePayout() {
+    this.payoutAt = LocalDateTime.now();
+  }
+
+  public boolean isCompletedPayout() {
+    return this.payoutAt != null;
+  }
 }
