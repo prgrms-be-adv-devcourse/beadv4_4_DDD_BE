@@ -2,7 +2,7 @@ name: CD Pipeline
 
 on:
   push:
-    branches: [main, feature/26]
+    branches: [main]
 
 permissions:
   contents: read
