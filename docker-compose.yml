@@ -20,6 +20,8 @@ services:
       - REDIS_HOST=redis
     networks:
       - modeunsa-net
+    profiles:
+      - blue
 
   app-green:
     image: ${DOCKER_IMAGE}
