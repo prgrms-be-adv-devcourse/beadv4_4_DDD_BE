@@ -20,11 +20,15 @@ export DOCKER_IMAGE=$DOCKER_IMAGE
 # 네트워크 생성 (없으면)
 docker network create modeunsa-net 2>/dev/null || true
 
-# Redis 실행 (docker-compose로 관리)
-if ! docker ps | grep -q redis; then
-    echo "Redis 컨테이너 시작..."
-    docker-compose -f $COMPOSE_FILE up -d redis
+# Redis 실행
+# 정지된 컨테이너로 인한 충돌 방지를 위해 존재 여부(ps -aq) 확인 후 삭제
+if [ "$(docker ps -aq -f name=^/redis$)" ]; then
+    echo "기존 Redis 컨테이너 정리..."
+    docker rm -f redis
 fi
+echo "Redis 컨테이너 시작..."
+docker-compose -f $COMPOSE_FILE up -d redis
+
 
 # 현재 실행 중인 앱 확인
 CURRENT=$(docker ps --format '{{.Names}}' | grep -E 'app-(blue|green)' | head -1)
@@ -74,15 +78,19 @@ for i in {1..5}; do
 done
 echo "Warm-up 완료!"
 
-# Nginx 실행 확인 및 설정 교체
-if ! docker ps | grep -q nginx; then
-    echo "Nginx 컨테이너 시작..."
-    cp $APP_DIR/nginx-$NEW.conf $APP_DIR/nginx.conf
-    docker run -d --name nginx --network modeunsa-net -p 80:80 -v $APP_DIR/nginx.conf:/etc/nginx/nginx.conf nginx:alpine
-else
-    cp $APP_DIR/nginx-$NEW.conf $APP_DIR/nginx.conf
+# Nginx 실행 및 설정 교체
+cp $APP_DIR/nginx-$NEW.conf $APP_DIR/nginx.conf
+
+if [ "$(docker ps -q -f name=^/nginx$)" ]; then
+    # 실행 중이면 reload
+    echo "Nginx 설정 재로딩..."
     docker cp $APP_DIR/nginx.conf nginx:/etc/nginx/nginx.conf
     docker exec nginx nginx -s reload
+else
+    # 실행 중이 아니면(정지 상태 포함) 삭제 후 실행
+    echo "Nginx 컨테이너 재시작..."
+    docker rm -f nginx 2>/dev/null || true
+    docker run -d --name nginx --network modeunsa-net -p 80:80 -v $APP_DIR/nginx.conf:/etc/nginx/nginx.conf nginx:alpine
 fi
 
 echo "Nginx 전환 완료: app-$NEW"
