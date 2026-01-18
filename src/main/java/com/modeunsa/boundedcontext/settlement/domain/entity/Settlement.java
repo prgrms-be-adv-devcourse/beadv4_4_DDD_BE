@@ -38,10 +38,17 @@ public class Settlement extends GeneratedIdAndAuditedEntity {
   @Builder.Default
   private List<SettlementItem> items = new ArrayList<>();
 
+  private int settlementYear;
+  private int settlementMonth;
+
   private LocalDateTime payoutAt;
 
-  public static Settlement create(Long sellerMemberId) {
-    return Settlement.builder().sellerMemberId(sellerMemberId).build();
+  public static Settlement create(Long sellerMemberId, int year, int month) {
+    return Settlement.builder()
+        .sellerMemberId(sellerMemberId)
+        .settlementYear(year)
+        .settlementMonth(month)
+        .build();
   }
 
   public SettlementItem addItem(

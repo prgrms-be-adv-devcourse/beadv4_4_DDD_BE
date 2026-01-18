@@ -28,7 +28,10 @@ class SettlementSaveItemsUseCaseTest {
   @DisplayName("정산항목 리스트 저장 성공")
   void saveItems_saves_allItems() {
     // given
-    Settlement settlement = Settlement.create(1L);
+    int year = LocalDateTime.now().getYear();
+    int month = LocalDateTime.now().getMonthValue();
+
+    Settlement settlement = Settlement.create(1L, year, month);
     SettlementItem item1 =
         settlement.addItem(
             100L,

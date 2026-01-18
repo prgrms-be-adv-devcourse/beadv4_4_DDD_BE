@@ -2,6 +2,8 @@ package com.modeunsa.boundedcontext.settlement.app.usecase;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import com.modeunsa.boundedcontext.settlement.app.dto.SettlementOrderItemDto;
@@ -46,9 +48,12 @@ class SettlementAddItemsAndCalculatePayoutsUseCaseTest {
 
     SettlementPolicy.FEE_RATE = new BigDecimal("0.1");
 
-    sellerSettlement = Settlement.create(sellerId);
+    int year = LocalDateTime.now().getYear();
+    int month = LocalDateTime.now().getMonthValue();
+
+    sellerSettlement = Settlement.create(sellerId, year, month);
     systemMember = SettlementMember.create(systemId, "SYSTEM");
-    feeSettlement = Settlement.create(systemId);
+    feeSettlement = Settlement.create(systemId, year, month);
 
     orderDto =
         new SettlementOrderItemDto(
@@ -59,10 +64,14 @@ class SettlementAddItemsAndCalculatePayoutsUseCaseTest {
   @DisplayName("주문 처리 시 판매자 정산항목과 수수료 정산항목 2개 생성")
   void addItemsAndCalculatePayouts() {
     // given
-    when(settlementRepository.findBySellerMemberId(orderDto.sellerMemberId()))
-        .thenReturn(Optional.of(sellerSettlement));
     when(settlementMemberRepository.findByName("SYSTEM")).thenReturn(Optional.of(systemMember));
-    when(settlementRepository.findBySellerMemberId(systemMember.getId()))
+
+    when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonth(
+            eq(orderDto.sellerMemberId()), anyInt(), anyInt()))
+        .thenReturn(Optional.of(sellerSettlement));
+
+    when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonth(
+            eq(systemMember.getId()), anyInt(), anyInt()))
         .thenReturn(Optional.of(feeSettlement));
 
     // when
@@ -85,10 +94,14 @@ class SettlementAddItemsAndCalculatePayoutsUseCaseTest {
   @DisplayName("수수료 계산: 10% 수수료 적용")
   void addItemsAndCalculatePayouts_calculates_feeCorrectly() {
     // given
-    when(settlementRepository.findBySellerMemberId(orderDto.sellerMemberId()))
-        .thenReturn(Optional.of(sellerSettlement));
     when(settlementMemberRepository.findByName("SYSTEM")).thenReturn(Optional.of(systemMember));
-    when(settlementRepository.findBySellerMemberId(systemMember.getId()))
+
+    when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonth(
+            eq(orderDto.sellerMemberId()), anyInt(), anyInt()))
+        .thenReturn(Optional.of(sellerSettlement));
+
+    when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonth(
+            eq(systemMember.getId()), anyInt(), anyInt()))
         .thenReturn(Optional.of(feeSettlement));
 
     // when
@@ -107,10 +120,14 @@ class SettlementAddItemsAndCalculatePayoutsUseCaseTest {
   @DisplayName("Settlement의 amount가 정산항목 추가 후 증가")
   void addItemsAndCalculatePayouts_updates_settlementAmount() {
     // given
-    when(settlementRepository.findBySellerMemberId(orderDto.sellerMemberId()))
-        .thenReturn(Optional.of(sellerSettlement));
     when(settlementMemberRepository.findByName("SYSTEM")).thenReturn(Optional.of(systemMember));
-    when(settlementRepository.findBySellerMemberId(systemMember.getId()))
+
+    when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonth(
+            eq(orderDto.sellerMemberId()), anyInt(), anyInt()))
+        .thenReturn(Optional.of(sellerSettlement));
+
+    when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonth(
+            eq(systemMember.getId()), anyInt(), anyInt()))
         .thenReturn(Optional.of(feeSettlement));
 
     BigDecimal sellerAmountBefore = sellerSettlement.getAmount();
@@ -127,39 +144,14 @@ class SettlementAddItemsAndCalculatePayoutsUseCaseTest {
   }
 
   @Test
-  @DisplayName("판매자 정산서가 없으면 예외 발생")
-  void addItemsAndCalculatePayouts_throws_whenSellerSettlementNotFound() {
-    // given
-    when(settlementRepository.findBySellerMemberId(orderDto.sellerMemberId()))
-        .thenReturn(Optional.empty());
-
-    // when & then
-    assertThatThrownBy(() -> useCase.addItemsAndCalculatePayouts(orderDto))
-        .isInstanceOf(GeneralException.class);
-  }
-
-  @Test
   @DisplayName("시스템 멤버가 없으면 예외 발생")
   void addItemsAndCalculatePayouts_throws_whenSystemMemberNotFound() {
     // given
-    when(settlementRepository.findBySellerMemberId(orderDto.sellerMemberId()))
-        .thenReturn(Optional.of(sellerSettlement));
     when(settlementMemberRepository.findByName("SYSTEM")).thenReturn(Optional.empty());
 
-    // when & then
-    assertThatThrownBy(() -> useCase.addItemsAndCalculatePayouts(orderDto))
-        .isInstanceOf(GeneralException.class);
-  }
-
-  @Test
-  @DisplayName("수수료 정산서가 없으면 예외 발생")
-  void addItemsAndCalculatePayouts_throws_whenFeeSettlementNotFound() {
-    // given
-    when(settlementRepository.findBySellerMemberId(orderDto.sellerMemberId()))
+    when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonth(
+            eq(orderDto.sellerMemberId()), anyInt(), anyInt()))
         .thenReturn(Optional.of(sellerSettlement));
-    when(settlementMemberRepository.findByName("SYSTEM")).thenReturn(Optional.of(systemMember));
-    when(settlementRepository.findBySellerMemberId(systemMember.getId()))
-        .thenReturn(Optional.empty());
 
     // when & then
     assertThatThrownBy(() -> useCase.addItemsAndCalculatePayouts(orderDto))

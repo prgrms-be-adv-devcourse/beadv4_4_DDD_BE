@@ -10,6 +10,7 @@ import com.modeunsa.boundedcontext.settlement.out.SettlementMemberRepository;
 import com.modeunsa.boundedcontext.settlement.out.SettlementRepository;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -22,24 +23,18 @@ public class SettlementAddItemsAndCalculatePayoutsUseCase {
   private final SettlementMemberRepository settlementMemberRepository;
 
   public List<SettlementItem> addItemsAndCalculatePayouts(SettlementOrderItemDto order) {
-    Settlement sellerSettlement =
-        settlementRepository
-            .findBySellerMemberId(order.sellerMemberId())
-            .orElseThrow(() -> new GeneralException(ErrorStatus.SETTLEMENT_NOT_FOUND));
+    Settlement sellerSettlement = getOrCreateSettlement(order.sellerMemberId(), order.paymentAt());
 
     SettlementMember systemMember =
         settlementMemberRepository
             .findByName("SYSTEM")
             .orElseThrow(() -> new GeneralException(ErrorStatus.SETTLEMENT_MEMBER_NOT_FOUND));
 
-    Settlement feeSettlement =
-        settlementRepository
-            .findBySellerMemberId(systemMember.getId())
-            .orElseThrow(() -> new GeneralException(ErrorStatus.SETTLEMENT_NOT_FOUND));
+    Settlement feeSettlement = getOrCreateSettlement(systemMember.getId(), order.paymentAt());
 
     PayoutAmounts payoutAmounts = Settlement.calculatePayouts(order.amount());
 
-    List<SettlementItem> items = new ArrayList<>();
+    List<SettlementItem> items = new ArrayList<>(2);
 
     items.add(
         sellerSettlement.addItem(
@@ -60,5 +55,14 @@ public class SettlementAddItemsAndCalculatePayoutsUseCase {
             order.paymentAt()));
 
     return items;
+  }
+
+  public Settlement getOrCreateSettlement(Long sellerMemberId, LocalDateTime paymentAt) {
+    int year = paymentAt.getYear();
+    int month = paymentAt.getMonthValue();
+
+    return settlementRepository
+        .findBySellerMemberIdAndSettlementYearAndSettlementMonth(sellerMemberId, year, month)
+        .orElseGet(() -> settlementRepository.save(Settlement.create(sellerMemberId, year, month)));
   }
 }

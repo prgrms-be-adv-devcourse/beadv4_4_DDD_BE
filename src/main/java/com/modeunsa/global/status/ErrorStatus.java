@@ -92,6 +92,9 @@ public enum ErrorStatus {
   PAYMENT_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_002", "결제 계좌 정보를 찾을 수 없습니다."),
   PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_003", "결제 정보를 찾을 수 없습니다."),
 
+  // Settlement 400
+  SETTLEMENT_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_001", "구매 확정 일자는 필수입니다."),
+
   // Settlement 404
   SETTLEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "SETTLEMENT_404_001", "정산서가 존재하지 않습니다."),
   SETTLEMENT_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "SETTLEMENT_404_002", "회원을 찾을 수 없습니다.");

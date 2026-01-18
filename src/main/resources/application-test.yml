@@ -18,4 +18,5 @@ spring:
 # 테스트용 스케줄러 - 매 1초마다 실행
 settlement:
   scheduler:
-    cron-am3: "* * * * * *"
+    daily-03: "* * * * * *"
+    monthly-25-04: "* * * * * *"
