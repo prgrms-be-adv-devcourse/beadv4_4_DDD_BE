@@ -56,7 +56,8 @@ sleep 30
 # 헬스체크 (1초 간격으로 10회 추가 시도)
 echo "헬스체크 시작..."
 for i in {1..10}; do
-    RESPONSE=$(curl -s http://localhost:$NEW_PORT/actuator/health)
+    # curl 실패 시 스크립트 종료 방지를 위해 || true 추가
+    RESPONSE=$(curl -s http://localhost:$NEW_PORT/actuator/health || true)
     UP_COUNT=$(echo $RESPONSE | grep -c '"status":"UP"')
 
     if [ $UP_COUNT -ge 1 ]; then
