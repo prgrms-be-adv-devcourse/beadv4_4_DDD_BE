@@ -67,7 +67,7 @@ jobs:
             docker network create modeunsa-net || true
             
             # Redis 실행 (없으면)
-            docker ps | grep redis || docker run -d --name redis --network modeunsa-net -p 6379:6379 redis:7-alpine
+            docker ps | grep redis || docker run -d --name redis --network modeunsa-net redis:7-alpine
             docker network connect modeunsa-net redis || true
             
             # 배포 실행
