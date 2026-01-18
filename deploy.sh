@@ -2,13 +2,12 @@
 
 DOCKER_IMAGE=$1
 COMPOSE_FILE="/home/ec2-user/app/docker-compose.yml"
-NGINX_CONF="/home/ec2-user/app/nginx.conf"
+APP_DIR="/home/ec2-user/app"
 
 # 현재 실행 중인 앱 확인
 CURRENT=$(docker ps --format '{{.Names}}' | grep -E 'app-(blue|green)' | head -1)
 
 if [ -z "$CURRENT" ]; then
-    # 첫 배포
     NEW="blue"
     OLD=""
     NEW_PORT=8081
@@ -28,10 +27,10 @@ fi
 # 새 컨테이너 실행
 DOCKER_IMAGE=$DOCKER_IMAGE docker-compose -f $COMPOSE_FILE --profile $NEW up -d app-$NEW
 
-# 헬스체크 (최대 30초 대기)
+# 헬스체크 (최대 30초 대기) - actuator 사용
 echo "헬스체크 중..."
 for i in {1..30}; do
-    if curl -s http://localhost:$NEW_PORT/swagger-ui/index.html > /dev/null 2>&1; then
+    if curl -s http://localhost:$NEW_PORT/actuator/health | grep -q '"status":"UP"'; then
         echo "헬스체크 성공!"
         break
     fi
@@ -47,13 +46,13 @@ done
 # JVM Warm-up (5회 요청)
 echo "JVM Warm-up 중..."
 for i in {1..5}; do
-    curl -s http://localhost:$NEW_PORT/swagger-ui/index.html > /dev/null 2>&1
+    curl -s http://localhost:$NEW_PORT/actuator/health > /dev/null 2>&1
     sleep 1
 done
 echo "Warm-up 완료!"
 
-# Nginx 설정 변경
-sed -i "s/app-$OLD/app-$NEW/g" $NGINX_CONF
+# Nginx 설정 파일 교체 후 reload
+cp $APP_DIR/nginx-$NEW.conf $APP_DIR/nginx.conf
 docker exec nginx nginx -s reload
 
 echo "Nginx 전환 완료: app-$NEW"

@@ -47,3 +47,12 @@ custom:
   security:
     permit-all: false
     permit-urls: /swagger-ui/**,/v3/api-docs/**,/api/v1/auths/oauth/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
