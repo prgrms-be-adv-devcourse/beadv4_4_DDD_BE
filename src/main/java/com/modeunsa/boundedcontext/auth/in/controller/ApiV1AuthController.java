@@ -2,6 +2,7 @@ package com.modeunsa.boundedcontext.auth.in.controller;
 
 import com.modeunsa.boundedcontext.auth.app.facade.AuthFacade;
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
+import com.modeunsa.boundedcontext.auth.in.util.AuthRequestUtils;
 import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.response.ApiResponse;
@@ -12,13 +13,11 @@ import com.modeunsa.shared.auth.dto.TokenResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.Arrays;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,8 +32,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ApiV1AuthController {
 
-  private static final String BEARER_PREFIX = "Bearer ";
-
   private final AuthFacade authFacade;
   private final JwtTokenProvider jwtTokenProvider;
 
@@ -43,11 +40,11 @@ public class ApiV1AuthController {
   public ResponseEntity<ApiResponse> getOAuthLoginUrl(
       @Parameter(description = "OAuth 제공자", example = "kakao") @PathVariable String provider,
       @Parameter(description = "리다이렉트 URI") @RequestParam(required = false) String redirectUri) {
-    OAuthProvider oauthProvider = findProvider(provider);
-    //     TODO: 테스트를 위해 임시로 토큰 발급 로직으로 대체 -> 실제로는 아래 주석 처리된 코드 사용
-    //    String loginUrl = authFacade.getOAuthLoginUrl(oauthProvider, redirectUri);
+    OAuthProvider oauthProvider = AuthRequestUtils.findProvider(provider);
+    // TODO: 테스트를 위해 임시로 토큰 발급 로직으로 대체 -> 실제로는 아래 주석 처리된 코드 사용
+    // String loginUrl = authFacade.getOAuthLoginUrl(oauthProvider, redirectUri);
     TokenResponse tokenResponse = authFacade.login(1L, MemberRole.MEMBER);
-    //    return ApiResponse.onSuccess(SuccessStatus.OK, loginUrl);
+    // return ApiResponse.onSuccess(SuccessStatus.OK, loginUrl);
     return ApiResponse.onSuccess(SuccessStatus.AUTH_LOGIN_SUCCESS, tokenResponse);
   }
 
@@ -58,7 +55,7 @@ public class ApiV1AuthController {
       @Parameter(description = "인증 코드", required = true) @RequestParam String code,
       @Parameter(description = "리다이렉트 URI") @RequestParam(required = false) String redirectUri) {
 
-    OAuthProvider oauthProvider = findProvider(provider);
+    OAuthProvider oauthProvider = AuthRequestUtils.findProvider(provider);
     // TODO: 테스트를 위해 임시로 토큰 발급 로직으로 대체 -> 실제로는 아래 주석 처리된 코드 사용
     // TokenResponse tokenResponse = authFacade.oauthLogin(oauthProvider, code, redirectUri);
     TokenResponse tokenResponse = authFacade.login(1L, MemberRole.MEMBER);
@@ -83,7 +80,7 @@ public class ApiV1AuthController {
       @Parameter(description = "Access Token", required = true) @RequestHeader("Authorization")
           String authorizationHeader) {
 
-    String accessToken = resolveToken(authorizationHeader);
+    String accessToken = AuthRequestUtils.resolveToken(authorizationHeader);
     if (accessToken == null) {
       throw new GeneralException(ErrorStatus.AUTH_INVALID_TOKEN_FORMAT);
     }
@@ -110,26 +107,5 @@ public class ApiV1AuthController {
             "authorities", authentication.getAuthorities());
 
     return ApiResponse.onSuccess(SuccessStatus.OK, userInfo);
-  }
-
-  /**
-   * Authorization 헤더에서 Bearer 토큰 추출
-   *
-   * @param bearerToken Authorization 헤더 값
-   * @return 추출된 토큰, 형식이 잘못되면 null
-   */
-  private String resolveToken(String bearerToken) {
-    if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
-      return bearerToken.substring(BEARER_PREFIX.length());
-    }
-    return null;
-  }
-
-  /** Provider 문자열 -> Enum 변환 */
-  private OAuthProvider findProvider(String providerName) {
-    return Arrays.stream(OAuthProvider.values())
-        .filter(p -> p.name().equalsIgnoreCase(providerName))
-        .findFirst()
-        .orElseThrow(() -> new GeneralException(ErrorStatus.OAUTH_INVALID_PROVIDER));
   }
 }
