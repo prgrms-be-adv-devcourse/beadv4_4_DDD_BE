@@ -1,5 +1,7 @@
 package com.modeunsa.boundedcontext.payment.app;
 
+import com.modeunsa.boundedcontext.payment.app.dto.ConfirmPaymentRequest;
+import com.modeunsa.boundedcontext.payment.app.dto.ConfirmPaymentResponse;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositResponse;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentPayoutDto;
@@ -9,6 +11,7 @@ import com.modeunsa.boundedcontext.payment.app.dto.PaymentResponse;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberResponse;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentChargePgUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.PaymentConfirmTossPaymentUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreateAccountUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreditAccountUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentGetMemberUseCase;
@@ -20,7 +23,9 @@ import com.modeunsa.boundedcontext.payment.app.usecase.PaymentSyncMemberUseCase;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
 import com.modeunsa.shared.payment.dto.PaymentDto;
+import jakarta.validation.Valid;
 import java.math.BigDecimal;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +43,7 @@ public class PaymentFacade {
   private final PaymentPayoutCompleteUseCase paymentPayoutCompleteUseCase;
   private final PaymentRefundUseCase paymentRefundUseCase;
   private final PaymentChargePgUseCase paymentChargePgUseCase;
+  private final PaymentConfirmTossPaymentUseCase paymentConfirmTossPaymentUseCase;
 
   @Transactional
   public void createPaymentMember(PaymentMemberDto paymentMemberDto) {
@@ -92,5 +98,12 @@ public class PaymentFacade {
         result.getOrderNo(),
         result.getOrderId(),
         paymentRequest.getTotalAmount());
+  }
+
+  public ConfirmPaymentResponse confirmTossPayment(
+      String orderNo, @Valid ConfirmPaymentRequest confirmPaymentRequest) {
+    Map<String, Object> response =
+        paymentConfirmTossPaymentUseCase.confirmCardPayment(orderNo, confirmPaymentRequest);
+    return new ConfirmPaymentResponse((String) response.get("paymentKey"));
   }
 }

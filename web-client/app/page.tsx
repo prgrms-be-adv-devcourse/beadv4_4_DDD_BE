@@ -234,7 +234,6 @@ export default function Home() {
 
       {/* 결제 버튼 */}
       <section className="terms-section">
-        <div className="points-info">토스페이 결제 최대 1,600원 적립</div>
         <button 
           className="payment-button" 
           onClick={handlePayment}
