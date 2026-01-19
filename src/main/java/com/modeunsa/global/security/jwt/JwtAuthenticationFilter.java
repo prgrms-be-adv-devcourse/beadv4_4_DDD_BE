@@ -47,6 +47,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
           throw new GeneralException(ErrorStatus.AUTH_INVALID_ACCESS_TOKEN);
         }
 
+        // TODO: 성능 최적화 고려사항
+        // - 매 요청마다 Redis 조회 발생하여 고부하 시 성능 이슈 가능
+        // - 현재는 트래픽이 적어 수용 가능하며, 부하 증가 시 캐시 도입 예정
         // 블랙리스트 체크
         if (blacklistRepository.existsById(token)) {
           throw new GeneralException(ErrorStatus.AUTH_BLACKLISTED_TOKEN);
