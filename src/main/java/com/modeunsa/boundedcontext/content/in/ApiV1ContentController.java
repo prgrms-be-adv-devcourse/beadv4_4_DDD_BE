@@ -9,8 +9,8 @@ import com.modeunsa.global.status.SuccessStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -59,8 +59,9 @@ public class ApiV1ContentController {
 
   @Operation(summary = "콘텐츠 전체 조회", description = "콘텐츠 전체 목록을 최신순으로 조회합니다.")
   @GetMapping
-  public ResponseEntity<List<ContentResponse>> getContents(
-      @RequestParam(defaultValue = "0") int page) {
-    return ResponseEntity.ok(contentFacade.getContents(page));
+  public ResponseEntity<ApiResponse> getContents(@RequestParam(defaultValue = "0") int page) {
+    Page<ContentResponse> result = contentFacade.getContents(page);
+
+    return ApiResponse.onSuccess(SuccessStatus.CONTENT_LIST_GET_SUCCESS, result);
   }
 }

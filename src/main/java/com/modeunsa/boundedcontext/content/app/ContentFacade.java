@@ -7,8 +7,8 @@ import com.modeunsa.boundedcontext.content.app.usecase.ContentDeleteContentUseCa
 import com.modeunsa.boundedcontext.content.app.usecase.ContentGetContentsUseCase;
 import com.modeunsa.boundedcontext.content.app.usecase.ContentUpdateContentUseCase;
 import com.modeunsa.boundedcontext.content.domain.entity.ContentMember;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +38,7 @@ public class ContentFacade {
   }
 
   @Transactional
-  public List<ContentResponse> getContents(int page) {
+  public Page<ContentResponse> getContents(int page) {
     return contentGetContentsUseCase.getContents(page);
   }
 }

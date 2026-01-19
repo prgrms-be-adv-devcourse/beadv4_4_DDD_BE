@@ -3,8 +3,8 @@ package com.modeunsa.boundedcontext.content.app.usecase;
 import com.modeunsa.boundedcontext.content.app.dto.ContentResponse;
 import com.modeunsa.boundedcontext.content.app.mapper.ContentMapper;
 import com.modeunsa.boundedcontext.content.out.ContentRepository;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,11 +18,12 @@ public class ContentGetContentsUseCase {
   private final ContentMapper contentMapper;
 
   @Transactional
-  public List<ContentResponse> getContents(int page) {
+  public Page<ContentResponse> getContents(int page) {
 
     PageRequest pageRequest = PageRequest.of(page, PAGE_SIZE);
-    return contentRepository.findByDeletedAtIsNullOrderByIdDesc(pageRequest).getContent().stream()
-        .map(contentMapper::toResponse)
-        .toList();
+
+    return contentRepository
+        .findByDeletedAtIsNullOrderByIdDesc(pageRequest)
+        .map(contentMapper::toResponse);
   }
 }
