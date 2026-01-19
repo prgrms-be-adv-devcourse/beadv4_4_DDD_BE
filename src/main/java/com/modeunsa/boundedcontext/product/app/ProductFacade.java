@@ -57,6 +57,7 @@ public class ProductFacade {
     return productMapper.toResponse(product);
   }
 
+  @Transactional
   public void createProductFavorite(Long memberId, Long productId) {
     productCreateFavoriteUseCase.createProductFavorite(memberId, productId);
   }

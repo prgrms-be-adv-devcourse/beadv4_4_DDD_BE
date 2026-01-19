@@ -7,11 +7,9 @@ import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class ProductCreateFavoriteUseCase {
 
   private final ProductSupport productSupport;
@@ -27,7 +25,7 @@ public class ProductCreateFavoriteUseCase {
     // 상품 검증
     Product product = productSupport.getProduct(productId);
 
-    boolean inserted = productFavoriteRepository.insertIgnore(memberId, product.getId()) == 1;
+    boolean inserted = productFavoriteRepository.insertIgnore(member.getId(), product.getId()) == 1;
     if (inserted) {
       productSupport.increaseFavoriteCount(product.getId());
     }
