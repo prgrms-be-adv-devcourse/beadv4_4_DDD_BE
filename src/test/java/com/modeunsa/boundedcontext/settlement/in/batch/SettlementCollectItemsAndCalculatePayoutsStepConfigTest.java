@@ -39,7 +39,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 class SettlementCollectItemsAndCalculatePayoutsStepConfigTest {
 
   @Autowired private JobOperator jobOperator;
-  @Autowired private Job settlementCollectItemsAndCalculatePayoutsJob;
+  @Autowired private Job collectItemsAndCalculatePayoutsJob;
 
   @MockitoBean private OrderApiClient orderApiClient;
   @MockitoBean private SettlementFacade settlementFacade;
@@ -48,7 +48,10 @@ class SettlementCollectItemsAndCalculatePayoutsStepConfigTest {
 
   @BeforeEach
   void setUp() {
-    Settlement settlement = Settlement.create(1L);
+    int year = LocalDateTime.now().getYear();
+    int month = LocalDateTime.now().getMonthValue();
+
+    Settlement settlement = Settlement.create(1L, year, month);
     testItems =
         List.of(
             settlement.addItem(
@@ -72,7 +75,7 @@ class SettlementCollectItemsAndCalculatePayoutsStepConfigTest {
         new JobParametersBuilder()
             .addString("runId", UUID.randomUUID().toString())
             .toJobParameters();
-    return jobOperator.start(settlementCollectItemsAndCalculatePayoutsJob, jobParameters);
+    return jobOperator.start(collectItemsAndCalculatePayoutsJob, jobParameters);
   }
 
   @Test

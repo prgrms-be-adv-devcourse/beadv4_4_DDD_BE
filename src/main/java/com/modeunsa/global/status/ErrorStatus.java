@@ -111,6 +111,9 @@ public enum ErrorStatus {
   CONTENT_NOT_FOUND(HttpStatus.NOT_FOUND, "CONTENT_404_001", "CONTENT 정보를 찾을 수 없습니다."),
   CONTENT_ALREADY_DELETE(HttpStatus.NOT_FOUND, "CONTENT_404_002", "이 CONTENT는 이미 삭제되었습니다."),
 
+  // Settlement 400
+  SETTLEMENT_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_001", "구매 확정 일자는 필수입니다."),
+
   // Settlement 404
   SETTLEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "SETTLEMENT_404_001", "정산서가 존재하지 않습니다."),
   SETTLEMENT_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "SETTLEMENT_404_002", "회원을 찾을 수 없습니다.");
