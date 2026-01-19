@@ -61,6 +61,7 @@ public enum ErrorStatus {
   // Order
   ORDER_STOCK_NOT_ENOUGH(HttpStatus.BAD_REQUEST, "ORDER_400_001", "상품의 재고가 부족합니다."),
   ORDER_CANNOT_CANCEL(HttpStatus.BAD_REQUEST, "ORDER_400_002", "현재 주문 상태에서는 주문을 취소할 수 없습니다."),
+  ORDER_CART_EMPTY(HttpStatus.BAD_REQUEST, "ORDER_400_003", "장바구니가 비어 있습니다."),
 
   ORDER_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_404_001", "없는 상품입니다."),
   ORDER_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_404_002", "없는 회원입니다."),

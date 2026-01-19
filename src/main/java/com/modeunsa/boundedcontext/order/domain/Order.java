@@ -14,6 +14,7 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
@@ -85,5 +86,51 @@ public class Order extends GeneratedIdAndAuditedEntity {
 
   public void requestCancel() {
     this.status = OrderStatus.CANCEL_REQUESTED;
+  }
+
+  // 정적 메서드
+  public static Order createOrder(
+      OrderMember member,
+      List<OrderItem> orderItems,
+      String receiverName,
+      String receiverPhone,
+      String zipcode,
+      String addressDetail) {
+
+    // 주문 껍데기 생성
+    Order order =
+        Order.builder()
+            .orderMember(member)
+            .orderNo(generateOrderNo(member.getId()))
+            .status(OrderStatus.PENDING_PAYMENT)
+            .receiverName(receiverName)
+            .receiverPhone(receiverPhone)
+            .zipcode(zipcode)
+            .addressDetail(addressDetail)
+            .build();
+
+    for (OrderItem item : orderItems) {
+      order.addOrderItem(item);
+    }
+
+    // 총 가격 계산
+    order.calculateTotalPrice();
+
+    return order;
+  }
+
+  // 주문번호 생성 {날짜와 시간-유저 ID(yyyyMMddHHmmssSSS-%04d 포맷팅)}
+  public static String generateOrderNo(Long memberId) {
+    return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"))
+        + "-"
+        + String.format("%04d", memberId % 10000);
+  }
+
+  // 주문 총 가격 생성
+  public void calculateTotalPrice() {
+    this.totalAmount =
+        this.orderItems.stream()
+            .map(OrderItem::calculateSubTotal)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
   }
 }

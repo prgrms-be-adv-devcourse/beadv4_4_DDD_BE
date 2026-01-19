@@ -47,4 +47,9 @@ public class OrderItem extends GeneratedIdAndAuditedEntity {
 
   @Column(name = "price", nullable = false)
   private BigDecimal price; // 정가
+
+  // --- 도메인 메서드 ---
+  public BigDecimal calculateSubTotal() {
+    return this.salePrice.multiply(BigDecimal.valueOf(this.quantity));
+  }
 }
