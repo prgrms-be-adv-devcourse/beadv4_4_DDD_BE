@@ -30,4 +30,13 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
       where p.id = :productId
       """)
   int increaseFavoriteCount(@Param("productId") Long productId);
+
+  @Modifying
+  @Query(
+      """
+      update Product p
+      set p.favoriteCount = case when p.favoriteCount > 0 then p.favoriteCount - 1 else 0 end
+      where p.id = :productId
+      """)
+  int decreaseFavoriteCount(@Param("productId") Long productId);
 }

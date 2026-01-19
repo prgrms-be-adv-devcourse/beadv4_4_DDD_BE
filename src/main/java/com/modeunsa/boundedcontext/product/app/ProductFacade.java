@@ -2,8 +2,10 @@ package com.modeunsa.boundedcontext.product.app;
 
 import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
+import com.modeunsa.boundedcontext.product.domain.ProductMember;
 import com.modeunsa.boundedcontext.product.domain.ProductStatus;
 import com.modeunsa.shared.product.dto.ProductCreateRequest;
+import com.modeunsa.shared.product.dto.ProductDetailResponse;
 import com.modeunsa.shared.product.dto.ProductResponse;
 import com.modeunsa.shared.product.dto.ProductUpdateRequest;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ public class ProductFacade {
   private final ProductUpdateProductUseCase productUpdateProductUseCase;
   private final ProductUpdateProductStatusUseCase productUpdateProductStatusUseCase;
   private final ProductCreateFavoriteUseCase productCreateFavoriteUseCase;
+  private final ProductDeleteFavoriteUseCase productDeleteFavoriteUseCase;
   private final ProductSupport productSupport;
   private final ProductMapper productMapper;
 
@@ -30,9 +33,11 @@ public class ProductFacade {
     return productMapper.toResponse(product);
   }
 
-  public ProductResponse getProduct(Long productId) {
+  public ProductDetailResponse getProduct(Long memberId, Long productId) {
     Product product = productSupport.getProduct(productId);
-    return productMapper.toResponse(product);
+    ProductMember member = productSupport.getProductMember(memberId);
+    boolean isFavorite = productSupport.existsProductFavorite(member.getId(), product.getId());
+    return productMapper.toDetailResponse(product, isFavorite);
   }
 
   public Page<ProductResponse> getProducts(
@@ -60,5 +65,10 @@ public class ProductFacade {
   @Transactional
   public void createProductFavorite(Long memberId, Long productId) {
     productCreateFavoriteUseCase.createProductFavorite(memberId, productId);
+  }
+
+  @Transactional
+  public void deleteProductFavorite(Long memberId, Long productId) {
+    productDeleteFavoriteUseCase.deleteProductFavorite(memberId, productId);
   }
 }

@@ -7,7 +7,7 @@ import com.modeunsa.boundedcontext.product.domain.SaleStatus;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public record ProductResponse(
+public record ProductDetailResponse(
     Long id,
     Long sellerId,
     String name,
@@ -19,6 +19,7 @@ public record ProductResponse(
     ProductStatus productStatus,
     SaleStatus saleStatus,
     int quantity,
+    boolean isFavorite,
     int favoriteCount,
     LocalDateTime createdAt,
     LocalDateTime updatedAt,
