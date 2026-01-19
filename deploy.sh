@@ -20,10 +20,9 @@ export DOCKER_IMAGE=$DOCKER_IMAGE
 # 네트워크 생성 (없으면)
 docker network create modeunsa-net 2>/dev/null || true
 
-# Redis 실행
-echo "Redis 컨테이너 확인..."
-docker-compose -f $COMPOSE_FILE up -d redis
-
+# Redis, MySQL 컨테이너 확인 및 실행
+echo "Redis, MySQL 컨테이너 확인..."
+docker-compose -f $COMPOSE_FILE up -d redis mysql
 
 # 현재 실행 중인 앱 확인
 CURRENT=$(docker ps --format '{{.Names}}' | grep -E 'app-(blue|green)' | head -1)
