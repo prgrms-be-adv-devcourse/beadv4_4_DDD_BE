@@ -81,8 +81,7 @@ public class PaymentFacade {
   /*
    * 결제 요청에서는 크게 3가지 단계로 나누어 순차적으로 실행합니다.
    * 1. 결제 요청 생성 및 검증
-   * 2. 외부 PG사 결제 요청
-   * 3. 결제 완료로 계좌에서 입출금 처리
+   * 2. 결제 완료로 계좌에서 입출금 처리
    *
    * 트랜잭션 처리
    * 이 메서드에서는 각 UseCase 별로 트랜잭션을 분리하여 처리합니다.
@@ -91,13 +90,11 @@ public class PaymentFacade {
    */
   public PaymentResponse requestPayment(PaymentRequest paymentRequest) {
     PaymentRequestResult result = paymentRequestUseCase.execute(paymentRequest);
-    paymentChargePgUseCase.execute(result);
+    if (result.isNeedsCharge()) {
+      return new PaymentResponse(result);
+    }
     paymentProcessUseCase.execute(result);
-    return new PaymentResponse(
-        result.getBuyerId(),
-        result.getOrderNo(),
-        result.getOrderId(),
-        paymentRequest.getTotalAmount());
+    return new PaymentResponse(result);
   }
 
   public ConfirmPaymentResponse confirmTossPayment(

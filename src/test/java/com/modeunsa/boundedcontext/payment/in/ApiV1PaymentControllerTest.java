@@ -46,7 +46,8 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
             .totalAmount(totalAmount)
             .build();
 
-    PaymentResponse response = new PaymentResponse(buyerId, orderNo, orderId, totalAmount);
+    PaymentResponse response =
+        new PaymentResponse(buyerId, orderNo, orderId, totalAmount, false, BigDecimal.ZERO);
 
     when(paymentFacade.requestPayment(any(PaymentRequest.class))).thenReturn(response);
 
