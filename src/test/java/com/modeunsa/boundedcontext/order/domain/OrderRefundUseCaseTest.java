@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -31,6 +32,8 @@ class OrderRefundUseCaseTest {
   @Mock private OrderMapper orderMapper;
 
   @Mock private SpringDomainEventPublisher eventPublisher;
+
+  @Spy private OrderPolicy orderPolicy;
 
   @Test
   @DisplayName("배송 완료 후 7일 이내라면 반품 신청이 성공해야 한다")
@@ -50,17 +53,11 @@ class OrderRefundUseCaseTest {
             .build();
     ReflectionTestUtils.setField(mockOrder, "id", orderId);
 
-    // ★ 시간 조작: 배송 완료된 지 3일 지남 (7일 이내 -> 성공 케이스)
-    ReflectionTestUtils.setField(mockOrder, "deliveredAt", LocalDateTime.now().minusDays(3));
-
     // Support가 주문을 리턴하도록 설정
     given(orderRepository.findById(orderId)).willReturn(Optional.of(mockOrder));
 
-    // ★ [추가된 부분] Mapper가 반환할 가짜 DTO 설정
-    // (UseCase가 마지막에 mapper.toOrderDto를 호출하므로, 빈 껍데기 DTO라도 줘야 함)
+    // Mapper가 반환할 가짜 DTO 설정
     OrderDto fakeResponse = OrderDto.builder().orderId(orderId).build();
-
-    // "어떤(any) Order 객체로 toOrderDto가 호출되면, fakeResponse를 리턴해라"
     given(orderMapper.toOrderDto(any(Order.class))).willReturn(fakeResponse);
 
     // When
@@ -88,8 +85,6 @@ class OrderRefundUseCaseTest {
 
     given(orderRepository.findById(orderId)).willReturn(Optional.of(mockOrder));
 
-    // When & Then
-    // Entity의 isRefundable()에서 false가 나와 UseCase가 예외를 던짐
     assertThatThrownBy(() -> orderRefundOrderUseCase.refundOrder(memberId, orderId))
         .isInstanceOf(GeneralException.class)
         .hasFieldOrPropertyWithValue("errorStatus", ErrorStatus.ORDER_CANNOT_REFUND);
@@ -111,9 +106,6 @@ class OrderRefundUseCaseTest {
             .status(OrderStatus.DELIVERED) // 상태는 정상이지만
             .deliveredAt(LocalDateTime.now().minusDays(8L))
             .build();
-
-    // ★ 시간 조작: 배송 완료된 지 8일 지남 (기간 만료 -> 실패 케이스)
-    ReflectionTestUtils.setField(mockOrder, "deliveredAt", LocalDateTime.now().minusDays(8));
 
     given(orderRepository.findById(orderId)).willReturn(Optional.of(mockOrder));
 
