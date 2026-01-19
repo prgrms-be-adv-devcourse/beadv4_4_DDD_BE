@@ -10,7 +10,6 @@ import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequestResult;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentResponse;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberResponse;
-import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmResponse;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentConfirmTossPaymentUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreateAccountUseCase;
@@ -23,7 +22,6 @@ import com.modeunsa.boundedcontext.payment.app.usecase.PaymentRefundUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentRequestUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentSyncMemberUseCase;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
-import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
 import com.modeunsa.shared.payment.dto.PaymentDto;
@@ -109,13 +107,13 @@ public class PaymentFacade {
   public ConfirmPaymentResponse confirmTossPayment(
       String orderNo, ConfirmPaymentRequest confirmPaymentRequest) {
 
-    PaymentId paymentId = new PaymentId(confirmPaymentRequest.memberId(), orderNo);
+    paymentInProgressUseCase.execute(orderNo, confirmPaymentRequest);
 
-    paymentInProgressUseCase.execute(paymentId, confirmPaymentRequest);
+    PaymentRequestResult result =
+        paymentConfirmTossPaymentUseCase.execute(orderNo, confirmPaymentRequest);
 
-    TossPaymentsConfirmResponse response =
-        paymentConfirmTossPaymentUseCase.execute(paymentId, confirmPaymentRequest);
+    paymentProcessUseCase.execute(result);
 
-    return new ConfirmPaymentResponse(orderNo, response);
+    return new ConfirmPaymentResponse(result.getOrderNo());
   }
 }

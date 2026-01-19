@@ -1,6 +1,7 @@
 package com.modeunsa.boundedcontext.payment.app.usecase;
 
 import com.modeunsa.boundedcontext.payment.app.dto.ConfirmPaymentRequest;
+import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequestResult;
 import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmResponse;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentSupport;
@@ -21,8 +22,9 @@ public class PaymentConfirmTossPaymentUseCase {
   private final PaymentSupport paymentSupport;
   private final TossPaymentClient tossPaymentClient;
 
-  public TossPaymentsConfirmResponse execute(
-      PaymentId paymentId, ConfirmPaymentRequest confirmPaymentRequest) {
+  public PaymentRequestResult execute(String orderNo, ConfirmPaymentRequest confirmPaymentRequest) {
+
+    PaymentId paymentId = new PaymentId(confirmPaymentRequest.memberId(), orderNo);
 
     Payment payment = paymentSupport.getPaymentById(paymentId);
 
@@ -31,11 +33,11 @@ public class PaymentConfirmTossPaymentUseCase {
     try {
       TossPaymentsConfirmResponse tossRes = tossPaymentClient.confirmPayment(tossReq);
       payment.approveTossPayment(tossRes);
-      return tossRes;
-    } catch (GeneralException ex) {
+      return PaymentRequestResult.fromPaymentForCharge(payment);
+    } catch (GeneralException ge) {
       payment.failedTossPayment(
-          ex.getErrorStatus().getHttpStatus(), ex.getErrorStatus().getMessage());
-      throw ex;
+          ge.getErrorStatus().getHttpStatus(), ge.getErrorStatus().getMessage());
+      throw ge;
     } catch (Exception e) {
       payment.failedTossPayment(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
       throw e;
