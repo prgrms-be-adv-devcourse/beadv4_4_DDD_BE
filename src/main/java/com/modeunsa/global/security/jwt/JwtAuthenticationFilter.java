@@ -67,8 +67,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         log.debug("인증 정보 저장 완료 - memberId: {}, role: {}", memberId, role);
       } catch (GeneralException e) {
-        request.setAttribute("exception", e);
         log.warn("토큰 검증 실패: {}", e.getMessage());
+
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json;charset=UTF-8");
+        response
+            .getWriter()
+            .write(
+                String.format(
+                    "{\"isSuccess\":false,\"code\":\"%s\",\"message\":\"%s\"}",
+                    e.getErrorStatus().getCode(), e.getErrorStatus().getMessage()));
+        return; // 여기서 종료!
       }
     }
 
