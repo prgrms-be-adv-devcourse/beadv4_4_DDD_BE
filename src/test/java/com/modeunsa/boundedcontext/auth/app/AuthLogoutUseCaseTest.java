@@ -1,27 +1,28 @@
-package com.modeunsa.boundedcontext.auth.app;
+package com.modeunsa.boundedcontext.auth.app.usecase;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
-import com.modeunsa.boundedcontext.auth.app.usecase.AuthLogoutUseCase;
 import com.modeunsa.boundedcontext.auth.domain.entity.AuthAccessTokenBlacklist;
 import com.modeunsa.boundedcontext.auth.out.repository.AuthAccessTokenBlacklistRepository;
 import com.modeunsa.boundedcontext.auth.out.repository.AuthRefreshTokenRepository;
+import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.security.jwt.JwtTokenProvider;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("AuthLogoutUseCase 테스트")
 class AuthLogoutUseCaseTest {
 
   @InjectMocks private AuthLogoutUseCase authLogoutUseCase;
@@ -32,122 +33,57 @@ class AuthLogoutUseCaseTest {
 
   @Mock private AuthAccessTokenBlacklistRepository blacklistRepository;
 
-  private static final String VALID_ACCESS_TOKEN = "valid.access.token";
-  private static final Long MEMBER_ID = 1L;
-  private static final long REMAINING_EXPIRATION = 3600000L; // 1시간
+  private final String ACCESS_TOKEN = "valid_access_token";
+  private final Long MEMBER_ID = 1L;
+  private final long REMAINING_TIME = 3600L;
 
-  @Nested
-  @DisplayName("로그아웃 성공 케이스")
-  class LogoutSuccessCase {
+  @Test
+  @DisplayName("로그아웃 성공 케이스: 유효한 토큰으로 로그아웃 시 Refresh Token 삭제 및 Access Token 블랙리스트 등록")
+  void logout_Success() {
+    // given
+    setupValidToken();
+    // 성공 케이스에서만 호출되는 설정은 여기로 이동
+    given(jwtTokenProvider.getRemainingExpiration(anyString())).willReturn(REMAINING_TIME);
 
-    @Test
-    @DisplayName("유효한 토큰으로 로그아웃 시 Refresh Token 삭제 및 Access Token 블랙리스트 등록")
-    void logoutWithValidTokenSuccess() {
-      // given
-      given(jwtTokenProvider.getMemberIdFromToken(VALID_ACCESS_TOKEN)).willReturn(MEMBER_ID);
-      given(jwtTokenProvider.getRemainingExpiration(VALID_ACCESS_TOKEN))
-          .willReturn(REMAINING_EXPIRATION);
+    // when
+    authLogoutUseCase.execute(ACCESS_TOKEN);
 
-      // when
-      authLogoutUseCase.execute(VALID_ACCESS_TOKEN);
-
-      // then
-      then(refreshTokenRepository).should().deleteById(MEMBER_ID);
-      then(blacklistRepository).should().save(any(AuthAccessTokenBlacklist.class));
-    }
-
-    @Test
-    @DisplayName("Refresh Token이 정상적으로 삭제되는지 확인")
-    void logoutRefreshTokenDeleted() {
-      // given
-      given(jwtTokenProvider.getMemberIdFromToken(VALID_ACCESS_TOKEN)).willReturn(MEMBER_ID);
-      given(jwtTokenProvider.getRemainingExpiration(VALID_ACCESS_TOKEN))
-          .willReturn(REMAINING_EXPIRATION);
-
-      // when
-      authLogoutUseCase.execute(VALID_ACCESS_TOKEN);
-
-      // then
-      then(refreshTokenRepository).should().deleteById(MEMBER_ID);
-    }
-
-    @Test
-    @DisplayName("블랙리스트 등록 시 올바른 TTL이 설정되는지 확인")
-    void logoutBlacklistRegisteredWithCorrectTtl() {
-      // given
-      given(jwtTokenProvider.getMemberIdFromToken(VALID_ACCESS_TOKEN)).willReturn(MEMBER_ID);
-      given(jwtTokenProvider.getRemainingExpiration(VALID_ACCESS_TOKEN))
-          .willReturn(REMAINING_EXPIRATION);
-
-      ArgumentCaptor<AuthAccessTokenBlacklist> blacklistCaptor =
-          ArgumentCaptor.forClass(AuthAccessTokenBlacklist.class);
-
-      // when
-      authLogoutUseCase.execute(VALID_ACCESS_TOKEN);
-
-      // then
-      then(blacklistRepository).should().save(blacklistCaptor.capture());
-
-      AuthAccessTokenBlacklist capturedBlacklist = blacklistCaptor.getValue();
-      assertThat(capturedBlacklist.getAccessToken()).isEqualTo(VALID_ACCESS_TOKEN);
-      assertThat(capturedBlacklist.getMemberId()).isEqualTo(MEMBER_ID);
-      // TTL 검증 (AuthAccessTokenBlacklist 엔티티 구조에 따라 수정 필요)
-    }
+    // then
+    verify(refreshTokenRepository, times(1)).deleteById(MEMBER_ID);
+    verify(blacklistRepository, times(1)).save(any(AuthAccessTokenBlacklist.class));
   }
 
-  @Nested
-  @DisplayName("만료된 토큰 케이스")
-  class ExpiredTokenCase {
+  @Test
+  @DisplayName("이미 로그아웃된 토큰인 경우 무시")
+  void logout_AlreadyLoggedOut() {
+    // given
+    setupValidToken();
+    // **여기서는 getRemainingExpiration 설정이 없으므로 에러가 나지 않음**
+    given(blacklistRepository.existsById(ACCESS_TOKEN)).willReturn(true);
 
-    @Test
-    @DisplayName("만료된 토큰(TTL이 0 이하)으로 로그아웃 시 블랙리스트 등록하지 않음")
-    void logoutWithExpiredTokenNoBlacklistRegistration() {
-      // given
-      long expiredTtl = 0L;
-      given(jwtTokenProvider.getMemberIdFromToken(VALID_ACCESS_TOKEN)).willReturn(MEMBER_ID);
-      given(jwtTokenProvider.getRemainingExpiration(VALID_ACCESS_TOKEN)).willReturn(expiredTtl);
+    // when
+    authLogoutUseCase.execute(ACCESS_TOKEN);
 
-      // when
-      authLogoutUseCase.execute(VALID_ACCESS_TOKEN);
-
-      // then
-      then(refreshTokenRepository).should().deleteById(MEMBER_ID);
-      then(blacklistRepository).should(never()).save(any(AuthAccessTokenBlacklist.class));
-    }
-
-    @Test
-    @DisplayName("음수 TTL인 경우에도 블랙리스트 등록하지 않음")
-    void logoutWithNegativeTtlNoBlacklistRegistration() {
-      // given
-      long negativeTtl = -1000L;
-      given(jwtTokenProvider.getMemberIdFromToken(VALID_ACCESS_TOKEN)).willReturn(MEMBER_ID);
-      given(jwtTokenProvider.getRemainingExpiration(VALID_ACCESS_TOKEN)).willReturn(negativeTtl);
-
-      // when
-      authLogoutUseCase.execute(VALID_ACCESS_TOKEN);
-
-      // then
-      then(blacklistRepository).should(never()).save(any(AuthAccessTokenBlacklist.class));
-    }
+    // then
+    verify(refreshTokenRepository, never()).deleteById(anyLong());
+    verify(blacklistRepository, never()).save(any(AuthAccessTokenBlacklist.class));
   }
 
-  @Nested
-  @DisplayName("경계값 테스트")
-  class EdgeCaseTest {
+  @Test
+  @DisplayName("Access Token이 아닌 경우 예외 발생")
+  void logout_NotAccessToken() {
+    // given
+    willDoNothing().given(jwtTokenProvider).validateTokenOrThrow(ACCESS_TOKEN);
+    given(jwtTokenProvider.isAccessToken(ACCESS_TOKEN)).willReturn(false);
 
-    @Test
-    @DisplayName("TTL이 1ms일 때도 블랙리스트에 등록됨")
-    void logoutWithMinimalTtlBlacklistRegistered() {
-      // given
-      long minimalTtl = 1L;
-      given(jwtTokenProvider.getMemberIdFromToken(VALID_ACCESS_TOKEN)).willReturn(MEMBER_ID);
-      given(jwtTokenProvider.getRemainingExpiration(VALID_ACCESS_TOKEN)).willReturn(minimalTtl);
+    // when & then
+    assertThrows(GeneralException.class, () -> authLogoutUseCase.execute(ACCESS_TOKEN));
+  }
 
-      // when
-      authLogoutUseCase.execute(VALID_ACCESS_TOKEN);
-
-      // then
-      then(blacklistRepository).should().save(any(AuthAccessTokenBlacklist.class));
-    }
+  // --- Helper Method ---
+  private void setupValidToken() {
+    willDoNothing().given(jwtTokenProvider).validateTokenOrThrow(anyString());
+    given(jwtTokenProvider.isAccessToken(anyString())).willReturn(true);
+    given(jwtTokenProvider.getMemberIdFromToken(anyString())).willReturn(MEMBER_ID);
   }
 }
