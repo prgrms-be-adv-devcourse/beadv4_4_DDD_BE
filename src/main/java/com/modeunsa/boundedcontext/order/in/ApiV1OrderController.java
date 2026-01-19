@@ -100,4 +100,17 @@ public class ApiV1OrderController {
 
     return ApiResponse.onSuccess(SuccessStatus.OK, dto);
   }
+
+  @Operation(summary = "회원 주문 환불 요청 기능", description = "배송 완료된 주문을 환불 요청할 수 있는 기능입니다.")
+  @PostMapping("/{orderId}/refund")
+  public ResponseEntity<ApiResponse> refundOrder(
+      // @AuthenticationPrincipal Long memberId // 나중에 시큐리티 적용 시
+      @PathVariable Long orderId) {
+    // [TODO] 실제 로그인한 유저 ID를 가져오는 로직 추가
+    long memberId = 1;
+
+    OrderResponseDto dto = orderFacade.refundOrder(memberId, orderId);
+
+    return ApiResponse.onSuccess(SuccessStatus.OK, dto);
+  }
 }

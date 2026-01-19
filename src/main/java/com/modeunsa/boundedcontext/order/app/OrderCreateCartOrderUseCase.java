@@ -44,7 +44,7 @@ public class OrderCreateCartOrderUseCase {
             orderItems,
             requestDto.getRecipientName(),
             requestDto.getRecipientPhone(),
-            requestDto.getZipcode(),
+            requestDto.getZipCode(),
             requestDto.getAddress(),
             requestDto.getAddressDetail());
 

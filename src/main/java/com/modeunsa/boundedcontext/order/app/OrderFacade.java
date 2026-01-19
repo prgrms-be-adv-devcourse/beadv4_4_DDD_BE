@@ -24,6 +24,7 @@ public class OrderFacade {
   private final OrderGetOrdersUseCase orderGetOrdersUseCase;
   private final OrderCancelOrderUseCase orderCancelOrderUseCase;
   private final OrderCreateCartOrderUseCase orderCreateCartOrderUseCase;
+  private final OrderRefundOrderUseCase orderRefundOrderUseCase;
 
   // 장바구니 아이템 생성
   @Transactional
@@ -72,5 +73,11 @@ public class OrderFacade {
   @Transactional
   public OrderResponseDto cancelOrder(long memberId, Long orderId) {
     return orderCancelOrderUseCase.cancelOrder(memberId, orderId);
+  }
+
+  // 주문 취소 요청
+  @Transactional
+  public OrderResponseDto refundOrder(long memberId, Long orderId) {
+    return orderRefundOrderUseCase.refundOrder(memberId, orderId);
   }
 }

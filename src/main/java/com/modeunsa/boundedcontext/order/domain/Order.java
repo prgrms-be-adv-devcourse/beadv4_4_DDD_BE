@@ -70,6 +70,8 @@ public class Order extends GeneratedIdAndAuditedEntity {
   @Column(name = "payment_deadline_at", nullable = false)
   private LocalDateTime paymentDeadlineAt;
 
+  private LocalDateTime deliveredAt;
+
   /** 도메인 메서드 */
   @PrePersist
   public void calculatePaymentDeadline() {
@@ -137,5 +139,21 @@ public class Order extends GeneratedIdAndAuditedEntity {
         this.orderItems.stream()
             .map(OrderItem::calculateSubTotal)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
+  }
+
+  // 환불 가능 체크
+  public boolean isRefundable(LocalDateTime requestTime) {
+    if (this.status != OrderStatus.DELIVERED) {
+      return false; // 배송 완료 상태가 아니면 환불 불가
+    }
+
+    // 배송완료일 + 7일 23:59:59 까지 인정해줄지 등 정책에 따라 조정
+    LocalDateTime deadline = this.getDeliveredAt().plusDays(7);
+
+    return !requestTime.isAfter(deadline);
+  }
+
+  public void markAsRefundRequested() {
+    this.status = OrderStatus.REFUND_REQUESTED;
   }
 }

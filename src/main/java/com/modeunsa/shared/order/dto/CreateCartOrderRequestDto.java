@@ -9,7 +9,7 @@ import lombok.Getter;
 public class CreateCartOrderRequestDto {
   @NotNull private String recipientName;
   @NotNull private String recipientPhone;
-  @NotNull private String zipcode;
+  @NotNull private String zipCode;
   @NotNull private String address;
   @NotNull private String addressDetail;
 }
