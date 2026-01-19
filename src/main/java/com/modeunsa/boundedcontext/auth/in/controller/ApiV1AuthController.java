@@ -83,19 +83,11 @@ public class ApiV1AuthController {
       @Parameter(description = "Access Token", required = true) @RequestHeader("Authorization")
           String authorizationHeader) {
 
-    // 1. Bearer 토큰 추출
     String accessToken = resolveToken(authorizationHeader);
     if (accessToken == null) {
       throw new GeneralException(ErrorStatus.AUTH_INVALID_TOKEN_FORMAT);
     }
 
-    // 2. 토큰 유효성 검증
-    jwtTokenProvider.validateTokenOrThrow(accessToken);
-
-    // 3. Access Token인지 확인
-    if (!jwtTokenProvider.isAccessToken(accessToken)) {
-      throw new GeneralException(ErrorStatus.AUTH_NOT_ACCESS_TOKEN);
-    }
     authFacade.logout(accessToken);
 
     return ApiResponse.onSuccess(SuccessStatus.AUTH_LOGOUT_SUCCESS);

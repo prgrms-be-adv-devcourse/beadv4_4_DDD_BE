@@ -3,7 +3,9 @@ package com.modeunsa.boundedcontext.auth.app.usecase;
 import com.modeunsa.boundedcontext.auth.domain.entity.AuthAccessTokenBlacklist;
 import com.modeunsa.boundedcontext.auth.out.repository.AuthAccessTokenBlacklistRepository;
 import com.modeunsa.boundedcontext.auth.out.repository.AuthRefreshTokenRepository;
+import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.security.jwt.JwtTokenProvider;
+import com.modeunsa.global.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,14 @@ public class AuthLogoutUseCase {
   private final AuthAccessTokenBlacklistRepository blacklistRepository;
 
   public void execute(String accessToken) {
+    // 토큰 유효성 검증
+    jwtTokenProvider.validateTokenOrThrow(accessToken);
+
+    // Access Token인지 확인
+    if (!jwtTokenProvider.isAccessToken(accessToken)) {
+      throw new GeneralException(ErrorStatus.AUTH_NOT_ACCESS_TOKEN);
+    }
+
     // Access Token에서 정보 추출
     Long memberId = jwtTokenProvider.getMemberIdFromToken(accessToken);
 
