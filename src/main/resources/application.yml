@@ -2,6 +2,8 @@ server:
   port: 8080
 
 spring:
+  profiles:
+    active: dev
   application:
     name: modeunsa
   data:
@@ -14,6 +16,7 @@ spring:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
     properties:
+      jakarta.persistence.lock.timeout: 5000 # jpa lock timeout 5 seconds
       hibernate:
         default_batch_fetch_size: 100
 
@@ -48,3 +51,8 @@ jwt:
   secret: ${JWT_SECRET:local-test-jwt-secret-key-which-is-long-enough-32bytes}
   access-token-expiration: 1800000   # 30분
   refresh-token-expiration: 604800000 # 7일
+
+payment:
+  accounts:
+    system-member-id: 1
+    holder-member-id: 2

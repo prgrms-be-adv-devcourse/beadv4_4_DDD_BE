@@ -1,12 +1,7 @@
-security:
-  permit-all: false
-  permit-urls: /h2-console/**,/swagger-ui/**,/v3/api-docs/**,/api/v1/**
-  oauth2:
-    allowed-redirect-domains:
-      - http://localhost:3000
-      - http://localhost:8080
-      - http://127.0.0.1:8080
 spring:
+  config:
+    activate:
+      on-profile: dev
   datasource:
     url: jdbc:h2:./db_dev;MODE=MySQL
     username: sa
@@ -52,3 +47,12 @@ spring:
       enabled: false
     jdbc:
       initialize-schema: never
+
+custom:
+  security:
+    permit-all: false
+    permit-urls: /h2-console/**,/swagger-ui/**,/v3/api-docs/**,/api/v1/**
+    oauth2:
+      allowed-redirect-domains:
+        - localhost
+        - 127.0.0.1

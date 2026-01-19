@@ -32,7 +32,6 @@ public enum ErrorStatus {
   AUTH_REFRESH_TOKEN_NOT_FOUND(
       HttpStatus.UNAUTHORIZED, "AUTH_401_004", "Refresh Token이 존재하지 않습니다."),
   AUTH_INVALID_TOKEN_TYPE(HttpStatus.UNAUTHORIZED, "AUTH_401_005", "유효하지 않은 토큰 타입입니다."),
-
   // Auth 403
   AUTH_ACCESS_DENIED(HttpStatus.FORBIDDEN, "AUTH_403_001", "접근 권한이 없습니다."),
   // Auth 502
@@ -46,6 +45,8 @@ public enum ErrorStatus {
   MEMBER_DEFAULT_ADDRESS_REQUIRED(HttpStatus.BAD_REQUEST, "MEMBER_400_002", "기본 배송지가 필요합니다."),
   SELLER_CANNOT_APPROVE(HttpStatus.BAD_REQUEST, "MEMBER_400_003", "승인 대기 상태가 아닌 판매자는 승인할 수 없습니다."),
   SELLER_CANNOT_REJECT(HttpStatus.BAD_REQUEST, "MEMBER_400_004", "승인 대기 상태가 아닌 판매자는 거절할 수 없습니다."),
+  SELLER_CANNOT_SUSPEND(HttpStatus.BAD_REQUEST, "MEMBER_400_005", "활성화 상태가 아닌 판매자는 정지할 수 없습니다."),
+  SELLER_INVALID_BANK_ACCOUNT(HttpStatus.BAD_REQUEST, "MEMBER_400_006", "계좌번호 형식이 올바르지 않습니다."),
   // Member 403
   MEMBER_SUSPENDED(HttpStatus.FORBIDDEN, "MEMBER_403_001", "정지된 회원입니다."),
   MEMBER_WITHDRAWN(HttpStatus.FORBIDDEN, "MEMBER_403_002", "탈퇴한 회원입니다."),
@@ -91,6 +92,24 @@ public enum ErrorStatus {
   PAYMENT_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_001", "결제 회원 정보를 찾을 수 없습니다."),
   PAYMENT_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_002", "결제 계좌 정보를 찾을 수 없습니다."),
   PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_003", "결제 정보를 찾을 수 없습니다."),
+  PAYMENT_FAILED_LOCK_ACQUIRE(
+      HttpStatus.INTERNAL_SERVER_ERROR, "PAYMENT_500_001", "결제 처리 중 락을 획득하지 못했습니다."),
+
+  // Content 400
+  CONTENT_TAG_REQUIRED(HttpStatus.BAD_REQUEST, "CONTENT_400_001", "TAG는 NULL일 수 없습니다."),
+  CONTENT_TAG_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "CONTENT_400_002", "TAG는 최대 5개입니다."),
+  CONTENT_TAG_LENGTH_EXCEEDED(HttpStatus.BAD_REQUEST, "CONTENT_400_003", "TAG는 최대 10자입니다."),
+  CONTENT_IMAGE_REQUIRED(HttpStatus.BAD_REQUEST, "CONTENT_400_004", "IMAGE는 NULL일 수 없습니다."),
+  CONTENT_IMAGE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "CONTENT_400_005", "IMAGE는 최대 5개입니다."),
+  CONTENT_TEXT_LENGTH_EXCEEDED(HttpStatus.BAD_REQUEST, "CONTENT_400_006", "TEXT는 최대 500자입니다."),
+  CONTENT_TEXT_REQUIRED(HttpStatus.BAD_REQUEST, "CONTENT_400_007", "TEXT는 NULL일 수 없습니다."),
+
+  // CONTENT 403
+  CONTENT_FORBIDDEN(HttpStatus.FORBIDDEN, "CONTENT_403_001", "콘텐츠 내에서 금지된 요청입니다."),
+
+  // CONTENT 404
+  CONTENT_NOT_FOUND(HttpStatus.NOT_FOUND, "CONTENT_404_001", "CONTENT 정보를 찾을 수 없습니다."),
+  CONTENT_ALREADY_DELETE(HttpStatus.NOT_FOUND, "CONTENT_404_002", "이 CONTENT는 이미 삭제되었습니다."),
 
   // Settlement 400
   SETTLEMENT_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_001", "구매 확정 일자는 필수입니다."),

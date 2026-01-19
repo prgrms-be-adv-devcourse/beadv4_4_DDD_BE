@@ -1,7 +1,7 @@
-security:
-  permit-all: false
-  permit-urls: /api/v1/auths/oauth/**
 spring:
+  config:
+    activate:
+      on-profile: prod
   data:
     redis:
       host: ${REDIS_HOST}
@@ -15,3 +15,8 @@ spring:
       enabled: false
     jdbc:
       initialize-schema: never
+
+custom:
+  security:
+    permit-all: false
+    permit-urls: /api/v1/auths/oauth/**
