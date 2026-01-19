@@ -37,7 +37,7 @@ public class ContentFacade {
     contentDeleteContentUseCase.deleteContent(contentId, author);
   }
 
-  @Transactional
+  @Transactional(readOnly = true)
   public Page<ContentResponse> getContents(int page) {
     return contentGetContentsUseCase.getContents(page);
   }
