@@ -11,9 +11,7 @@ public class AuthRequestUtils {
 
   private AuthRequestUtils() {}
 
-  /**
-   * Authorization 헤더에서 Bearer 토큰 추출
-   */
+  /** Authorization 헤더에서 Bearer 토큰 추출 */
   public static String resolveToken(String bearerToken) {
     if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
       return bearerToken.substring(BEARER_PREFIX.length());
@@ -28,5 +26,4 @@ public class AuthRequestUtils {
         .findFirst()
         .orElseThrow(() -> new GeneralException(ErrorStatus.OAUTH_INVALID_PROVIDER));
   }
-
 }
