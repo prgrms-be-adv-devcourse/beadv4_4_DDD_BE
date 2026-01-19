@@ -4,6 +4,7 @@ import static com.modeunsa.global.status.ErrorStatus.PAYMENT_INVALID_REQUEST_TOS
 import static com.modeunsa.global.status.ErrorStatus.PAYMENT_REJECT_TOSS_PAYMENT;
 
 import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmRequest;
+import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmResponse;
 import com.modeunsa.global.exception.GeneralException;
 import jakarta.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
@@ -48,34 +49,71 @@ public class RestTossPaymentClient implements TossPaymentClient {
   }
 
   @Override
-  public Map<String, Object> confirmPayment(TossPaymentsConfirmRequest tossPaymentsConfirmRequest) {
+  public TossPaymentsConfirmResponse confirmPayment(
+      TossPaymentsConfirmRequest tossPaymentsConfirmRequest) {
+    String paymentKey = tossPaymentsConfirmRequest.paymentKey();
+    String orderId = tossPaymentsConfirmRequest.orderId();
+    long amount = tossPaymentsConfirmRequest.amount();
+
+    log.debug(
+        "[토스페이먼츠 결제 승인 요청 시작] paymentKey: {}, orderId: {}, amount: {}",
+        paymentKey,
+        orderId,
+        amount);
 
     try {
-
       ResponseEntity<Map<String, Object>> responseEntity =
           createConfirmRequest(tossPaymentsConfirmRequest)
               .retrieve()
-              .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {});
+              .toEntity(new ParameterizedTypeReference<>() {});
 
       int httpStatus = responseEntity.getStatusCode().value();
       Map<String, Object> responseBody = responseEntity.getBody();
 
+      log.debug("[토스페이먼츠 결제 승인 응답] httpStatus: {}, responseBody: {}", httpStatus, responseBody);
+
       if (httpStatus != 200) {
+        log.warn(
+            "[토스페이먼츠 결제 승인 실패] httpStatus: {}, paymentKey: {}, orderId: {}",
+            httpStatus,
+            paymentKey,
+            orderId);
         throw createDomainExceptionFromNon200(httpStatus, responseBody);
       }
 
       if (responseBody == null) {
+        log.error("[토스페이먼츠 결제 승인 응답 null] paymentKey: {}, orderId: {}", paymentKey, orderId);
         throw new GeneralException(PAYMENT_INVALID_REQUEST_TOSS_API);
       }
 
-      @SuppressWarnings("unchecked")
-      Map<String, Object> casted = (Map<String, Object>) responseBody;
-      return casted;
+      log.info(
+          "[토스페이먼츠 결제 승인 성공] paymentKey: {}, orderId: {}, amount: {}", paymentKey, orderId, amount);
+      return objectMapper.convertValue(responseBody, TossPaymentsConfirmResponse.class);
     } catch (RestClientResponseException e) {
+      log.error(
+          "[토스페이먼츠 결제 승인 RestClientResponseException] "
+              + "paymentKey: {}, orderId: {}, status: {}, body: {}",
+          paymentKey,
+          orderId,
+          e.getStatusCode(),
+          e.getResponseBodyAsString(StandardCharsets.UTF_8),
+          e);
       throw createDomainExceptionFromHttpError(e);
     } catch (GeneralException e) {
+      log.error(
+          "[토스페이먼츠 결제 승인 GeneralException] paymentKey: {}, orderId: {}, error: {}",
+          paymentKey,
+          orderId,
+          e.getMessage(),
+          e);
       throw e;
     } catch (Exception e) {
+      log.error(
+          "[토스페이먼츠 결제 승인 예외 발생] paymentKey: {}, orderId: {}, error: {}",
+          paymentKey,
+          orderId,
+          e.getMessage(),
+          e);
       throw new GeneralException(PAYMENT_REJECT_TOSS_PAYMENT);
     }
   }

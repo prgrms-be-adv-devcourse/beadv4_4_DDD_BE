@@ -68,9 +68,17 @@ public class Payment extends AuditedEntity {
 
   private String pgProvider;
 
-  private String pgCustomerKey;
+  private String pgPaymentKey;
+
+  private String pgOrderId;
 
   private String pgOrderNo;
+
+  private String pgOrderName;
+
+  private String pgStatus;
+
+  private String pgMethod;
 
   private String pgCustomerName;
 

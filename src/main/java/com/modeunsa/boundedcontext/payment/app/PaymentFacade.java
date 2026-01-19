@@ -10,6 +10,7 @@ import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequestResult;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentResponse;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberResponse;
+import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmResponse;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentChargePgUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentConfirmTossPaymentUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreateAccountUseCase;
@@ -101,7 +102,8 @@ public class PaymentFacade {
 
   public ConfirmPaymentResponse confirmTossPayment(
       String orderNo, @Valid ConfirmPaymentRequest confirmPaymentRequest) {
-    paymentConfirmTossPaymentUseCase.confirmCardPayment(orderNo, confirmPaymentRequest);
-    return new ConfirmPaymentResponse(orderNo);
+    TossPaymentsConfirmResponse response =
+        paymentConfirmTossPaymentUseCase.confirmCardPayment(orderNo, confirmPaymentRequest);
+    return new ConfirmPaymentResponse(orderNo, response);
   }
 }

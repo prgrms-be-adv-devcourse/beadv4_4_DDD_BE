@@ -1,4 +1,27 @@
+'use client'
+
+import { useSearchParams } from 'next/navigation'
+
 export default function FailurePage() {
+  const searchParams = useSearchParams()
+  const orderNo = searchParams.get('orderNo') || 'N/A'
+  const amount = searchParams.get('amount')
+  
+  // 시도일시는 현재 시간으로 표시
+  const attemptDate = new Date().toLocaleString('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  })
+  
+  // 금액 포맷팅
+  const formattedAmount = amount
+    ? new Intl.NumberFormat('ko-KR').format(parseFloat(amount)) + '원'
+    : 'N/A'
+
   return (
     <main className="failure-page">
       {/* 실패 아이콘 */}
@@ -19,7 +42,7 @@ export default function FailurePage() {
       <div className="error-info-card">
         <h2 className="card-title">오류 정보</h2>
         <div className="error-content">
-          <div className="error-message">카드 한도 초과 또는 잔액 부족</div>
+          <div className="error-message">결제 승인 처리 중 오류가 발생했습니다.</div>
           <div className="error-instruction">결제 수단을 확인하고 다시 시도해주세요.</div>
         </div>
       </div>
@@ -30,11 +53,11 @@ export default function FailurePage() {
         <div className="order-details">
           <div className="detail-row">
             <span className="detail-label">주문번호</span>
-            <span className="detail-value">ORD-20240110-001234</span>
+            <span className="detail-value">{orderNo}</span>
           </div>
           <div className="detail-row">
             <span className="detail-label">시도일시</span>
-            <span className="detail-value">2024.01.10 16:30:25</span>
+            <span className="detail-value">{attemptDate}</span>
           </div>
           <div className="detail-row">
             <span className="detail-label">결제수단</span>
@@ -42,7 +65,7 @@ export default function FailurePage() {
           </div>
           <div className="detail-row">
             <span className="detail-label">주문금액</span>
-            <span className="detail-value order-amount">19,800원</span>
+            <span className="detail-value order-amount">{formattedAmount}</span>
           </div>
         </div>
       </div>

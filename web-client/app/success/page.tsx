@@ -1,7 +1,7 @@
 'use client'
 
 import { useSearchParams, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 interface ConfirmPaymentResponse {
   orderNo: string
@@ -20,9 +20,18 @@ export default function SuccessPage() {
   const [isConfirming, setIsConfirming] = useState(true)
   const [confirmError, setConfirmError] = useState<string | null>(null)
   const [paymentInfo, setPaymentInfo] = useState<ConfirmPaymentResponse | null>(null)
+  const hasCalledRef = useRef(false)
 
   useEffect(() => {
+    // 중복 호출 방지
+    if (hasCalledRef.current) {
+      console.warn('[결제 승인] 이미 호출된 요청입니다. 중복 호출을 방지합니다.')
+      return
+    }
+
     const confirmPayment = async () => {
+      hasCalledRef.current = true
+      console.log('[결제 승인] 결제 승인 요청 시작')
       // 1. 쿼리 파라미터 추출
       const orderNo = searchParams.get('orderNo')
       const orderId = searchParams.get('orderId')
@@ -31,14 +40,23 @@ export default function SuccessPage() {
 
       // 필수 파라미터 검증
       if (!orderNo || !orderId || !paymentKey || !amount) {
-        setConfirmError('필수 정보가 누락되었습니다.')
-        setIsConfirming(false)
+        console.error('[결제 승인] 필수 파라미터 누락', { orderNo, orderId, paymentKey, amount })
+        router.push(`/failure?orderNo=${orderNo || ''}&amount=${amount || ''}`)
         return
       }
+
+      console.log('[결제 승인] API 호출 시작', { orderNo, orderId, paymentKey, amount })
 
       try {
         // 2. API 호출
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+        const requestBody = {
+          paymentKey: paymentKey,
+          orderId: orderId,
+          amount: parseInt(amount, 10),
+        }
+        console.log('[결제 승인] API 요청', { url: `${apiUrl}/api/v1/payments/${orderNo}/payment/confirm/by/tossPayments`, body: requestBody })
+        
         const response = await fetch(
           `${apiUrl}/api/v1/payments/${orderNo}/payment/confirm/by/tossPayments`,
           {
@@ -46,35 +64,35 @@ export default function SuccessPage() {
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-              paymentKey: paymentKey,
-              orderId: orderId,
-              amount: parseInt(amount, 10),
-            }),
+            body: JSON.stringify(requestBody),
           }
         )
 
+        console.log('[결제 승인] API 응답 상태', { status: response.status, ok: response.ok })
+
         if (!response.ok) {
           const errorText = await response.text()
-          console.error('결제 승인 API 에러:', response.status, errorText)
-          throw new Error(`결제 승인 실패 (${response.status})`)
+          console.error('[결제 승인] API 에러', { status: response.status, errorText, orderNo, orderId, paymentKey })
+          router.push(`/failure?orderNo=${orderNo}&amount=${amount}`)
+          return
         }
 
         // 3. 응답 처리
         const apiResponse: ApiResponse = await response.json()
+        console.log('[결제 승인] API 응답', { apiResponse, orderNo })
 
         if (apiResponse.isSuccess && apiResponse.result) {
+          console.log('[결제 승인] 성공', { orderNo, result: apiResponse.result })
           setPaymentInfo(apiResponse.result)
           setConfirmError(null)
         } else {
-          throw new Error(apiResponse.message || '결제 승인 응답이 올바르지 않습니다.')
+          console.error('[결제 승인] 응답 실패', { orderNo, message: apiResponse.message })
+          router.push(`/failure?orderNo=${orderNo}&amount=${amount}`)
+          return
         }
       } catch (error) {
-        console.error('결제 승인 실패:', error)
-        const errorMessage = error instanceof Error 
-          ? error.message 
-          : '결제 승인 중 오류가 발생했습니다.'
-        setConfirmError(errorMessage)
+        console.error('[결제 승인] 예외 발생', { error, orderNo, orderId, paymentKey }, error)
+        router.push(`/failure?orderNo=${orderNo || ''}&amount=${amount || ''}`)
       } finally {
         setIsConfirming(false)
       }

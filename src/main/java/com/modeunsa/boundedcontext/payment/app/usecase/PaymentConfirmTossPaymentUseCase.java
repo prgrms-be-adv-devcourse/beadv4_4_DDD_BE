@@ -2,8 +2,8 @@ package com.modeunsa.boundedcontext.payment.app.usecase;
 
 import com.modeunsa.boundedcontext.payment.app.dto.ConfirmPaymentRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmRequest;
+import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmResponse;
 import com.modeunsa.boundedcontext.payment.out.client.TossPaymentClient;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,7 @@ public class PaymentConfirmTossPaymentUseCase {
 
   private final TossPaymentClient tossPaymentClient;
 
-  public Map<String, Object> confirmCardPayment(
+  public TossPaymentsConfirmResponse confirmCardPayment(
       String orderNo, ConfirmPaymentRequest confirmPaymentRequest) {
 
     TossPaymentsConfirmRequest tossPaymentsConfirmRequest =
@@ -24,6 +24,9 @@ public class PaymentConfirmTossPaymentUseCase {
             confirmPaymentRequest.orderId(),
             confirmPaymentRequest.amount());
 
-    return tossPaymentClient.confirmPayment(tossPaymentsConfirmRequest);
+    TossPaymentsConfirmResponse tossPaymentsConfirmResponse =
+        tossPaymentClient.confirmPayment(tossPaymentsConfirmRequest);
+
+    return tossPaymentsConfirmResponse;
   }
 }
