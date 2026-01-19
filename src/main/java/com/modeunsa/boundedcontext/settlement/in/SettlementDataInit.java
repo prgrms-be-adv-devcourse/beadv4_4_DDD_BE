@@ -15,10 +15,12 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.annotation.Transactional;
 
 @Configuration
 @Slf4j
+@Profile("!prod")
 public class SettlementDataInit {
   private static final Long SYSTEM_MEMBER_ID = 1L;
   private static final Long SELLER_MEMBER_ID = 7L;

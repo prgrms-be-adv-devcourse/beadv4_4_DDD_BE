@@ -5,6 +5,7 @@ import com.modeunsa.boundedcontext.settlement.domain.PayoutAmounts;
 import com.modeunsa.boundedcontext.settlement.domain.entity.Settlement;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementItem;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementMember;
+import com.modeunsa.boundedcontext.settlement.domain.policy.SettlementPolicy;
 import com.modeunsa.boundedcontext.settlement.domain.types.SettlementEventType;
 import com.modeunsa.boundedcontext.settlement.out.SettlementMemberRepository;
 import com.modeunsa.boundedcontext.settlement.out.SettlementRepository;
@@ -27,7 +28,7 @@ public class SettlementAddItemsAndCalculatePayoutsUseCase {
 
     SettlementMember systemMember =
         settlementMemberRepository
-            .findByName("SYSTEM")
+            .findByName(SettlementPolicy.SYSTEM)
             .orElseThrow(() -> new GeneralException(ErrorStatus.SETTLEMENT_MEMBER_NOT_FOUND));
 
     Settlement feeSettlement = getOrCreateSettlement(systemMember.getId(), order.paymentAt());
