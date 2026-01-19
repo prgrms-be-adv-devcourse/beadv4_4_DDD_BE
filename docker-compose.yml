@@ -13,12 +13,29 @@ services:
     depends_on:
       - redis
 
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PWD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+    networks:
+      - modeunsa-net
+    volumes:
+      - mysql_data:/var/lib/mysql
+
   app-blue:
     image: ${DOCKER_IMAGE}
     container_name: app-blue
     environment:
       - REDIS_HOST=redis
       - REDIS_PASSWORD=${REDIS_PWD}
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=${MYSQL_DATABASE}
+      - DB_USERNAME=root
+      - DB_PASSWORD=${MYSQL_ROOT_PWD}
+      - JWT_SECRET=${JWT_SECRET}
     networks:
       - modeunsa-net
     profiles:
@@ -30,6 +47,12 @@ services:
     environment:
       - REDIS_HOST=redis
       - REDIS_PASSWORD=${REDIS_PWD}
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=${MYSQL_DATABASE}
+      - DB_USERNAME=root
+      - DB_PASSWORD=${MYSQL_ROOT_PWD}
+      - JWT_SECRET=${JWT_SECRET}
     networks:
       - modeunsa-net
     profiles:

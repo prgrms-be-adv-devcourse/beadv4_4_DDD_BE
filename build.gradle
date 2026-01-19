@@ -76,6 +76,8 @@ dependencies {
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
     testAnnotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
 
+    // MySQL Connector
+    runtimeOnly 'com.mysql:mysql-connector-j'
 }
 
 jar {

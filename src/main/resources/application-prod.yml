@@ -2,19 +2,23 @@ spring:
   config:
     activate:
       on-profile: prod
-  datasource: # TODO: 추후 실제 운영 DB로 변경
-    url: jdbc:h2:./db_prod;MODE=MySQL
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:your_db_name}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
   data:
-    redis: # TODO: 실제 운영 Redis로 변경
+    redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
   jpa:
     show-sql: false
     hibernate:
       ddl-auto: update # TODO: validate 로 변경 검토
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
 # TODO: OAuth2 설정
 #  security:
 #    oauth2:
@@ -46,6 +50,7 @@ spring:
 custom:
   security:
     permit-all: false
+    # TODO: swagger 관련 URL 제거 검토
     permit-urls: /swagger-ui/**,/v3/api-docs/**,/api/v1/auths/oauth/**
 
 management:
