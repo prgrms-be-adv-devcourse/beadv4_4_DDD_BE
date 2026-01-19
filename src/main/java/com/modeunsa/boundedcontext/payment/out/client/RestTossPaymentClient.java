@@ -3,8 +3,9 @@ package com.modeunsa.boundedcontext.payment.out.client;
 import static com.modeunsa.global.status.ErrorStatus.PAYMENT_INVALID_REQUEST_TOSS_API;
 import static com.modeunsa.global.status.ErrorStatus.PAYMENT_REJECT_TOSS_PAYMENT;
 
-import com.modeunsa.boundedcontext.payment.app.dto.ConfirmPaymentRequest;
+import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmRequest;
 import com.modeunsa.global.exception.GeneralException;
+import jakarta.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +23,7 @@ import tools.jackson.databind.ObjectMapper;
 @Component
 public class RestTossPaymentClient implements TossPaymentClient {
 
-  private final RestClient tossRestClient;
+  private RestClient tossRestClient;
   private final ObjectMapper objectMapper;
 
   @Value("${payment.toss.base-url:}")
@@ -36,16 +37,23 @@ public class RestTossPaymentClient implements TossPaymentClient {
 
   public RestTossPaymentClient(ObjectMapper objectMapper) {
     this.objectMapper = objectMapper;
+  }
+
+  @PostConstruct
+  public void init() {
+    if (tossBaseUrl == null || tossBaseUrl.isBlank()) {
+      throw new IllegalStateException("payment.toss.base-url이 설정되지 않았습니다.");
+    }
     this.tossRestClient = RestClient.builder().baseUrl(tossBaseUrl).build();
   }
 
   @Override
-  public Map<String, Object> confirmPayment(
-      String orderNo, ConfirmPaymentRequest confirmPaymentRequest) {
+  public Map<String, Object> confirmPayment(TossPaymentsConfirmRequest tossPaymentsConfirmRequest) {
+
     try {
 
       ResponseEntity<Map<String, Object>> responseEntity =
-          createConfirmRequest(confirmPaymentRequest)
+          createConfirmRequest(tossPaymentsConfirmRequest)
               .retrieve()
               .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {});
 
@@ -73,14 +81,14 @@ public class RestTossPaymentClient implements TossPaymentClient {
   }
 
   private RestClient.RequestHeadersSpec<?> createConfirmRequest(
-      ConfirmPaymentRequest confirmPaymentRequest) {
+      TossPaymentsConfirmRequest tossPaymentsConfirmRequest) {
     return tossRestClient
         .post()
         .uri(confirmPath)
         .contentType(MediaType.APPLICATION_JSON)
         .accept(MediaType.APPLICATION_JSON)
         .headers(headers -> headers.setBasicAuth(tossSecretKey, ""))
-        .body(confirmPaymentRequest);
+        .body(tossPaymentsConfirmRequest);
   }
 
   private GeneralException createDomainExceptionFromNon200(int httpStatus, Map responseBody) {

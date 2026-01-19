@@ -1,4 +1,163 @@
+'use client'
+
+import { useSearchParams, useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+
+interface ConfirmPaymentResponse {
+  orderNo: string
+}
+
+interface ApiResponse {
+  isSuccess: boolean
+  code: string
+  message: string
+  result: ConfirmPaymentResponse
+}
+
 export default function SuccessPage() {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const [isConfirming, setIsConfirming] = useState(true)
+  const [confirmError, setConfirmError] = useState<string | null>(null)
+  const [paymentInfo, setPaymentInfo] = useState<ConfirmPaymentResponse | null>(null)
+
+  useEffect(() => {
+    const confirmPayment = async () => {
+      // 1. 쿼리 파라미터 추출
+      const orderNo = searchParams.get('orderNo')
+      const orderId = searchParams.get('orderId')
+      const paymentKey = searchParams.get('paymentKey')
+      const amount = searchParams.get('amount')
+
+      // 필수 파라미터 검증
+      if (!orderNo || !orderId || !paymentKey || !amount) {
+        setConfirmError('필수 정보가 누락되었습니다.')
+        setIsConfirming(false)
+        return
+      }
+
+      try {
+        // 2. API 호출
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+        const response = await fetch(
+          `${apiUrl}/api/v1/payments/${orderNo}/payment/confirm/by/tossPayments`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              paymentKey: paymentKey,
+              orderId: orderId,
+              amount: parseInt(amount, 10),
+            }),
+          }
+        )
+
+        if (!response.ok) {
+          const errorText = await response.text()
+          console.error('결제 승인 API 에러:', response.status, errorText)
+          throw new Error(`결제 승인 실패 (${response.status})`)
+        }
+
+        // 3. 응답 처리
+        const apiResponse: ApiResponse = await response.json()
+
+        if (apiResponse.isSuccess && apiResponse.result) {
+          setPaymentInfo(apiResponse.result)
+          setConfirmError(null)
+        } else {
+          throw new Error(apiResponse.message || '결제 승인 응답이 올바르지 않습니다.')
+        }
+      } catch (error) {
+        console.error('결제 승인 실패:', error)
+        const errorMessage = error instanceof Error 
+          ? error.message 
+          : '결제 승인 중 오류가 발생했습니다.'
+        setConfirmError(errorMessage)
+      } finally {
+        setIsConfirming(false)
+      }
+    }
+
+    confirmPayment()
+  }, [searchParams, router])
+
+  // 로딩 중
+  if (isConfirming) {
+    return (
+      <main className="success-page">
+        <div className="success-icon">
+          <div style={{ 
+            width: '64px', 
+            height: '64px', 
+            border: '4px solid #f3f3f3',
+            borderTop: '4px solid #4CAF50',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }}></div>
+        </div>
+        <div className="success-messages">
+          <h1 className="success-title">결제 승인 중...</h1>
+          <p className="success-subtitle">잠시만 기다려주세요.</p>
+        </div>
+        <style jsx>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </main>
+    )
+  }
+
+  // 에러 발생
+  if (confirmError) {
+    return (
+      <main className="success-page">
+        <div className="success-icon">
+          <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="32" cy="32" r="32" fill="#f44336"/>
+            <path d="M20 20L44 44M44 20L20 44" stroke="white" strokeWidth="4" strokeLinecap="round"/>
+          </svg>
+        </div>
+        <div className="success-messages">
+          <h1 className="success-title">결제 승인 실패</h1>
+          <p className="success-subtitle">{confirmError}</p>
+        </div>
+        <button 
+          onClick={() => router.push('/')}
+          style={{
+            marginTop: '20px',
+            padding: '12px 24px',
+            backgroundColor: '#000',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontSize: '16px'
+          }}
+        >
+          홈으로 돌아가기
+        </button>
+      </main>
+    )
+  }
+
+  // 성공
+  const orderNo = paymentInfo?.orderNo || searchParams.get('orderNo') || 'N/A'
+  const amount = searchParams.get('amount') 
+    ? new Intl.NumberFormat('ko-KR').format(parseFloat(searchParams.get('amount')!)) + '원'
+    : 'N/A'
+  const paymentDate = new Date().toLocaleString('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  })
+
   return (
     <main className="success-page">
       {/* 성공 아이콘 */}
@@ -21,11 +180,11 @@ export default function SuccessPage() {
         <div className="order-details">
           <div className="detail-row">
             <span className="detail-label">주문번호</span>
-            <span className="detail-value">ORD-20240110-001234</span>
+            <span className="detail-value">{orderNo}</span>
           </div>
           <div className="detail-row">
             <span className="detail-label">결제일시</span>
-            <span className="detail-value">2024.01.10 16:30:25</span>
+            <span className="detail-value">{paymentDate}</span>
           </div>
           <div className="detail-row">
             <span className="detail-label">결제수단</span>
@@ -33,7 +192,7 @@ export default function SuccessPage() {
           </div>
           <div className="detail-row">
             <span className="detail-label">결제금액</span>
-            <span className="detail-value">19,800원</span>
+            <span className="detail-value">{amount}</span>
           </div>
         </div>
       </div>

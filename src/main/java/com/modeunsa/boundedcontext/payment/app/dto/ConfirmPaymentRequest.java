@@ -2,7 +2,6 @@ package com.modeunsa.boundedcontext.payment.app.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
-import java.math.BigDecimal;
 
 public record ConfirmPaymentRequest(
-    @NotBlank String paymentKey, @Positive BigDecimal totalAmount) {}
+    @NotBlank String paymentKey, @NotBlank String orderId, @Positive long amount) {}

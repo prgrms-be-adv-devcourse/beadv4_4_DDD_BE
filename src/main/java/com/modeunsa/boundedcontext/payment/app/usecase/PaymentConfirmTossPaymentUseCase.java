@@ -1,6 +1,7 @@
 package com.modeunsa.boundedcontext.payment.app.usecase;
 
 import com.modeunsa.boundedcontext.payment.app.dto.ConfirmPaymentRequest;
+import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmRequest;
 import com.modeunsa.boundedcontext.payment.out.client.TossPaymentClient;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,13 @@ public class PaymentConfirmTossPaymentUseCase {
 
   public Map<String, Object> confirmCardPayment(
       String orderNo, ConfirmPaymentRequest confirmPaymentRequest) {
-    return tossPaymentClient.confirmPayment(orderNo, confirmPaymentRequest);
+
+    TossPaymentsConfirmRequest tossPaymentsConfirmRequest =
+        new TossPaymentsConfirmRequest(
+            confirmPaymentRequest.paymentKey(),
+            confirmPaymentRequest.orderId(),
+            confirmPaymentRequest.amount());
+
+    return tossPaymentClient.confirmPayment(tossPaymentsConfirmRequest);
   }
 }

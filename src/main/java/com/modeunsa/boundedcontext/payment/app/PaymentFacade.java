@@ -25,7 +25,6 @@ import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
 import com.modeunsa.shared.payment.dto.PaymentDto;
 import jakarta.validation.Valid;
 import java.math.BigDecimal;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -102,8 +101,7 @@ public class PaymentFacade {
 
   public ConfirmPaymentResponse confirmTossPayment(
       String orderNo, @Valid ConfirmPaymentRequest confirmPaymentRequest) {
-    Map<String, Object> response =
-        paymentConfirmTossPaymentUseCase.confirmCardPayment(orderNo, confirmPaymentRequest);
-    return new ConfirmPaymentResponse((String) response.get("paymentKey"));
+    paymentConfirmTossPaymentUseCase.confirmCardPayment(orderNo, confirmPaymentRequest);
+    return new ConfirmPaymentResponse(orderNo);
   }
 }

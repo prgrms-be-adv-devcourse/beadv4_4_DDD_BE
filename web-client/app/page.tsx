@@ -113,10 +113,12 @@ export default function Home() {
 
     try {
       const amount = 19800 // 19,800원
-      const orderId = `ORD-${Date.now()}`
-      const orderNo = orderId // orderNo는 orderId와 동일하게 사용
+      const orderId = `${Date.now()}`
+      const orderNo = `ORD-${Date.now()}`
 
       // 결제 위젯 열기
+      // 토스페이먼츠가 successUrl로 리다이렉트할 때 자동으로 orderId, paymentKey, amount를 추가합니다.
+      // 따라서 successUrl에는 orderId를 포함하지 않고, orderNo만 포함합니다.
       await widgetRef.current.requestPayment('카드', {
         amount: amount,
         orderId: orderId,
@@ -124,8 +126,8 @@ export default function Home() {
         customerName: memberInfo.customerName,
         customerKey: memberInfo.customerKey,
         customerEmail: memberInfo.customerEmail,
-        successUrl: `${window.location.origin}/success?orderId=${orderId}&orderNo=${orderNo}`,
-        failUrl: `${window.location.origin}/failure?orderId=${orderId}&orderNo=${orderNo}`,
+        successUrl: `${window.location.origin}/success?orderNo=${orderNo}`,
+        failUrl: `${window.location.origin}/failure?orderNo=${orderNo}`,
       })
     } catch (error) {
       console.error('결제 요청 실패:', error)
