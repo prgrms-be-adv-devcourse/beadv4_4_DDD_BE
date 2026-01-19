@@ -36,10 +36,12 @@ public class Content extends GeneratedIdAndAuditedEntity {
 
   @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
   @OrderBy("id ASC")
+  @Builder.Default
   private List<ContentTag> tags = new ArrayList<>();
 
   @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
   @OrderBy("sortOrder ASC, id ASC")
+  @Builder.Default
   private List<ContentImage> images = new ArrayList<>();
 
   @Column(name = "deleted_at")
