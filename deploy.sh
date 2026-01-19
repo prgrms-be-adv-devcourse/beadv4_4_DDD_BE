@@ -46,7 +46,8 @@ fi
 
 # 새 컨테이너 실행
 echo "새 컨테이너 실행: app-$NEW"
-docker-compose -f $COMPOSE_FILE --profile $NEW up -d app-$NEW
+docker-compose -f $COMPOSE_FILE --profile $NEW pull app-$NEW
+docker-compose -f $COMPOSE_FILE --profile $NEW up -d --force-recreate app-$NEW
 
 # 애플리케이션 구동 대기
 echo "애플리케이션 구동을 위해 30초 대기합니다..."
