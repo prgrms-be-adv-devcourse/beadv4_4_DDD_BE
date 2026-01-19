@@ -67,4 +67,8 @@ public class ProductSupport {
   public boolean existsProductFavorite(Long memberId, Long productId) {
     return productFavoriteRepository.existsByMemberIdAndProductId(memberId, productId);
   }
+
+  public Product getProductForUpdate(Long productId) {
+    return productRepository.findByIdForUpdate(productId);
+  }
 }

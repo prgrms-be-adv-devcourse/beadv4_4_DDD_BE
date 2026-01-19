@@ -17,6 +17,7 @@ public class ProductEventListener {
   private final ProductFacade productFacade;
 
   // TODO: seller, member 생성 및 수정 시 event 핸들링
+
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Transactional(propagation = REQUIRES_NEW)
   public void handleOrderCreatedEvent(OrderCreatedEvent event) {

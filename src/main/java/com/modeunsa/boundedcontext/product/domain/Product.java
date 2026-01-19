@@ -123,11 +123,11 @@ public class Product extends GeneratedIdAndAuditedEntity {
     this.productStatus = productStatus;
   }
 
-  public void decreaseQuantity(int reservedQty) {
-    if (this.quantity < reservedQty) {
-      throw new InvalidStockException(this.quantity, reservedQty);
+  public void decreaseQuantity(int requestedQty) {
+    if (this.quantity < requestedQty) {
+      throw new InvalidStockException(this.quantity, requestedQty);
     }
-    this.quantity = this.quantity - reservedQty;
+    this.quantity = this.quantity - requestedQty;
   }
 
   public void addImage(ProductImage image) {
