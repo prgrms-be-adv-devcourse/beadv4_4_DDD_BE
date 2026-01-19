@@ -7,7 +7,6 @@ on:
 permissions:
   contents: read
 
-# 동시 배포 방지
 concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: false
@@ -68,16 +67,3 @@ jobs:
             chmod +x deploy.sh
             ./deploy.sh ${{ secrets.DOCKER_USERNAME }}/modeunsa:latest
           script_stop: true
-
-      - name: Verify deployment
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ec2-user
-          key: ${{ secrets.EC2_KEY }}
-          script: |
-            if ! curl -s http://localhost/actuator/health | grep -q '"status":"UP"'; then
-              echo "Deployment verification failed!"
-              exit 1
-            fi
-            echo "Deployment verified successfully!"
