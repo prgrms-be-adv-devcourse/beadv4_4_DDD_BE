@@ -45,6 +45,7 @@ export default function Home() {
   const [memberInfo, setMemberInfo] = useState<PaymentMemberResponse | null>(null)
   const [isLoadingMember, setIsLoadingMember] = useState(true)
   const [memberError, setMemberError] = useState<string | null>(null)
+  const [selectedMethod, setSelectedMethod] = useState<'modeunsa' | 'toss'>('modeunsa')
   const memberId = 4 // 회원 ID
 
   // 회원 정보 조회
@@ -117,6 +118,8 @@ export default function Home() {
       return
     }
 
+    let payment: PaymentResponse | null = null
+
     try {
       const amount = 19800 // 19,800원
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
@@ -138,7 +141,7 @@ export default function Home() {
       if (!paymentRes.ok) {
         const errorText = await paymentRes.text()
         console.error('결제 요청 API 에러:', paymentRes.status, errorText)
-        router.push('/failure')
+        router.push(`/failure?amount=${amount}`)
         return
       }
 
@@ -146,11 +149,11 @@ export default function Home() {
 
       if (!paymentApiResponse.isSuccess || !paymentApiResponse.result) {
         console.error('결제 요청 응답 실패:', paymentApiResponse.message)
-        router.push('/failure')
+        router.push(`/failure?amount=${amount}`)
         return
       }
 
-      const payment = paymentApiResponse.result
+      payment = paymentApiResponse.result
 
       // 2) needsCharge가 false이면 토스 결제 모듈 없이 바로 성공 페이지로 이동
       if (!payment.needsCharge) {
@@ -179,12 +182,19 @@ export default function Home() {
         customerName: memberInfo.customerName,
         customerKey: memberInfo.customerKey,
         customerEmail: memberInfo.customerEmail,
-        successUrl: `${window.location.origin}/success?orderNo=${payment.orderNo}`,
-        failUrl: `${window.location.origin}/failure?orderNo=${payment.orderNo}`,
+        successUrl: `${window.location.origin}/success?orderNo=${payment.orderNo}&memberId=${memberId}&pgCustomerName=${encodeURIComponent(memberInfo.customerName)}&pgCustomerEmail=${encodeURIComponent(memberInfo.customerEmail)}`,
+        failUrl: `${window.location.origin}/failure?orderNo=${payment.orderNo}&amount=${payment.totalAmount}`,
       })
     } catch (error) {
       console.error('결제 요청 실패:', error)
-      router.push('/failure')
+      if (payment) {
+        router.push(
+          `/failure?orderNo=${payment.orderNo}&amount=${payment.totalAmount}`
+        )
+      } else {
+        const fallbackAmount = 19800
+        router.push(`/failure?amount=${fallbackAmount}`)
+      }
     }
   }
 
@@ -264,7 +274,13 @@ export default function Home() {
       <section className="payment-method-section">
         <h2 className="section-title">결제 수단</h2>
         <div className="payment-method">
-          <input type="radio" id="modeunsa" name="payment" defaultChecked />
+          <input
+            type="radio"
+            id="modeunsa"
+            name="payment"
+            checked={selectedMethod === 'modeunsa'}
+            onChange={() => setSelectedMethod('modeunsa')}
+          />
           <label htmlFor="modeunsa">
             <div className="modeunsa-logo">뭐든사</div>
             <span>뭐든사페이</span>
@@ -277,13 +293,6 @@ export default function Home() {
                 : '0원'}
               )
             </span>
-          </label>
-        </div>
-        <div className="payment-method">
-          <input type="radio" id="toss" name="payment" />
-          <label htmlFor="toss">
-            <div className="toss-logo">토스</div>
-            <span>토스페이</span>
           </label>
         </div>
       </section>
@@ -310,7 +319,20 @@ export default function Home() {
           onClick={handlePayment}
           disabled={isLoadingMember || !memberInfo}
         >
-          {isLoadingMember ? '로딩 중...' : '19,800원 결제하기'}
+          {isLoadingMember || !memberInfo
+            ? '로딩 중...'
+            : (() => {
+                const totalAmount = 19800
+                if (selectedMethod === 'modeunsa') {
+                  const balance = Number(memberInfo.balance ?? 0)
+                  const shortage = Math.max(totalAmount - balance, 0)
+                  return shortage > 0
+                    ? `${new Intl.NumberFormat('ko-KR').format(shortage)}원 결제하기`
+                    : '결제하기'
+                }
+                // 토스 선택 시에는 총 결제 금액 표시
+                return `${new Intl.NumberFormat('ko-KR').format(totalAmount)}원 결제하기`
+              })()}
         </button>
       </section>
     </main>

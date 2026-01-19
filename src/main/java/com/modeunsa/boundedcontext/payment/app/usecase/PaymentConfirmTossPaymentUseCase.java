@@ -3,30 +3,42 @@ package com.modeunsa.boundedcontext.payment.app.usecase;
 import com.modeunsa.boundedcontext.payment.app.dto.ConfirmPaymentRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmResponse;
+import com.modeunsa.boundedcontext.payment.app.support.PaymentSupport;
+import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
+import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
 import com.modeunsa.boundedcontext.payment.out.client.TossPaymentClient;
+import com.modeunsa.global.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-@Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class PaymentConfirmTossPaymentUseCase {
 
+  private final PaymentSupport paymentSupport;
   private final TossPaymentClient tossPaymentClient;
 
   public TossPaymentsConfirmResponse confirmCardPayment(
-      String orderNo, ConfirmPaymentRequest confirmPaymentRequest) {
+      PaymentId paymentId, ConfirmPaymentRequest confirmPaymentRequest) {
 
-    TossPaymentsConfirmRequest tossPaymentsConfirmRequest =
-        new TossPaymentsConfirmRequest(
-            confirmPaymentRequest.paymentKey(),
-            confirmPaymentRequest.orderId(),
-            confirmPaymentRequest.amount());
+    Payment payment = paymentSupport.getPaymentById(paymentId);
 
-    TossPaymentsConfirmResponse tossPaymentsConfirmResponse =
-        tossPaymentClient.confirmPayment(tossPaymentsConfirmRequest);
+    TossPaymentsConfirmRequest tossReq = new TossPaymentsConfirmRequest(confirmPaymentRequest);
 
-    return tossPaymentsConfirmResponse;
+    try {
+      TossPaymentsConfirmResponse tossRes = tossPaymentClient.confirmPayment(tossReq);
+      payment.successesTossPayment(tossRes);
+      return tossRes;
+    } catch (GeneralException ex) {
+      payment.failedTossPayment(
+          ex.getErrorStatus().getHttpStatus(), ex.getErrorStatus().getMessage());
+      throw ex;
+    } catch (Exception e) {
+      payment.failedTossPayment(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+      throw e;
+    }
   }
 }

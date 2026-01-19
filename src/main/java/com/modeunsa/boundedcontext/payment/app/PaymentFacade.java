@@ -12,17 +12,18 @@ import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberResponse;
 import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmResponse;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
-import com.modeunsa.boundedcontext.payment.app.usecase.PaymentChargePgUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentConfirmTossPaymentUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreateAccountUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreditAccountUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentGetMemberUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.PaymentInProgressUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentPayoutCompleteUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentProcessUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentRefundUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentRequestUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentSyncMemberUseCase;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
+import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
 import com.modeunsa.shared.payment.dto.PaymentDto;
@@ -44,8 +45,8 @@ public class PaymentFacade {
   private final PaymentProcessUseCase paymentProcessUseCase;
   private final PaymentPayoutCompleteUseCase paymentPayoutCompleteUseCase;
   private final PaymentRefundUseCase paymentRefundUseCase;
-  private final PaymentChargePgUseCase paymentChargePgUseCase;
   private final PaymentConfirmTossPaymentUseCase paymentConfirmTossPaymentUseCase;
+  private final PaymentInProgressUseCase paymentInProgressUseCase;
   private final PaymentAccountSupport paymentAccountSupport;
 
   @Transactional
@@ -107,8 +108,14 @@ public class PaymentFacade {
 
   public ConfirmPaymentResponse confirmTossPayment(
       String orderNo, @Valid ConfirmPaymentRequest confirmPaymentRequest) {
+
+    PaymentId paymentId = new PaymentId(confirmPaymentRequest.memberId(), orderNo);
+
+    paymentInProgressUseCase.inProgress(paymentId, confirmPaymentRequest);
+
     TossPaymentsConfirmResponse response =
-        paymentConfirmTossPaymentUseCase.confirmCardPayment(orderNo, confirmPaymentRequest);
+        paymentConfirmTossPaymentUseCase.confirmCardPayment(paymentId, confirmPaymentRequest);
+
     return new ConfirmPaymentResponse(orderNo, response);
   }
 }

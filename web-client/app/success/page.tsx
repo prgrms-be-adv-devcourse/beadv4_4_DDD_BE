@@ -37,23 +37,66 @@ export default function SuccessPage() {
       const orderId = searchParams.get('orderId')
       const paymentKey = searchParams.get('paymentKey')
       const amount = searchParams.get('amount')
+      const memberId = searchParams.get('memberId')
+      const pgCustomerName = searchParams.get('pgCustomerName')
+      const pgCustomerEmail = searchParams.get('pgCustomerEmail')
 
-      // 필수 파라미터 검증
-      if (!orderNo || !orderId || !paymentKey || !amount) {
-        console.error('[결제 승인] 필수 파라미터 누락', { orderNo, orderId, paymentKey, amount })
+      // 1-1. 토스 결제 모듈을 거치지 않은 내부 결제(잔액 결제 등) 케이스
+      if (!paymentKey && !orderId) {
+        if (!orderNo || !amount) {
+          console.error('[결제 승인] 내부 결제 케이스에서 필수 파라미터 누락', {
+            orderNo,
+            amount,
+          })
+          router.push(`/failure?orderNo=${orderNo || ''}&amount=${amount || ''}`)
+          return
+        }
+
+        console.log('[결제 승인] 토스 모듈 없이 내부 결제 성공 케이스로 처리', {
+          orderNo,
+          amount,
+        })
+        setPaymentInfo({ orderNo })
+        setConfirmError(null)
+        setIsConfirming(false)
+        return
+      }
+
+      // 1-2. 토스 결제 케이스: 필수 파라미터 검증
+      if (!orderNo || !orderId || !paymentKey || !amount || !memberId || !pgCustomerName || !pgCustomerEmail) {
+        console.error('[결제 승인] 토스 결제 케이스에서 필수 파라미터 누락', {
+          orderNo,
+          orderId,
+          paymentKey,
+          amount,
+          memberId,
+          pgCustomerName,
+          pgCustomerEmail,
+        })
         router.push(`/failure?orderNo=${orderNo || ''}&amount=${amount || ''}`)
         return
       }
 
-      console.log('[결제 승인] API 호출 시작', { orderNo, orderId, paymentKey, amount })
+      console.log('[결제 승인] 토스 결제 승인 API 호출 시작', {
+        orderNo,
+        orderId,
+        paymentKey,
+        amount,
+        memberId,
+        pgCustomerName,
+        pgCustomerEmail,
+      })
 
       try {
         // 2. API 호출
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
         const requestBody = {
+          memberId: parseInt(memberId, 10),
           paymentKey: paymentKey,
           orderId: orderId,
           amount: parseInt(amount, 10),
+          pgCustomerName: pgCustomerName,
+          pgCustomerEmail: pgCustomerEmail,
         }
         console.log('[결제 승인] API 요청', { url: `${apiUrl}/api/v1/payments/${orderNo}/payment/confirm/by/tossPayments`, body: requestBody })
         

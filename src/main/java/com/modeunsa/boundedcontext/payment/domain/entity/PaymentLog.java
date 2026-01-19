@@ -68,6 +68,11 @@ public class PaymentLog {
 
   public static PaymentLog addLog(
       Payment payment, PaymentStatus beforeStatus, PaymentStatus afterStatus) {
+    return addLog(payment, beforeStatus, afterStatus, null);
+  }
+
+  public static PaymentLog addLog(
+      Payment payment, PaymentStatus beforeStatus, PaymentStatus afterStatus, String reason) {
     if (beforeStatus == null) {
       throw new GeneralException(PAYMENT_NOT_FOUND);
     }
@@ -75,6 +80,7 @@ public class PaymentLog {
         .payment(payment)
         .beforeStatus(beforeStatus)
         .afterStatus(afterStatus)
+        .reason(reason)
         .build();
   }
 
