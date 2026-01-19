@@ -3,6 +3,7 @@ package com.modeunsa.boundedcontext.order.in;
 import com.modeunsa.boundedcontext.order.app.OrderFacade;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.status.SuccessStatus;
+import com.modeunsa.shared.order.dto.CartItemsResponseDto;
 import com.modeunsa.shared.order.dto.CreateCartItemRequestDto;
 import com.modeunsa.shared.order.dto.CreateCartItemResponseDto;
 import com.modeunsa.shared.order.dto.CreateCartOrderRequestDto;
@@ -110,6 +111,21 @@ public class ApiV1OrderController {
     long memberId = 1;
 
     OrderResponseDto dto = orderFacade.refundOrder(memberId, orderId);
+
+    return ApiResponse.onSuccess(SuccessStatus.OK, dto);
+  }
+
+  @Operation(summary = "장바구니 상품 목록 조회 기능", description = "장바구니 상품 목록을 확인할 수 있는 기능입니다.")
+  @GetMapping("/cart-items")
+  public ResponseEntity<ApiResponse> getCartItem(
+      // @AuthenticationPrincipal Long memberId // 나중에 시큐리티 적용 시
+      @ParameterObject
+          @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+          Pageable pageable) {
+    // [TODO] 실제 로그인한 유저 ID를 가져오는 로직 추가
+    long memberId = 1;
+
+    CartItemsResponseDto dto = orderFacade.getCartItems(memberId);
 
     return ApiResponse.onSuccess(SuccessStatus.OK, dto);
   }
