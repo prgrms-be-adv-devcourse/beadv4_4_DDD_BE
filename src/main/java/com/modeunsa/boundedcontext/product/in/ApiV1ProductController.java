@@ -3,7 +3,9 @@ package com.modeunsa.boundedcontext.product.in;
 import com.modeunsa.boundedcontext.product.app.ProductFacade;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
 import com.modeunsa.boundedcontext.product.domain.ProductStatus;
+import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.response.ApiResponse;
+import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.global.status.SuccessStatus;
 import com.modeunsa.shared.product.dto.ProductCreateRequest;
 import com.modeunsa.shared.product.dto.ProductDetailResponse;
@@ -51,6 +53,9 @@ public class ApiV1ProductController {
   public ResponseEntity<ApiResponse> getProduct(@PathVariable(name = "id") Long productId) {
     // TODO: memberId / role 받아와서 처리 예정
     Long memberId = 1L;
+    if (memberId == null || productId == null) {
+      throw new GeneralException(ErrorStatus.PRODUCT_FIELD_REQUIRED);
+    }
     ProductDetailResponse productResponse = productFacade.getProduct(memberId, productId);
     return ApiResponse.onSuccess(SuccessStatus.OK, productResponse);
   }
@@ -99,6 +104,9 @@ public class ApiV1ProductController {
       @Valid @PathVariable(name = "id") Long productId) {
     // TODO: sellerId 는 나중에 security 에서 가져올것
     Long memberId = 1L;
+    if (memberId == null || productId == null) {
+      throw new GeneralException(ErrorStatus.PRODUCT_FIELD_REQUIRED);
+    }
     productFacade.createProductFavorite(memberId, productId);
     return ApiResponse.onSuccess(SuccessStatus.CREATED);
   }
@@ -109,6 +117,9 @@ public class ApiV1ProductController {
       @Valid @PathVariable(name = "id") Long productId) {
     // TODO: sellerId 는 나중에 security 에서 가져올것
     Long memberId = 1L;
+    if (memberId == null || productId == null) {
+      throw new GeneralException(ErrorStatus.PRODUCT_FIELD_REQUIRED);
+    }
     productFacade.deleteProductFavorite(memberId, productId);
     return ApiResponse.onSuccess(SuccessStatus.OK);
   }

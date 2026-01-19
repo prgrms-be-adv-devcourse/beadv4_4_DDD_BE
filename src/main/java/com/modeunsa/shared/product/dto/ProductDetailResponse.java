@@ -19,7 +19,7 @@ public record ProductDetailResponse(
     ProductStatus productStatus,
     SaleStatus saleStatus,
     int quantity,
-    Boolean isFavorite,
+    boolean isFavorite,
     int favoriteCount,
     LocalDateTime createdAt,
     LocalDateTime updatedAt,

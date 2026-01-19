@@ -78,6 +78,7 @@ public enum ErrorStatus {
   INVALID_PRODUCT_STATUS(HttpStatus.BAD_REQUEST, "PRODUCT_400_007", "잘못된 상품 등록 상태입니다."),
   INVALID_PRODUCT_UPDATE_FIELD(HttpStatus.BAD_REQUEST, "PRODUCT_400_008", "수정 불가한 필드입니다."),
   INVALID_PRODUCT_MEMBER(HttpStatus.BAD_REQUEST, "PRODUCT_400_009", "판매자 정보가 다릅니다."),
+  PRODUCT_FIELD_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_010", "필수값을 입력해주세요."),
   // PRODUCT 404
   PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT_404_001", "상품이 존재하지 않습니다."),
   PRODUCT_MEMBER_NOT_FOUND(HttpStatus.BAD_REQUEST, "PRODUCT_400_002", "존재하지 않는 회원입니다."),

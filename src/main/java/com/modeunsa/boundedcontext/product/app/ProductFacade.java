@@ -36,7 +36,7 @@ public class ProductFacade {
   public ProductDetailResponse getProduct(Long memberId, Long productId) {
     Product product = productSupport.getProduct(productId);
     ProductMember member = productSupport.getProductMember(memberId);
-    Boolean isFavorite = productSupport.existsProductFavorite(member.getId(), product.getId());
+    boolean isFavorite = productSupport.existsProductFavorite(member.getId(), product.getId());
     return productMapper.toDetailResponse(product, isFavorite);
   }
 

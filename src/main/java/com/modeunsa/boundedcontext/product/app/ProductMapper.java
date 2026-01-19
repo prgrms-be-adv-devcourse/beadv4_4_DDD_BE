@@ -14,7 +14,7 @@ public abstract class ProductMapper {
 
   @Mapping(source = "product.seller.id", target = "sellerId")
   @Mapping(target = "isFavorite", source = "isFavorite")
-  public abstract ProductDetailResponse toDetailResponse(Product product, Boolean isFavorite);
+  public abstract ProductDetailResponse toDetailResponse(Product product, boolean isFavorite);
 
   @Mapping(source = "seller.id", target = "sellerId")
   public abstract ProductDto toDto(Product product);
