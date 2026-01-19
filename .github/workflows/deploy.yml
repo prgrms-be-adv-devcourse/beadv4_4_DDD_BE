@@ -2,7 +2,7 @@ name: CD Pipeline
 
 on:
   push:
-    branches: [main, feature/26]
+    branches: [main]
 
 permissions:
   contents: read
@@ -19,6 +19,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Generate version
+        id: version
+        run: |
+          VERSION=$(date +'%Y%m%d')-${{ github.run_number }}
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -41,10 +47,8 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/modeunsa:latest .
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/modeunsa:${{ github.sha }} .
-          docker push ${{ secrets.DOCKER_USERNAME }}/modeunsa:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/modeunsa:${{ github.sha }}
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/modeunsa:${{ steps.version.outputs.VERSION }} .
+          docker push ${{ secrets.DOCKER_USERNAME }}/modeunsa:${{ steps.version.outputs.VERSION }}
 
       - name: Copy files to EC2
         uses: appleboy/scp-action@v0.1.7
@@ -65,5 +69,5 @@ jobs:
             set -e
             cd /home/ec2-user/app
             chmod +x deploy.sh
-            ./deploy.sh ${{ secrets.DOCKER_USERNAME }}/modeunsa:latest
+            ./deploy.sh ${{ secrets.DOCKER_USERNAME }}/modeunsa:${{ steps.version.outputs.VERSION }}
           script_stop: true
