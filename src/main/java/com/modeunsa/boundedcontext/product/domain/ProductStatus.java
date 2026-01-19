@@ -10,5 +10,5 @@ public enum ProductStatus {
   COMPLETED("완료"),
   CANCELED("취소");
 
-  private final String value;
+  private final String description;
 }

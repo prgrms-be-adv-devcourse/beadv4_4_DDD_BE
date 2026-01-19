@@ -2,8 +2,10 @@ package com.modeunsa.boundedcontext.product.app;
 
 import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
+import com.modeunsa.boundedcontext.product.domain.ProductMember;
 import com.modeunsa.boundedcontext.product.domain.ProductMemberSeller;
 import com.modeunsa.boundedcontext.product.domain.ProductPolicy;
+import com.modeunsa.boundedcontext.product.out.ProductMemberRepository;
 import com.modeunsa.boundedcontext.product.out.ProductMemberSellerRepository;
 import com.modeunsa.boundedcontext.product.out.ProductRepository;
 import com.modeunsa.global.exception.GeneralException;
@@ -18,10 +20,15 @@ import org.springframework.stereotype.Service;
 public class ProductSupport {
 
   private final ProductMemberSellerRepository productMemberSellerRepository;
+  private final ProductMemberRepository productMemberRepository;
   private final ProductRepository productRepository;
 
   public boolean existsBySellerId(Long sellerId) {
     return productMemberSellerRepository.existsById(sellerId);
+  }
+
+  public boolean existsByMemberId(Long memberId) {
+    return productMemberRepository.existsById(memberId);
   }
 
   public Product getProduct(Long productId) {
@@ -42,6 +49,19 @@ public class ProductSupport {
   public ProductMemberSeller getProductMemberSeller(Long sellerId) {
     return productMemberSellerRepository
         .findById(sellerId)
-        .orElseThrow(() -> new GeneralException(ErrorStatus.SELLER_NOT_FOUND));
+        .orElseThrow(() -> new GeneralException(ErrorStatus.PRODUCT_SELLER_NOT_FOUND));
+  }
+
+  public ProductMember getProductMember(Long memberId) {
+    if (memberId == null) {
+      throw new GeneralException(ErrorStatus.PRODUCT_MEMBER_NOT_FOUND);
+    }
+    return productMemberRepository
+        .findById(memberId)
+        .orElseThrow(() -> new GeneralException(ErrorStatus.PRODUCT_MEMBER_NOT_FOUND));
+  }
+
+  public int increaseFavoriteCount(Long productId) {
+    return productRepository.increaseFavoriteCount(productId);
   }
 }

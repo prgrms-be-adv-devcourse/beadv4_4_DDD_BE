@@ -22,8 +22,8 @@ public class ProductCreateProductUseCase {
 
   public Product createProduct(Long sellerId, ProductCreateRequest productCreateRequest) {
     // 판매자 검증
-    if (!productSupport.existsBySellerId(sellerId)) {
-      throw new GeneralException(ErrorStatus.SELLER_NOT_FOUND);
+    if (sellerId == null || !productSupport.existsBySellerId(sellerId)) {
+      throw new GeneralException(ErrorStatus.PRODUCT_SELLER_NOT_FOUND);
     }
     ProductMemberSeller seller = productSupport.getProductMemberSeller(sellerId);
     // TODO: 파일 업로드 작업 이후에 이미지 추가 예정

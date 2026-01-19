@@ -20,6 +20,7 @@ public class ProductFacade {
   private final ProductCreateProductUseCase productCreateProductUseCase;
   private final ProductUpdateProductUseCase productUpdateProductUseCase;
   private final ProductUpdateProductStatusUseCase productUpdateProductStatusUseCase;
+  private final ProductCreateFavoriteUseCase productCreateFavoriteUseCase;
   private final ProductSupport productSupport;
   private final ProductMapper productMapper;
 
@@ -54,5 +55,10 @@ public class ProductFacade {
     Product product =
         productUpdateProductStatusUseCase.updateProductStatus(sellerId, productId, productStatus);
     return productMapper.toResponse(product);
+  }
+
+  @Transactional
+  public void createProductFavorite(Long memberId, Long productId) {
+    productCreateFavoriteUseCase.createProductFavorite(memberId, productId);
   }
 }

@@ -43,7 +43,7 @@ public class ProductUpdateProductStatusUseCase {
   private void validateSeller(Long sellerId, Long productSellerId) {
     // 판매자 존재 여부 확인
     if (sellerId == null || !productSupport.existsBySellerId(sellerId)) {
-      throw new GeneralException(ErrorStatus.SELLER_NOT_FOUND);
+      throw new GeneralException(ErrorStatus.PRODUCT_SELLER_NOT_FOUND);
     }
     // 판매자 일치 여부 확인
     if (!sellerId.equals(productSellerId)) {

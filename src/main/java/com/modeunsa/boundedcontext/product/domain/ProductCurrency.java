@@ -10,5 +10,5 @@ public enum ProductCurrency {
   USD("달러"),
   JPY("엔");
 
-  private final String value;
+  private final String description;
 }
