@@ -107,9 +107,9 @@ if [ "$(docker ps -q -f name=^/${NGINX_CONTAINER}$)" ]; then
         # 3. 호스트 파일 변경
         cp "$NEW_CONF" "$APP_DIR/nginx.conf"
 
-        # 4. 설정 재로딩
-        if docker exec "$NGINX_CONTAINER" nginx -s reload; then
-            echo "Nginx 재로딩 완료."
+        # 4. 설정 재로딩 (HUP 시그널 전송 방식 사용)
+        if docker kill -s HUP "$NGINX_CONTAINER"; then
+            echo "Nginx 재로딩(HUP) 완료."
             # 호스트의 메인 설정 파일도 최신화 (참고용)
             cp "$NEW_CONF" "$APP_DIR/nginx.conf"
         else
