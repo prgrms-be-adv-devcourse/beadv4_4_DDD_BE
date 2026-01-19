@@ -5,6 +5,7 @@ import com.modeunsa.boundedcontext.product.domain.ProductCategory;
 import com.modeunsa.boundedcontext.product.domain.ProductMember;
 import com.modeunsa.boundedcontext.product.domain.ProductMemberSeller;
 import com.modeunsa.boundedcontext.product.domain.ProductPolicy;
+import com.modeunsa.boundedcontext.product.out.ProductFavoriteRepository;
 import com.modeunsa.boundedcontext.product.out.ProductMemberRepository;
 import com.modeunsa.boundedcontext.product.out.ProductMemberSellerRepository;
 import com.modeunsa.boundedcontext.product.out.ProductRepository;
@@ -22,13 +23,10 @@ public class ProductSupport {
   private final ProductMemberSellerRepository productMemberSellerRepository;
   private final ProductMemberRepository productMemberRepository;
   private final ProductRepository productRepository;
+  private final ProductFavoriteRepository productFavoriteRepository;
 
   public boolean existsBySellerId(Long sellerId) {
     return productMemberSellerRepository.existsById(sellerId);
-  }
-
-  public boolean existsByMemberId(Long memberId) {
-    return productMemberRepository.existsById(memberId);
   }
 
   public Product getProduct(Long productId) {
@@ -63,5 +61,9 @@ public class ProductSupport {
 
   public int increaseFavoriteCount(Long productId) {
     return productRepository.increaseFavoriteCount(productId);
+  }
+
+  public int decreaseFavoriteCount(Long productId) {
+    return productRepository.decreaseFavoriteCount(productId);
   }
 }

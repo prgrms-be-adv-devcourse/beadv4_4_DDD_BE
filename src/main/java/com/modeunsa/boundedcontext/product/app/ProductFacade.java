@@ -21,6 +21,7 @@ public class ProductFacade {
   private final ProductUpdateProductUseCase productUpdateProductUseCase;
   private final ProductUpdateProductStatusUseCase productUpdateProductStatusUseCase;
   private final ProductCreateFavoriteUseCase productCreateFavoriteUseCase;
+  private final ProductDeleteFavoriteUseCase productDeleteFavoriteUseCase;
   private final ProductSupport productSupport;
   private final ProductMapper productMapper;
 
@@ -60,5 +61,10 @@ public class ProductFacade {
   @Transactional
   public void createProductFavorite(Long memberId, Long productId) {
     productCreateFavoriteUseCase.createProductFavorite(memberId, productId);
+  }
+
+  @Transactional
+  public void deleteProductFavorite(Long memberId, Long productId) {
+    productDeleteFavoriteUseCase.deleteProductFavorite(memberId, productId);
   }
 }
