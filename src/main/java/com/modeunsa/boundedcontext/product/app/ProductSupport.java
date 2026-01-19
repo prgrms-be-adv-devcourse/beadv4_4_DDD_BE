@@ -53,6 +53,9 @@ public class ProductSupport {
   }
 
   public ProductMember getProductMember(Long memberId) {
+    if (memberId == null) {
+      throw new GeneralException(ErrorStatus.PRODUCT_MEMBER_NOT_FOUND);
+    }
     return productMemberRepository
         .findById(memberId)
         .orElseThrow(() -> new GeneralException(ErrorStatus.PRODUCT_MEMBER_NOT_FOUND));
