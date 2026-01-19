@@ -85,10 +85,6 @@ public class Order extends GeneratedIdAndAuditedEntity {
     item.setOrder(this);
   }
 
-  public boolean isCancellable() {
-    return status == OrderStatus.PENDING_PAYMENT || status == OrderStatus.PAID;
-  }
-
   public void requestCancel() {
     this.status = OrderStatus.CANCEL_REQUESTED;
   }
@@ -141,19 +137,7 @@ public class Order extends GeneratedIdAndAuditedEntity {
             .reduce(BigDecimal.ZERO, BigDecimal::add);
   }
 
-  // 환불 가능 체크
-  public boolean isRefundable(LocalDateTime requestTime) {
-    if (this.status != OrderStatus.DELIVERED) {
-      return false; // 배송 완료 상태가 아니면 환불 불가
-    }
-
-    // 배송완료일 + 7일 23:59:59 까지 인정해줄지 등 정책에 따라 조정
-    LocalDateTime deadline = this.getDeliveredAt().plusDays(7);
-
-    return !requestTime.isAfter(deadline);
-  }
-
-  public void markAsRefundRequested() {
+  public void requestRefund() {
     this.status = OrderStatus.REFUND_REQUESTED;
   }
 }
