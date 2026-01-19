@@ -18,4 +18,6 @@ public interface ProductFavoriteRepository extends JpaRepository<ProductFavorite
   int insertIgnore(@Param("memberId") Long memberId, @Param("productId") Long productId);
 
   int deleteByMemberIdAndProductId(Long memberId, Long productId);
+
+  boolean existsByMemberIdAndProductId(Long memberId, Long productId);
 }

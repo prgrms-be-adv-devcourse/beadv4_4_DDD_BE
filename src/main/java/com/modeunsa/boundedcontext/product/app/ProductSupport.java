@@ -66,4 +66,8 @@ public class ProductSupport {
   public int decreaseFavoriteCount(Long productId) {
     return productRepository.decreaseFavoriteCount(productId);
   }
+
+  public boolean existsProductFavorite(Long memberId, Long productId) {
+    return productFavoriteRepository.existsByMemberIdAndProductId(memberId, productId);
+  }
 }

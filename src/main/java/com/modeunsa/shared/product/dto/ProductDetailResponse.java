@@ -13,7 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class ProductResponse {
+public class ProductDetailResponse {
   private Long id;
   private Long sellerId;
   private String name;
@@ -25,6 +25,7 @@ public class ProductResponse {
   private ProductStatus productStatus;
   private SaleStatus saleStatus;
   private int quantity;
+  private Boolean isFavorite;
   private int favoriteCount;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;

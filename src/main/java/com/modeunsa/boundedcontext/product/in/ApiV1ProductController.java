@@ -6,6 +6,7 @@ import com.modeunsa.boundedcontext.product.domain.ProductStatus;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.status.SuccessStatus;
 import com.modeunsa.shared.product.dto.ProductCreateRequest;
+import com.modeunsa.shared.product.dto.ProductDetailResponse;
 import com.modeunsa.shared.product.dto.ProductResponse;
 import com.modeunsa.shared.product.dto.ProductUpdateRequest;
 import io.swagger.v3.oas.annotations.Operation;
@@ -48,7 +49,9 @@ public class ApiV1ProductController {
   @Operation(summary = "상품 상세 조회", description = "상품 id를 이용해 상품 상세를 조회합니다.")
   @GetMapping("/{id}")
   public ResponseEntity<ApiResponse> getProduct(@PathVariable(name = "id") Long productId) {
-    ProductResponse productResponse = productFacade.getProduct(productId);
+    // TODO: memberId / role 받아와서 처리 예정
+    Long memberId = 1L;
+    ProductDetailResponse productResponse = productFacade.getProduct(memberId, productId);
     return ApiResponse.onSuccess(SuccessStatus.OK, productResponse);
   }
 
