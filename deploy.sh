@@ -104,8 +104,8 @@ if [ "$(docker ps -q -f name=^/${NGINX_CONTAINER}$)" ]; then
     if docker exec "$NGINX_CONTAINER" nginx -t -c /etc/nginx/nginx.conf.test; then
         echo "Nginx 설정 문법 검사 통과."
 
-        # 3. 검증된 설정을 실제 경로로 덮어쓰기
-        docker cp "$NEW_CONF" "${NGINX_CONTAINER}:/etc/nginx/nginx.conf"
+        # 3. 호스트 파일 변경
+        cp "$NEW_CONF" "$APP_DIR/nginx.conf"
 
         # 4. 설정 재로딩
         if docker exec "$NGINX_CONTAINER" nginx -s reload; then
