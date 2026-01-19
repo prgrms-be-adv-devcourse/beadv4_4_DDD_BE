@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.settlement.app.usecase;
+package com.modeunsa.boundedcontext.settlement.app;
 
 import com.modeunsa.boundedcontext.settlement.app.dto.SettlementOrderItemDto;
 import com.modeunsa.boundedcontext.settlement.domain.PayoutAmounts;

@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.settlement.app.usecase;
+package com.modeunsa.boundedcontext.settlement.app;
 
 import static org.mockito.Mockito.verify;
 
