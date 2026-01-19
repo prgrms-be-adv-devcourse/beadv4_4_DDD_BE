@@ -24,7 +24,7 @@ public class OrderCreateOrderUseCase {
   private final OrderMapper orderMapper;
   private final SpringDomainEventPublisher eventPublisher;
 
-  public OrderResponseDto createOrder(long memberId, CreateOrderRequestDto requestDto) {
+  public OrderResponseDto createOrder(Long memberId, CreateOrderRequestDto requestDto) {
     // 회원 확인
     OrderMember member = orderSupport.findByMemberId(memberId);
 

@@ -29,7 +29,7 @@ public class OrderFacade {
   // 장바구니 아이템 생성
   @Transactional
   public CreateCartItemResponseDto createCartItem(
-      long memberId, CreateCartItemRequestDto requestDto) {
+      Long memberId, CreateCartItemRequestDto requestDto) {
     return orderCreateCartItemUseCase.createCartItem(memberId, requestDto);
   }
 
@@ -41,23 +41,23 @@ public class OrderFacade {
     return orderSupport.countMember();
   }
 
-  public OrderMember findByMemberId(long memberId) {
+  public OrderMember findByMemberId(Long memberId) {
     return orderSupport.findByMemberId(memberId);
   }
 
-  public OrderProduct findByProductId(long productId) {
+  public OrderProduct findByProductId(Long productId) {
     return orderSupport.findByProductId(productId);
   }
 
   // 단건 주문 생성
   @Transactional
-  public OrderResponseDto createOrder(long memberId, CreateOrderRequestDto requestDto) {
+  public OrderResponseDto createOrder(Long memberId, CreateOrderRequestDto requestDto) {
     return orderCreateOrderUseCase.createOrder(memberId, requestDto);
   }
 
   // 장바구니 주문 생성
   @Transactional
-  public OrderResponseDto createCartOrder(long memberId, CreateCartOrderRequestDto requestDto) {
+  public OrderResponseDto createCartOrder(Long memberId, CreateCartOrderRequestDto requestDto) {
     return orderCreateCartOrderUseCase.createCartOrder(memberId, requestDto);
   }
 
@@ -65,19 +65,19 @@ public class OrderFacade {
     return orderSupport.countOrder();
   }
 
-  public Page<OrderListResponseDto> getOrders(long memberId, Pageable pageable) {
+  public Page<OrderListResponseDto> getOrders(Long memberId, Pageable pageable) {
     return orderGetOrdersUseCase.getOrders(memberId, pageable);
   }
 
   // 주문 취소 요청
   @Transactional
-  public OrderResponseDto cancelOrder(long memberId, Long orderId) {
+  public OrderResponseDto cancelOrder(Long memberId, Long orderId) {
     return orderCancelOrderUseCase.cancelOrder(memberId, orderId);
   }
 
   // 주문 취소 요청
   @Transactional
-  public OrderResponseDto refundOrder(long memberId, Long orderId) {
+  public OrderResponseDto refundOrder(Long memberId, Long orderId) {
     return orderRefundOrderUseCase.refundOrder(memberId, orderId);
   }
 }

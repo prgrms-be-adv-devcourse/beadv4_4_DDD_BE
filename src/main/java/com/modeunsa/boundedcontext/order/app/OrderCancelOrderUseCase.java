@@ -20,7 +20,7 @@ public class OrderCancelOrderUseCase {
   private final SpringDomainEventPublisher eventPublisher;
   private final OrderMapper orderMapper;
 
-  public OrderResponseDto cancelOrder(long memberId, Long orderId) {
+  public OrderResponseDto cancelOrder(Long memberId, Long orderId) {
     // 주문 확인
     Order order =
         orderRepository

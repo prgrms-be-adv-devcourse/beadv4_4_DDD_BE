@@ -27,7 +27,7 @@ public class OrderSupport {
     return orderMemberRepository.count();
   }
 
-  public OrderMember findByMemberId(long memberId) {
+  public OrderMember findByMemberId(Long memberId) {
     return orderMemberRepository
         .findById(memberId)
         .orElseThrow(() -> new GeneralException(ErrorStatus.ORDER_MEMBER_NOT_FOUND));
@@ -38,7 +38,7 @@ public class OrderSupport {
     return orderProductRepository.count();
   }
 
-  public OrderProduct findByProductId(long productId) {
+  public OrderProduct findByProductId(Long productId) {
     return orderProductRepository
         .findById(productId)
         .orElseThrow(() -> new GeneralException(ErrorStatus.ORDER_PRODUCT_NOT_FOUND));
@@ -75,7 +75,7 @@ public class OrderSupport {
   }
 
   // --- cartItem ---
-  public List<CartItem> getCartItemsByMemberId(long memberId) {
+  public List<CartItem> getCartItemsByMemberId(Long memberId) {
     List<CartItem> cartItems = orderCartItemRepository.findAllByMemberId(memberId);
     if (cartItems.isEmpty()) {
       throw new GeneralException(ErrorStatus.ORDER_CART_EMPTY);
