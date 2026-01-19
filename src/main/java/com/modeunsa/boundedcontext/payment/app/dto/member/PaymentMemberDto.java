@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.payment.app.dto;
+package com.modeunsa.boundedcontext.payment.app.dto.member;
 
 import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
 import lombok.Getter;

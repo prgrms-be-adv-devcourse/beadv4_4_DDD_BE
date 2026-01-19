@@ -2,19 +2,22 @@ package com.modeunsa.boundedcontext.payment.app;
 
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositResponse;
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentMemberDto;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentPayoutDto;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequestResult;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentResponse;
+import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
+import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberResponse;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentChargePgUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreateAccountUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreditAccountUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.PaymentGetMemberUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentPayoutCompleteUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentProcessUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentRefundUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentRequestUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentSyncMemberUseCase;
+import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
 import com.modeunsa.shared.payment.dto.PaymentDto;
 import java.math.BigDecimal;
@@ -27,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PaymentFacade {
 
   private final PaymentSyncMemberUseCase paymentSyncMemberUseCase;
+  private final PaymentGetMemberUseCase paymentGetMemberUseCase;
   private final PaymentCreateAccountUseCase paymentCreateAccountUseCase;
   private final PaymentCreditAccountUseCase paymentCreditAccountUseCase;
   private final PaymentRequestUseCase paymentRequestUseCase;
@@ -38,6 +42,12 @@ public class PaymentFacade {
   @Transactional
   public void createPaymentMember(PaymentMemberDto paymentMemberDto) {
     paymentSyncMemberUseCase.createPaymentMember(paymentMemberDto);
+  }
+
+  public PaymentMemberResponse getMember(Long memberId) {
+    PaymentMember paymentMember = paymentGetMemberUseCase.getMember(memberId);
+    return new PaymentMemberResponse(
+        paymentMember.getCustomerKey(), paymentMember.getName(), paymentMember.getEmail());
   }
 
   @Transactional
