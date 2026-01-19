@@ -18,13 +18,20 @@ public class AuthLogoutUseCase {
   private final AuthAccessTokenBlacklistRepository blacklistRepository;
 
   public void execute(String accessToken) {
-    // 1. Access Token에서 정보 추출
+    // Access Token에서 정보 추출
     Long memberId = jwtTokenProvider.getMemberIdFromToken(accessToken);
-    long remainingExpiration = jwtTokenProvider.getRemainingExpiration(accessToken);
 
-    // 2. Refresh Token 삭제
+    // 이미 블랙리스트에 있으면 중복 로그아웃 → 무시
+    if (blacklistRepository.existsById(accessToken)) {
+      log.info("이미 로그아웃된 토큰 - memberId: {}", memberId);
+      return;
+    }
+
+    // Refresh Token 삭제
     refreshTokenRepository.deleteById(memberId);
     log.info("Refresh Token 삭제 완료 - memberId: {}", memberId);
+
+    long remainingExpiration = jwtTokenProvider.getRemainingExpiration(accessToken);
 
     // 3. Access Token 블랙리스트 등록 (남은 만료시간만큼 TTL 설정)
     if (remainingExpiration > 0) {
