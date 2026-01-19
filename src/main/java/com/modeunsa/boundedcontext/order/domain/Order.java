@@ -14,6 +14,7 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
@@ -50,14 +51,17 @@ public class Order extends GeneratedIdAndAuditedEntity {
   private BigDecimal totalAmount;
 
   // --- 배송 정보 ---
-  @Column(name = "receiver_name", nullable = false, length = 20)
-  private String receiverName;
+  @Column(name = "recipient_name", nullable = false, length = 20)
+  private String recipientName;
 
-  @Column(name = "receiver_phone", nullable = false, length = 20)
-  private String receiverPhone;
+  @Column(name = "recipient_phone", nullable = false, length = 20)
+  private String recipientPhone;
 
-  @Column(name = "zipcode", nullable = false, length = 10)
-  private String zipcode;
+  @Column(nullable = false, length = 10)
+  private String zipCode;
+
+  @Column(name = "address", nullable = false, length = 255)
+  private String address;
 
   @Column(name = "address_detail", nullable = false, length = 200)
   private String addressDetail;
@@ -65,6 +69,8 @@ public class Order extends GeneratedIdAndAuditedEntity {
   // --- 시간 정보 ---
   @Column(name = "payment_deadline_at", nullable = false)
   private LocalDateTime paymentDeadlineAt;
+
+  private LocalDateTime deliveredAt;
 
   /** 도메인 메서드 */
   @PrePersist
@@ -79,11 +85,59 @@ public class Order extends GeneratedIdAndAuditedEntity {
     item.setOrder(this);
   }
 
-  public boolean isCancellable() {
-    return status == OrderStatus.PENDING_PAYMENT || status == OrderStatus.PAID;
-  }
-
   public void requestCancel() {
     this.status = OrderStatus.CANCEL_REQUESTED;
+  }
+
+  // 정적 메서드
+  public static Order createOrder(
+      OrderMember member,
+      List<OrderItem> orderItems,
+      String recipientName,
+      String recipientPhone,
+      String zipCode,
+      String address,
+      String addressDetail) {
+
+    // 주문 껍데기 생성
+    Order order =
+        Order.builder()
+            .orderMember(member)
+            .orderNo(generateOrderNo(member.getId()))
+            .status(OrderStatus.PENDING_PAYMENT)
+            .recipientName(recipientName)
+            .recipientPhone(recipientPhone)
+            .zipCode(zipCode)
+            .address(address)
+            .addressDetail(addressDetail)
+            .build();
+
+    for (OrderItem item : orderItems) {
+      order.addOrderItem(item);
+    }
+
+    // 총 가격 계산
+    order.calculateTotalPrice();
+
+    return order;
+  }
+
+  // 주문번호 생성 {날짜와 시간-유저 ID(yyyyMMddHHmmssSSS-%04d 포맷팅)}
+  public static String generateOrderNo(Long memberId) {
+    return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"))
+        + "-"
+        + String.format("%04d", memberId % 10000);
+  }
+
+  // 주문 총 가격 생성
+  public void calculateTotalPrice() {
+    this.totalAmount =
+        this.orderItems.stream()
+            .map(OrderItem::calculateSubTotal)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+  }
+
+  public void requestRefund() {
+    this.status = OrderStatus.REFUND_REQUESTED;
   }
 }

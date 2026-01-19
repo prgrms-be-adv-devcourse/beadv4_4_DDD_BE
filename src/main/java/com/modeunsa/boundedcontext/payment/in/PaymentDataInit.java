@@ -6,6 +6,8 @@ import com.modeunsa.boundedcontext.payment.app.dto.PaymentMemberDto;
 import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import java.math.BigDecimal;
+import java.util.UUID;
+import org.slf4j.MDC;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +20,8 @@ public class PaymentDataInit {
   private final PaymentDataInit self;
   private final PaymentFacade paymentFacade;
 
+  private static final String TRACE_ID_MDC_KEY = "TRACE_ID";
+
   public PaymentDataInit(@Lazy PaymentDataInit self, PaymentFacade paymentFacade) {
     this.self = self;
     this.paymentFacade = paymentFacade;
@@ -26,8 +30,15 @@ public class PaymentDataInit {
   @Bean
   public ApplicationRunner paymentDataInitApplicationRunner() {
     return args -> {
-      self.makeBasePaymentMembers();
-      self.makeBaseCredits();
+      String traceId = UUID.randomUUID().toString();
+      MDC.put(TRACE_ID_MDC_KEY, traceId);
+
+      try {
+        self.makeBasePaymentMembers();
+        self.makeBaseCredits();
+      } finally {
+        MDC.clear();
+      }
     };
   }
 

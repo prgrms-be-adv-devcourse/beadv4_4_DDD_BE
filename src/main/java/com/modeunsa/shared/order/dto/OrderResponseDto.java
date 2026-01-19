@@ -17,8 +17,9 @@ public class OrderResponseDto {
 
   private List<OrderItemResponseDto> orderItems;
 
-  private String receiverName;
-  private String receiverPhone;
-  private String zipcode;
+  private String recipientName;
+  private String recipientPhone;
+  private String zipCode;
+  private String address;
   private String addressDetail;
 }

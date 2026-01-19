@@ -24,7 +24,9 @@ public enum SuccessStatus {
   MEMBER_ADDRESS_DELETE_SUCCESS(HttpStatus.OK, "MEMBER_200_004", "배송지 삭제에 성공했습니다."),
   // Member 201
   MEMBER_ADDRESS_CREATE_SUCCESS(HttpStatus.CREATED, "MEMBER_201_001", "배송지 등록에 성공했습니다."),
-  ;
+
+  // Content 200
+  CONTENT_LIST_GET_SUCCESS(HttpStatus.OK, "CONTENT_200_001", "콘텐츠 전체 조회에 성공했습니다.");
 
   private final HttpStatus httpStatus;
   private final String code;

@@ -38,10 +38,17 @@ public class Settlement extends GeneratedIdAndAuditedEntity {
   @Builder.Default
   private List<SettlementItem> items = new ArrayList<>();
 
+  private int settlementYear;
+  private int settlementMonth;
+
   private LocalDateTime payoutAt;
 
-  public static Settlement create(Long sellerMemberId) {
-    return Settlement.builder().sellerMemberId(sellerMemberId).build();
+  public static Settlement create(Long sellerMemberId, int year, int month) {
+    return Settlement.builder()
+        .sellerMemberId(sellerMemberId)
+        .settlementYear(year)
+        .settlementMonth(month)
+        .build();
   }
 
   public SettlementItem addItem(
@@ -74,5 +81,13 @@ public class Settlement extends GeneratedIdAndAuditedEntity {
         amount.multiply(SettlementPolicy.FEE_RATE).setScale(0, RoundingMode.HALF_UP);
     BigDecimal sellerAmount = amount.subtract(feeAmount);
     return new PayoutAmounts(sellerAmount, feeAmount);
+  }
+
+  public void completePayout() {
+    this.payoutAt = LocalDateTime.now();
+  }
+
+  public boolean isCompletedPayout() {
+    return this.payoutAt != null;
   }
 }

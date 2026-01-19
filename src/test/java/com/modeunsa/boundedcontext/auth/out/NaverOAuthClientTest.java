@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.auth;
+package com.modeunsa.boundedcontext.auth.out;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
-import com.modeunsa.boundedcontext.auth.out.client.KakaoOAuthClient;
+import com.modeunsa.boundedcontext.auth.out.client.NaverOAuthClient;
 import com.modeunsa.boundedcontext.auth.out.client.OAuthClientProperties;
 import java.time.Duration;
 import java.util.Map;
@@ -22,7 +22,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
 @ExtendWith(MockitoExtension.class)
-class KakaoOAuthClientTest {
+class NaverOAuthClientTest {
 
   @Mock private StringRedisTemplate redisTemplate;
 
@@ -30,23 +30,23 @@ class KakaoOAuthClientTest {
 
   @Mock private OAuthClientProperties properties;
 
-  private KakaoOAuthClient kakaoOAuthClient;
+  private NaverOAuthClient naverOAuthClient;
 
   @BeforeEach
   void setUp() {
     OAuthClientProperties.Registration registration =
         OAuthClientProperties.Registration.ofTest(
-            "test-kakao-client-id", "http://127.0.0.1:8080/login/oauth2/code/kakao");
+            "test-naver-client-id", "http://127.0.0.1:8080/login/oauth2/code/naver");
 
-    lenient().when(properties.registration()).thenReturn(Map.of("kakao", registration));
+    lenient().when(properties.registration()).thenReturn(Map.of("naver", registration));
 
-    kakaoOAuthClient = new KakaoOAuthClient(redisTemplate, properties);
+    naverOAuthClient = new NaverOAuthClient(redisTemplate, properties);
   }
 
   @Test
-  @DisplayName("카카오 OAuth Provider 반환")
-  void getProvider_returnsKakao() {
-    assertThat(kakaoOAuthClient.getProvider()).isEqualTo(OAuthProvider.KAKAO);
+  @DisplayName("네이버 OAuth Provider 반환")
+  void getProvider_returnsNaver() {
+    assertThat(naverOAuthClient.getProvider()).isEqualTo(OAuthProvider.NAVER);
   }
 
   @Test
@@ -54,13 +54,13 @@ class KakaoOAuthClientTest {
   void generateOAuthUrl_withDefaultRedirectUri() {
     when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
-    String url = kakaoOAuthClient.generateOAuthUrl(null);
-    String provider = OAuthProvider.KAKAO.name();
+    String url = naverOAuthClient.generateOAuthUrl(null);
+    String provider = OAuthProvider.NAVER.name();
 
     // URL 검증
-    assertThat(url).contains("https://kauth.kakao.com/oauth/authorize");
-    assertThat(url).contains("client_id=test-kakao-client-id");
-    assertThat(url).contains("redirect_uri=http://127.0.0.1:8080/login/oauth2/code/kakao");
+    assertThat(url).contains("https://nid.naver.com/oauth2.0/authorize");
+    assertThat(url).contains("client_id=test-naver-client-id");
+    assertThat(url).contains("redirect_uri=http://127.0.0.1:8080/login/oauth2/code/naver");
     assertThat(url).contains("response_type=code");
     assertThat(url).contains("state=");
 
@@ -75,10 +75,9 @@ class KakaoOAuthClientTest {
     when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
     String customRedirectUri = "http://localhost:3000/callback";
-    String url = kakaoOAuthClient.generateOAuthUrl(customRedirectUri);
+    String url = naverOAuthClient.generateOAuthUrl(customRedirectUri);
 
     assertThat(url).contains("redirect_uri=http://localhost:3000/callback");
-    assertThat(url).doesNotContain("redirect_uri=http://127.0.0.1:8080");
   }
 
   @Test
@@ -86,7 +85,7 @@ class KakaoOAuthClientTest {
   void generateOAuthUrl_containsStateParameter() {
     when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
-    String url = kakaoOAuthClient.generateOAuthUrl(null);
+    String url = naverOAuthClient.generateOAuthUrl(null);
 
     assertThat(url).containsPattern("state=[a-f0-9\\-]{36}");
   }

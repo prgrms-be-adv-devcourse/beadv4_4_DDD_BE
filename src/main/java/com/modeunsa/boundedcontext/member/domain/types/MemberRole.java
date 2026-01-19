@@ -11,6 +11,5 @@ public enum MemberRole {
   ADMIN("관리자"),
   HOLDER("홀더"),
   SYSTEM("시스템");
-
   private final String description;
 }

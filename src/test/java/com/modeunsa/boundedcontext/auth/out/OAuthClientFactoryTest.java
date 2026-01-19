@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.auth;
+package com.modeunsa.boundedcontext.auth.out;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

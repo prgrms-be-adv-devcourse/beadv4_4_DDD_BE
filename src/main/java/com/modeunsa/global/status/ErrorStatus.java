@@ -24,14 +24,18 @@ public enum ErrorStatus {
   // Auth 400
   OAUTH_INVALID_PROVIDER(HttpStatus.BAD_REQUEST, "AUTH_400_001", "지원하지 않는 OAuth 제공자입니다."),
   OAUTH_INVALID_REDIRECT_URI(HttpStatus.BAD_REQUEST, "AUTH_400_002", "유효하지 않은 리다이렉트 URI입니다."),
+  AUTH_INVALID_TOKEN_FORMAT(HttpStatus.BAD_REQUEST, "AUTH_400_003", "잘못된 토큰 형식입니다."),
+  AUTH_NOT_ACCESS_TOKEN(HttpStatus.BAD_REQUEST, "AUTH_400_004", "Access Token이 아닙니다."),
+  AUTH_UNAUTHORIZED(HttpStatus.BAD_REQUEST, "AUTH_400_005", "인증되지 않은 사용자입니다."),
   // Auth 401
   AUTH_INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_001", "유효하지 않은 토큰입니다."),
   AUTH_EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_002", "만료된 토큰입니다."),
-  AUTH_INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_006", "유효하지 않은 Access Token입니다."),
   AUTH_INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_003", "유효하지 않은 Refresh Token입니다."),
   AUTH_REFRESH_TOKEN_NOT_FOUND(
       HttpStatus.UNAUTHORIZED, "AUTH_401_004", "Refresh Token이 존재하지 않습니다."),
   AUTH_INVALID_TOKEN_TYPE(HttpStatus.UNAUTHORIZED, "AUTH_401_005", "유효하지 않은 토큰 타입입니다."),
+  AUTH_INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_006", "유효하지 않은 Access Token입니다."),
+  AUTH_BLACKLISTED_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_007", "로그아웃된 토큰입니다."),
   // Auth 403
   AUTH_ACCESS_DENIED(HttpStatus.FORBIDDEN, "AUTH_403_001", "접근 권한이 없습니다."),
   // Auth 502
@@ -61,6 +65,8 @@ public enum ErrorStatus {
   // Order
   ORDER_STOCK_NOT_ENOUGH(HttpStatus.BAD_REQUEST, "ORDER_400_001", "상품의 재고가 부족합니다."),
   ORDER_CANNOT_CANCEL(HttpStatus.BAD_REQUEST, "ORDER_400_002", "현재 주문 상태에서는 주문을 취소할 수 없습니다."),
+  ORDER_CART_EMPTY(HttpStatus.BAD_REQUEST, "ORDER_400_003", "장바구니가 비어 있습니다."),
+  ORDER_CANNOT_REFUND(HttpStatus.BAD_REQUEST, "ORDER_400_004", "환불 가능한 상태나 기간이 아닙니다."),
 
   ORDER_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_404_001", "없는 상품입니다."),
   ORDER_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_404_002", "없는 회원입니다."),
@@ -77,8 +83,11 @@ public enum ErrorStatus {
   INVALID_PRODUCT_STATUS(HttpStatus.BAD_REQUEST, "PRODUCT_400_007", "잘못된 상품 등록 상태입니다."),
   INVALID_PRODUCT_UPDATE_FIELD(HttpStatus.BAD_REQUEST, "PRODUCT_400_008", "수정 불가한 필드입니다."),
   INVALID_PRODUCT_MEMBER(HttpStatus.BAD_REQUEST, "PRODUCT_400_009", "판매자 정보가 다릅니다."),
+  PRODUCT_FIELD_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_010", "필수값을 입력해주세요."),
   // PRODUCT 404
   PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT_404_001", "상품이 존재하지 않습니다."),
+  PRODUCT_MEMBER_NOT_FOUND(HttpStatus.BAD_REQUEST, "PRODUCT_400_002", "존재하지 않는 회원입니다."),
+  PRODUCT_SELLER_NOT_FOUND(HttpStatus.BAD_REQUEST, "PRODUCT_400_003", "존재하지 않는 판매자입니다."),
 
   // Payment
   PAYMENT_MEMBER_DUPLICATE(HttpStatus.BAD_REQUEST, "PAYMENT_400_001", "이미 등록된 결제 회원 정보가 존재합니다."),
@@ -110,6 +119,9 @@ public enum ErrorStatus {
   // CONTENT 404
   CONTENT_NOT_FOUND(HttpStatus.NOT_FOUND, "CONTENT_404_001", "CONTENT 정보를 찾을 수 없습니다."),
   CONTENT_ALREADY_DELETE(HttpStatus.NOT_FOUND, "CONTENT_404_002", "이 CONTENT는 이미 삭제되었습니다."),
+
+  // Settlement 400
+  SETTLEMENT_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_001", "구매 확정 일자는 필수입니다."),
 
   // Settlement 404
   SETTLEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "SETTLEMENT_404_001", "정산서가 존재하지 않습니다."),

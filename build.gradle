@@ -33,6 +33,11 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-batch'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+
+    // aop
+    implementation 'org.springframework:spring-aop'
+    implementation 'org.aspectj:aspectjweaver'
 
     // mapper
     implementation 'org.modelmapper:modelmapper:3.1.1'
