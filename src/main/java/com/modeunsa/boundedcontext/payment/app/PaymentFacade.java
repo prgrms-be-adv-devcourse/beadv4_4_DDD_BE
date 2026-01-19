@@ -11,6 +11,7 @@ import com.modeunsa.boundedcontext.payment.app.dto.PaymentResponse;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberResponse;
 import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmResponse;
+import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentChargePgUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentConfirmTossPaymentUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreateAccountUseCase;
@@ -21,6 +22,7 @@ import com.modeunsa.boundedcontext.payment.app.usecase.PaymentProcessUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentRefundUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentRequestUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentSyncMemberUseCase;
+import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
 import com.modeunsa.shared.payment.dto.PaymentDto;
@@ -44,6 +46,7 @@ public class PaymentFacade {
   private final PaymentRefundUseCase paymentRefundUseCase;
   private final PaymentChargePgUseCase paymentChargePgUseCase;
   private final PaymentConfirmTossPaymentUseCase paymentConfirmTossPaymentUseCase;
+  private final PaymentAccountSupport paymentAccountSupport;
 
   @Transactional
   public void createPaymentMember(PaymentMemberDto paymentMemberDto) {
@@ -52,8 +55,13 @@ public class PaymentFacade {
 
   public PaymentMemberResponse getMember(Long memberId) {
     PaymentMember paymentMember = paymentGetMemberUseCase.getMember(memberId);
+    PaymentAccount paymentAccount =
+        paymentAccountSupport.getPaymentAccountByMemberId(paymentMember.getId());
     return new PaymentMemberResponse(
-        paymentMember.getCustomerKey(), paymentMember.getName(), paymentMember.getEmail());
+        paymentMember.getCustomerKey(),
+        paymentMember.getName(),
+        paymentMember.getEmail(),
+        paymentAccount.getBalance());
   }
 
   @Transactional

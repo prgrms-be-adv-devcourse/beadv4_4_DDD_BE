@@ -13,6 +13,7 @@ interface PaymentMemberResponse {
   customerKey: string
   customerName: string
   customerEmail: string
+  balance: number
 }
 
 interface PaymentMemberApiResponse {
@@ -263,7 +264,23 @@ export default function Home() {
       <section className="payment-method-section">
         <h2 className="section-title">결제 수단</h2>
         <div className="payment-method">
-          <input type="radio" id="toss" name="payment" defaultChecked />
+          <input type="radio" id="modeunsa" name="payment" defaultChecked />
+          <label htmlFor="modeunsa">
+            <div className="modeunsa-logo">뭐든사</div>
+            <span>뭐든사페이</span>
+            <span style={{ fontSize: '13px', color: '#666' }}>
+              (사용 가능 금액:{' '}
+              {memberInfo
+                ? `${new Intl.NumberFormat('ko-KR').format(Number(memberInfo.balance))}원`
+                : isLoadingMember
+                ? '로딩 중...'
+                : '0원'}
+              )
+            </span>
+          </label>
+        </div>
+        <div className="payment-method">
+          <input type="radio" id="toss" name="payment" />
           <label htmlFor="toss">
             <div className="toss-logo">토스</div>
             <span>토스페이</span>

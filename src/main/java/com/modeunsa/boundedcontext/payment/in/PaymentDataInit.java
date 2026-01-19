@@ -74,7 +74,7 @@ public class PaymentDataInit {
             3L, BigDecimal.valueOf(150_000), PaymentEventType.CHARGE_BANK_TRANSFER));
     paymentFacade.creditAccount(
         new PaymentAccountDepositRequest(
-            4L, BigDecimal.valueOf(100_000), PaymentEventType.CHARGE_BANK_TRANSFER));
+            4L, BigDecimal.valueOf(20_000), PaymentEventType.CHARGE_BANK_TRANSFER));
     paymentFacade.creditAccount(
         new PaymentAccountDepositRequest(
             5L, BigDecimal.valueOf(50_000), PaymentEventType.CHARGE_BANK_TRANSFER));

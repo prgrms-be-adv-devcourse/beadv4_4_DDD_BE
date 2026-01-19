@@ -196,6 +196,12 @@ a {
 .payment-method {
   display: flex;
   align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.payment-method:last-child {
+  margin-bottom: 0;
 }
 
 .payment-method input[type="radio"] {
@@ -208,7 +214,8 @@ a {
 .payment-method label {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+  flex: 1;
   cursor: pointer;
   font-size: 16px;
   color: #333;
@@ -216,6 +223,16 @@ a {
 
 .toss-logo {
   background: linear-gradient(135deg, #3182f6 0%, #1e5fce 100%);
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  width: fit-content;
+}
+
+.modeunsa-logo {
+  background: linear-gradient(135deg, #000000 0%, #333333 100%);
   color: white;
   font-size: 14px;
   font-weight: 600;
