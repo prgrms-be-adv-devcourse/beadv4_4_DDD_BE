@@ -3,8 +3,8 @@ package com.modeunsa.boundedcontext.payment.app.usecase;
 import static com.modeunsa.global.status.ErrorStatus.PAYMENT_DUPLICATE;
 import static com.modeunsa.global.status.ErrorStatus.PAYMENT_MEMBER_IN_ACTIVE;
 
+import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequest;
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequestResult;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentMemberSupport;
 import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
@@ -28,7 +28,7 @@ public class PaymentRequestUseCase {
   private final PaymentMemberSupport paymentMemberSupport;
   private final PaymentRepository paymentRepository;
 
-  public PaymentRequestResult execute(PaymentRequest paymentRequest) {
+  public PaymentProcessContext execute(PaymentRequest paymentRequest) {
 
     PaymentMember buyer = paymentMemberSupport.getPaymentMemberById(paymentRequest.getBuyerId());
     if (!buyer.canOrder()) {
@@ -61,7 +61,7 @@ public class PaymentRequestUseCase {
       // 복합키 저장을 위해 Payment 를 먼저 저장 후 로그를 추가
       Payment saved = paymentRepository.save(payment);
       saved.addInitialLog(saved);
-      return new PaymentRequestResult(
+      return new PaymentProcessContext(
           saved.getId().getMemberId(),
           saved.getId().getOrderNo(),
           paymentRequest.getOrderId(),

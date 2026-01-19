@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class PaymentRequestResult {
+public class PaymentProcessContext {
   private final Long buyerId;
   private final String orderNo;
   private final Long orderId;
@@ -15,8 +15,8 @@ public class PaymentRequestResult {
   private final BigDecimal chargeAmount;
   private final BigDecimal totalAmount;
 
-  public static PaymentRequestResult fromPaymentForCharge(Payment payment) {
-    return new PaymentRequestResult(
+  public static PaymentProcessContext fromPaymentForCharge(Payment payment) {
+    return new PaymentProcessContext(
         payment.getId().getMemberId(),
         payment.getId().getOrderNo(),
         payment.getOrderId(),

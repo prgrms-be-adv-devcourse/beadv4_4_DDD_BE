@@ -7,10 +7,8 @@ import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.boundedcontext.payment.domain.types.ReferenceType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class PaymentPayoutCompleteUseCase {
 

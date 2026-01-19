@@ -1,10 +1,12 @@
 package com.modeunsa.boundedcontext.payment.app.dto;
 
 import java.math.BigDecimal;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
+@Builder
 @RequiredArgsConstructor
 public class PaymentResponse {
   private final Long buyerId;
@@ -14,12 +16,25 @@ public class PaymentResponse {
   private final boolean needsCharge;
   private final BigDecimal chargeAmount;
 
-  public PaymentResponse(PaymentRequestResult result) {
-    this.buyerId = result.getBuyerId();
-    this.orderNo = result.getOrderNo();
-    this.orderId = result.getOrderId();
-    this.totalAmount = result.getTotalAmount();
-    this.needsCharge = result.isNeedsCharge();
-    this.chargeAmount = result.getChargeAmount();
+  public static PaymentResponse needCharge(PaymentProcessContext result) {
+    return PaymentResponse.builder()
+        .buyerId(result.getBuyerId())
+        .orderNo(result.getOrderNo())
+        .orderId(result.getOrderId())
+        .totalAmount(result.getTotalAmount())
+        .needsCharge(true)
+        .chargeAmount(result.getChargeAmount())
+        .build();
+  }
+
+  public static PaymentResponse complete(PaymentProcessContext result) {
+    return PaymentResponse.builder()
+        .buyerId(result.getBuyerId())
+        .orderNo(result.getOrderNo())
+        .orderId(result.getOrderId())
+        .totalAmount(result.getTotalAmount())
+        .needsCharge(false)
+        .chargeAmount(BigDecimal.ZERO)
+        .build();
   }
 }

@@ -1,6 +1,6 @@
 package com.modeunsa.boundedcontext.payment.app.usecase;
 
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequestResult;
+import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
 import com.modeunsa.boundedcontext.payment.app.lock.LockedPaymentAccounts;
 import com.modeunsa.boundedcontext.payment.app.lock.PaymentAccountLockManager;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentSupport;
@@ -26,77 +26,80 @@ public class PaymentProcessUseCase {
   private final SpringDomainEventPublisher eventPublisher;
   private final PaymentAccountConfig paymentAccountConfig;
 
-  public void execute(PaymentRequestResult paymentRequestResult) {
+  public void execute(PaymentProcessContext paymentProcessContext) {
 
+    // 1. 결제 계좌에 대한 Lock 획득
     LockedPaymentAccounts accounts =
         paymentAccountLockManager.getEntitiesForUpdateInOrder(
-            paymentAccountConfig.getHolderMemberId(), paymentRequestResult.getBuyerId());
+            paymentAccountConfig.getHolderMemberId(), paymentProcessContext.getBuyerId());
 
+    // 2. 결제 계좌 영속성 획득
     PaymentAccount holderAccount = accounts.get(paymentAccountConfig.getHolderMemberId());
-    PaymentAccount buyerAccount = accounts.get(paymentRequestResult.getBuyerId());
+    PaymentAccount buyerAccount = accounts.get(paymentProcessContext.getBuyerId());
 
-    if (paymentRequestResult.isNeedsCharge()) {
-      executeWithCharge(holderAccount, buyerAccount, paymentRequestResult);
+    // 3. 결제 처리
+    if (paymentProcessContext.isNeedsCharge()) {
+      executeWithCharge(holderAccount, buyerAccount, paymentProcessContext);
     } else {
-      executeWithoutCharge(holderAccount, buyerAccount, paymentRequestResult);
+      executeWithoutCharge(holderAccount, buyerAccount, paymentProcessContext);
     }
   }
 
   private void executeWithoutCharge(
       PaymentAccount holderAccount,
       PaymentAccount buyerAccount,
-      PaymentRequestResult paymentRequestResult) {
-    processPayment(holderAccount, buyerAccount, paymentRequestResult);
+      PaymentProcessContext paymentProcessContext) {
+    processPayment(holderAccount, buyerAccount, paymentProcessContext);
   }
 
   private void executeWithCharge(
       PaymentAccount holderAccount,
       PaymentAccount buyerAccount,
-      PaymentRequestResult paymentRequestResult) {
-    chargeFromPg(buyerAccount, paymentRequestResult);
-    processPayment(holderAccount, buyerAccount, paymentRequestResult);
+      PaymentProcessContext paymentProcessContext) {
+    chargeFromPg(buyerAccount, paymentProcessContext);
+    processPayment(holderAccount, buyerAccount, paymentProcessContext);
   }
 
   private void chargeFromPg(
-      PaymentAccount buyerAccount, PaymentRequestResult paymentRequestResult) {
+      PaymentAccount buyerAccount, PaymentProcessContext paymentProcessContext) {
     buyerAccount.credit(
-        paymentRequestResult.getChargeAmount(),
+        paymentProcessContext.getChargeAmount(),
         PaymentEventType.CHARGE_PG_TOSS_PAYMENTS,
-        paymentRequestResult.getOrderId(),
+        paymentProcessContext.getOrderId(),
         ReferenceType.ORDER);
   }
 
   private void processPayment(
       PaymentAccount holderAccount,
       PaymentAccount buyerAccount,
-      PaymentRequestResult paymentRequestResult) {
+      PaymentProcessContext paymentProcessContext) {
     buyerAccount.debit(
-        paymentRequestResult.getTotalAmount(),
+        paymentProcessContext.getTotalAmount(),
         PaymentEventType.USE_ORDER_PAYMENT,
-        paymentRequestResult.getOrderId(),
+        paymentProcessContext.getOrderId(),
         ReferenceType.ORDER);
 
     holderAccount.credit(
-        paymentRequestResult.getTotalAmount(),
+        paymentProcessContext.getTotalAmount(),
         PaymentEventType.HOLD_STORE_ORDER_PAYMENT,
-        paymentRequestResult.getOrderId(),
+        paymentProcessContext.getOrderId(),
         ReferenceType.ORDER);
 
     paymentSupport.changePaymentStatus(
-        paymentRequestResult.getBuyerId(),
-        paymentRequestResult.getOrderNo(),
+        paymentProcessContext.getBuyerId(),
+        paymentProcessContext.getOrderNo(),
         PaymentStatus.COMPLETED);
 
-    publishPaymentSuccessEvent(paymentRequestResult);
+    publishPaymentSuccessEvent(paymentProcessContext);
   }
 
-  private void publishPaymentSuccessEvent(PaymentRequestResult paymentRequestResult) {
+  private void publishPaymentSuccessEvent(PaymentProcessContext paymentProcessContext) {
     eventPublisher.publish(
         new PaymentSuccessEvent(
             new PaymentDto(
-                paymentRequestResult.getOrderId(),
-                paymentRequestResult.getOrderNo(),
-                paymentRequestResult.getBuyerId(),
-                paymentRequestResult.getTotalAmount())));
+                paymentProcessContext.getOrderId(),
+                paymentProcessContext.getOrderNo(),
+                paymentProcessContext.getBuyerId(),
+                paymentProcessContext.getTotalAmount())));
   }
 }

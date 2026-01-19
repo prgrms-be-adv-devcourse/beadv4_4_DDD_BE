@@ -16,7 +16,7 @@ public class PaymentInProgressUseCase {
   private final PaymentSupport paymentSupport;
 
   public void execute(String orderNo, ConfirmPaymentRequest confirmPaymentRequest) {
-    PaymentId paymentId = new PaymentId(confirmPaymentRequest.memberId(), orderNo);
+    PaymentId paymentId = PaymentId.create(confirmPaymentRequest.memberId(), orderNo);
     Payment payment = paymentSupport.getPaymentById(paymentId);
     payment.inProgressPayment(confirmPaymentRequest);
   }

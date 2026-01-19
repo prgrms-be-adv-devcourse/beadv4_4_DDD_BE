@@ -1,7 +1,7 @@
 package com.modeunsa.boundedcontext.payment.app.usecase;
 
 import com.modeunsa.boundedcontext.payment.app.dto.ConfirmPaymentRequest;
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequestResult;
+import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
 import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmResponse;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentSupport;
@@ -22,18 +22,19 @@ public class PaymentConfirmTossPaymentUseCase {
   private final PaymentSupport paymentSupport;
   private final TossPaymentClient tossPaymentClient;
 
-  public PaymentRequestResult execute(String orderNo, ConfirmPaymentRequest confirmPaymentRequest) {
+  public PaymentProcessContext execute(
+      String orderNo, ConfirmPaymentRequest confirmPaymentRequest) {
 
-    PaymentId paymentId = new PaymentId(confirmPaymentRequest.memberId(), orderNo);
+    PaymentId paymentId = PaymentId.create(confirmPaymentRequest.memberId(), orderNo);
 
     Payment payment = paymentSupport.getPaymentById(paymentId);
 
-    TossPaymentsConfirmRequest tossReq = new TossPaymentsConfirmRequest(confirmPaymentRequest);
+    TossPaymentsConfirmRequest tossReq = TossPaymentsConfirmRequest.from(confirmPaymentRequest);
 
     try {
       TossPaymentsConfirmResponse tossRes = tossPaymentClient.confirmPayment(tossReq);
       payment.approveTossPayment(tossRes);
-      return PaymentRequestResult.fromPaymentForCharge(payment);
+      return PaymentProcessContext.fromPaymentForCharge(payment);
     } catch (GeneralException ge) {
       payment.failedTossPayment(
           ge.getErrorStatus().getHttpStatus(), ge.getErrorStatus().getMessage());
