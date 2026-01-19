@@ -7,8 +7,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class CreateCartOrderRequestDto {
-  @NotNull private String receiverName;
-  @NotNull private String receiverPhone;
+  @NotNull private String recipientName;
+  @NotNull private String recipientPhone;
   @NotNull private String zipcode;
+  @NotNull private String address;
   @NotNull private String addressDetail;
 }

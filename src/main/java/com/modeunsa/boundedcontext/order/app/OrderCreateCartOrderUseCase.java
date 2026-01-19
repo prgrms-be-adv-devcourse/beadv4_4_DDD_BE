@@ -42,9 +42,10 @@ public class OrderCreateCartOrderUseCase {
         Order.createOrder(
             member,
             orderItems,
-            requestDto.getReceiverName(),
-            requestDto.getReceiverPhone(),
+            requestDto.getRecipientName(),
+            requestDto.getRecipientPhone(),
             requestDto.getZipcode(),
+            requestDto.getAddress(),
             requestDto.getAddressDetail());
 
     // 주문 저장

@@ -144,10 +144,11 @@ public class OrderDataInit {
         new CreateOrderRequestDto(
             product1.getId(), // productId
             2, // quantity (2개 구매)
-            "홍길동", // receiverName
-            "010-1234-5678", // receiverPhone
+            "홍길동", // recipientrName
+            "010-1234-5678", // recipientPhone
             "12345", // zipcode
-            "서울시 강남구 테헤란로 123" // addressDetail
+            "서울시 강남구 테헤란로 123", // addresss
+            "107동" // addressDetail
             ));
 
     log.info("Test Single Order Created: user1 bought '셔츠' (qty: 2)");
@@ -157,10 +158,11 @@ public class OrderDataInit {
         new CreateOrderRequestDto(
             product2.getId(), // productId
             7, // quantity (2개 구매)
-            "세종대왕", // receiverName
-            "010-1234-5678", // receiverPhone
+            "세종대왕", // recipientName
+            "010-1234-5678", // recipientPhone
             "12345", // zipcode
-            "서울시 강남구 테헤란로 123" // addressDetail
+            "서울시 강남구 테헤란로 123", // address
+            "203동" // addressDetail
             ));
 
     log.info("Test Single Order Created: user2 bought '셔츠' (qty: 7)");

@@ -44,9 +44,10 @@ public class OrderCreateOrderUseCase {
         Order.createOrder(
             member,
             List.of(orderItem),
-            requestDto.getReceiverName(),
-            requestDto.getReceiverPhone(),
-            requestDto.getZipcode(),
+            requestDto.getRecipientName(),
+            requestDto.getRecipientPhone(),
+            requestDto.getZipCode(),
+            requestDto.getAddress(),
             requestDto.getAddressDetail());
 
     // 주문을 저장하면 주문상품도 같이 저장
