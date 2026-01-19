@@ -74,8 +74,8 @@ public class ApiV1AuthController {
   @Operation(summary = "로그아웃", description = "Access Token을 블랙리스트에 등록하고 Refresh Token을 삭제합니다.")
   @PostMapping("/logout")
   public ResponseEntity<ApiResponse> logout(
-      @Parameter(description = "Access Token", required = true)
-      @RequestHeader("Authorization") String authorizationHeader) {
+      @Parameter(description = "Access Token", required = true) @RequestHeader("Authorization")
+          String authorizationHeader) {
 
     // 1. Bearer 토큰 추출
     String accessToken = resolveToken(authorizationHeader);
@@ -106,16 +106,17 @@ public class ApiV1AuthController {
     }
 
     // 인증된 사용자 정보 반환
-    Map<String, Object> userInfo = Map.of(
-        "memberId", authentication.getName(),
-        "authorities", authentication.getAuthorities()
-    );
+    Map<String, Object> userInfo =
+        Map.of(
+            "memberId", authentication.getName(),
+            "authorities", authentication.getAuthorities());
 
     return ApiResponse.onSuccess(SuccessStatus.OK, userInfo);
   }
 
   /**
    * Authorization 헤더에서 Bearer 토큰 추출
+   *
    * @param bearerToken Authorization 헤더 값
    * @return 추출된 토큰, 형식이 잘못되면 null
    */

@@ -16,15 +16,15 @@ import org.springframework.data.redis.core.TimeToLive;
 @NoArgsConstructor
 public class AuthAccessTokenBlacklist {
 
-  @Id
-  private String accessToken;
+  @Id private String accessToken;
 
   private Long memberId;
 
   @TimeToLive(unit = TimeUnit.MILLISECONDS)
   private Long expiration;
 
-  public static AuthAccessTokenBlacklist of(String accessToken, Long memberId, Long remainingExpiration) {
+  public static AuthAccessTokenBlacklist of(
+      String accessToken, Long memberId, Long remainingExpiration) {
     return AuthAccessTokenBlacklist.builder()
         .accessToken(accessToken)
         .memberId(memberId)

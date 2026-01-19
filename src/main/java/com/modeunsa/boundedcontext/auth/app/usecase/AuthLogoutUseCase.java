@@ -28,11 +28,8 @@ public class AuthLogoutUseCase {
 
     // 3. Access Token 블랙리스트 등록 (남은 만료시간만큼 TTL 설정)
     if (remainingExpiration > 0) {
-      AuthAccessTokenBlacklist blacklist = AuthAccessTokenBlacklist.of(
-          accessToken,
-          memberId,
-          remainingExpiration
-      );
+      AuthAccessTokenBlacklist blacklist =
+          AuthAccessTokenBlacklist.of(accessToken, memberId, remainingExpiration);
       blacklistRepository.save(blacklist);
       log.info("Access Token 블랙리스트 등록 완료 - memberId: {}, TTL: {}ms", memberId, remainingExpiration);
     }
