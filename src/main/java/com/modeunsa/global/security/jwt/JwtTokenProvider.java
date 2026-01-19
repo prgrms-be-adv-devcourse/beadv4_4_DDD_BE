@@ -144,9 +144,15 @@ public class JwtTokenProvider {
 
   /** 토큰의 남은 만료시간 계산 (밀리초) */
   public long getRemainingExpiration(String token) {
-    Claims claims = parseClaims(token);
-    Date expiration = claims.getExpiration();
-    long remainingTime = expiration.getTime() - System.currentTimeMillis();
-    return Math.max(0, remainingTime);
+    try {
+      Claims claims = parseClaims(token);
+      Date expiration = claims.getExpiration();
+      long remainingTime = expiration.getTime() - System.currentTimeMillis();
+      return Math.max(0, remainingTime);
+    } catch (ExpiredJwtException e) {
+      // 만료된 토큰은 블랙리스트에 등록할 필요 없으므로 0 반환
+      log.debug("이미 만료된 토큰 - 블랙리스트 등록 불필요");
+      return 0;
+    }
   }
 }
