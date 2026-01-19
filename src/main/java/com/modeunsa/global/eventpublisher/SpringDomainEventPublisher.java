@@ -6,10 +6,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class SpringDomainEventPublisher {
+public class SpringDomainEventPublisher implements EventPublisher {
 
   private final ApplicationEventPublisher delegate;
 
+  @Override
   public void publish(Object event) {
     delegate.publishEvent(event);
   }
