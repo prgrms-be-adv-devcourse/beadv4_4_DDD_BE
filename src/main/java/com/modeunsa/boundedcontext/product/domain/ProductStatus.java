@@ -1,6 +1,5 @@
 package com.modeunsa.boundedcontext.product.domain;
 
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -11,6 +10,5 @@ public enum ProductStatus {
   COMPLETED("완료"),
   CANCELED("취소");
 
-  @Column(name="\"value\"")
-  private final String value;
+  private final String description;
 }

@@ -1,6 +1,5 @@
 package com.modeunsa.boundedcontext.product.domain;
 
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -15,6 +14,5 @@ public enum ProductCategory {
   BAG("가방"),
   BEAUTY("뷰티");
 
-  @Column(name="\"value\"")
-  private final String value;
+  private final String description;
 }

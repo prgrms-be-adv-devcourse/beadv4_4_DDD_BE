@@ -25,12 +25,12 @@ public class ContentTag extends GeneratedIdAndAuditedEntity {
   @JoinColumn(name = "content_id", nullable = false)
   private Content content;
 
-  @Column(name="\"value\"", length = MAX_LENGTH, nullable = false)
-  private String value;
+  @Column(length = MAX_LENGTH, nullable = false)
+  private String description;
 
-  public ContentTag(String value) {
-    validate(value);
-    this.value = value.trim();
+  public ContentTag(String description) {
+    validate(description);
+    this.description = description.trim();
   }
 
   void setContent(Content content) {

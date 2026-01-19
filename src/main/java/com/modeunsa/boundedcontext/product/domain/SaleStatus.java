@@ -1,6 +1,5 @@
 package com.modeunsa.boundedcontext.product.domain;
 
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -11,6 +10,5 @@ public enum SaleStatus {
   NOT_SALE("판매중지"),
   SOLD_OUT("품절");
 
-  @Column(name="\"value\"")
-  private final String value;
+  private final String description;
 }
