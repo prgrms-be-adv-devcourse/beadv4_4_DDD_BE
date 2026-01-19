@@ -2,6 +2,7 @@ package com.modeunsa.boundedcontext.auth.in.controller;
 
 import com.modeunsa.boundedcontext.auth.app.facade.AuthFacade;
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
+import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.security.jwt.JwtTokenProvider;
@@ -43,8 +44,11 @@ public class ApiV1AuthController {
       @Parameter(description = "OAuth 제공자", example = "kakao") @PathVariable String provider,
       @Parameter(description = "리다이렉트 URI") @RequestParam(required = false) String redirectUri) {
     OAuthProvider oauthProvider = findProvider(provider);
-    String loginUrl = authFacade.getOAuthLoginUrl(oauthProvider, redirectUri);
-    return ApiResponse.onSuccess(SuccessStatus.OK, loginUrl);
+    //     TODO: 테스트를 위해 임시로 토큰 발급 로직으로 대체 -> 실제로는 아래 주석 처리된 코드 사용
+    //    String loginUrl = authFacade.getOAuthLoginUrl(oauthProvider, redirectUri);
+    TokenResponse tokenResponse = authFacade.login(1L, MemberRole.MEMBER);
+    //    return ApiResponse.onSuccess(SuccessStatus.OK, loginUrl);
+    return ApiResponse.onSuccess(SuccessStatus.AUTH_LOGIN_SUCCESS, tokenResponse);
   }
 
   @Operation(summary = "소셜 로그인", description = "소셜 로그인 인증 코드를 사용하여 로그인 및 토큰을 발급합니다.")
