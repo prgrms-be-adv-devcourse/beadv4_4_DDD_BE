@@ -4,16 +4,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
-import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
+import com.modeunsa.boundedcontext.payment.app.lock.LockedPaymentAccounts;
+import com.modeunsa.boundedcontext.payment.app.lock.PaymentAccountLockManager;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
+import com.modeunsa.global.config.PaymentAccountConfig;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.payment.dto.PaymentDto;
 import java.math.BigDecimal;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,12 +28,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("PaymentRefundUseCase 테스트")
-public class PaymentRefundUseCaseTest {
+class PaymentRefundUseCaseTest {
 
-  @Mock private PaymentAccountSupport paymentAccountSupport;
+  @Mock private PaymentAccountLockManager paymentAccountLockManager;
+  @Mock private PaymentAccountConfig paymentAccountConfig;
 
   @InjectMocks private PaymentRefundUseCase paymentRefundUseCase;
 
+  private static final Long HOLDER_ID = 2L;
   private PaymentMember buyerMember;
   private PaymentMember holderMember;
   private PaymentAccount holderAccount;
@@ -37,20 +43,22 @@ public class PaymentRefundUseCaseTest {
 
   @BeforeEach
   void setUp() {
-    holderMember = PaymentMember.create(2L, "holder@example.com", "홀더", MemberStatus.ACTIVE);
+    holderMember = PaymentMember.create(HOLDER_ID, "holder@example.com", "홀더", MemberStatus.ACTIVE);
     buyerMember = PaymentMember.create(1000L, "user1@example.com", "구매자", MemberStatus.ACTIVE);
 
     holderAccount = PaymentAccount.create(holderMember);
     holderAccount.credit(BigDecimal.valueOf(100000), PaymentEventType.CHARGE_BANK_TRANSFER);
 
     buyerAccount = PaymentAccount.create(buyerMember);
+
+    when(paymentAccountConfig.getHolderMemberId()).thenReturn(HOLDER_ID);
   }
 
   @Test
   @DisplayName("결제 취소 환불 처리 성공")
   void executeRefundPaymentFailed() {
     // given
-    PaymentDto request =
+    final PaymentDto request =
         PaymentDto.builder()
             .orderId(1L)
             .orderNo("ORDER12345")
@@ -58,12 +66,18 @@ public class PaymentRefundUseCaseTest {
             .totalAmount(BigDecimal.valueOf(5000))
             .build();
 
-    when(paymentAccountSupport.getHolderAccount()).thenReturn(holderAccount);
-    when(paymentAccountSupport.getPaymentAccountByMemberId(buyerMember.getId()))
-        .thenReturn(buyerAccount);
+    // LockedPaymentAccounts 생성 (작은 ID부터 순서대로)
+    Map<Long, PaymentAccount> accountsMap = new LinkedHashMap<>();
+    accountsMap.put(HOLDER_ID, holderAccount);
+    accountsMap.put(buyerMember.getId(), buyerAccount);
+    LockedPaymentAccounts lockedAccounts = new LockedPaymentAccounts(accountsMap);
 
-    BigDecimal holderBalanceBefore = holderAccount.getBalance();
-    BigDecimal buyerBalanceBefore = buyerAccount.getBalance();
+    // PaymentAccountLockManager Mock 설정
+    when(paymentAccountLockManager.getEntitiesForUpdateInOrder(HOLDER_ID, buyerMember.getId()))
+        .thenReturn(lockedAccounts);
+
+    final BigDecimal holderBalanceBefore = holderAccount.getBalance();
+    final BigDecimal buyerBalanceBefore = buyerAccount.getBalance();
 
     // when
     paymentRefundUseCase.execute(request, RefundEventType.PAYMENT_FAILED);
@@ -79,7 +93,7 @@ public class PaymentRefundUseCaseTest {
   @DisplayName("주문 취소 환불 처리 성공")
   void executeRefundOrderCanceled() {
     // given
-    PaymentDto request =
+    final PaymentDto request =
         PaymentDto.builder()
             .orderId(1L)
             .orderNo("ORDER12345")
@@ -87,12 +101,18 @@ public class PaymentRefundUseCaseTest {
             .totalAmount(BigDecimal.valueOf(5000))
             .build();
 
-    when(paymentAccountSupport.getHolderAccount()).thenReturn(holderAccount);
-    when(paymentAccountSupport.getPaymentAccountByMemberId(buyerMember.getId()))
-        .thenReturn(buyerAccount);
+    // LockedPaymentAccounts 생성 (작은 ID부터 순서대로)
+    Map<Long, PaymentAccount> accountsMap = new LinkedHashMap<>();
+    accountsMap.put(HOLDER_ID, holderAccount);
+    accountsMap.put(buyerMember.getId(), buyerAccount);
+    LockedPaymentAccounts lockedAccounts = new LockedPaymentAccounts(accountsMap);
 
-    BigDecimal holderBalanceBefore = holderAccount.getBalance();
-    BigDecimal buyerBalanceBefore = buyerAccount.getBalance();
+    // PaymentAccountLockManager Mock 설정
+    when(paymentAccountLockManager.getEntitiesForUpdateInOrder(HOLDER_ID, buyerMember.getId()))
+        .thenReturn(lockedAccounts);
+
+    final BigDecimal holderBalanceBefore = holderAccount.getBalance();
+    final BigDecimal buyerBalanceBefore = buyerAccount.getBalance();
 
     // when
     paymentRefundUseCase.execute(request, RefundEventType.ORDER_CANCELLED);
@@ -112,7 +132,7 @@ public class PaymentRefundUseCaseTest {
     insufficientHolderAccount.credit(
         BigDecimal.valueOf(3000), PaymentEventType.CHARGE_BANK_TRANSFER);
 
-    PaymentDto request =
+    final PaymentDto request =
         PaymentDto.builder()
             .orderId(1L)
             .orderNo("ORDER12345")
@@ -120,7 +140,15 @@ public class PaymentRefundUseCaseTest {
             .totalAmount(BigDecimal.valueOf(5000))
             .build();
 
-    when(paymentAccountSupport.getHolderAccount()).thenReturn(insufficientHolderAccount);
+    // LockedPaymentAccounts 생성 (작은 ID부터 순서대로)
+    Map<Long, PaymentAccount> accountsMap = new LinkedHashMap<>();
+    accountsMap.put(HOLDER_ID, insufficientHolderAccount);
+    accountsMap.put(buyerMember.getId(), buyerAccount);
+    LockedPaymentAccounts lockedAccounts = new LockedPaymentAccounts(accountsMap);
+
+    // PaymentAccountLockManager Mock 설정
+    when(paymentAccountLockManager.getEntitiesForUpdateInOrder(HOLDER_ID, buyerMember.getId()))
+        .thenReturn(lockedAccounts);
 
     // when, then
     assertThatThrownBy(() -> paymentRefundUseCase.execute(request, RefundEventType.PAYMENT_FAILED))

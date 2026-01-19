@@ -1,12 +1,14 @@
 package com.modeunsa.boundedcontext.payment.app.usecase;
 
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequestResult;
-import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
+import com.modeunsa.boundedcontext.payment.app.lock.LockedPaymentAccounts;
+import com.modeunsa.boundedcontext.payment.app.lock.PaymentAccountLockManager;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentSupport;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentStatus;
 import com.modeunsa.boundedcontext.payment.domain.types.ReferenceType;
+import com.modeunsa.global.config.PaymentAccountConfig;
 import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
 import com.modeunsa.shared.payment.dto.PaymentDto;
 import com.modeunsa.shared.payment.event.PaymentSuccessEvent;
@@ -17,33 +19,42 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class PaymentCompleteUseCase {
+public class PaymentProcessUseCase {
 
-  private final PaymentAccountSupport paymentAccountSupport;
   private final PaymentSupport paymentSupport;
+  private final PaymentAccountLockManager paymentAccountLockManager;
   private final SpringDomainEventPublisher eventPublisher;
+  private final PaymentAccountConfig paymentAccountConfig;
 
   public void execute(PaymentRequestResult paymentRequestResult) {
 
-    PaymentAccount buyerAccount =
-        paymentAccountSupport.getPaymentAccountByMemberId(paymentRequestResult.getBuyerId());
+    LockedPaymentAccounts accounts =
+        paymentAccountLockManager.getEntitiesForUpdateInOrder(
+            paymentAccountConfig.getHolderMemberId(), paymentRequestResult.getBuyerId());
+
+    PaymentAccount holderAccount = accounts.get(paymentAccountConfig.getHolderMemberId());
+    PaymentAccount buyerAccount = accounts.get(paymentRequestResult.getBuyerId());
 
     if (paymentRequestResult.isNeedsCharge()) {
-      executeWithCharge(buyerAccount, paymentRequestResult);
+      executeWithCharge(holderAccount, buyerAccount, paymentRequestResult);
     } else {
-      executeWithoutCharge(buyerAccount, paymentRequestResult);
+      executeWithoutCharge(holderAccount, buyerAccount, paymentRequestResult);
     }
   }
 
   private void executeWithoutCharge(
-      PaymentAccount buyerAccount, PaymentRequestResult paymentRequestResult) {
-    processPayment(buyerAccount, paymentRequestResult);
+      PaymentAccount holderAccount,
+      PaymentAccount buyerAccount,
+      PaymentRequestResult paymentRequestResult) {
+    processPayment(holderAccount, buyerAccount, paymentRequestResult);
   }
 
   private void executeWithCharge(
-      PaymentAccount buyerAccount, PaymentRequestResult paymentRequestResult) {
+      PaymentAccount holderAccount,
+      PaymentAccount buyerAccount,
+      PaymentRequestResult paymentRequestResult) {
     chargeFromPg(buyerAccount, paymentRequestResult);
-    processPayment(buyerAccount, paymentRequestResult);
+    processPayment(holderAccount, buyerAccount, paymentRequestResult);
   }
 
   private void chargeFromPg(
@@ -56,14 +67,14 @@ public class PaymentCompleteUseCase {
   }
 
   private void processPayment(
-      PaymentAccount buyerAccount, PaymentRequestResult paymentRequestResult) {
+      PaymentAccount holderAccount,
+      PaymentAccount buyerAccount,
+      PaymentRequestResult paymentRequestResult) {
     buyerAccount.debit(
         paymentRequestResult.getTotalAmount(),
         PaymentEventType.USE_ORDER_PAYMENT,
         paymentRequestResult.getOrderId(),
         ReferenceType.ORDER);
-
-    PaymentAccount holderAccount = paymentAccountSupport.getHolderAccount();
 
     holderAccount.credit(
         paymentRequestResult.getTotalAmount(),

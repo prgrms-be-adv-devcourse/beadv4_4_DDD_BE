@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.settlement.app;
+package com.modeunsa.boundedcontext.settlement.app.usecase;
 
 import com.modeunsa.boundedcontext.settlement.domain.entity.Settlement;
 import com.modeunsa.boundedcontext.settlement.out.SettlementRepository;

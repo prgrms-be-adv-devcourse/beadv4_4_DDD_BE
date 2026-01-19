@@ -43,7 +43,7 @@ public class AuthSocialAccount extends GeneratedIdAndAuditedEntity {
   @Column(nullable = false, length = 200)
   private String providerAccountId;
 
-  void setMember(Member member) {
+  public void assignMember(Member member) {
     this.member = member;
   }
 }
