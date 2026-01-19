@@ -12,6 +12,7 @@ public interface ContentMapper {
   @Mapping(target = "author", ignore = true)
   @Mapping(target = "tags", ignore = true)
   @Mapping(target = "images", ignore = true)
+  @Mapping(target = "deletedAt", ignore = true)
   Content toEntity(ContentRequest request);
 
   @Mapping(source = "id", target = "contentId")
