@@ -38,14 +38,44 @@ export default function SuccessPage() {
       const paymentKey = searchParams.get('paymentKey')
       const amount = searchParams.get('amount')
 
-      // 필수 파라미터 검증
+      // 1-1. 토스 결제 없이 내부 결제만 성공한 경우 (paymentKey/orderId 없음)
+      if (!paymentKey && !orderId) {
+        if (!orderNo || !amount) {
+          console.error('[결제 승인] 내부 결제 성공 케이스지만 필수 정보 누락', {
+            orderNo,
+            amount,
+          })
+          router.push(`/failure?orderNo=${orderNo || ''}&amount=${amount || ''}`)
+          return
+        }
+
+        console.log('[결제 승인] 토스 결제 없이 내부 결제만 성공한 케이스 처리', {
+          orderNo,
+          amount,
+        })
+        setPaymentInfo({ orderNo })
+        setIsConfirming(false)
+        return
+      }
+
+      // 토스 결제 케이스: 필수 파라미터 검증
       if (!orderNo || !orderId || !paymentKey || !amount) {
-        console.error('[결제 승인] 필수 파라미터 누락', { orderNo, orderId, paymentKey, amount })
+        console.error('[결제 승인] 토스 결제 케이스에서 필수 파라미터 누락', {
+          orderNo,
+          orderId,
+          paymentKey,
+          amount,
+        })
         router.push(`/failure?orderNo=${orderNo || ''}&amount=${amount || ''}`)
         return
       }
 
-      console.log('[결제 승인] API 호출 시작', { orderNo, orderId, paymentKey, amount })
+      console.log('[결제 승인] 토스 결제 승인 API 호출 시작', {
+        orderNo,
+        orderId,
+        paymentKey,
+        amount,
+      })
 
       try {
         // 2. API 호출

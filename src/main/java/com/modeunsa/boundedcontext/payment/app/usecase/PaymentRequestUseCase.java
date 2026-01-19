@@ -58,7 +58,9 @@ public class PaymentRequestUseCase {
         Payment.create(paymentId, paymentRequest.getOrderId(), totalAmount, shortAmount);
 
     try {
+      // 복합키 저장을 위해 Payment 를 먼저 저장 후 로그를 추가
       Payment saved = paymentRepository.save(payment);
+      saved.addInitialLog(saved);
       return new PaymentRequestResult(
           saved.getId().getMemberId(),
           saved.getId().getOrderNo(),

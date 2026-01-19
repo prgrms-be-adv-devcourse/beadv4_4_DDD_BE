@@ -91,18 +91,13 @@ public class Payment extends AuditedEntity {
   public static Payment create(
       PaymentId id, Long orderId, BigDecimal totalAmount, BigDecimal pgPaymentAmount) {
     validateTotalAmount(totalAmount);
-
-    Payment payment =
-        Payment.builder()
-            .id(id)
-            .orderId(orderId)
-            .totalAmount(totalAmount)
-            .pgPaymentAmount(pgPaymentAmount)
-            .status(PaymentStatus.READY)
-            .build();
-
-    payment.addInitialLog();
-    return payment;
+    return Payment.builder()
+        .id(id)
+        .orderId(orderId)
+        .totalAmount(totalAmount)
+        .pgPaymentAmount(pgPaymentAmount)
+        .status(PaymentStatus.READY)
+        .build();
   }
 
   public void changeStatus(PaymentStatus newStatus) {
@@ -111,8 +106,8 @@ public class Payment extends AuditedEntity {
     addPaymentLog(beforeStatus, newStatus);
   }
 
-  private void addInitialLog() {
-    PaymentLog paymentLog = PaymentLog.addInitialLog(this, status);
+  public void addInitialLog(Payment payment) {
+    PaymentLog paymentLog = PaymentLog.addInitialLog(payment, PaymentStatus.READY);
     this.paymentLogs.add(paymentLog);
   }
 

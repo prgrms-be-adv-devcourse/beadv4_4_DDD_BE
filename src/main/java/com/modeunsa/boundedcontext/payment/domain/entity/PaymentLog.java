@@ -1,6 +1,9 @@
 package com.modeunsa.boundedcontext.payment.domain.entity;
 
+import static com.modeunsa.global.status.ErrorStatus.PAYMENT_NOT_FOUND;
+
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentStatus;
+import com.modeunsa.global.exception.GeneralException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -59,12 +62,15 @@ public class PaymentLog {
   @CreationTimestamp
   private LocalDateTime createdAt;
 
-  @Column(nullable = false, updatable = false)
+  @Column(updatable = false)
   @CreatedBy
   private Long createdBy;
 
   public static PaymentLog addLog(
       Payment payment, PaymentStatus beforeStatus, PaymentStatus afterStatus) {
+    if (beforeStatus == null) {
+      throw new GeneralException(PAYMENT_NOT_FOUND);
+    }
     return PaymentLog.builder()
         .payment(payment)
         .beforeStatus(beforeStatus)
