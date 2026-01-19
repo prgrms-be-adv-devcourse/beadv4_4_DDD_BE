@@ -27,7 +27,6 @@ import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
 import com.modeunsa.shared.payment.dto.PaymentDto;
-import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -88,7 +87,7 @@ public class PaymentFacade {
   }
 
   /*
-   * 결제 요청에서는 크게 3가지 단계로 나누어 순차적으로 실행합니다.
+   * 결제 요청에서는 크게 2가지 단계로 나누어 순차적으로 실행합니다.
    * 1. 결제 요청 생성 및 검증
    * 2. 결제 완료로 계좌에서 입출금 처리
    *
@@ -98,6 +97,7 @@ public class PaymentFacade {
    * 각 UseCase 내부에서 필요한 트랜잭션 처리를 수행합니다.
    */
   public PaymentResponse requestPayment(PaymentRequest paymentRequest) {
+
     PaymentRequestResult result = paymentRequestUseCase.execute(paymentRequest);
     if (result.isNeedsCharge()) {
       return new PaymentResponse(result);
@@ -107,14 +107,14 @@ public class PaymentFacade {
   }
 
   public ConfirmPaymentResponse confirmTossPayment(
-      String orderNo, @Valid ConfirmPaymentRequest confirmPaymentRequest) {
+      String orderNo, ConfirmPaymentRequest confirmPaymentRequest) {
 
     PaymentId paymentId = new PaymentId(confirmPaymentRequest.memberId(), orderNo);
 
-    paymentInProgressUseCase.inProgress(paymentId, confirmPaymentRequest);
+    paymentInProgressUseCase.execute(paymentId, confirmPaymentRequest);
 
     TossPaymentsConfirmResponse response =
-        paymentConfirmTossPaymentUseCase.confirmCardPayment(paymentId, confirmPaymentRequest);
+        paymentConfirmTossPaymentUseCase.execute(paymentId, confirmPaymentRequest);
 
     return new ConfirmPaymentResponse(orderNo, response);
   }

@@ -21,7 +21,7 @@ public class PaymentConfirmTossPaymentUseCase {
   private final PaymentSupport paymentSupport;
   private final TossPaymentClient tossPaymentClient;
 
-  public TossPaymentsConfirmResponse confirmCardPayment(
+  public TossPaymentsConfirmResponse execute(
       PaymentId paymentId, ConfirmPaymentRequest confirmPaymentRequest) {
 
     Payment payment = paymentSupport.getPaymentById(paymentId);
@@ -30,7 +30,7 @@ public class PaymentConfirmTossPaymentUseCase {
 
     try {
       TossPaymentsConfirmResponse tossRes = tossPaymentClient.confirmPayment(tossReq);
-      payment.successesTossPayment(tossRes);
+      payment.approveTossPayment(tossRes);
       return tossRes;
     } catch (GeneralException ex) {
       payment.failedTossPayment(

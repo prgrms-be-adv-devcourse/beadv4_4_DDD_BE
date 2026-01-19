@@ -15,7 +15,7 @@ public class PaymentInProgressUseCase {
 
   private final PaymentSupport paymentSupport;
 
-  public void inProgress(PaymentId paymentId, ConfirmPaymentRequest confirmPaymentRequest) {
+  public void execute(PaymentId paymentId, ConfirmPaymentRequest confirmPaymentRequest) {
     Payment payment = paymentSupport.getPaymentById(paymentId);
     payment.inProgressPayment(confirmPaymentRequest);
   }

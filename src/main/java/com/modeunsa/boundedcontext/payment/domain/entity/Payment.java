@@ -147,12 +147,12 @@ public class Payment extends AuditedEntity {
     changeStatus(PaymentStatus.IN_PROGRESS);
   }
 
-  public void successesTossPayment(TossPaymentsConfirmResponse tossRes) {
+  public void approveTossPayment(TossPaymentsConfirmResponse tossRes) {
     this.pgOrderName = tossRes.orderName();
     this.pgMethod = tossRes.method();
     this.pgStatus = tossRes.status();
     this.pgStatusCode = HttpStatus.OK.value();
-    changeStatus(PaymentStatus.COMPLETED);
+    changeStatus(PaymentStatus.APPROVED);
   }
 
   public void failedTossPayment(HttpStatus httpStatus, String message) {
