@@ -33,36 +33,34 @@ class AuthLogoutUseCaseTest {
 
   @Mock private AuthAccessTokenBlacklistRepository blacklistRepository;
 
-  private final String ACCESS_TOKEN = "valid_access_token";
-  private final Long MEMBER_ID = 1L;
-  private final long REMAINING_TIME = 3600L;
+  private final String accessToken = "valid_access_token";
+  private final Long memberId = 1L;
+  private final long remainingTime = 3600L;
 
   @Test
   @DisplayName("로그아웃 성공 케이스: 유효한 토큰으로 로그아웃 시 Refresh Token 삭제 및 Access Token 블랙리스트 등록")
-  void logout_Success() {
+  void logoutSuccess() {
     // given
     setupValidToken();
-    // 성공 케이스에서만 호출되는 설정은 여기로 이동
-    given(jwtTokenProvider.getRemainingExpiration(anyString())).willReturn(REMAINING_TIME);
+    given(jwtTokenProvider.getRemainingExpiration(anyString())).willReturn(remainingTime);
 
     // when
-    authLogoutUseCase.execute(ACCESS_TOKEN);
+    authLogoutUseCase.execute(accessToken);
 
     // then
-    verify(refreshTokenRepository, times(1)).deleteById(MEMBER_ID);
+    verify(refreshTokenRepository, times(1)).deleteById(memberId);
     verify(blacklistRepository, times(1)).save(any(AuthAccessTokenBlacklist.class));
   }
 
   @Test
-  @DisplayName("이미 로그아웃된 토큰인 경우 무시")
-  void logout_AlreadyLoggedOut() {
+  @DisplayName("이미 로그아웃된 토큰인 경우 무시 (예외 발생 안 함)")
+  void logoutAlreadyLoggedOut() {
     // given
     setupValidToken();
-    // **여기서는 getRemainingExpiration 설정이 없으므로 에러가 나지 않음**
-    given(blacklistRepository.existsById(ACCESS_TOKEN)).willReturn(true);
+    given(blacklistRepository.existsById(accessToken)).willReturn(true);
 
     // when
-    authLogoutUseCase.execute(ACCESS_TOKEN);
+    authLogoutUseCase.execute(accessToken);
 
     // then
     verify(refreshTokenRepository, never()).deleteById(anyLong());
@@ -71,19 +69,19 @@ class AuthLogoutUseCaseTest {
 
   @Test
   @DisplayName("Access Token이 아닌 경우 예외 발생")
-  void logout_NotAccessToken() {
+  void logoutNotAccessToken() {
     // given
-    willDoNothing().given(jwtTokenProvider).validateTokenOrThrow(ACCESS_TOKEN);
-    given(jwtTokenProvider.isAccessToken(ACCESS_TOKEN)).willReturn(false);
+    willDoNothing().given(jwtTokenProvider).validateTokenOrThrow(accessToken);
+    given(jwtTokenProvider.isAccessToken(accessToken)).willReturn(false);
 
     // when & then
-    assertThrows(GeneralException.class, () -> authLogoutUseCase.execute(ACCESS_TOKEN));
+    assertThrows(GeneralException.class, () -> authLogoutUseCase.execute(accessToken));
   }
 
   // --- Helper Method ---
   private void setupValidToken() {
     willDoNothing().given(jwtTokenProvider).validateTokenOrThrow(anyString());
     given(jwtTokenProvider.isAccessToken(anyString())).willReturn(true);
-    given(jwtTokenProvider.getMemberIdFromToken(anyString())).willReturn(MEMBER_ID);
+    given(jwtTokenProvider.getMemberIdFromToken(anyString())).willReturn(memberId);
   }
 }
