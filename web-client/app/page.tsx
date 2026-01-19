@@ -1,4 +1,82 @@
+'use client'
+
+import { useRouter } from 'next/navigation'
+import { useEffect, useRef } from 'react'
+
+declare global {
+  interface Window {
+    TossPayments: any
+  }
+}
+
 export default function Home() {
+  const router = useRouter()
+  const widgetRef = useRef<any>(null)
+
+  useEffect(() => {
+    // 토스페이먼츠 위젯 스크립트 로드
+    const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY
+    
+    if (!clientKey) {
+      console.error('토스페이먼츠 클라이언트 키가 설정되지 않았습니다.')
+      router.push('/failure')
+      return
+    }
+
+    const script = document.createElement('script')
+    script.src = 'https://js.tosspayments.com/v1/payment-widget'
+    script.async = true
+    script.onload = () => {
+      if (window.TossPayments) {
+        widgetRef.current = window.TossPayments(clientKey)
+      }
+    }
+    script.onerror = () => {
+      console.error('토스페이먼츠 스크립트 로드 실패')
+      router.push('/failure')
+    }
+    document.body.appendChild(script)
+
+    return () => {
+      if (document.body.contains(script)) {
+        document.body.removeChild(script)
+      }
+    }
+  }, [router])
+
+  const handlePayment = async () => {
+    if (!widgetRef.current) {
+      alert('결제 위젯을 불러오는 중입니다. 잠시 후 다시 시도해주세요.')
+      return
+    }
+
+    try {
+      const amount = 19800 // 19,800원
+      const orderId = `ORD-${Date.now()}`
+      const orderNo = orderId // orderNo는 orderId와 동일하게 사용
+      
+      // 고객 정보 (실제로는 API에서 가져와야 함)
+      const customerKey = 'CUSTOMER_00000003' // 예시: 회원 ID 기반
+      const customerEmail = 'user1@example.com' // 예시: 회원 이메일
+      const customerName = '김정인'
+
+      // 결제 위젯 열기
+      await widgetRef.current.requestPayment('카드', {
+        amount: amount,
+        orderId: orderId,
+        orderName: '베이직 레더 가방 130004',
+        customerName: customerName,
+        customerKey: customerKey,
+        customerEmail: customerEmail,
+        successUrl: `${window.location.origin}/success?orderId=${orderId}&orderNo=${orderNo}`,
+        failUrl: `${window.location.origin}/failure?orderId=${orderId}&orderNo=${orderNo}`,
+      })
+    } catch (error) {
+      console.error('결제 요청 실패:', error)
+      router.push('/failure')
+    }
+  }
+
   return (
     <main className="order-page">
       {/* 주문서 섹션 */}
@@ -89,7 +167,9 @@ export default function Home() {
       {/* 결제 버튼 */}
       <section className="terms-section">
         <div className="points-info">토스페이 결제 최대 1,600원 적립</div>
-        <button className="payment-button">19,800원 결제하기</button>
+        <button className="payment-button" onClick={handlePayment}>
+          19,800원 결제하기
+        </button>
       </section>
     </main>
   )
