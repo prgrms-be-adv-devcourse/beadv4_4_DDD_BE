@@ -24,7 +24,7 @@ public class OrderCreateOrderUseCase {
   private final OrderMapper orderMapper;
   private final SpringDomainEventPublisher eventPublisher;
 
-  public OrderResponseDto createOrder(long memberId, CreateOrderRequestDto requestDto) {
+  public OrderResponseDto createOrder(Long memberId, CreateOrderRequestDto requestDto) {
     // 회원 확인
     OrderMember member = orderSupport.findByMemberId(memberId);
 
@@ -44,9 +44,10 @@ public class OrderCreateOrderUseCase {
         Order.createOrder(
             member,
             List.of(orderItem),
-            requestDto.getReceiverName(),
-            requestDto.getReceiverPhone(),
-            requestDto.getZipcode(),
+            requestDto.getRecipientName(),
+            requestDto.getRecipientPhone(),
+            requestDto.getZipCode(),
+            requestDto.getAddress(),
             requestDto.getAddressDetail());
 
     // 주문을 저장하면 주문상품도 같이 저장

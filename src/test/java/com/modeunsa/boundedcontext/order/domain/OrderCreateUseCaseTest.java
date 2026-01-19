@@ -36,7 +36,8 @@ class OrderCreateUseCaseTest {
             "세종대왕", // receiverName
             "010-1234-5678", // receiverPhone
             "12345", // zipcode
-            "서울시 강남구 테헤란로 123" // addressDetail
+            "서울시 강남구 테헤란로 123", // address
+            "401동" // addressDetail
             ));
 
     // then

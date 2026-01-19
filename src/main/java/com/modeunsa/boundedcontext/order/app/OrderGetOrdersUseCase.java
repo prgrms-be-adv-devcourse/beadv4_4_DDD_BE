@@ -19,7 +19,7 @@ public class OrderGetOrdersUseCase {
   private final OrderRepository orderRepository;
   private final OrderMapper orderMapper;
 
-  public Page<OrderListResponseDto> getOrders(long memberId, Pageable pageable) {
+  public Page<OrderListResponseDto> getOrders(Long memberId, Pageable pageable) {
     // 회원 확인
     if (!orderMemberRepository.existsById(memberId)) {
       throw new GeneralException(ErrorStatus.ORDER_MEMBER_NOT_FOUND);

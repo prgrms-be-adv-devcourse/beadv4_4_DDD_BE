@@ -35,6 +35,8 @@ public class OrderCancelUseCaseTest {
 
   @Spy private OrderMapper orderMapper = Mappers.getMapper(OrderMapper.class);
 
+  @Spy private OrderPolicy orderPolicy;
+
   @Test
   @DisplayName("주문 취소 시 이벤트가 정상적으로 발행되어야 한다")
   void cancelOrder_success() {

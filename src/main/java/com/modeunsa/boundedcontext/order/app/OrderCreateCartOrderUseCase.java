@@ -26,7 +26,7 @@ public class OrderCreateCartOrderUseCase {
   private final OrderMapper orderMapper;
   private final SpringDomainEventPublisher eventPublisher;
 
-  public OrderResponseDto createCartOrder(long memberId, CreateCartOrderRequestDto requestDto) {
+  public OrderResponseDto createCartOrder(Long memberId, CreateCartOrderRequestDto requestDto) {
     // 회원 및 장바구니 목록 조회
     OrderMember member = orderSupport.findByMemberId(memberId);
     List<CartItem> cartItems = orderSupport.getCartItemsByMemberId(memberId);
@@ -42,9 +42,10 @@ public class OrderCreateCartOrderUseCase {
         Order.createOrder(
             member,
             orderItems,
-            requestDto.getReceiverName(),
-            requestDto.getReceiverPhone(),
-            requestDto.getZipcode(),
+            requestDto.getRecipientName(),
+            requestDto.getRecipientPhone(),
+            requestDto.getZipCode(),
+            requestDto.getAddress(),
             requestDto.getAddressDetail());
 
     // 주문 저장
