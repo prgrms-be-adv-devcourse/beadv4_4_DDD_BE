@@ -296,6 +296,12 @@ a {
   background: #0d0d0d;
 }
 
+.payment-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #666;
+}
+
 /* 성공 페이지 */
 .success-page {
   max-width: 800px;

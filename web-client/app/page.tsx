@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 declare global {
   interface Window {
@@ -9,17 +9,67 @@ declare global {
   }
 }
 
+interface PaymentMemberResponse {
+  customerKey: string
+  customerName: string
+  customerEmail: string
+}
+
+interface ApiResponse {
+  isSuccess: boolean
+  code: string
+  message: string
+  result: PaymentMemberResponse
+}
+
 export default function Home() {
   const router = useRouter()
   const widgetRef = useRef<any>(null)
+  const [memberInfo, setMemberInfo] = useState<PaymentMemberResponse | null>(null)
+  const [isLoadingMember, setIsLoadingMember] = useState(true)
+  const [memberError, setMemberError] = useState<string | null>(null)
+  const memberId = 4 // 회원 ID
 
+  // 회원 정보 조회
   useEffect(() => {
-    // 토스페이먼츠 위젯 스크립트 로드
+    const fetchMemberInfo = async () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+        const response = await fetch(`${apiUrl}/api/v1/payments/members/${memberId}`)
+        
+        if (!response.ok) {
+          const errorText = await response.text()
+          console.error('API 응답 에러:', response.status, errorText)
+          throw new Error(`회원 정보 조회 실패 (${response.status})`)
+        }
+        
+        const apiResponse: ApiResponse = await response.json()
+        
+        if (apiResponse.isSuccess && apiResponse.result) {
+          setMemberInfo(apiResponse.result)
+          setMemberError(null)
+        } else {
+          throw new Error('회원 정보를 가져올 수 없습니다.')
+        }
+      } catch (error) {
+        console.error('회원 정보 조회 실패:', error)
+        const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.'
+        setMemberError(errorMessage)
+        // 실패 페이지로 이동하지 않고 에러 메시지 표시
+      } finally {
+        setIsLoadingMember(false)
+      }
+    }
+
+    fetchMemberInfo()
+  }, [router, memberId])
+
+  // 토스페이먼츠 위젯 스크립트 로드
+  useEffect(() => {
     const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY
     
     if (!clientKey) {
-      console.error('토스페이먼츠 클라이언트 키가 설정되지 않았습니다.')
-      router.push('/failure')
+      console.warn('토스페이먼츠 클라이언트 키가 설정되지 않았습니다. 결제 기능을 사용할 수 없습니다.')
       return
     }
 
@@ -33,7 +83,7 @@ export default function Home() {
     }
     script.onerror = () => {
       console.error('토스페이먼츠 스크립트 로드 실패')
-      router.push('/failure')
+      // 실패 페이지로 이동하지 않고 경고만 표시
     }
     document.body.appendChild(script)
 
@@ -42,11 +92,22 @@ export default function Home() {
         document.body.removeChild(script)
       }
     }
-  }, [router])
+  }, [])
 
   const handlePayment = async () => {
+    const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY
+    if (!clientKey) {
+      alert('토스페이먼츠 클라이언트 키가 설정되지 않았습니다. 환경 변수를 확인해주세요.')
+      return
+    }
+
     if (!widgetRef.current) {
       alert('결제 위젯을 불러오는 중입니다. 잠시 후 다시 시도해주세요.')
+      return
+    }
+
+    if (!memberInfo) {
+      alert('회원 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.')
       return
     }
 
@@ -54,20 +115,15 @@ export default function Home() {
       const amount = 19800 // 19,800원
       const orderId = `ORD-${Date.now()}`
       const orderNo = orderId // orderNo는 orderId와 동일하게 사용
-      
-      // 고객 정보 (실제로는 API에서 가져와야 함)
-      const customerKey = 'CUSTOMER_00000003' // 예시: 회원 ID 기반
-      const customerEmail = 'user1@example.com' // 예시: 회원 이메일
-      const customerName = '김정인'
 
       // 결제 위젯 열기
       await widgetRef.current.requestPayment('카드', {
         amount: amount,
         orderId: orderId,
         orderName: '베이직 레더 가방 130004',
-        customerName: customerName,
-        customerKey: customerKey,
-        customerEmail: customerEmail,
+        customerName: memberInfo.customerName,
+        customerKey: memberInfo.customerKey,
+        customerEmail: memberInfo.customerEmail,
         successUrl: `${window.location.origin}/success?orderId=${orderId}&orderNo=${orderNo}`,
         failUrl: `${window.location.origin}/failure?orderId=${orderId}&orderNo=${orderNo}`,
       })
@@ -82,8 +138,20 @@ export default function Home() {
       {/* 주문서 섹션 */}
       <section className="order-section card">
         <h2 className="section-title">주문서</h2>
+        {memberError && (
+          <div style={{ 
+            padding: '12px', 
+            marginBottom: '12px', 
+            backgroundColor: '#fee', 
+            color: '#c33', 
+            borderRadius: '8px',
+            fontSize: '14px'
+          }}>
+            ⚠️ {memberError}
+          </div>
+        )}
         <div className="order-info">
-          <div className="name">김정인</div>
+          <div className="name">{memberInfo?.customerName || (isLoadingMember ? '로딩 중...' : '회원 정보 없음')}</div>
           <div className="delivery-tag">기본 배송지</div>
           <div className="address">서울 강남구 자곡동 123-456</div>
           <div className="phone">010-1234-5678</div>
@@ -167,8 +235,12 @@ export default function Home() {
       {/* 결제 버튼 */}
       <section className="terms-section">
         <div className="points-info">토스페이 결제 최대 1,600원 적립</div>
-        <button className="payment-button" onClick={handlePayment}>
-          19,800원 결제하기
+        <button 
+          className="payment-button" 
+          onClick={handlePayment}
+          disabled={isLoadingMember || !memberInfo}
+        >
+          {isLoadingMember ? '로딩 중...' : '19,800원 결제하기'}
         </button>
       </section>
     </main>
