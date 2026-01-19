@@ -1,5 +1,6 @@
 package com.modeunsa.boundedcontext.product.domain;
 
+import com.modeunsa.boundedcontext.product.domain.exception.InvalidStockException;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -120,6 +121,13 @@ public class Product extends GeneratedIdAndAuditedEntity {
 
   public void updateProductStatus(ProductStatus productStatus) {
     this.productStatus = productStatus;
+  }
+
+  public void decreaseQuantity(int reservedQty) {
+    if (this.quantity < reservedQty) {
+      throw new InvalidStockException(this.quantity, reservedQty);
+    }
+    this.quantity = this.quantity - reservedQty;
   }
 
   public void addImage(ProductImage image) {

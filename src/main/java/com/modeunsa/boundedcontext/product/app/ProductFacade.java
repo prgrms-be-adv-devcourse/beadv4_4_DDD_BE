@@ -4,6 +4,7 @@ import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
 import com.modeunsa.boundedcontext.product.domain.ProductMember;
 import com.modeunsa.boundedcontext.product.domain.ProductStatus;
+import com.modeunsa.shared.order.dto.OrderDto;
 import com.modeunsa.shared.product.dto.ProductCreateRequest;
 import com.modeunsa.shared.product.dto.ProductDetailResponse;
 import com.modeunsa.shared.product.dto.ProductResponse;
@@ -24,6 +25,7 @@ public class ProductFacade {
   private final ProductUpdateProductStatusUseCase productUpdateProductStatusUseCase;
   private final ProductCreateFavoriteUseCase productCreateFavoriteUseCase;
   private final ProductDeleteFavoriteUseCase productDeleteFavoriteUseCase;
+  private final ProductUpdateQuantityUseCase productUpdateQuantityUseCase;
   private final ProductSupport productSupport;
   private final ProductMapper productMapper;
 
@@ -70,5 +72,9 @@ public class ProductFacade {
   @Transactional
   public void deleteProductFavorite(Long memberId, Long productId) {
     productDeleteFavoriteUseCase.deleteProductFavorite(memberId, productId);
+  }
+
+  public void updateQuantity(OrderDto orderDto) {
+    productUpdateQuantityUseCase.updateQuantity(orderDto);
   }
 }
