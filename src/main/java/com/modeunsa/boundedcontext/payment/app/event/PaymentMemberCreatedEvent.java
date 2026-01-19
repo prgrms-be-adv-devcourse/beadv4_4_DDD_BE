@@ -1,14 +1,13 @@
 package com.modeunsa.boundedcontext.payment.app.event;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
+import com.modeunsa.global.event.EventUtils;
+import com.modeunsa.global.event.TraceableEvent;
 
-@Getter
-public class PaymentMemberCreatedEvent {
-
-  private final Long memberId;
+public record PaymentMemberCreatedEvent(@JsonProperty("member_id") Long memberId, String traceId)
+    implements TraceableEvent {
 
   public PaymentMemberCreatedEvent(@JsonProperty("member_id") Long memberId) {
-    this.memberId = memberId;
+    this(memberId, EventUtils.extractTraceId());
   }
 }

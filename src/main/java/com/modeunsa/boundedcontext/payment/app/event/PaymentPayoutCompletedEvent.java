@@ -1,11 +1,7 @@
 package com.modeunsa.boundedcontext.payment.app.event;
 
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentPayoutDto;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import com.modeunsa.global.event.TraceableEvent;
 
-@Getter
-@RequiredArgsConstructor
-public class PaymentPayoutCompletedEvent {
-  private final PaymentPayoutDto payout;
-}
+public record PaymentPayoutCompletedEvent(PaymentPayoutDto payout, String traceId)
+    implements TraceableEvent {}
