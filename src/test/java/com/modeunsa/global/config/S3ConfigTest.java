@@ -10,18 +10,15 @@ import software.amazon.awssdk.services.s3.S3Client;
 @SpringBootTest
 class S3ConfigTest {
 
-  @Autowired
-  private S3Client s3Client;
+  @Autowired private S3Client s3Client;
 
-  @Autowired
-  private S3Properties s3Properties;
+  @Autowired private S3Properties s3Properties;
 
   @Test
-  void S3ConnectTest() {
-    assertDoesNotThrow(() -> {
-      s3Client.listObjects(builder ->
-          builder.bucket(s3Properties.s3().bucket()).maxKeys(1)
-      );
-    });
+  void s3ConnectTest() {
+    assertDoesNotThrow(
+        () -> {
+          s3Client.listObjects(builder -> builder.bucket(s3Properties.s3().bucket()).maxKeys(1));
+        });
   }
 }
