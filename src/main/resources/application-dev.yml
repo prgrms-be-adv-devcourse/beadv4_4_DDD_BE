@@ -58,3 +58,8 @@ custom:
       allowed-redirect-domains:
         - localhost
         - 127.0.0.1
+  cors:
+    enabled: true
+    allowed-origins:
+      - http://localhost:3000
+      - http://127.0.0.1:3000

@@ -20,4 +20,8 @@ public class PaymentId implements Serializable {
 
   @Column(name = "order_no", nullable = false, length = 50)
   private String orderNo;
+
+  public static PaymentId create(Long memberId, String orderNo) {
+    return new PaymentId(memberId, orderNo);
+  }
 }
