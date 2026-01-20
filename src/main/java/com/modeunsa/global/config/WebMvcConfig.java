@@ -2,6 +2,7 @@ package com.modeunsa.global.config;
 
 import com.modeunsa.global.filter.RequestLoggingInterceptor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -9,15 +10,22 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @RequiredArgsConstructor
+@EnableConfigurationProperties(CorsProperties.class)
 public class WebMvcConfig implements WebMvcConfigurer {
 
   private final RequestLoggingInterceptor requestLoggingInterceptor;
+  private final CorsProperties corsProperties;
 
   @Override
   public void addCorsMappings(CorsRegistry registry) {
+
+    if (!corsProperties.isCorsEnabled()) {
+      return;
+    }
+
     registry
         .addMapping("/api/**")
-        .allowedOrigins("http://localhost:3000", "http://127.0.0.1:3000")
+        .allowedOrigins(corsProperties.allowedOrigins().toArray(String[]::new))
         .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
         .allowedHeaders("*")
         .allowCredentials(true);
