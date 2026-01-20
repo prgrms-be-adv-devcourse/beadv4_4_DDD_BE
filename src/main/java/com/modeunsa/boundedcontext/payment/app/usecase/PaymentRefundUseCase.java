@@ -24,19 +24,17 @@ public class PaymentRefundUseCase {
 
     LockedPaymentAccounts accounts =
         paymentAccountLockManager.getEntitiesForUpdateInOrder(
-            paymentAccountConfig.getHolderMemberId(), payment.getBuyerId());
+            paymentAccountConfig.getHolderMemberId(), payment.memberId());
 
     PaymentAccount holderAccount = accounts.get(paymentAccountConfig.getHolderMemberId());
-    PaymentAccount buyerAccount = accounts.get(payment.getBuyerId());
+    PaymentAccount buyerAccount = accounts.get(payment.memberId());
     PaymentEventType eventType = PaymentEventType.fromRefundEventType(refundEventType);
 
-    if (!holderAccount.canPayOrder(payment.getTotalAmount())) {
+    if (!holderAccount.canPayOrder(payment.totalAmount())) {
       throw new GeneralException(ErrorStatus.PAYMENT_INSUFFICIENT_BALANCE);
     }
 
-    holderAccount.debit(
-        payment.getTotalAmount(), eventType, payment.getOrderId(), ReferenceType.PAYMENT);
-    buyerAccount.credit(
-        payment.getTotalAmount(), eventType, payment.getOrderId(), ReferenceType.PAYMENT);
+    holderAccount.debit(payment.totalAmount(), eventType, payment.orderId(), ReferenceType.PAYMENT);
+    buyerAccount.credit(payment.totalAmount(), eventType, payment.orderId(), ReferenceType.PAYMENT);
   }
 }

@@ -184,9 +184,9 @@ class PaymentProcessUseCaseTest {
     verify(eventPublisher).publish(eventCaptor.capture());
 
     PaymentDto publishedPayment = eventCaptor.getValue().payment();
-    assertThat(publishedPayment.getOrderId()).isEqualTo(orderId);
-    assertThat(publishedPayment.getOrderNo()).isEqualTo(orderNo);
-    assertThat(publishedPayment.getBuyerId()).isEqualTo(buyerId);
-    assertThat(publishedPayment.getTotalAmount()).isEqualByComparingTo(totalAmount);
+    assertThat(publishedPayment.orderId()).isEqualTo(orderId);
+    assertThat(publishedPayment.orderNo()).isEqualTo(orderNo);
+    assertThat(publishedPayment.memberId()).isEqualTo(buyerId);
+    assertThat(publishedPayment.totalAmount()).isEqualByComparingTo(totalAmount);
   }
 }

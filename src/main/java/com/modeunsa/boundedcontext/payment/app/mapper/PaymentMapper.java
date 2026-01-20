@@ -10,7 +10,6 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface PaymentMapper {
-  @Mapping(target = "buyerId", source = "memberId")
   PaymentDto toPaymentDto(OrderDto orderDto);
 
   @Mapping(target = "customerKey", source = "paymentMember.customerKey")
