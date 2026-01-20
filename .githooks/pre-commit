@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "[pre-commit] Running Spotless (auto-fix)..."
+
+# 스테이징된 java 변경이 없으면 스킵
+if ! git diff --cached --name-only --diff-filter=ACM | grep -E '\.java$' > /dev/null; then
+  echo "[pre-commit] No staged .java files. Skipping."
+  exit 0
+fi
+
+# 1) 자동 수정
+./gradlew -q spotlessApply
+
+# 2) 자동 수정으로 바뀐 파일을 다시 스테이징에 올림
+git add -u
+
+# 3) 변경사항 출력
+if ! git diff --cached --quiet; then
+  echo "[pre-commit] Spotless applied. Staged diff summary:"
+  git diff --cached --stat
+fi
+
+echo "[pre-commit] Running Checkstyle..."
+
+# Gradle Checkstyle 실행
+./gradlew -q checkstyleMain checkstyleTest
+
+echo "[pre-commit] Checkstyle passed."
