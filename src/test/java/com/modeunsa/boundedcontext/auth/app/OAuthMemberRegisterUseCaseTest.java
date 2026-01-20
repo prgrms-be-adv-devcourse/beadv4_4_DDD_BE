@@ -92,7 +92,7 @@ class OAuthMemberRegisterUseCaseTest {
     Member savedMember = memberCaptor.getValue();
 
     // 양방향 연관관계 확인: Member의 소셜 계정 목록에 포함되어 있어야 함
-    assertThat(savedMember.getOauthSocialAccountOS()).contains(result);
+    assertThat(savedMember.getOauthAccount()).contains(result);
     // AuthSocialAccount의 Member 참조 확인
     assertThat(result.getMember()).isEqualTo(savedMember);
   }

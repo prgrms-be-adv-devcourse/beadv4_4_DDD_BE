@@ -1,6 +1,6 @@
 package com.modeunsa.boundedcontext.auth.in.controller;
 
-import com.modeunsa.boundedcontext.auth.app.facade.AuthSocialAccountFacade;
+import com.modeunsa.boundedcontext.auth.app.facade.OAuthAccountFacade;
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import com.modeunsa.boundedcontext.auth.in.util.AuthRequestUtils;
 import com.modeunsa.global.response.ApiResponse;
@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ApiV1AuthSocialAccountController {
 
-  private final AuthSocialAccountFacade authSocialAccountFacade;
+  private final OAuthAccountFacade OAuthAccountFacade;
 
   @Operation(summary = "소셜 계정 연동 URL 조회", description = "마이페이지에서 소셜 계정 연동을 위한 OAuth URL을 반환합니다.")
   @GetMapping("/{provider}/link-url")
@@ -34,7 +34,7 @@ public class ApiV1AuthSocialAccountController {
       @Parameter(description = "리다이렉트 URI") @RequestParam(required = false) String redirectUri) {
 
     OAuthProvider oauthProvider = AuthRequestUtils.findProvider(provider);
-    String linkUrl = authSocialAccountFacade.getLinkUrl(memberId, oauthProvider, redirectUri);
+    String linkUrl = OAuthAccountFacade.getLinkUrl(memberId, oauthProvider, redirectUri);
 
     return ApiResponse.onSuccess(SuccessStatus.OK, linkUrl);
   }
@@ -49,7 +49,7 @@ public class ApiV1AuthSocialAccountController {
       @Parameter(description = "state 값", required = true) @RequestParam String state) {
 
     OAuthProvider oauthProvider = AuthRequestUtils.findProvider(provider);
-    authSocialAccountFacade.linkSocialAccount(memberId, oauthProvider, code, redirectUri, state);
+    OAuthAccountFacade.linkSocialAccount(memberId, oauthProvider, code, redirectUri, state);
 
     return ApiResponse.onSuccess(SuccessStatus.SOCIAL_ACCOUNT_LINK_SUCCESS);
   }

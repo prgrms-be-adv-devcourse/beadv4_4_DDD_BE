@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AuthSocialAccountFacade {
+public class OAuthAccountFacade {
 
   private final OAuthUrlUseCase oauthUrlUseCase;
   private final OAuthAccountLinkUseCase oauthAccountLinkUseCase;

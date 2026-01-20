@@ -26,7 +26,7 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(exclude = "member")
 @Table(
-    name = "auth_social_account",
+    name = "auth_oauth_account",
     uniqueConstraints = {
       @UniqueConstraint(columnNames = {"oauth_provider", "provider_account_id"})
     })

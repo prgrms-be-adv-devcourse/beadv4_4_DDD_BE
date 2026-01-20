@@ -57,7 +57,7 @@ public class Member extends GeneratedIdAndAuditedEntity {
   @Getter(AccessLevel.NONE)
   @Builder.Default
   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<OAuthAccount> oauthSocialAccountOS = new ArrayList<>();
+  private List<OAuthAccount> oauthAccount = new ArrayList<>();
 
   @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private MemberProfile profile;
@@ -69,8 +69,8 @@ public class Member extends GeneratedIdAndAuditedEntity {
 
   @Column private LocalDateTime withdrawalRequestedAt;
 
-  public List<OAuthAccount> getOauthSocialAccountOS() {
-    return Collections.unmodifiableList(oauthSocialAccountOS);
+  public List<OAuthAccount> getOauthAccount() {
+    return Collections.unmodifiableList(oauthAccount);
   }
 
   public List<MemberDeliveryAddress> getAddresses() {
@@ -143,7 +143,7 @@ public class Member extends GeneratedIdAndAuditedEntity {
   }
 
   public void addOAuthAccount(OAuthAccount oauth) {
-    oauthSocialAccountOS.add(oauth);
+    oauthAccount.add(oauth);
     oauth.assignMember(this);
   }
 }
