@@ -33,6 +33,12 @@ public class OrderSupport {
         .orElseThrow(() -> new GeneralException(ErrorStatus.ORDER_MEMBER_NOT_FOUND));
   }
 
+  public void existsByMemberId(Long memberId) {
+    if (!orderMemberRepository.existsById(memberId)) {
+      throw new GeneralException(ErrorStatus.ORDER_MEMBER_NOT_FOUND);
+    }
+  }
+
   // --- orderProduct ---
   public long countProduct() {
     return orderProductRepository.count();

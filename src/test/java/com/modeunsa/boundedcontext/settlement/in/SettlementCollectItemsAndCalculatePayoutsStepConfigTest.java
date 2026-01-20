@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.settlement.in.batch;
+package com.modeunsa.boundedcontext.settlement.in;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -13,7 +13,6 @@ import com.modeunsa.boundedcontext.settlement.app.dto.SettlementOrderItemDto;
 import com.modeunsa.boundedcontext.settlement.domain.entity.Settlement;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementItem;
 import com.modeunsa.boundedcontext.settlement.domain.types.SettlementEventType;
-import com.modeunsa.boundedcontext.settlement.in.OrderApiClient;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
