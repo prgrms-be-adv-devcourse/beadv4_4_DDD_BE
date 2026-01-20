@@ -7,7 +7,7 @@ import com.modeunsa.boundedcontext.auth.app.usecase.OAuthLoginUseCase;
 import com.modeunsa.boundedcontext.auth.app.usecase.OAuthUrlUseCase;
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
-import com.modeunsa.shared.auth.dto.TokenResponse;
+import com.modeunsa.shared.auth.dto.JwtTokenResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,20 +29,20 @@ public class AuthFacade {
   }
 
   /** OAuth 로그인/회원가입 처리 */
-  public TokenResponse oauthLogin(
+  public JwtTokenResponse oauthLogin(
       OAuthProvider provider, String code, String redirectUri, String state) {
     return oauthLoginUseCase.execute(provider, code, redirectUri, state);
   }
 
   /** 로그인 성공 후 토큰 발급 */
   @Transactional
-  public TokenResponse login(Long memberId, MemberRole role) {
+  public JwtTokenResponse login(Long memberId, MemberRole role) {
     return authTokenIssueUseCase.execute(memberId, role);
   }
 
   /** 토큰 재발급 */
   @Transactional
-  public TokenResponse reissueToken(String refreshToken) {
+  public JwtTokenResponse reissueToken(String refreshToken) {
     return authTokenReissueUseCase.execute(refreshToken);
   }
 

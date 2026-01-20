@@ -19,9 +19,9 @@ import com.modeunsa.boundedcontext.auth.out.client.OAuthClientFactory;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.global.exception.GeneralException;
-import com.modeunsa.shared.auth.dto.OAuthTokenResponse;
+import com.modeunsa.shared.auth.dto.OAuthProviderTokenResponse;
 import com.modeunsa.shared.auth.dto.OAuthUserInfo;
-import com.modeunsa.shared.auth.dto.TokenResponse;
+import com.modeunsa.shared.auth.dto.JwtTokenResponse;
 import java.lang.reflect.Field;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -104,15 +104,15 @@ class OAuthLoginUseCaseTest {
 
       Member member = createMemberWithId(memberId);
       OAuthAccount socialAccount = createSocialAccount(member);
-      TokenResponse expectedToken =
-          TokenResponse.of("access_token", "refresh_token", 3600L, 604800L);
+      JwtTokenResponse expectedToken =
+          JwtTokenResponse.of("access_token", "refresh_token", 3600L, 604800L);
 
       given(oauthAccountResolveUseCase.execute(any(OAuthProvider.class), any(OAuthUserInfo.class)))
           .willReturn(socialAccount);
       given(authTokenIssueUseCase.execute(memberId, MemberRole.MEMBER)).willReturn(expectedToken);
 
       // when
-      TokenResponse result = oauthLoginUseCase.execute(provider, code, redirectUri, state);
+      JwtTokenResponse result = oauthLoginUseCase.execute(provider, code, redirectUri, state);
 
       // then
       assertThat(result).isEqualTo(expectedToken);
@@ -130,15 +130,15 @@ class OAuthLoginUseCaseTest {
 
       Member member = createMemberWithId(memberId);
       OAuthAccount socialAccount = createSocialAccount(member);
-      TokenResponse expectedToken =
-          TokenResponse.of("access_token", "refresh_token", 3600L, 604800L);
+      JwtTokenResponse expectedToken =
+          JwtTokenResponse.of("access_token", "refresh_token", 3600L, 604800L);
 
       given(oauthAccountResolveUseCase.execute(any(OAuthProvider.class), any(OAuthUserInfo.class)))
           .willReturn(socialAccount);
       given(authTokenIssueUseCase.execute(memberId, MemberRole.MEMBER)).willReturn(expectedToken);
 
       // when
-      TokenResponse result = oauthLoginUseCase.execute(provider, code, redirectUri, state);
+      JwtTokenResponse result = oauthLoginUseCase.execute(provider, code, redirectUri, state);
 
       // then
       assertThat(result).isEqualTo(expectedToken);
@@ -153,8 +153,8 @@ class OAuthLoginUseCaseTest {
   }
 
   private void setupOAuthClient() {
-    OAuthTokenResponse tokenResponse =
-        OAuthTokenResponse.builder()
+    OAuthProviderTokenResponse tokenResponse =
+        OAuthProviderTokenResponse.builder()
             .accessToken("oauth_access_token")
             .refreshToken("oauth_refresh_token")
             .expiresIn(3600L)
