@@ -81,7 +81,8 @@ public class MemberFacade {
   }
 
   @Transactional
-  public void updateDeliveryAddress(Long memberId, Long addressId, MemberDeliveryAddressUpdateRequest request) {
+  public void updateDeliveryAddress(
+      Long memberId, Long addressId, MemberDeliveryAddressUpdateRequest request) {
     updateMemberDeliveryAddressUseCase.execute(memberId, addressId, request);
   }
 

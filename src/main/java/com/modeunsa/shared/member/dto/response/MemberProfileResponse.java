@@ -10,8 +10,7 @@ public record MemberProfileResponse(
     String profileImageUrl,
     Integer heightCm,
     Integer weightKg,
-    String skinType
-) {
+    String skinType) {
   public static MemberProfileResponse from(MemberProfile memberProfile) {
     return MemberProfileResponse.builder()
         .id(memberProfile.getId())

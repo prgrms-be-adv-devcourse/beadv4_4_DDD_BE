@@ -7,9 +7,9 @@ import com.modeunsa.boundedcontext.auth.out.client.OAuthClientFactory;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
+import com.modeunsa.shared.auth.dto.JwtTokenResponse;
 import com.modeunsa.shared.auth.dto.OAuthProviderTokenResponse;
 import com.modeunsa.shared.auth.dto.OAuthUserInfo;
-import com.modeunsa.shared.auth.dto.JwtTokenResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -36,8 +36,7 @@ public class OAuthLoginUseCase {
 
     // 3. 사용자 정보 조회 (외부 HTTP 호출)
     OAuthUserInfo userInfo = oauthClient.getUserInfo(tokenResponse.accessToken());
-    log.info(
-        "OAuth 사용자 정보 조회 완료 - provider: {}, providerId: {}", provider, userInfo.providerId());
+    log.info("OAuth 사용자 정보 조회 완료 - provider: {}, providerId: {}", provider, userInfo.providerId());
 
     // 4. 소셜 계정 조회 또는 신규 가입
     OAuthAccount socialAccount = oauthAccountResolveUseCase.execute(provider, userInfo);

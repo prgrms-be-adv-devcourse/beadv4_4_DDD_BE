@@ -27,15 +27,16 @@ public class MemberDeliveryAddressAddUseCase {
       throw new GeneralException(ErrorStatus.MEMBER_ALREADY_HAS_DEFAULT_ADDRESS);
     }
 
-    MemberDeliveryAddress address = MemberDeliveryAddress.builder()
-        .recipientName(request.recipientName())
-        .recipientPhone(request.recipientPhone())
-        .zipCode(request.zipCode())
-        .address(request.address())
-        .addressDetail(request.addressDetail())
-        .addressName(request.addressName())
-        .isDefault(isDefaultRequest)
-        .build();
+    MemberDeliveryAddress address =
+        MemberDeliveryAddress.builder()
+            .recipientName(request.recipientName())
+            .recipientPhone(request.recipientPhone())
+            .zipCode(request.zipCode())
+            .address(request.address())
+            .addressDetail(request.addressDetail())
+            .addressName(request.addressName())
+            .isDefault(isDefaultRequest)
+            .build();
 
     member.addAddress(address);
   }

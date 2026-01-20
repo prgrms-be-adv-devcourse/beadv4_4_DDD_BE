@@ -10,8 +10,7 @@ public record MemberDeliveryAddressResponse(
     String addressName,
     String address,
     String addressDetail,
-    Boolean isDefault
-) {
+    Boolean isDefault) {
   public static MemberDeliveryAddressResponse from(MemberDeliveryAddress address) {
     return MemberDeliveryAddressResponse.builder()
         .id(address.getId())

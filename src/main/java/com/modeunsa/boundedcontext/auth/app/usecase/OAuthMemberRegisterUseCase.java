@@ -19,10 +19,7 @@ public class OAuthMemberRegisterUseCase {
   private final ApplicationEventPublisher eventPublisher;
 
   public OAuthAccount execute(OAuthUserInfo userInfo) {
-    log.info(
-        "신규 회원 가입 - provider: {}, providerId: {}",
-        userInfo.provider(),
-        userInfo.providerId());
+    log.info("신규 회원 가입 - provider: {}, providerId: {}", userInfo.provider(), userInfo.providerId());
 
     // 1. Member 생성
     Member member =

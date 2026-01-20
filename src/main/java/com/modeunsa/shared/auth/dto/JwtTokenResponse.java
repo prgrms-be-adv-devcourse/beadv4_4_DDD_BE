@@ -7,8 +7,7 @@ public record JwtTokenResponse(
     String accessToken,
     String refreshToken,
     long accessTokenExpiresIn,
-    long refreshTokenExpiresIn
-) {
+    long refreshTokenExpiresIn) {
   public static JwtTokenResponse of(
       String accessToken,
       String refreshToken,

@@ -4,10 +4,10 @@ import com.modeunsa.boundedcontext.member.app.support.MemberSupport;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.entity.MemberDeliveryAddress;
 import com.modeunsa.boundedcontext.member.out.repository.MemberDeliveryAddressRepository;
-import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressUpdateRequest;
-import com.modeunsa.shared.member.event.MemberDeliveryAddressUpdatedEvent;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
+import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressUpdateRequest;
+import com.modeunsa.shared.member.event.MemberDeliveryAddressUpdatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -24,8 +24,10 @@ public class MemberDeliveryAddressUpdateUseCase {
     Member member = memberSupport.getMember(memberId);
 
     // 1. 배송지 조회
-    MemberDeliveryAddress address = addressRepository.findById(addressId)
-        .orElseThrow(() -> new GeneralException(ErrorStatus.ADDRESS_NOT_FOUND));
+    MemberDeliveryAddress address =
+        addressRepository
+            .findById(addressId)
+            .orElseThrow(() -> new GeneralException(ErrorStatus.ADDRESS_NOT_FOUND));
 
     // 2. 권한 검증 (내 배송지가 맞는지)
     if (!address.getMember().getId().equals(member.getId())) {
@@ -33,7 +35,8 @@ public class MemberDeliveryAddressUpdateUseCase {
     }
 
     // 3. 정보 수정
-    address.updateRecipientName(request.getRecipientName())
+    address
+        .updateRecipientName(request.getRecipientName())
         .updateRecipientPhone(request.getRecipientPhone())
         .updateZipCode(request.getZipCode())
         .updateAddress(request.getAddress())

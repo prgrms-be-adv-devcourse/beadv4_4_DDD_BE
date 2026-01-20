@@ -33,9 +33,7 @@ public class OAuthAccountResolveUseCase {
       return oauthMemberRegisterUseCase.execute(userInfo);
     } catch (DataIntegrityViolationException e) {
       log.warn(
-          "동시 가입 요청 감지, 기존 계정 재조회 - provider: {}, providerId: {}",
-          provider,
-          userInfo.providerId());
+          "동시 가입 요청 감지, 기존 계정 재조회 - provider: {}, providerId: {}", provider, userInfo.providerId());
 
       return socialAccountRepository
           .findByOauthProviderAndProviderAccountId(provider, userInfo.providerId())

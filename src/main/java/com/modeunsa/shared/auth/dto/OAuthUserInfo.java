@@ -6,13 +6,18 @@ import lombok.Builder;
 @Builder
 public record OAuthUserInfo(
     OAuthProvider provider,
-    String providerId, // 필수 (소셜 고유 ID)
-    String email,      // nullable
-    String name,       // nullable
+    String providerId,
+    String email, // nullable
+    String name, // nullable
     String phoneNumber // nullable
 ) {
   public static OAuthUserInfo of(
-      OAuthProvider provider, String providerId, String email, String name, String phoneNumber) {
+      OAuthProvider provider,
+      String providerId,
+      String email,
+      String name,
+      String phoneNumber) {
+
     return OAuthUserInfo.builder()
         .provider(provider)
         .providerId(providerId)

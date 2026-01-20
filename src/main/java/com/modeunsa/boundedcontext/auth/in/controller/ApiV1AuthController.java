@@ -5,7 +5,6 @@ import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import com.modeunsa.boundedcontext.auth.in.util.AuthRequestUtils;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.response.ApiResponse;
-import com.modeunsa.global.security.jwt.JwtTokenProvider;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.global.status.SuccessStatus;
 import com.modeunsa.shared.auth.dto.JwtTokenResponse;
@@ -32,7 +31,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class ApiV1AuthController {
 
   private final AuthFacade authFacade;
-  private final JwtTokenProvider jwtTokenProvider;
 
   @Operation(summary = "OAuth2 로그인 URL 조회", description = "OAuth2 로그인 URL을 반환합니다.")
   @GetMapping("/oauth/{provider}/url")
@@ -53,7 +51,8 @@ public class ApiV1AuthController {
       @Parameter(description = "state 값", required = true) @RequestParam String state) {
 
     OAuthProvider oauthProvider = AuthRequestUtils.findProvider(provider);
-    JwtTokenResponse jwtTokenResponse = authFacade.oauthLogin(oauthProvider, code, redirectUri, state);
+    JwtTokenResponse jwtTokenResponse =
+        authFacade.oauthLogin(oauthProvider, code, redirectUri, state);
 
     return ApiResponse.onSuccess(SuccessStatus.AUTH_LOGIN_SUCCESS, jwtTokenResponse);
   }

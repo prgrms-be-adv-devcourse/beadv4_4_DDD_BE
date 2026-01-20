@@ -65,7 +65,9 @@ public class MemberController {
     return ApiResponse.onSuccess(SuccessStatus.MEMBER_BASIC_INFO_GET_SUCCESS, response);
   }
 
-  @Operation(summary = "프로필 조회", description = "회원의 닉네임, 프로필 이미지 등 프로필 정보를 조회합니다. 프로필이 없으면 404 에러가 발생합니다.")
+  @Operation(
+      summary = "프로필 조회",
+      description = "회원의 닉네임, 프로필 이미지 등 프로필 정보를 조회합니다. 프로필이 없으면 404 에러가 발생합니다.")
   @GetMapping("/profile")
   public ResponseEntity<ApiResponse> getProfile(
       @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
@@ -77,7 +79,8 @@ public class MemberController {
   @GetMapping("/addresses")
   public ResponseEntity<ApiResponse> getDeliveryAddresses(
       @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
-    List<MemberDeliveryAddressResponse> response = memberFacade.getMemberDeliveryAddresses(memberId);
+    List<MemberDeliveryAddressResponse> response =
+        memberFacade.getMemberDeliveryAddresses(memberId);
     return ApiResponse.onSuccess(SuccessStatus.MEMBER_ADDRESS_LIST_GET_SUCCESS, response);
   }
 
@@ -105,8 +108,7 @@ public class MemberController {
   public ResponseEntity<ApiResponse> updateAddress(
       @Parameter(hidden = true) @AuthenticationPrincipal Long memberId,
       @PathVariable Long addressId,
-      @RequestBody @Valid MemberDeliveryAddressUpdateRequest request
-  ) {
+      @RequestBody @Valid MemberDeliveryAddressUpdateRequest request) {
     memberFacade.updateDeliveryAddress(memberId, addressId, request);
     return ApiResponse.onSuccess(SuccessStatus.MEMBER_ADDRESS_UPDATE_SUCCESS);
   }

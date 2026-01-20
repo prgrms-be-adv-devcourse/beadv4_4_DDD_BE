@@ -151,9 +151,6 @@ public class Member extends GeneratedIdAndAuditedEntity {
   }
 
   public MemberDeliveryAddress getDefaultDeliveryAddress() {
-    return addresses.stream()
-        .filter(MemberDeliveryAddress::getIsDefault)
-        .findFirst()
-        .orElse(null);
+    return addresses.stream().filter(MemberDeliveryAddress::getIsDefault).findFirst().orElse(null);
   }
 }

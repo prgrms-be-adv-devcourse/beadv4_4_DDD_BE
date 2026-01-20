@@ -4,11 +4,7 @@ import lombok.Builder;
 
 @Builder
 public record OAuthProviderTokenResponse(
-    String accessToken,
-    String refreshToken,
-    String tokenType,
-    Long expiresIn
-) {
+    String accessToken, String refreshToken, String tokenType, Long expiresIn) {
   public static OAuthProviderTokenResponse of(
       String accessToken, String refreshToken, String tokenType, Long expiresIn) {
     return OAuthProviderTokenResponse.builder()
