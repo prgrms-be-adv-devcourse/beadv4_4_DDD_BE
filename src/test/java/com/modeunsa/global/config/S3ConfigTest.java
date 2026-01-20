@@ -3,11 +3,13 @@ package com.modeunsa.global.config;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import software.amazon.awssdk.services.s3.S3Client;
 
 @SpringBootTest
+@EnabledIfEnvironmentVariable(named = "AWS_ACCESS_KEY", matches = ".+")
 class S3ConfigTest {
 
   @Autowired private S3Client s3Client;
