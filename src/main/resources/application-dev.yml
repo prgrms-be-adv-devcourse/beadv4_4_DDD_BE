@@ -48,6 +48,10 @@ spring:
     jdbc:
       initialize-schema: never
 
+  elasticsearch:
+    uris:
+      - http://localhost:9200
+
 custom:
   security:
     permit-all: false

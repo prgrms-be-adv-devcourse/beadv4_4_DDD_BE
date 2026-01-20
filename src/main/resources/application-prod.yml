@@ -47,6 +47,12 @@ spring:
     jdbc:
       initialize-schema: never
 
+  elasticsearch:
+    uris:
+      - https://prod-es.internal
+    username: ${ES_USERNAME}
+    password: ${ES_PASSWORD}
+
 custom:
   security:
     permit-all: false
@@ -61,3 +67,4 @@ management:
   endpoint:
     health:
       show-details: never
+

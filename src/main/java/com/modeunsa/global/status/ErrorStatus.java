@@ -125,7 +125,14 @@ public enum ErrorStatus {
 
   // Settlement 404
   SETTLEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "SETTLEMENT_404_001", "정산서가 존재하지 않습니다."),
-  SETTLEMENT_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "SETTLEMENT_404_002", "회원을 찾을 수 없습니다.");
+  SETTLEMENT_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "SETTLEMENT_404_002", "회원을 찾을 수 없습니다."),
+
+  // ElasticSearch 400
+  ELASTICSEARCH_SEARCH_FAILED(HttpStatus.NOT_FOUND, "ELASTICSEARCH_400_001", "검색에 실패하였습니다."),
+  ELASTICSEARCH_INDEX_FAILED(HttpStatus.NOT_FOUND, "ELASTICSEARCH_400_002", "인덱싱에 실패하였습니다."),
+  ELASTICSEARCH_DELETE_FAILED(HttpStatus.NOT_FOUND, "ELASTICSEARCH_400_003", "삭제에 실패하였습니다."),
+  ELASTICSEARCH_BULKINDEX_FAILED(HttpStatus.NOT_FOUND, "ELASTICSEARCH_400_004", "대량 인덱싱에 실패하였습니다."),
+  ;
 
   private final HttpStatus httpStatus;
   private final String code;
