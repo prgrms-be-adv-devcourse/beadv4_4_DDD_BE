@@ -133,7 +133,7 @@ public class ApiV1OrderController {
 
   @Operation(summary = "주문 조회 기능", description = "정산 모듈에서 사용하는 주문 조회 API입니다.")
   @GetMapping("/{id}")
-  public OrderDto getItems(@PathVariable Long id) {
-    return orderFacade.findOrderById(id);
+  public OrderDto getOrder(@PathVariable Long id) {
+    return orderFacade.getOrder(id);
   }
 }

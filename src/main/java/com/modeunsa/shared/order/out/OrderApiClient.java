@@ -14,7 +14,7 @@ public class OrderApiClient {
     this.restClient = RestClient.builder().baseUrl(internalBackUrl + "/api/v1/orders").build();
   }
 
-  public OrderDto getOrderItems(Long id) {
+  public OrderDto getOrder(Long id) {
     return restClient
         .get()
         .uri("/%d".formatted(id))

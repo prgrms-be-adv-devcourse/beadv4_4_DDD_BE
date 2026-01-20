@@ -92,7 +92,7 @@ public class OrderFacade {
     return orderGetCartItemsUseCase.getCartItems(memberId);
   }
 
-  public OrderDto findOrderById(Long id) {
+  public OrderDto getOrder(Long id) {
     Order order = orderSupport.findByOrderId(id);
     return orderMapper.toOrderDto(order);
   }
