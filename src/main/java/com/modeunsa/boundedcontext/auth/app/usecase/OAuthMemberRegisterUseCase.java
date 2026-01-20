@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -19,7 +18,6 @@ public class OAuthMemberRegisterUseCase {
   private final MemberRepository memberRepository;
   private final ApplicationEventPublisher eventPublisher;
 
-  @Transactional
   public OAuthAccount execute(OAuthUserInfo userInfo) {
     log.info(
         "신규 회원 가입 - provider: {}, providerId: {}",

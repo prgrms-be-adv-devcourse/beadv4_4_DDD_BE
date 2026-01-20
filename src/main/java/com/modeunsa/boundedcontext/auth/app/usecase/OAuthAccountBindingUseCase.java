@@ -11,7 +11,6 @@ import com.modeunsa.shared.auth.dto.OAuthUserInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -21,11 +20,6 @@ public class OAuthAccountBindingUseCase {
   private final MemberRepository memberRepository;
   private final AuthSocialAccountRepository socialAccountRepository;
 
-  /**
-   * 실제 DB 저장 및 연동 로직
-   * 외부 클래스에서 호출되므로 @Transactional 프록시가 정상 작동합니다.
-   */
-  @Transactional
   public void link(Long memberId, OAuthProvider provider, OAuthUserInfo userInfo) {
     // 1. 이미 다른 회원이 해당 소셜 계정을 사용 중인지 확인
     boolean alreadyUsedByOther = socialAccountRepository

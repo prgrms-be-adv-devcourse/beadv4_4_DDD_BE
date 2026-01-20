@@ -11,6 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+/**
+ * OAuth 계정 조회 및 회원 가입 처리 유스케이스
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -22,9 +25,18 @@ public class OAuthAccountResolveUseCase {
   public OAuthAccount execute(OAuthProvider provider, OAuthUserInfo userInfo) {
     return socialAccountRepository
         .findByOauthProviderAndProviderAccountId(provider, userInfo.getProviderId())
-        .orElseGet(() -> registerWithDuplicateHandling(provider, userInfo));
+        .map(account -> {
+          // [기존 회원 로그인] 이미 연동된 계정이 있다면 그 계정을 반환합니다.
+          account.getMember().getRole();
+          return account;
+        })
+        .orElseGet(() -> {
+          // [신규 회원 가입] 연동된 계정이 없다면 무조건 새로 가입합니다.
+          return registerWithDuplicateHandling(provider, userInfo);
+        });
   }
 
+  // 동시 가입 요청에 따른 중복 처리
   private OAuthAccount registerWithDuplicateHandling(
       OAuthProvider provider, OAuthUserInfo userInfo) {
     try {

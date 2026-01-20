@@ -41,9 +41,8 @@ public class OAuthAccountFacade {
 
   /**
    * 소셜 계정 연동
-   * 외부 API 호출(OAuth)이 포함되어 있으므로 Facade 레벨의 @Transactional 제거.
-   * 트랜잭션은 UseCase 내부의 DB 작업 구간에서만 시작됩니다.
    */
+  @Transactional
   public void linkSocialAccount(Long memberId, OAuthProvider provider, String code, String redirectUri, String state) {
     oauthAccountLinkUseCase.execute(memberId, provider, code, redirectUri, state);
   }

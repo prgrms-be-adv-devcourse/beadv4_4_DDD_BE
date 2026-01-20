@@ -21,11 +21,6 @@ public class OAuthAccountLinkUseCase {
   private final StringRedisTemplate redisTemplate;
   private final OAuthAccountBindingUseCase oauthAccountBindingUseCase;
 
-  /**
-   * 실행 메서드
-   * 1. 검증 및 외부 API 호출 (Non-Transactional)
-   * 2. DB 저장 로직 위임 (Transactional)
-   */
   public void execute(Long memberId, OAuthProvider provider, String code, String redirectUri, String state) {
     // 1. state 검증
     validateState(state, provider);
