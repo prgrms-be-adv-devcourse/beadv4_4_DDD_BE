@@ -22,6 +22,6 @@ public class MemberDeliveryAddressDeleteUseCase {
             .findFirst()
             .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_DELIVERY_ADDRESS_NOT_FOUND));
 
-    member.deleteDeliveryAddress(addressId);
+    member.deleteDeliveryAddress(address);
   }
 }

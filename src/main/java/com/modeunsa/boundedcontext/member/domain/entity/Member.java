@@ -146,8 +146,8 @@ public class Member extends GeneratedIdAndAuditedEntity {
     oauth.assignMember(this);
   }
 
-  public void deleteDeliveryAddress(Long addressId) {
-    addresses.removeIf(address -> address.getId().equals(addressId));
+  public void deleteDeliveryAddress(MemberDeliveryAddress deleteAddress) {
+    addresses.removeIf(address -> address.getId().equals(deleteAddress.getId()));
   }
 
   public MemberDeliveryAddress getDefaultDeliveryAddress() {
