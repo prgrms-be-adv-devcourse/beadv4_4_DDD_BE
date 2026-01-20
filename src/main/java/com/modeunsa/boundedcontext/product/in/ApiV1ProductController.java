@@ -138,8 +138,8 @@ public class ApiV1ProductController {
 
   @Operation(summary = "재고 차감 API", description = "주문 생성 시 재고를 차감합니다.")
   @PatchMapping("/stock")
-  public List<ProductStockResponse> updateStock(
+  public List<ProductStockResponse> deductStock(
       @Valid @RequestBody ProductStockUpdateRequest productStockUpdateRequest) {
-    return productFacade.updateStock(productStockUpdateRequest);
+    return productFacade.deductStock(productStockUpdateRequest);
   }
 }

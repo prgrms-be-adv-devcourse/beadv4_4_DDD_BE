@@ -18,12 +18,12 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ProductUpdateStockUseCase {
+public class ProductDeductStockUseCase {
 
   private final ProductSupport productSupport;
   private final ProductRepository productRepository;
 
-  public List<ProductStockDto> updateStock(ProductStockUpdateRequest request) {
+  public List<ProductStockDto> deductStock(ProductStockUpdateRequest request) {
     // 상품 ID 순으로 정렬
     List<ProductOrderItemDto> sortedItems =
         request.items().stream()

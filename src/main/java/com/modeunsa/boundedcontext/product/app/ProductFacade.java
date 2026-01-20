@@ -29,7 +29,7 @@ public class ProductFacade {
   private final ProductCreateFavoriteUseCase productCreateFavoriteUseCase;
   private final ProductDeleteFavoriteUseCase productDeleteFavoriteUseCase;
   private final ProductValidateOrderUseCase productValidateOrderUseCase;
-  private final ProductUpdateStockUseCase productUpdateStockUseCase;
+  private final ProductDeductStockUseCase productDeductStockUseCase;
   private final ProductSupport productSupport;
   private final ProductMapper productMapper;
 
@@ -85,9 +85,9 @@ public class ProductFacade {
   }
 
   @Transactional
-  public List<ProductStockResponse> updateStock(
+  public List<ProductStockResponse> deductStock(
       ProductStockUpdateRequest productStockUpdateRequest) {
-    return productUpdateStockUseCase.updateStock(productStockUpdateRequest).stream()
+    return productDeductStockUseCase.deductStock(productStockUpdateRequest).stream()
         .map(productMapper::toProductStockResponse)
         .toList();
   }
