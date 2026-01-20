@@ -11,4 +11,4 @@ public record PaymentRequest(
     @NotNull Long orderId,
     @NotBlank String orderNo,
     @NotNull Long buyerId,
-    @Positive BigDecimal totalAmount) {}
+    @NotNull @Positive BigDecimal totalAmount) {}

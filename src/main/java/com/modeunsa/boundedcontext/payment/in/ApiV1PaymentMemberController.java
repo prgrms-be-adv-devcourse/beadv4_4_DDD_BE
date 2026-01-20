@@ -22,7 +22,7 @@ public class ApiV1PaymentMemberController {
   private final PaymentFacade paymentFacade;
 
   @Operation(summary = "결제 회원 정보 조회 기능", description = "결제 회원 정보를 조회하는 기능입니다.")
-  @GetMapping("{memberId}")
+  @GetMapping("/{memberId}")
   public ResponseEntity<ApiResponse> getMember(@PathVariable Long memberId) {
     PaymentMemberResponse response = paymentFacade.getMember(memberId);
     return ApiResponse.onSuccess(SuccessStatus.OK, response);
