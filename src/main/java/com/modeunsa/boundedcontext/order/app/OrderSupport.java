@@ -71,6 +71,10 @@ public class OrderSupport {
     return products;
   }
 
+  public void saveProduct(OrderProduct product) {
+    orderProductRepository.save(product);
+  }
+
   // 장바구니 비우기
   public void clearCart(Long memberId) {
     orderCartItemRepository.deleteByMemberId(memberId);

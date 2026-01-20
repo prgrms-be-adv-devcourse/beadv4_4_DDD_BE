@@ -12,6 +12,7 @@ import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
 import com.modeunsa.shared.order.dto.OrderDto;
 import com.modeunsa.shared.order.dto.OrderListResponseDto;
 import com.modeunsa.shared.order.dto.OrderResponseDto;
+import com.modeunsa.shared.product.dto.ProductDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -95,5 +96,18 @@ public class OrderFacade {
   public OrderDto getOrder(Long id) {
     Order order = orderSupport.findByOrderId(id);
     return orderMapper.toOrderDto(order);
+  }
+
+  // ---- sync ----
+  @Transactional
+  public void createProduct(ProductDto productDto) {
+    OrderProduct product = orderMapper.toOrderProduct(productDto);
+    orderSupport.saveProduct(product);
+  }
+
+  @Transactional
+  public void updateProduct(ProductDto productDto) {
+    OrderProduct orderProduct = orderSupport.findByProductId(productDto.getId());
+    orderMapper.updateFromProductDto(productDto, orderProduct);
   }
 }
