@@ -65,7 +65,6 @@ public class SettlementSupport {
                   SettlementItemResponseDto.builder()
                       .id(item.getId())
                       .orderItemId(item.getOrderItemId())
-                      .buyerMemberId(item.getBuyerMemberId())
                       .sellerMemberId(item.getSellerMemberId())
                       .amount(item.getAmount())
                       .feeAmount(feeAmount)

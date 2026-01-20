@@ -10,7 +10,6 @@ import lombok.Getter;
 public class SettlementItemResponseDto {
   private Long id;
   private Long orderItemId;
-  private Long buyerMemberId;
   private Long sellerMemberId;
   @Builder.Default private BigDecimal totalSalesAmount = BigDecimal.ZERO;
   @Builder.Default private BigDecimal feeAmount = BigDecimal.ZERO;

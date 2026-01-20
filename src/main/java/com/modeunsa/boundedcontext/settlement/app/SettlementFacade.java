@@ -15,6 +15,7 @@ public class SettlementFacade {
   private final SettlementAddItemsAndCalculatePayoutsUseCase settlementProcessOrderUseCase;
   private final SettlementSaveItemsUseCase settlementSaveItemsUseCase;
   private final SettlementSyncMemberUseCase settlementSyncMemberUseCase;
+  private final SettlementCollectCandidateItemsUseCase settlementCollectCandidateItemsUseCase;
   private final SettlementSupport settlementSupport;
 
   @Transactional
@@ -36,5 +37,10 @@ public class SettlementFacade {
   @Transactional
   public SettlementResponseDto getSettlement(Long memberId, int year, int month) {
     return settlementSupport.getSettlement(memberId, year, month);
+  }
+
+  @Transactional
+  public void collectCandidateItems(Long orderId) {
+    settlementCollectCandidateItemsUseCase.collectCandidateItems(orderId);
   }
 }
