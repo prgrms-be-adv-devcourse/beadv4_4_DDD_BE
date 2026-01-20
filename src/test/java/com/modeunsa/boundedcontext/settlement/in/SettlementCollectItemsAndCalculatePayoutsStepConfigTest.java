@@ -40,7 +40,7 @@ class SettlementCollectItemsAndCalculatePayoutsStepConfigTest {
   @Autowired private JobOperator jobOperator;
   @Autowired private Job collectItemsAndCalculatePayoutsJob;
 
-  @MockitoBean private OrderApiClient orderApiClient;
+  @MockitoBean private SettlementOrderApiClient orderApiClient;
   @MockitoBean private SettlementFacade settlementFacade;
 
   private List<SettlementItem> testItems;

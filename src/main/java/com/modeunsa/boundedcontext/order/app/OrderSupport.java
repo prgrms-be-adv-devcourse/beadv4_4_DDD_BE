@@ -1,6 +1,7 @@
 package com.modeunsa.boundedcontext.order.app;
 
 import com.modeunsa.boundedcontext.order.domain.CartItem;
+import com.modeunsa.boundedcontext.order.domain.Order;
 import com.modeunsa.boundedcontext.order.domain.OrderMember;
 import com.modeunsa.boundedcontext.order.domain.OrderProduct;
 import com.modeunsa.boundedcontext.order.out.OrderCartItemRepository;
@@ -78,6 +79,12 @@ public class OrderSupport {
   // --- order ---
   public long countOrder() {
     return orderRepository.count();
+  }
+
+  public Order findByOrderId(Long id) {
+    return orderRepository
+        .findById(id)
+        .orElseThrow(() -> new GeneralException(ErrorStatus.ORDER_NOT_FOUND));
   }
 
   // --- cartItem ---
