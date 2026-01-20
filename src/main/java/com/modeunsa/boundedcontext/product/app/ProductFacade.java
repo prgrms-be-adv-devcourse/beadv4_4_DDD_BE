@@ -4,12 +4,13 @@ import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
 import com.modeunsa.boundedcontext.product.domain.ProductMember;
 import com.modeunsa.boundedcontext.product.domain.ProductStatus;
-import com.modeunsa.shared.order.dto.OrderDto;
 import com.modeunsa.shared.product.dto.ProductCreateRequest;
 import com.modeunsa.shared.product.dto.ProductDetailResponse;
 import com.modeunsa.shared.product.dto.ProductOrderResponse;
 import com.modeunsa.shared.product.dto.ProductResponse;
+import com.modeunsa.shared.product.dto.ProductStockResponse;
 import com.modeunsa.shared.product.dto.ProductUpdateRequest;
+import com.modeunsa.shared.product.dto.UpdateStockRequest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -83,7 +84,9 @@ public class ProductFacade {
     productDeleteFavoriteUseCase.deleteProductFavorite(memberId, productId);
   }
 
-  public void updateQuantity(OrderDto orderDto) {
-    productUpdateQuantityUseCase.updateQuantity(orderDto);
+  public List<ProductStockResponse> updateStock(UpdateStockRequest updateStockRequest) {
+    return productUpdateQuantityUseCase.updateStock(updateStockRequest).stream()
+        .map(productMapper::toProductStockResponse)
+        .toList();
   }
 }

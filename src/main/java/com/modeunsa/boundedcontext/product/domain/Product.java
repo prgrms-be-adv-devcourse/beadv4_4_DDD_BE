@@ -123,7 +123,7 @@ public class Product extends GeneratedIdAndAuditedEntity {
     this.productStatus = productStatus;
   }
 
-  public void decreaseQuantity(int requestedQty) {
+  public void decreaseStock(int requestedQty) {
     if (this.quantity < requestedQty) {
       throw new InvalidStockException(this.quantity, requestedQty);
     }
