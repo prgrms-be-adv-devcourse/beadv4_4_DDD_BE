@@ -19,28 +19,27 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
-# TODO: OAuth2 설정
-#  security:
-#    oauth2:
-#      client:
-#        registration:
-#          kakao:
-#            client-id: ${KAKAO_CLIENT_ID}
-#            client-secret: ${KAKAO_CLIENT_SECRET}
-#            redirect-uri: ${KAKAO_REDIRECT_URI}
-#            authorization-grant-type: authorization_code
-#            client-authentication-method: client_secret_post
-#            client-name: KAKAO
-#          naver:
-#            client-id: ${NAVER_CLIENT_ID}
-#            client-secret: ${NAVER_CLIENT_SECRET}
-#            redirect-uri: ${NAVER_REDIRECT_URI}
-#            authorization-grant-type: authorization_code
-#            client-name: NAVER
-#            scope:
-#              - name
-#              - email
-#              - mobile
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_CLIENT_SECRET}
+            redirect-uri: ${KAKAO_REDIRECT_URI}
+            authorization-grant-type: authorization_code
+            client-authentication-method: client_secret_post
+            client-name: KAKAO
+          naver:
+            client-id: ${NAVER_CLIENT_ID}
+            client-secret: ${NAVER_CLIENT_SECRET}
+            redirect-uri: ${NAVER_REDIRECT_URI}
+            authorization-grant-type: authorization_code
+            client-name: NAVER
+            scope:
+              - name
+              - email
+              - mobile
   batch:
     job:
       enabled: false
@@ -52,6 +51,8 @@ custom:
     permit-all: false
     # TODO: swagger 관련 URL 제거 검토
     permit-urls: /swagger-ui/**,/v3/api-docs/**,/api/v1/auths/oauth/**,/actuator/**
+  cors:
+    enabled: false
 
 management:
   endpoints:

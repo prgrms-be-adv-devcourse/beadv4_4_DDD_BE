@@ -27,6 +27,7 @@ public enum ErrorStatus {
   AUTH_INVALID_TOKEN_FORMAT(HttpStatus.BAD_REQUEST, "AUTH_400_003", "잘못된 토큰 형식입니다."),
   AUTH_NOT_ACCESS_TOKEN(HttpStatus.BAD_REQUEST, "AUTH_400_004", "Access Token이 아닙니다."),
   AUTH_UNAUTHORIZED(HttpStatus.BAD_REQUEST, "AUTH_400_005", "인증되지 않은 사용자입니다."),
+  OAUTH_INVALID_STATE(HttpStatus.BAD_REQUEST, "AUTH_400_006", "유효하지 않은 state 값입니다."),
   // Auth 401
   AUTH_INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_001", "유효하지 않은 토큰입니다."),
   AUTH_EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_002", "만료된 토큰입니다."),
@@ -63,6 +64,8 @@ public enum ErrorStatus {
   MEMBER_EMAIL_DUPLICATE(HttpStatus.CONFLICT, "MEMBER_409_002", "이미 사용 중인 이메일입니다."),
   SELLER_ALREADY_REGISTERED(HttpStatus.CONFLICT, "MEMBER_409_003", "이미 판매자 신청을 하셨습니다."),
   SELLER_ALREADY_REQUESTED(HttpStatus.CONFLICT, "MEMBER_409_004", "현재 판매자 승인 심사 대기 중입니다."),
+  SOCIAL_ACCOUNT_ALREADY_LINKED(HttpStatus.CONFLICT, "MEMBER_409_005", "이미 연동된 소셜 계정입니다."),
+  SOCIAL_ACCOUNT_ALREADY_IN_USE(HttpStatus.CONFLICT, "MEMBER_409_006", "다른 회원이 사용 중인 소셜 계정입니다."),
 
   // Order
   ORDER_STOCK_NOT_ENOUGH(HttpStatus.BAD_REQUEST, "ORDER_400_001", "상품의 재고가 부족합니다."),
@@ -100,6 +103,10 @@ public enum ErrorStatus {
   PAYMENT_DUPLICATE(HttpStatus.BAD_REQUEST, "PAYMENT_400_005", "이미 결제된 주문입니다."),
   PAYMENT_MEMBER_IN_ACTIVE(HttpStatus.BAD_REQUEST, "PAYMENT_400_006", "결제 회원이 활성 상태가 아닙니다."),
   PAYMENT_INVALID(HttpStatus.BAD_REQUEST, "PAYMENT_400_007", "결제 요청이 올바르지 않습니다."),
+  PAYMENT_INVALID_REQUEST_TOSS_API(
+      HttpStatus.BAD_REQUEST, "PAYMENT_400_008", "토스 페이먼츠 API 응답값이 올바르지 않습니다."),
+  PAYMENT_REJECT_TOSS_PAYMENT(HttpStatus.BAD_REQUEST, "PAYMENT_400_009", "결제 승인 요청이 거절되었습니다."),
+
   PAYMENT_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_001", "결제 회원 정보를 찾을 수 없습니다."),
   PAYMENT_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_002", "결제 계좌 정보를 찾을 수 없습니다."),
   PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_003", "결제 정보를 찾을 수 없습니다."),

@@ -18,7 +18,7 @@ public record ProductResponse(
     ProductCurrency currency,
     ProductStatus productStatus,
     SaleStatus saleStatus,
-    int quantity,
+    int stock,
     int favoriteCount,
     LocalDateTime createdAt,
     LocalDateTime updatedAt,

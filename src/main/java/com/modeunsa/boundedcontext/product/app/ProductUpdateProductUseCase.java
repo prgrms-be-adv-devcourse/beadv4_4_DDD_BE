@@ -40,7 +40,7 @@ public class ProductUpdateProductUseCase {
         request.getSaleStatus(),
         request.getPrice(),
         request.getSalePrice(),
-        request.getQuantity());
+        request.getStock());
 
     ProductDto productDto = productMapper.toDto(productRepository.save(product));
 

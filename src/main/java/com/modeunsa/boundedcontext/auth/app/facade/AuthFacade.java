@@ -3,6 +3,7 @@ package com.modeunsa.boundedcontext.auth.app.facade;
 import com.modeunsa.boundedcontext.auth.app.usecase.AuthLogoutUseCase;
 import com.modeunsa.boundedcontext.auth.app.usecase.AuthTokenIssueUseCase;
 import com.modeunsa.boundedcontext.auth.app.usecase.AuthTokenReissueUseCase;
+import com.modeunsa.boundedcontext.auth.app.usecase.OAuthLoginUseCase;
 import com.modeunsa.boundedcontext.auth.app.usecase.OAuthUrlUseCase;
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthFacade {
 
   private final OAuthUrlUseCase oauthUrlUseCase;
+  private final OAuthLoginUseCase oauthLoginUseCase;
   private final AuthTokenIssueUseCase authTokenIssueUseCase;
   private final AuthTokenReissueUseCase authTokenReissueUseCase;
   private final AuthLogoutUseCase authLogoutUseCase;
@@ -24,6 +26,12 @@ public class AuthFacade {
   @Transactional
   public String getOAuthLoginUrl(OAuthProvider provider, String redirectUri) {
     return oauthUrlUseCase.generateOAuthUrl(provider, redirectUri);
+  }
+
+  /** OAuth 로그인/회원가입 처리 */
+  public TokenResponse oauthLogin(
+      OAuthProvider provider, String code, String redirectUri, String state) {
+    return oauthLoginUseCase.execute(provider, code, redirectUri, state);
   }
 
   /** 로그인 성공 후 토큰 발급 */

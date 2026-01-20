@@ -96,9 +96,35 @@ public class ProductDataInit {
                 120,
                 List.of("img1", "img2")));
 
+    Product product5 =
+        productCreateProductUseCase.createProduct(
+            seller2.getId(),
+            new ProductCreateRequest(
+                "모자",
+                ProductCategory.CAP,
+                "설명설명4",
+                BigDecimal.valueOf(10_000),
+                BigDecimal.valueOf(20_000),
+                100,
+                List.of("img1", "img2")));
+
+    Product product6 =
+        productCreateProductUseCase.createProduct(
+            seller2.getId(),
+            new ProductCreateRequest(
+                "신발",
+                ProductCategory.SHOES,
+                "설명설명4",
+                BigDecimal.valueOf(10_000),
+                BigDecimal.valueOf(20_000),
+                5,
+                List.of("img1", "img2")));
+
     productRepository.save(product1);
     productRepository.save(product2);
     productRepository.save(product3);
     productRepository.save(product4);
+    productRepository.save(product5);
+    productRepository.save(product6);
   }
 }

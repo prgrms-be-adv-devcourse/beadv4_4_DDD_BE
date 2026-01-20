@@ -33,7 +33,7 @@ public class ProductCreateProductUseCase {
             productCreateRequest.getName(),
             productCreateRequest.getCategory(),
             productCreateRequest.getDescription(),
-            productCreateRequest.getQuantity());
+            productCreateRequest.getStock());
     product = productRepository.save(product);
     eventPublisher.publish(new ProductCreatedEvent(productMapper.toDto(product)));
     return product;
