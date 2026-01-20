@@ -61,6 +61,8 @@ public enum ErrorStatus {
   SELLER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER_404_002", "판매자 정보가 없습니다."),
   ADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER_404_003", "배송지 정보를 찾을 수 없습니다."),
   MEMBER_PROFILE_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER_404_004", "회원 프로필을 찾을 수 없습니다."),
+  MEMBER_DELIVERY_ADDRESS_NOT_FOUND(
+      HttpStatus.NOT_FOUND, "MEMBER_404_005", "회원 배송지 정보를 찾을 수 없습니다."),
   // Member 409
   MEMBER_ALREADY_EXISTS(HttpStatus.CONFLICT, "MEMBER_409_001", "이미 존재하는 회원입니다."),
   MEMBER_EMAIL_DUPLICATE(HttpStatus.CONFLICT, "MEMBER_409_002", "이미 사용 중인 이메일입니다."),
