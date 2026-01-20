@@ -27,10 +27,9 @@ public class MemberSellerController {
   @Operation(summary = "판매자 등록 요청", description = "일반 회원이 판매자로 전환하기 위해 등록을 요청합니다.")
   @PostMapping(value = "/sellers/register")
   public ResponseEntity<ApiResponse> registerSeller(
-      @AuthenticationPrincipal Long memberId,
-      @RequestBody @Valid SellerRegisterRequest request
-      // TODO: MultipartFile 변경 예정
-      ) {
+      @AuthenticationPrincipal Long memberId, @RequestBody @Valid SellerRegisterRequest request
+  // TODO: MultipartFile 변경 예정
+  ) {
     memberFacade.registerSeller(memberId, request, request.licenseImage());
 
     return ApiResponse.onSuccess(SuccessStatus.SELLER_REGISTER_SUCCESS);
