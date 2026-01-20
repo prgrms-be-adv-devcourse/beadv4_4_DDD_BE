@@ -60,11 +60,6 @@ payment:
   accounts:
     system-member-id: 1
     holder-member-id: 2
-
-custom:
-  global:
-    internalBackUrl: http://localhost:${server.port:8080}
-
   toss:
     base-url: ${TOSS_API_BASE_URL:https://api.tosspayments.com}
     confirm-path: ${TOSS_API_CONFIRM_PATH:/v1/payments/confirm}
@@ -81,3 +76,7 @@ cloud:
       bucket: team01-storage
     stack:
       auto: false
+
+custom:
+  global:
+    internalBackUrl: http://localhost:${server.port:8080}
