@@ -30,9 +30,11 @@ public class AesGcmCrypto implements Crypto {
   // 동일한 평문 (email) 이더라도 매번 암호화할 때마다 암호문이 달라짐
   private static final int GCM_IV_LENGTH = 12;
 
-  // Tag 는 암호문이 변조되었는지 확인하는 역하을 함
+  // Tag 는 암호문이 변조되었는지 확인하는 역할을 함
   private static final int GCM_TAG_LENGTH = 16;
   private static final int GCM_TAG_LENGTH_BITS = GCM_TAG_LENGTH * 8;
+
+  private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
   @Value("${encryption.master-key:}")
   private String masterKey;
@@ -82,8 +84,7 @@ public class AesGcmCrypto implements Crypto {
     try {
       // 1. IV(Initialization Vector) 생성
       byte[] iv = new byte[GCM_IV_LENGTH];
-      SecureRandom random = new SecureRandom();
-      random.nextBytes(iv);
+      SECURE_RANDOM.nextBytes(iv);
 
       // 2. Cipher 초기화, AES-256 GCM 모드로 암호화 설정
       Cipher cipher = Cipher.getInstance(ALGORITHM);
