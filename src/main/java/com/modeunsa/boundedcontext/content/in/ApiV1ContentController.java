@@ -68,7 +68,7 @@ public class ApiV1ContentController {
   }
 
   @Operation(summary = "댓글 생성", description = "한 콘텐츠 내 댓글을 생성합니다.")
-  @PostMapping
+  @PostMapping("/{content_Id}/comments")
   public ResponseEntity<ApiResponse> createContentComment(
       @PathVariable Long contentId,
       @Valid @RequestBody ContentCommentRequest contentCommentRequest,
