@@ -8,6 +8,8 @@ import com.modeunsa.shared.product.dto.ProductCreateRequest;
 import com.modeunsa.shared.product.dto.ProductDetailResponse;
 import com.modeunsa.shared.product.dto.ProductOrderResponse;
 import com.modeunsa.shared.product.dto.ProductResponse;
+import com.modeunsa.shared.product.dto.ProductStockResponse;
+import com.modeunsa.shared.product.dto.ProductStockUpdateRequest;
 import com.modeunsa.shared.product.dto.ProductUpdateRequest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ public class ProductFacade {
   private final ProductCreateFavoriteUseCase productCreateFavoriteUseCase;
   private final ProductDeleteFavoriteUseCase productDeleteFavoriteUseCase;
   private final ProductValidateOrderUseCase productValidateOrderUseCase;
+  private final ProductDeductStockUseCase productDeductStockUseCase;
   private final ProductSupport productSupport;
   private final ProductMapper productMapper;
 
@@ -79,5 +82,13 @@ public class ProductFacade {
   @Transactional
   public void deleteProductFavorite(Long memberId, Long productId) {
     productDeleteFavoriteUseCase.deleteProductFavorite(memberId, productId);
+  }
+
+  @Transactional
+  public List<ProductStockResponse> deductStock(
+      ProductStockUpdateRequest productStockUpdateRequest) {
+    return productDeductStockUseCase.deductStock(productStockUpdateRequest).stream()
+        .map(productMapper::toProductStockResponse)
+        .toList();
   }
 }
