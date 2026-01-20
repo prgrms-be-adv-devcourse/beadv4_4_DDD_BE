@@ -140,4 +140,13 @@ public class Order extends GeneratedIdAndAuditedEntity {
   public void requestRefund() {
     this.status = OrderStatus.REFUND_REQUESTED;
   }
+
+  // 결제 완료
+  public void approve() {
+    this.status = OrderStatus.PAID;
+  }
+
+  public void reject() {
+    this.status = OrderStatus.PAYMENT_FAILED;
+  }
 }

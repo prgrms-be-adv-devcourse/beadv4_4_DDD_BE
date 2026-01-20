@@ -91,6 +91,12 @@ public class OrderSupport {
         .orElseThrow(() -> new GeneralException(ErrorStatus.ORDER_NOT_FOUND));
   }
 
+  public Order findTopByOrderByIdDesc(Long memberId) {
+    return orderRepository
+        .findTopByOrderMemberIdOrderByIdDesc(memberId)
+        .orElseThrow(() -> new GeneralException(ErrorStatus.ORDER_NOT_FOUND));
+  }
+
   // --- cartItem ---
   public List<CartItem> getCartItemsByMemberId(Long memberId) {
     List<CartItem> cartItems = orderCartItemRepository.findAllByMemberId(memberId);

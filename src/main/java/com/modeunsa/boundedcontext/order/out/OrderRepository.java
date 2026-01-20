@@ -17,4 +17,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
           + "JOIN FETCH o.orderItems "
           + "WHERE o.id = :id")
   Optional<Order> findByIdWithFetch(@Param("id") Long id);
+
+  Optional<Order> findTopByOrderMemberIdOrderByIdDesc(Long memberId);
 }
