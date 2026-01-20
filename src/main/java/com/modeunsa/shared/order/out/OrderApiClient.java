@@ -2,7 +2,6 @@ package com.modeunsa.shared.order.out;
 
 import com.modeunsa.shared.order.dto.OrderDto;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -15,10 +14,6 @@ public class OrderApiClient {
   }
 
   public OrderDto getOrder(Long id) {
-    return restClient
-        .get()
-        .uri("/%d".formatted(id))
-        .retrieve()
-        .body(new ParameterizedTypeReference<>() {});
+    return restClient.get().uri("/{id}", id).retrieve().body(OrderDto.class);
   }
 }
