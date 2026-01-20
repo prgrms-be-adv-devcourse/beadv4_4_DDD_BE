@@ -4,6 +4,7 @@ import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementCandidateI
 import com.modeunsa.boundedcontext.settlement.out.SettlementCandidateItemRepository;
 import com.modeunsa.shared.order.dto.OrderDto;
 import com.modeunsa.shared.order.out.OrderApiClient;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ public class SettlementCollectCandidateItemsUseCase {
 
   public void collectCandidateItems(Long orderId) {
     OrderDto orderDto = orderApiClient.getOrder(orderId);
+    LocalDateTime confirmedAt = LocalDateTime.now();
 
     List<SettlementCandidateItem> items =
         orderDto.getOrderItems().stream()
@@ -27,7 +29,7 @@ public class SettlementCollectCandidateItemsUseCase {
                         orderItemDto.getSellerId(),
                         orderItemDto.getSalePrice(),
                         orderItemDto.getQuantity(),
-                        orderDto.getPaymentDeadlineAt()))
+                        confirmedAt))
             .toList();
 
     settlementCandidateItemRepository.saveAll(items);

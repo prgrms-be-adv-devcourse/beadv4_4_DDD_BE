@@ -33,7 +33,7 @@ public class SettlementCandidateItem extends GeneratedIdAndAuditedEntity {
   private LocalDateTime collectedAt;
 
   @Column(nullable = false)
-  private LocalDateTime paymentAt;
+  private LocalDateTime purchaseConfirmedAt;
 
   public void markCollected() {
     this.collectedAt = LocalDateTime.now();
@@ -45,7 +45,7 @@ public class SettlementCandidateItem extends GeneratedIdAndAuditedEntity {
       Long sellerMemberId,
       BigDecimal amount,
       int count,
-      LocalDateTime paymentAt) {
+      LocalDateTime purchaseConfirmedAt) {
     BigDecimal totalAmount = amount.multiply(BigDecimal.valueOf(count));
 
     return SettlementCandidateItem.builder()
@@ -53,7 +53,7 @@ public class SettlementCandidateItem extends GeneratedIdAndAuditedEntity {
         .buyerMemberId(buyerMemberId)
         .sellerMemberId(sellerMemberId)
         .amount(totalAmount)
-        .paymentAt(paymentAt)
+        .purchaseConfirmedAt(purchaseConfirmedAt)
         .build();
   }
 }

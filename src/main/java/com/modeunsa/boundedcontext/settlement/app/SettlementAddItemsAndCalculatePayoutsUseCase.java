@@ -27,7 +27,8 @@ public class SettlementAddItemsAndCalculatePayoutsUseCase {
       SettlementCandidateItem settlementCandidateItem) {
     Settlement sellerSettlement =
         getOrCreateSettlement(
-            settlementCandidateItem.getSellerMemberId(), settlementCandidateItem.getPaymentAt());
+            settlementCandidateItem.getSellerMemberId(),
+            settlementCandidateItem.getPurchaseConfirmedAt());
 
     SettlementMember systemMember =
         settlementMemberRepository
@@ -35,7 +36,8 @@ public class SettlementAddItemsAndCalculatePayoutsUseCase {
             .orElseThrow(() -> new GeneralException(ErrorStatus.SETTLEMENT_MEMBER_NOT_FOUND));
 
     Settlement feeSettlement =
-        getOrCreateSettlement(systemMember.getId(), settlementCandidateItem.getPaymentAt());
+        getOrCreateSettlement(
+            systemMember.getId(), settlementCandidateItem.getPurchaseConfirmedAt());
 
     PayoutAmounts payoutAmounts = Settlement.calculatePayouts(settlementCandidateItem.getAmount());
 
@@ -48,7 +50,7 @@ public class SettlementAddItemsAndCalculatePayoutsUseCase {
             settlementCandidateItem.getSellerMemberId(),
             payoutAmounts.sellerAmount(),
             SettlementEventType.SETTLEMENT_PRODUCT_SALES_AMOUNT,
-            settlementCandidateItem.getPaymentAt()));
+            settlementCandidateItem.getPurchaseConfirmedAt()));
 
     items.add(
         feeSettlement.addItem(
@@ -57,14 +59,14 @@ public class SettlementAddItemsAndCalculatePayoutsUseCase {
             systemMember.getId(),
             payoutAmounts.feeAmount(),
             SettlementEventType.SETTLEMENT_PRODUCT_SALES_FEE,
-            settlementCandidateItem.getPaymentAt()));
+            settlementCandidateItem.getPurchaseConfirmedAt()));
 
     return items;
   }
 
-  private Settlement getOrCreateSettlement(Long sellerMemberId, LocalDateTime paymentAt) {
-    int year = paymentAt.getYear();
-    int month = paymentAt.getMonthValue();
+  private Settlement getOrCreateSettlement(Long sellerMemberId, LocalDateTime purchaseConfirmedAt) {
+    int year = purchaseConfirmedAt.getYear();
+    int month = purchaseConfirmedAt.getMonthValue();
 
     return settlementRepository
         .findBySellerMemberIdAndSettlementYearAndSettlementMonth(sellerMemberId, year, month)

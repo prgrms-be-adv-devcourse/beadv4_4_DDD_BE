@@ -14,5 +14,5 @@ public class SettlementItemResponseDto {
   @Builder.Default private BigDecimal totalSalesAmount = BigDecimal.ZERO;
   @Builder.Default private BigDecimal feeAmount = BigDecimal.ZERO;
   @Builder.Default private BigDecimal amount = BigDecimal.ZERO;
-  private LocalDateTime paymentAt;
+  private LocalDateTime purchaseConfirmedAt;
 }

@@ -75,7 +75,7 @@ public class SettlementSupport {
                       .amount(item.getAmount())
                       .feeAmount(feeAmount)
                       .totalSalesAmount(totalSales)
-                      .paymentAt(item.getPaymentAt())
+                      .purchaseConfirmedAt(item.getPurchaseConfirmedAt())
                       .build());
             });
 
@@ -84,8 +84,6 @@ public class SettlementSupport {
 
   public Page<SettlementCandidateItem> getSettlementCandidateItems(
       LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
-    return settlementCandidateItemRepository
-        .findByCollectedAtIsNullAndPaymentAtGreaterThanEqualAndPaymentAtLessThanOrderByIdAsc(
-            startDate, endDate, pageable);
+    return settlementCandidateItemRepository.findUncollectedItems(startDate, endDate, pageable);
   }
 }
