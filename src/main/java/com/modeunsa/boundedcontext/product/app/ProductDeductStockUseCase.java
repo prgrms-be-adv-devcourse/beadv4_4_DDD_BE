@@ -53,14 +53,14 @@ public class ProductDeductStockUseCase {
   private ProductStockDto decreaseStock(ProductOrderItemDto itemDto) {
     // 재고 차감 시 비관적 락 적용
     Product product = productSupport.getProductForUpdate(itemDto.productId());
-    boolean isSucceed;
+    boolean success;
     try {
       product.decreaseStock(itemDto.quantity());
-      isSucceed = true;
+      success = true;
     } catch (InvalidStockException e) {
-      isSucceed = false;
+      success = false;
     }
     productRepository.save(product);
-    return new ProductStockDto(product.getId(), isSucceed, product.getStock());
+    return new ProductStockDto(product.getId(), success, product.getStock());
   }
 }
