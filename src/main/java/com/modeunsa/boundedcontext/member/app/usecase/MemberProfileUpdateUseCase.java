@@ -3,18 +3,19 @@ package com.modeunsa.boundedcontext.member.app.usecase;
 import com.modeunsa.boundedcontext.member.app.support.MemberSupport;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.entity.MemberProfile;
-import com.modeunsa.boundedcontext.member.out.repository.MemberProfileRepository;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.member.dto.request.MemberProfileUpdateRequest;
+import com.modeunsa.shared.member.event.MemberProfileUpdatedEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class MemberProfileUpdateUseCase {
   private final MemberSupport memberSupport;
-  private final MemberProfileRepository memberProfileRepository;
+  private final ApplicationEventPublisher eventPublisher;
 
   public void execute(Long memberId, MemberProfileUpdateRequest request) {
     Member member = memberSupport.getMember(memberId);
@@ -30,5 +31,9 @@ public class MemberProfileUpdateUseCase {
           .updateWeightKg(request.weightKg())
           .updateSkinType(request.skinType());
     }
+
+    eventPublisher.publishEvent(
+        new MemberProfileUpdatedEvent(
+            memberId, profile.getNickname(), profile.getProfileImageUrl()));
   }
 }

@@ -7,7 +7,9 @@ import com.modeunsa.boundedcontext.member.out.repository.MemberProfileRepository
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.member.dto.request.MemberProfileCreateRequest;
+import com.modeunsa.shared.member.event.MemberProfileCreatedEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,6 +18,7 @@ public class MemberProfileCreateUseCase {
 
   private final MemberSupport memberSupport;
   private final MemberProfileRepository memberProfileRepository;
+  private final ApplicationEventPublisher eventPublisher;
 
   public void execute(Long memberId, MemberProfileCreateRequest request) {
     Member member = memberSupport.getMember(memberId);
@@ -39,5 +42,9 @@ public class MemberProfileCreateUseCase {
     // 3. 연관관계 설정 및 저장
     member.setProfile(profile);
     memberProfileRepository.save(profile);
+
+    eventPublisher.publishEvent(
+        MemberProfileCreatedEvent.of(
+            memberId, profile.getNickname(), profile.getProfileImageUrl()));
   }
 }
