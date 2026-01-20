@@ -13,8 +13,8 @@ import com.modeunsa.shared.product.dto.ProductOrderResponse;
 import com.modeunsa.shared.product.dto.ProductOrderValidateRequest;
 import com.modeunsa.shared.product.dto.ProductResponse;
 import com.modeunsa.shared.product.dto.ProductStockResponse;
+import com.modeunsa.shared.product.dto.ProductStockUpdateRequest;
 import com.modeunsa.shared.product.dto.ProductUpdateRequest;
-import com.modeunsa.shared.product.dto.UpdateStockRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -139,7 +139,7 @@ public class ApiV1ProductController {
   @Operation(summary = "재고 차감 API", description = "주문 생성 시 재고를 차감합니다.")
   @PatchMapping("/stock")
   public List<ProductStockResponse> updateStock(
-      @Valid @RequestBody UpdateStockRequest updateStockRequest) {
-    return productFacade.updateStock(updateStockRequest);
+      @Valid @RequestBody ProductStockUpdateRequest productStockUpdateRequest) {
+    return productFacade.updateStock(productStockUpdateRequest);
   }
 }

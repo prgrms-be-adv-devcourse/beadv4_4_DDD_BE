@@ -6,8 +6,8 @@ import com.modeunsa.boundedcontext.product.out.ProductRepository;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.product.dto.ProductStockDto;
-import com.modeunsa.shared.product.dto.UpdateStockRequest;
-import com.modeunsa.shared.product.dto.UpdateStockRequest.ProductOrderItemDto;
+import com.modeunsa.shared.product.dto.ProductStockUpdateRequest;
+import com.modeunsa.shared.product.dto.ProductStockUpdateRequest.ProductOrderItemDto;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -18,12 +18,12 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ProductUpdateQuantityUseCase {
+public class ProductUpdateStockUseCase {
 
   private final ProductSupport productSupport;
   private final ProductRepository productRepository;
 
-  public List<ProductStockDto> updateStock(UpdateStockRequest request) {
+  public List<ProductStockDto> updateStock(ProductStockUpdateRequest request) {
     // 상품 ID 순으로 정렬
     List<ProductOrderItemDto> sortedItems =
         request.items().stream()
