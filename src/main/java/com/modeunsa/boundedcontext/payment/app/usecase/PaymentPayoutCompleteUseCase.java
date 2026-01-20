@@ -16,12 +16,12 @@ public class PaymentPayoutCompleteUseCase {
 
   public void execute(PaymentPayoutDto payout) {
 
-    PaymentEventType eventType = PaymentEventType.fromPayoutEventType(payout.getPayoutEventType());
+    PaymentEventType eventType = PaymentEventType.fromPayoutEventType(payout.payoutEventType());
 
     PaymentAccount holderAccount = paymentAccountSupport.getHolderAccount();
     PaymentAccount payeeAccount = paymentAccountSupport.getPayeeAccount(payout);
 
-    holderAccount.debit(payout.getAmount(), eventType, payout.getId(), ReferenceType.PAYOUT);
-    payeeAccount.credit(payout.getAmount(), eventType, payout.getId(), ReferenceType.PAYOUT);
+    holderAccount.debit(payout.amount(), eventType, payout.id(), ReferenceType.PAYOUT);
+    payeeAccount.credit(payout.amount(), eventType, payout.id(), ReferenceType.PAYOUT);
   }
 }

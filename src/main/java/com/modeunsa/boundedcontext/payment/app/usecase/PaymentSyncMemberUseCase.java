@@ -21,10 +21,10 @@ public class PaymentSyncMemberUseCase {
 
     PaymentMember paymentMember =
         PaymentMember.create(
-            paymentMemberDto.getId(),
-            paymentMemberDto.getEmail(),
-            paymentMemberDto.getName(),
-            paymentMemberDto.getStatus());
+            paymentMemberDto.id(),
+            paymentMemberDto.email(),
+            paymentMemberDto.name(),
+            paymentMemberDto.status());
 
     PaymentMember savedMember = paymentMemberRepository.save(paymentMember);
 

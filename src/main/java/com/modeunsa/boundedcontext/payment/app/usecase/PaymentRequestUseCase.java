@@ -30,12 +30,12 @@ public class PaymentRequestUseCase {
 
   public PaymentProcessContext execute(PaymentRequest paymentRequest) {
 
-    PaymentMember buyer = paymentMemberSupport.getPaymentMemberById(paymentRequest.getBuyerId());
+    PaymentMember buyer = paymentMemberSupport.getPaymentMemberById(paymentRequest.buyerId());
     if (!buyer.canOrder()) {
       throw new GeneralException(PAYMENT_MEMBER_IN_ACTIVE);
     }
 
-    PaymentId paymentId = new PaymentId(paymentRequest.getBuyerId(), paymentRequest.getOrderNo());
+    PaymentId paymentId = new PaymentId(paymentRequest.buyerId(), paymentRequest.orderNo());
 
     /*
      중복 결제 초기 검증 : 이미 존재하는 결제인지 확인 동시 요청 시 existsById 통과 후 중복 결제 발생 가능성 존재 최종 검증은 DB 저장 시도 중
@@ -48,14 +48,13 @@ public class PaymentRequestUseCase {
     }
 
     PaymentAccount paymentAccount =
-        paymentAccountSupport.getPaymentAccountByMemberId(paymentRequest.getBuyerId());
+        paymentAccountSupport.getPaymentAccountByMemberId(paymentRequest.buyerId());
 
-    BigDecimal totalAmount = paymentRequest.getTotalAmount();
+    BigDecimal totalAmount = paymentRequest.totalAmount();
     BigDecimal shortAmount = paymentAccount.calculateInsufficientAmount(totalAmount);
     boolean needCharge = shortAmount.compareTo(BigDecimal.ZERO) > 0;
 
-    Payment payment =
-        Payment.create(paymentId, paymentRequest.getOrderId(), totalAmount, shortAmount);
+    Payment payment = Payment.create(paymentId, paymentRequest.orderId(), totalAmount, shortAmount);
 
     try {
       // 복합키 저장을 위해 Payment 를 먼저 저장 후 로그를 추가
@@ -64,7 +63,7 @@ public class PaymentRequestUseCase {
       return new PaymentProcessContext(
           saved.getId().getMemberId(),
           saved.getId().getOrderNo(),
-          paymentRequest.getOrderId(),
+          paymentRequest.orderId(),
           needCharge,
           shortAmount,
           totalAmount);

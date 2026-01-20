@@ -97,7 +97,7 @@ public class PaymentFacade {
 
     // 1. 결제 요청 생성 및 검증
     PaymentProcessContext context = paymentRequestUseCase.execute(paymentRequest);
-    if (context.isNeedsCharge()) {
+    if (context.needsCharge()) {
       // 2-1. 충전 필요 시 결제 요청까지만 처리하고 반환
       return PaymentResponse.needCharge(context);
     }
@@ -129,6 +129,6 @@ public class PaymentFacade {
     // 3. 결제 완료 처리 (계좌 입출금, 이벤트 발행)
     paymentProcessUseCase.execute(context);
 
-    return ConfirmPaymentResponse.complete(context.getOrderNo());
+    return ConfirmPaymentResponse.complete(context.orderNo());
   }
 }

@@ -92,13 +92,13 @@ class PaymentProcessUseCaseTest {
 
     // 잔액 변경 확인
     assertThat(buyerAccount.getBalance())
-        .isEqualByComparingTo(buyerBalanceBefore.subtract(paymentProcessContext.getTotalAmount()));
+        .isEqualByComparingTo(buyerBalanceBefore.subtract(paymentProcessContext.totalAmount()));
     assertThat(holderAccount.getBalance())
-        .isEqualByComparingTo(holderBalanceBefore.add(paymentProcessContext.getTotalAmount()));
+        .isEqualByComparingTo(holderBalanceBefore.add(paymentProcessContext.totalAmount()));
 
     // PaymentStatus 변경 확인
     verify(paymentSupport)
-        .changePaymentStatus(buyerId, paymentProcessContext.getOrderNo(), PaymentStatus.COMPLETED);
+        .changePaymentStatus(buyerId, paymentProcessContext.orderNo(), PaymentStatus.COMPLETED);
 
     // 이벤트 발행 확인
     verify(eventPublisher).publish(any(PaymentSuccessEvent.class));
@@ -147,7 +147,7 @@ class PaymentProcessUseCaseTest {
 
     // PaymentStatus 변경 확인
     verify(paymentSupport)
-        .changePaymentStatus(buyerId, paymentProcessContext.getOrderNo(), PaymentStatus.COMPLETED);
+        .changePaymentStatus(buyerId, paymentProcessContext.orderNo(), PaymentStatus.COMPLETED);
 
     // 이벤트 발행 확인
     verify(eventPublisher).publish(any(PaymentSuccessEvent.class));
