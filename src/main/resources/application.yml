@@ -80,3 +80,7 @@ cloud:
 custom:
   global:
     internalBackUrl: http://localhost:${server.port:8080}
+
+encryption:
+  enabled: false
+  master-key: ${ENCRYPTION_MASTER_KEY:}
