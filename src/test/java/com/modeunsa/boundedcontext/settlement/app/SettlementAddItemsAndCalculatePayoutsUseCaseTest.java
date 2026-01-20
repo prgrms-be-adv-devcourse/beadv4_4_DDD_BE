@@ -6,8 +6,8 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import com.modeunsa.boundedcontext.settlement.app.dto.SettlementOrderItemDto;
 import com.modeunsa.boundedcontext.settlement.domain.entity.Settlement;
+import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementCandidateItem;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementItem;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementMember;
 import com.modeunsa.boundedcontext.settlement.domain.policy.SettlementPolicy;
@@ -39,7 +39,7 @@ class SettlementAddItemsAndCalculatePayoutsUseCaseTest {
   private Settlement sellerSettlement;
   private Settlement feeSettlement;
   private SettlementMember systemMember;
-  private SettlementOrderItemDto orderDto;
+  private SettlementCandidateItem candidateItem;
 
   @BeforeEach
   void setUp() {
@@ -55,9 +55,9 @@ class SettlementAddItemsAndCalculatePayoutsUseCaseTest {
     systemMember = SettlementMember.create(systemId, "SYSTEM");
     feeSettlement = Settlement.create(systemId, year, month);
 
-    orderDto =
-        new SettlementOrderItemDto(
-            100L, 200L, sellerId, new BigDecimal("10000"), LocalDateTime.now());
+    candidateItem =
+        SettlementCandidateItem.create(
+            100L, 200L, sellerId, new BigDecimal("10000"), 1, LocalDateTime.now());
   }
 
   @Test
@@ -67,7 +67,7 @@ class SettlementAddItemsAndCalculatePayoutsUseCaseTest {
     when(settlementMemberRepository.findByName("SYSTEM")).thenReturn(Optional.of(systemMember));
 
     when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonth(
-            eq(orderDto.sellerMemberId()), anyInt(), anyInt()))
+            eq(candidateItem.getSellerMemberId()), anyInt(), anyInt()))
         .thenReturn(Optional.of(sellerSettlement));
 
     when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonth(
@@ -75,7 +75,7 @@ class SettlementAddItemsAndCalculatePayoutsUseCaseTest {
         .thenReturn(Optional.of(feeSettlement));
 
     // when
-    List<SettlementItem> items = useCase.addItemsAndCalculatePayouts(orderDto);
+    List<SettlementItem> items = useCase.addItemsAndCalculatePayouts(candidateItem);
 
     // then
     assertThat(items).hasSize(2);
@@ -97,7 +97,7 @@ class SettlementAddItemsAndCalculatePayoutsUseCaseTest {
     when(settlementMemberRepository.findByName("SYSTEM")).thenReturn(Optional.of(systemMember));
 
     when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonth(
-            eq(orderDto.sellerMemberId()), anyInt(), anyInt()))
+            eq(candidateItem.getSellerMemberId()), anyInt(), anyInt()))
         .thenReturn(Optional.of(sellerSettlement));
 
     when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonth(
@@ -105,15 +105,15 @@ class SettlementAddItemsAndCalculatePayoutsUseCaseTest {
         .thenReturn(Optional.of(feeSettlement));
 
     // when
-    List<SettlementItem> items = useCase.addItemsAndCalculatePayouts(orderDto);
+    List<SettlementItem> items = useCase.addItemsAndCalculatePayouts(candidateItem);
 
     // then
     BigDecimal sellerAmount = items.get(0).getAmount();
     BigDecimal feeAmount = items.get(1).getAmount();
 
-    assertThat(sellerAmount.add(feeAmount)).isEqualByComparingTo(orderDto.amount());
+    assertThat(sellerAmount.add(feeAmount)).isEqualByComparingTo(candidateItem.getAmount());
     assertThat(feeAmount)
-        .isEqualByComparingTo(orderDto.amount().multiply(SettlementPolicy.FEE_RATE));
+        .isEqualByComparingTo(candidateItem.getAmount().multiply(SettlementPolicy.FEE_RATE));
   }
 
   @Test
@@ -123,7 +123,7 @@ class SettlementAddItemsAndCalculatePayoutsUseCaseTest {
     when(settlementMemberRepository.findByName("SYSTEM")).thenReturn(Optional.of(systemMember));
 
     when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonth(
-            eq(orderDto.sellerMemberId()), anyInt(), anyInt()))
+            eq(candidateItem.getSellerMemberId()), anyInt(), anyInt()))
         .thenReturn(Optional.of(sellerSettlement));
 
     when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonth(
@@ -134,7 +134,7 @@ class SettlementAddItemsAndCalculatePayoutsUseCaseTest {
     BigDecimal feeAmountBefore = feeSettlement.getAmount();
 
     // when
-    useCase.addItemsAndCalculatePayouts(orderDto);
+    useCase.addItemsAndCalculatePayouts(candidateItem);
 
     // then
     assertThat(sellerSettlement.getAmount())
@@ -150,11 +150,11 @@ class SettlementAddItemsAndCalculatePayoutsUseCaseTest {
     when(settlementMemberRepository.findByName("SYSTEM")).thenReturn(Optional.empty());
 
     when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonth(
-            eq(orderDto.sellerMemberId()), anyInt(), anyInt()))
+            eq(candidateItem.getSellerMemberId()), anyInt(), anyInt()))
         .thenReturn(Optional.of(sellerSettlement));
 
     // when & then
-    assertThatThrownBy(() -> useCase.addItemsAndCalculatePayouts(orderDto))
+    assertThatThrownBy(() -> useCase.addItemsAndCalculatePayouts(candidateItem))
         .isInstanceOf(GeneralException.class);
   }
 }

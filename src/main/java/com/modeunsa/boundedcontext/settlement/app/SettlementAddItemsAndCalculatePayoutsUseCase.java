@@ -1,8 +1,8 @@
 package com.modeunsa.boundedcontext.settlement.app;
 
-import com.modeunsa.boundedcontext.settlement.app.dto.SettlementOrderItemDto;
 import com.modeunsa.boundedcontext.settlement.domain.PayoutAmounts;
 import com.modeunsa.boundedcontext.settlement.domain.entity.Settlement;
+import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementCandidateItem;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementItem;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementMember;
 import com.modeunsa.boundedcontext.settlement.domain.policy.SettlementPolicy;
@@ -23,37 +23,41 @@ public class SettlementAddItemsAndCalculatePayoutsUseCase {
   private final SettlementRepository settlementRepository;
   private final SettlementMemberRepository settlementMemberRepository;
 
-  public List<SettlementItem> addItemsAndCalculatePayouts(SettlementOrderItemDto order) {
-    Settlement sellerSettlement = getOrCreateSettlement(order.sellerMemberId(), order.paymentAt());
+  public List<SettlementItem> addItemsAndCalculatePayouts(
+      SettlementCandidateItem settlementCandidateItem) {
+    Settlement sellerSettlement =
+        getOrCreateSettlement(
+            settlementCandidateItem.getSellerMemberId(), settlementCandidateItem.getPaymentAt());
 
     SettlementMember systemMember =
         settlementMemberRepository
             .findByName(SettlementPolicy.SYSTEM)
             .orElseThrow(() -> new GeneralException(ErrorStatus.SETTLEMENT_MEMBER_NOT_FOUND));
 
-    Settlement feeSettlement = getOrCreateSettlement(systemMember.getId(), order.paymentAt());
+    Settlement feeSettlement =
+        getOrCreateSettlement(systemMember.getId(), settlementCandidateItem.getPaymentAt());
 
-    PayoutAmounts payoutAmounts = Settlement.calculatePayouts(order.amount());
+    PayoutAmounts payoutAmounts = Settlement.calculatePayouts(settlementCandidateItem.getAmount());
 
     List<SettlementItem> items = new ArrayList<>(2);
 
     items.add(
         sellerSettlement.addItem(
-            order.orderItemId(),
-            order.buyerMemberId(),
-            order.sellerMemberId(),
+            settlementCandidateItem.getOrderItemId(),
+            settlementCandidateItem.getBuyerMemberId(),
+            settlementCandidateItem.getSellerMemberId(),
             payoutAmounts.sellerAmount(),
             SettlementEventType.SETTLEMENT_PRODUCT_SALES_AMOUNT,
-            order.paymentAt()));
+            settlementCandidateItem.getPaymentAt()));
 
     items.add(
         feeSettlement.addItem(
-            order.orderItemId(),
-            order.buyerMemberId(),
+            settlementCandidateItem.getOrderItemId(),
+            settlementCandidateItem.getBuyerMemberId(),
             systemMember.getId(),
             payoutAmounts.feeAmount(),
             SettlementEventType.SETTLEMENT_PRODUCT_SALES_FEE,
-            order.paymentAt()));
+            settlementCandidateItem.getPaymentAt()));
 
     return items;
   }

@@ -1,9 +1,11 @@
 package com.modeunsa.boundedcontext.settlement.app;
 
 import com.modeunsa.boundedcontext.settlement.domain.entity.Settlement;
+import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementCandidateItem;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementItem;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementMember;
 import com.modeunsa.boundedcontext.settlement.domain.policy.SettlementPolicy;
+import com.modeunsa.boundedcontext.settlement.out.SettlementCandidateItemRepository;
 import com.modeunsa.boundedcontext.settlement.out.SettlementMemberRepository;
 import com.modeunsa.boundedcontext.settlement.out.SettlementRepository;
 import com.modeunsa.global.exception.GeneralException;
@@ -11,9 +13,12 @@ import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.settlement.dto.SettlementItemResponseDto;
 import com.modeunsa.shared.settlement.dto.SettlementResponseDto;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,6 +27,7 @@ public class SettlementSupport {
 
   private final SettlementRepository settlementRepository;
   private final SettlementMemberRepository settlementMemberRepository;
+  private final SettlementCandidateItemRepository settlementCandidateItemRepository;
 
   public SettlementResponseDto getSettlement(Long sellerMemberId, int year, int month) {
     // 1. 정산서를 불러온다.
@@ -74,5 +80,12 @@ public class SettlementSupport {
             });
 
     return settlementResponseDto;
+  }
+
+  public Page<SettlementCandidateItem> getSettlementCandidateItems(
+      LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+    return settlementCandidateItemRepository
+        .findByCollectedAtIsNullAndPaymentAtGreaterThanEqualAndPaymentAtLessThanOrderByIdAsc(
+            startDate, endDate, pageable);
   }
 }

@@ -24,7 +24,7 @@ public class SettlementEventListener {
 
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Transactional(propagation = REQUIRES_NEW)
-  public void hanldle(SettlementItemCollectedEvent event) {
+  public void handle(SettlementItemCollectedEvent event) {
     settlementFacade.collectCandidateItems(event.orderId());
   }
 }

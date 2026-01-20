@@ -2,15 +2,14 @@ package com.modeunsa.boundedcontext.settlement.in;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.modeunsa.boundedcontext.settlement.app.SettlementFacade;
-import com.modeunsa.boundedcontext.settlement.app.dto.SettlementOrderItemDto;
 import com.modeunsa.boundedcontext.settlement.domain.entity.Settlement;
+import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementCandidateItem;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementItem;
 import com.modeunsa.boundedcontext.settlement.domain.types.SettlementEventType;
 import java.math.BigDecimal;
@@ -27,6 +26,9 @@ import org.springframework.batch.core.job.parameters.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -40,10 +42,10 @@ class SettlementCollectItemsAndCalculatePayoutsStepConfigTest {
   @Autowired private JobOperator jobOperator;
   @Autowired private Job collectItemsAndCalculatePayoutsJob;
 
-  @MockitoBean private SettlementOrderApiClient orderApiClient;
   @MockitoBean private SettlementFacade settlementFacade;
 
   private List<SettlementItem> testItems;
+  private SettlementCandidateItem candidateItem;
 
   @BeforeEach
   void setUp() {
@@ -67,6 +69,10 @@ class SettlementCollectItemsAndCalculatePayoutsStepConfigTest {
                 new BigDecimal("1000"),
                 SettlementEventType.SETTLEMENT_PRODUCT_SALES_FEE,
                 LocalDateTime.now()));
+
+    candidateItem =
+        SettlementCandidateItem.create(
+            1L, 100L, 1L, new BigDecimal("10000"), 1, LocalDateTime.now().minusDays(1));
   }
 
   private JobExecution launchJob() throws Exception {
@@ -81,11 +87,12 @@ class SettlementCollectItemsAndCalculatePayoutsStepConfigTest {
   @DisplayName("배치 Job 실행 성공")
   void job_executes_successfully() throws Exception {
     // given
-    List<SettlementOrderItemDto> orders =
-        List.of(
-            new SettlementOrderItemDto(1L, 100L, 1L, new BigDecimal("10000"), LocalDateTime.now()));
-    when(orderApiClient.getSettlementTargetOrders(0, 10)).thenReturn(orders);
-    when(orderApiClient.getSettlementTargetOrders(1, 10)).thenReturn(List.of());
+    Page<SettlementCandidateItem> firstPage = new PageImpl<>(List.of(candidateItem));
+    Page<SettlementCandidateItem> emptyPage = new PageImpl<>(List.of());
+
+    when(settlementFacade.getSettlementCandidateItems(any(), any(), any(Pageable.class)))
+        .thenReturn(firstPage)
+        .thenReturn(emptyPage);
     when(settlementFacade.addItemsAndCalculatePayouts(any())).thenReturn(testItems);
 
     // when
@@ -99,11 +106,12 @@ class SettlementCollectItemsAndCalculatePayoutsStepConfigTest {
   @DisplayName("Step 실행 시 Facade의 addItemsAndCalculatePayouts 호출")
   void step_calls_facade_addItemsAndCalculatePayouts() throws Exception {
     // given
-    List<SettlementOrderItemDto> orders =
-        List.of(
-            new SettlementOrderItemDto(1L, 100L, 1L, new BigDecimal("10000"), LocalDateTime.now()));
-    when(orderApiClient.getSettlementTargetOrders(0, 10)).thenReturn(orders);
-    when(orderApiClient.getSettlementTargetOrders(1, 10)).thenReturn(List.of());
+    Page<SettlementCandidateItem> firstPage = new PageImpl<>(List.of(candidateItem));
+    Page<SettlementCandidateItem> emptyPage = new PageImpl<>(List.of());
+
+    when(settlementFacade.getSettlementCandidateItems(any(), any(), any(Pageable.class)))
+        .thenReturn(firstPage)
+        .thenReturn(emptyPage);
     when(settlementFacade.addItemsAndCalculatePayouts(any())).thenReturn(testItems);
 
     // when
@@ -117,11 +125,12 @@ class SettlementCollectItemsAndCalculatePayoutsStepConfigTest {
   @DisplayName("Step 실행 시 Facade의 saveItems 호출")
   void step_calls_facade_saveItems() throws Exception {
     // given
-    List<SettlementOrderItemDto> orders =
-        List.of(
-            new SettlementOrderItemDto(1L, 100L, 1L, new BigDecimal("10000"), LocalDateTime.now()));
-    when(orderApiClient.getSettlementTargetOrders(0, 10)).thenReturn(orders);
-    when(orderApiClient.getSettlementTargetOrders(1, 10)).thenReturn(List.of());
+    Page<SettlementCandidateItem> firstPage = new PageImpl<>(List.of(candidateItem));
+    Page<SettlementCandidateItem> emptyPage = new PageImpl<>(List.of());
+
+    when(settlementFacade.getSettlementCandidateItems(any(), any(), any(Pageable.class)))
+        .thenReturn(firstPage)
+        .thenReturn(emptyPage);
     when(settlementFacade.addItemsAndCalculatePayouts(any())).thenReturn(testItems);
 
     // when
@@ -135,7 +144,9 @@ class SettlementCollectItemsAndCalculatePayoutsStepConfigTest {
   @DisplayName("빈 주문 목록일 때 정상 종료")
   void step_completes_when_noOrders() throws Exception {
     // given
-    when(orderApiClient.getSettlementTargetOrders(anyInt(), anyInt())).thenReturn(List.of());
+    Page<SettlementCandidateItem> emptyPage = new PageImpl<>(List.of());
+    when(settlementFacade.getSettlementCandidateItems(any(), any(), any(Pageable.class)))
+        .thenReturn(emptyPage);
 
     // when
     JobExecution jobExecution = launchJob();

@@ -30,8 +30,14 @@ public class SettlementCandidateItem extends GeneratedIdAndAuditedEntity {
 
   @Builder.Default private BigDecimal amount = BigDecimal.ZERO;
 
+  private LocalDateTime collectedAt;
+
   @Column(nullable = false)
   private LocalDateTime paymentAt;
+
+  public void markCollected() {
+    this.collectedAt = LocalDateTime.now();
+  }
 
   public static SettlementCandidateItem create(
       Long orderItemId,

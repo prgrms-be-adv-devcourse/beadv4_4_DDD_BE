@@ -1,11 +1,14 @@
 package com.modeunsa.boundedcontext.settlement.app;
 
-import com.modeunsa.boundedcontext.settlement.app.dto.SettlementOrderItemDto;
+import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementCandidateItem;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementItem;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementMember;
 import com.modeunsa.shared.settlement.dto.SettlementResponseDto;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,8 +28,8 @@ public class SettlementFacade {
 
   @Transactional
   public List<SettlementItem> addItemsAndCalculatePayouts(
-      SettlementOrderItemDto settlementOrderItemDto) {
-    return settlementProcessOrderUseCase.addItemsAndCalculatePayouts(settlementOrderItemDto);
+      SettlementCandidateItem settlementCandidateItem) {
+    return settlementProcessOrderUseCase.addItemsAndCalculatePayouts(settlementCandidateItem);
   }
 
   @Transactional
@@ -42,5 +45,11 @@ public class SettlementFacade {
   @Transactional
   public void collectCandidateItems(Long orderId) {
     settlementCollectCandidateItemsUseCase.collectCandidateItems(orderId);
+  }
+
+  @Transactional(readOnly = true)
+  public Page<SettlementCandidateItem> getSettlementCandidateItems(
+      LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+    return settlementSupport.getSettlementCandidateItems(startDate, endDate, pageable);
   }
 }
