@@ -32,6 +32,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-batch'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
 
     // aop
     implementation 'org.springframework:spring-aop'
@@ -79,6 +81,15 @@ dependencies {
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
     testAnnotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
 
+    // MySQL Connector
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    // AWS SDK
+    implementation 'software.amazon.awssdk:s3:2.25.0'
+}
+
+jar {
+    enabled = false
 }
 
 tasks.named('test') {

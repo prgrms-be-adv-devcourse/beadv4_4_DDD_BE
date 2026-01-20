@@ -1,11 +1,15 @@
 package com.modeunsa.boundedcontext.order.app;
 
+import com.modeunsa.boundedcontext.order.domain.Order;
+import com.modeunsa.boundedcontext.order.domain.OrderMapper;
 import com.modeunsa.boundedcontext.order.domain.OrderMember;
 import com.modeunsa.boundedcontext.order.domain.OrderProduct;
+import com.modeunsa.shared.order.dto.CartItemsResponseDto;
 import com.modeunsa.shared.order.dto.CreateCartItemRequestDto;
 import com.modeunsa.shared.order.dto.CreateCartItemResponseDto;
 import com.modeunsa.shared.order.dto.CreateCartOrderRequestDto;
 import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
+import com.modeunsa.shared.order.dto.OrderDto;
 import com.modeunsa.shared.order.dto.OrderListResponseDto;
 import com.modeunsa.shared.order.dto.OrderResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +29,8 @@ public class OrderFacade {
   private final OrderCancelOrderUseCase orderCancelOrderUseCase;
   private final OrderCreateCartOrderUseCase orderCreateCartOrderUseCase;
   private final OrderRefundOrderUseCase orderRefundOrderUseCase;
+  private final OrderGetCartItemsUseCase orderGetCartItemsUseCase;
+  private final OrderMapper orderMapper;
 
   // 장바구니 아이템 생성
   @Transactional
@@ -79,5 +85,15 @@ public class OrderFacade {
   @Transactional
   public OrderResponseDto refundOrder(Long memberId, Long orderId) {
     return orderRefundOrderUseCase.refundOrder(memberId, orderId);
+  }
+
+  // 장바구니 상품 목록 조회
+  public CartItemsResponseDto getCartItems(long memberId) {
+    return orderGetCartItemsUseCase.getCartItems(memberId);
+  }
+
+  public OrderDto getOrder(Long id) {
+    Order order = orderSupport.findByOrderId(id);
+    return orderMapper.toOrderDto(order);
   }
 }

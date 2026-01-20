@@ -86,8 +86,4 @@ public class Settlement extends GeneratedIdAndAuditedEntity {
   public void completePayout() {
     this.payoutAt = LocalDateTime.now();
   }
-
-  public boolean isCompletedPayout() {
-    return this.payoutAt != null;
-  }
 }

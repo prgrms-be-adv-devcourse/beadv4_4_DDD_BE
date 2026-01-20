@@ -1,5 +1,6 @@
 package com.modeunsa.boundedcontext.order.domain;
 
+import com.modeunsa.shared.order.dto.CartItemDto;
 import com.modeunsa.shared.order.dto.CreateCartItemRequestDto;
 import com.modeunsa.shared.order.dto.CreateCartItemResponseDto;
 import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
@@ -21,6 +22,10 @@ public interface OrderMapper {
   CartItem toCartItemEntity(long memberId, CreateCartItemRequestDto createCartItemRequestDto);
 
   CreateCartItemResponseDto toCreateCartItemResponseDto(CartItem cartItem);
+
+  @Mapping(target = "salePrice", source = "product.salePrice") // ★ 상품의 가격(단가)을 DTO에 넣음
+  @Mapping(target = "quantity", source = "cartItem.quantity")
+  CartItemDto toCartItemDto(CartItem cartItem, OrderProduct product);
 
   // 주문 상품
   @Mapping(target = "productName", source = "product.name")

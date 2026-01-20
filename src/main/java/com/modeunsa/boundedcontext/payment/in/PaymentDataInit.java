@@ -2,7 +2,7 @@ package com.modeunsa.boundedcontext.payment.in;
 
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositRequest;
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentMemberDto;
+import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
 import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import java.math.BigDecimal;
@@ -74,7 +74,7 @@ public class PaymentDataInit {
             3L, BigDecimal.valueOf(150_000), PaymentEventType.CHARGE_BANK_TRANSFER));
     paymentFacade.creditAccount(
         new PaymentAccountDepositRequest(
-            4L, BigDecimal.valueOf(100_000), PaymentEventType.CHARGE_BANK_TRANSFER));
+            4L, BigDecimal.valueOf(20_000), PaymentEventType.CHARGE_BANK_TRANSFER));
     paymentFacade.creditAccount(
         new PaymentAccountDepositRequest(
             5L, BigDecimal.valueOf(50_000), PaymentEventType.CHARGE_BANK_TRANSFER));

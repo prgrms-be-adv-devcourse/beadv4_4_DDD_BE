@@ -24,14 +24,18 @@ public enum ErrorStatus {
   // Auth 400
   OAUTH_INVALID_PROVIDER(HttpStatus.BAD_REQUEST, "AUTH_400_001", "지원하지 않는 OAuth 제공자입니다."),
   OAUTH_INVALID_REDIRECT_URI(HttpStatus.BAD_REQUEST, "AUTH_400_002", "유효하지 않은 리다이렉트 URI입니다."),
+  AUTH_INVALID_TOKEN_FORMAT(HttpStatus.BAD_REQUEST, "AUTH_400_003", "잘못된 토큰 형식입니다."),
+  AUTH_NOT_ACCESS_TOKEN(HttpStatus.BAD_REQUEST, "AUTH_400_004", "Access Token이 아닙니다."),
+  AUTH_UNAUTHORIZED(HttpStatus.BAD_REQUEST, "AUTH_400_005", "인증되지 않은 사용자입니다."),
   // Auth 401
   AUTH_INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_001", "유효하지 않은 토큰입니다."),
   AUTH_EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_002", "만료된 토큰입니다."),
-  AUTH_INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_006", "유효하지 않은 Access Token입니다."),
   AUTH_INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_003", "유효하지 않은 Refresh Token입니다."),
   AUTH_REFRESH_TOKEN_NOT_FOUND(
       HttpStatus.UNAUTHORIZED, "AUTH_401_004", "Refresh Token이 존재하지 않습니다."),
   AUTH_INVALID_TOKEN_TYPE(HttpStatus.UNAUTHORIZED, "AUTH_401_005", "유효하지 않은 토큰 타입입니다."),
+  AUTH_INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_006", "유효하지 않은 Access Token입니다."),
+  AUTH_BLACKLISTED_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_007", "로그아웃된 토큰입니다."),
   // Auth 403
   AUTH_ACCESS_DENIED(HttpStatus.FORBIDDEN, "AUTH_403_001", "접근 권한이 없습니다."),
   // Auth 502
@@ -95,6 +99,10 @@ public enum ErrorStatus {
   PAYMENT_DUPLICATE(HttpStatus.BAD_REQUEST, "PAYMENT_400_005", "이미 결제된 주문입니다."),
   PAYMENT_MEMBER_IN_ACTIVE(HttpStatus.BAD_REQUEST, "PAYMENT_400_006", "결제 회원이 활성 상태가 아닙니다."),
   PAYMENT_INVALID(HttpStatus.BAD_REQUEST, "PAYMENT_400_007", "결제 요청이 올바르지 않습니다."),
+  PAYMENT_INVALID_REQUEST_TOSS_API(
+      HttpStatus.BAD_REQUEST, "PAYMENT_400_008", "토스 페이먼츠 API 응답값이 올바르지 않습니다."),
+  PAYMENT_REJECT_TOSS_PAYMENT(HttpStatus.BAD_REQUEST, "PAYMENT_400_009", "결제 승인 요청이 거절되었습니다."),
+
   PAYMENT_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_001", "결제 회원 정보를 찾을 수 없습니다."),
   PAYMENT_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_002", "결제 계좌 정보를 찾을 수 없습니다."),
   PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_003", "결제 정보를 찾을 수 없습니다."),
