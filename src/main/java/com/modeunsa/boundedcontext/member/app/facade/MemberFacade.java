@@ -32,7 +32,7 @@ public class MemberFacade {
   private final MemberProfileCreateUseCase memberProfileCreateUseCase;
   private final MemberProfileUpdateUseCase memberProfileUpdateUseCase;
   private final MemberDeliveryAddressAddUseCase memberDeliveryAddressAddUseCase;
-  private final MemberDeliveryAddressUpdateUseCase updateMemberDeliveryAddressUseCase;
+  private final MemberDeliveryAddressUpdateUseCase memberDeliveryAddressUpdateUseCase;
   private final MemberDeliveryAddressSetAsDefaultUseCase memberDeliveryAddressSetAsDefaultUseCase;
   private final MemberDeliveryAddressDeleteUseCase memberDeliveryAddressDeleteUseCase;
   private final MemberSupport memberSupport;
@@ -83,7 +83,7 @@ public class MemberFacade {
   @Transactional
   public void updateDeliveryAddress(
       Long memberId, Long addressId, MemberDeliveryAddressUpdateRequest request) {
-    updateMemberDeliveryAddressUseCase.execute(memberId, addressId, request);
+    memberDeliveryAddressUpdateUseCase.execute(memberId, addressId, request);
   }
 
   @Transactional
