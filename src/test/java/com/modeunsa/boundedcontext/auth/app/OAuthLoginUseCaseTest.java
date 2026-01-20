@@ -10,8 +10,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.modeunsa.boundedcontext.auth.app.usecase.AuthTokenIssueUseCase;
-import com.modeunsa.boundedcontext.auth.app.usecase.OAuthLoginUseCase;
 import com.modeunsa.boundedcontext.auth.app.usecase.OAuthAccountResolveUseCase;
+import com.modeunsa.boundedcontext.auth.app.usecase.OAuthLoginUseCase;
 import com.modeunsa.boundedcontext.auth.domain.entity.OAuthAccount;
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import com.modeunsa.boundedcontext.auth.out.client.OAuthClient;
@@ -107,9 +107,7 @@ class OAuthLoginUseCaseTest {
       TokenResponse expectedToken =
           TokenResponse.of("access_token", "refresh_token", 3600L, 604800L);
 
-      given(
-              oauthAccountResolveUseCase.execute(
-                  any(OAuthProvider.class), any(OAuthUserInfo.class)))
+      given(oauthAccountResolveUseCase.execute(any(OAuthProvider.class), any(OAuthUserInfo.class)))
           .willReturn(socialAccount);
       given(authTokenIssueUseCase.execute(memberId, MemberRole.MEMBER)).willReturn(expectedToken);
 
@@ -135,9 +133,7 @@ class OAuthLoginUseCaseTest {
       TokenResponse expectedToken =
           TokenResponse.of("access_token", "refresh_token", 3600L, 604800L);
 
-      given(
-              oauthAccountResolveUseCase.execute(
-                  any(OAuthProvider.class), any(OAuthUserInfo.class)))
+      given(oauthAccountResolveUseCase.execute(any(OAuthProvider.class), any(OAuthUserInfo.class)))
           .willReturn(socialAccount);
       given(authTokenIssueUseCase.execute(memberId, MemberRole.MEMBER)).willReturn(expectedToken);
 
@@ -184,10 +180,7 @@ class OAuthLoginUseCaseTest {
 
   private OAuthAccount createSocialAccount(Member member) {
     OAuthAccount socialAccount =
-        OAuthAccount.builder()
-            .oauthProvider(provider)
-            .providerAccountId("kakao_12345")
-            .build();
+        OAuthAccount.builder().oauthProvider(provider).providerAccountId("kakao_12345").build();
     socialAccount.assignMember(member);
     return socialAccount;
   }

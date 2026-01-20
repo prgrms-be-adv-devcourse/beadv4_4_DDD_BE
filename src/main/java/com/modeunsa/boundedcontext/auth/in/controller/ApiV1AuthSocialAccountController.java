@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ApiV1AuthSocialAccountController {
 
-  private final OAuthAccountFacade OAuthAccountFacade;
+  private final OAuthAccountFacade oauthAccountFacade;
 
   @Operation(summary = "소셜 계정 연동 URL 조회", description = "마이페이지에서 소셜 계정 연동을 위한 OAuth URL을 반환합니다.")
   @GetMapping("/{provider}/link-url")
@@ -34,7 +34,7 @@ public class ApiV1AuthSocialAccountController {
       @Parameter(description = "리다이렉트 URI") @RequestParam(required = false) String redirectUri) {
 
     OAuthProvider oauthProvider = AuthRequestUtils.findProvider(provider);
-    String linkUrl = OAuthAccountFacade.getLinkUrl(memberId, oauthProvider, redirectUri);
+    String linkUrl = oauthAccountFacade.getLinkUrl(memberId, oauthProvider, redirectUri);
 
     return ApiResponse.onSuccess(SuccessStatus.OK, linkUrl);
   }
@@ -49,7 +49,7 @@ public class ApiV1AuthSocialAccountController {
       @Parameter(description = "state 값", required = true) @RequestParam String state) {
 
     OAuthProvider oauthProvider = AuthRequestUtils.findProvider(provider);
-    OAuthAccountFacade.linkSocialAccount(memberId, oauthProvider, code, redirectUri, state);
+    oauthAccountFacade.linkSocialAccount(memberId, oauthProvider, code, redirectUri, state);
 
     return ApiResponse.onSuccess(SuccessStatus.SOCIAL_ACCOUNT_LINK_SUCCESS);
   }

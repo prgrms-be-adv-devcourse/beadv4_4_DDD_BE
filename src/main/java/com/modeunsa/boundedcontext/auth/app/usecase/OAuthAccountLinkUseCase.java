@@ -21,7 +21,8 @@ public class OAuthAccountLinkUseCase {
   private final StringRedisTemplate redisTemplate;
   private final OAuthAccountBindingUseCase oauthAccountBindingUseCase;
 
-  public void execute(Long memberId, OAuthProvider provider, String code, String redirectUri, String state) {
+  public void execute(
+      Long memberId, OAuthProvider provider, String code, String redirectUri, String state) {
     // 1. state 검증
     validateState(state, provider);
 

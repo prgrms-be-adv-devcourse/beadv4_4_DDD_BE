@@ -8,8 +8,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.modeunsa.boundedcontext.auth.app.usecase.OAuthMemberRegisterUseCase;
 import com.modeunsa.boundedcontext.auth.app.usecase.OAuthAccountResolveUseCase;
+import com.modeunsa.boundedcontext.auth.app.usecase.OAuthMemberRegisterUseCase;
 import com.modeunsa.boundedcontext.auth.domain.entity.OAuthAccount;
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import com.modeunsa.boundedcontext.auth.out.repository.AuthSocialAccountRepository;
@@ -28,7 +28,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 
 @ExtendWith(MockitoExtension.class)
-class OOAuthAccountResolveUseCaseTest {
+class OAuthAccountResolveUseCaseTest {
 
   @InjectMocks private OAuthAccountResolveUseCase oauthAccountResolveUseCase;
 
@@ -127,8 +127,7 @@ class OOAuthAccountResolveUseCaseTest {
 
       // when & then
       assertThrows(
-          GeneralException.class,
-          () -> oauthAccountResolveUseCase.execute(provider, userInfo));
+          GeneralException.class, () -> oauthAccountResolveUseCase.execute(provider, userInfo));
 
       verify(socialAccountRepository, times(2))
           .findByOauthProviderAndProviderAccountId(provider, providerId);
