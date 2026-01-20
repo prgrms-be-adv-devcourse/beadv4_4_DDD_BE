@@ -74,8 +74,11 @@ public class MemberSeller extends GeneratedIdAndAuditedEntity {
     }
   }
 
-  public void reapply(String businessName, String representativeName,
-      String settlementBankName, String settlementBankAccount,
+  public void reapply(
+      String businessName,
+      String representativeName,
+      String settlementBankName,
+      String settlementBankAccount,
       String businessLicenseUrl) {
 
     // 거절된 상태가 아니면 재신청 불가

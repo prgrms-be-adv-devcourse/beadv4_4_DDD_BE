@@ -31,20 +31,21 @@ public class S3Uploader {
 
     try {
       // 2. AWS SDK v2를 사용한 업로드 요청 생성
-      PutObjectRequest putOb = PutObjectRequest.builder()
-          .bucket(s3Properties.s3().bucket())
-          .key(fileName)
-          .contentType(file.getContentType())
-          .build();
+      PutObjectRequest putOb =
+          PutObjectRequest.builder()
+              .bucket(s3Properties.s3().bucket())
+              .key(fileName)
+              .contentType(file.getContentType())
+              .build();
 
       // 3. S3에 업로드 실행
       s3Client.putObject(putOb, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
 
       // 4. 업로드된 파일의 URL 반환
-      return s3Client.utilities().getUrl(GetUrlRequest.builder()
-          .bucket(s3Properties.s3().bucket())
-          .key(fileName)
-          .build()).toExternalForm();
+      return s3Client
+          .utilities()
+          .getUrl(GetUrlRequest.builder().bucket(s3Properties.s3().bucket()).key(fileName).build())
+          .toExternalForm();
 
     } catch (IOException e) {
       throw new GeneralException(ErrorStatus.IMAGE_UPLOAD_FAILED);

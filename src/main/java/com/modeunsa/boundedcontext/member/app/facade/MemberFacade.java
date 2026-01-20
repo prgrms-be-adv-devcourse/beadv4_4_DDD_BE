@@ -20,7 +20,8 @@ public class MemberFacade {
   }
 
   @Transactional
-  public void registerSeller(Long memberId, SellerRegisterRequest request, MultipartFile licenseImage) {
+  public void registerSeller(
+      Long memberId, SellerRegisterRequest request, MultipartFile licenseImage) {
     registerSellerUseCase.execute(memberId, request, licenseImage);
   }
 }

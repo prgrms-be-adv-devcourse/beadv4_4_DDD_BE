@@ -28,8 +28,10 @@ public class RegisterSellerUseCase {
 
   public void execute(Long memberId, SellerRegisterRequest request, MultipartFile licenseImage) {
     // 1. 회원 조회
-    Member member = memberRepository.findById(memberId)
-        .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
+    Member member =
+        memberRepository
+            .findById(memberId)
+            .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
     // 2. 판매자 신청 내역 조회
     Optional<MemberSeller> existingSellerOp = memberSellerRepository.findByMemberId(memberId);
@@ -60,19 +62,19 @@ public class RegisterSellerUseCase {
           request.representativeName(),
           request.settlementBankName(),
           request.settlementBankAccount(),
-          uploadedLicenseUrl
-      );
+          uploadedLicenseUrl);
     } else { // 신규 신청
-      seller = MemberSeller.builder()
-          .member(member)
-          .businessName(request.businessName())
-          .representativeName(request.representativeName())
-          .settlementBankName(request.settlementBankName())
-          .settlementBankAccount(request.settlementBankAccount())
-          .businessLicenseUrl(uploadedLicenseUrl)
-          .status(SellerStatus.PENDING)
-          .requestedAt(LocalDateTime.now())
-          .build();
+      seller =
+          MemberSeller.builder()
+              .member(member)
+              .businessName(request.businessName())
+              .representativeName(request.representativeName())
+              .settlementBankName(request.settlementBankName())
+              .settlementBankAccount(request.settlementBankAccount())
+              .businessLicenseUrl(uploadedLicenseUrl)
+              .status(SellerStatus.PENDING)
+              .requestedAt(LocalDateTime.now())
+              .build();
 
       memberSellerRepository.save(seller);
     }
