@@ -1,8 +1,10 @@
 package com.modeunsa.boundedcontext.content.app.mapper;
 
+import com.modeunsa.boundedcontext.content.app.dto.ContentCommentResponse;
 import com.modeunsa.boundedcontext.content.app.dto.ContentRequest;
 import com.modeunsa.boundedcontext.content.app.dto.ContentResponse;
 import com.modeunsa.boundedcontext.content.domain.entity.Content;
+import com.modeunsa.boundedcontext.content.domain.entity.ContentComment;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -20,4 +22,8 @@ public interface ContentMapper {
   @Mapping(target = "tags", ignore = true)
   @Mapping(target = "images", ignore = true)
   ContentResponse toResponse(Content content);
+
+  @Mapping(source = "id", target = "commentId")
+  @Mapping(source = "author.author", target = "authorNickname")
+  ContentCommentResponse toResponse(ContentComment comment);
 }

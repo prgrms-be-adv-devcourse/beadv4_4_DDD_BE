@@ -1,6 +1,8 @@
 package com.modeunsa.boundedcontext.content.in;
 
 import com.modeunsa.boundedcontext.content.app.ContentFacade;
+import com.modeunsa.boundedcontext.content.app.dto.ContentCommentRequest;
+import com.modeunsa.boundedcontext.content.app.dto.ContentCommentResponse;
 import com.modeunsa.boundedcontext.content.app.dto.ContentRequest;
 import com.modeunsa.boundedcontext.content.app.dto.ContentResponse;
 import com.modeunsa.boundedcontext.content.domain.entity.ContentMember;
@@ -63,5 +65,16 @@ public class ApiV1ContentController {
     Page<ContentResponse> result = contentFacade.getContents(page);
 
     return ApiResponse.onSuccess(SuccessStatus.CONTENT_LIST_GET_SUCCESS, result);
+  }
+
+  @Operation(summary = "댓글 생성", description = "한 콘텐츠 내 댓글을 생성합니다.")
+  @PostMapping
+  public ResponseEntity<ApiResponse> createContentComment(
+      @PathVariable Long contentId,
+      @Valid @RequestBody ContentCommentRequest contentCommentRequest,
+      ContentMember author) {
+    ContentCommentResponse contentCommentResponse =
+        contentFacade.createContentComment(contentId, contentCommentRequest, author);
+    return ApiResponse.onSuccess(SuccessStatus.CREATED, contentCommentResponse);
   }
 }
