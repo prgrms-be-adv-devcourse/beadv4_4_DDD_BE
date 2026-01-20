@@ -6,7 +6,6 @@ import com.modeunsa.shared.member.dto.SellerRegisterRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -20,8 +19,7 @@ public class MemberFacade {
   }
 
   @Transactional
-  public void registerSeller(
-      Long memberId, SellerRegisterRequest request, MultipartFile licenseImage) {
+  public void registerSeller(Long memberId, SellerRegisterRequest request, String licenseImage) {
     registerSellerUseCase.execute(memberId, request, licenseImage);
   }
 }
