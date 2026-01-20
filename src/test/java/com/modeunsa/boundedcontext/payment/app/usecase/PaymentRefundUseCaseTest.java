@@ -62,7 +62,7 @@ class PaymentRefundUseCaseTest {
         PaymentDto.builder()
             .orderId(1L)
             .orderNo("ORDER12345")
-            .buyerId(buyerMember.getId())
+            .memberId(buyerMember.getId())
             .totalAmount(BigDecimal.valueOf(5000))
             .build();
 
@@ -84,9 +84,9 @@ class PaymentRefundUseCaseTest {
 
     // then
     assertThat(holderAccount.getBalance())
-        .isEqualByComparingTo(holderBalanceBefore.subtract(request.getTotalAmount()));
+        .isEqualByComparingTo(holderBalanceBefore.subtract(request.totalAmount()));
     assertThat(buyerAccount.getBalance())
-        .isEqualByComparingTo(buyerBalanceBefore.add(request.getTotalAmount()));
+        .isEqualByComparingTo(buyerBalanceBefore.add(request.totalAmount()));
   }
 
   @Test
@@ -97,7 +97,7 @@ class PaymentRefundUseCaseTest {
         PaymentDto.builder()
             .orderId(1L)
             .orderNo("ORDER12345")
-            .buyerId(buyerMember.getId())
+            .memberId(buyerMember.getId())
             .totalAmount(BigDecimal.valueOf(5000))
             .build();
 
@@ -119,9 +119,9 @@ class PaymentRefundUseCaseTest {
 
     // then
     assertThat(holderAccount.getBalance())
-        .isEqualByComparingTo(holderBalanceBefore.subtract(request.getTotalAmount()));
+        .isEqualByComparingTo(holderBalanceBefore.subtract(request.totalAmount()));
     assertThat(buyerAccount.getBalance())
-        .isEqualByComparingTo(buyerBalanceBefore.add(request.getTotalAmount()));
+        .isEqualByComparingTo(buyerBalanceBefore.add(request.totalAmount()));
   }
 
   @Test
@@ -136,7 +136,7 @@ class PaymentRefundUseCaseTest {
         PaymentDto.builder()
             .orderId(1L)
             .orderNo("ORDER12345")
-            .buyerId(buyerMember.getId())
+            .memberId(buyerMember.getId())
             .totalAmount(BigDecimal.valueOf(5000))
             .build();
 

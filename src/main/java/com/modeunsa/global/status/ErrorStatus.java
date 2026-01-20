@@ -98,6 +98,10 @@ public enum ErrorStatus {
   PAYMENT_DUPLICATE(HttpStatus.BAD_REQUEST, "PAYMENT_400_005", "이미 결제된 주문입니다."),
   PAYMENT_MEMBER_IN_ACTIVE(HttpStatus.BAD_REQUEST, "PAYMENT_400_006", "결제 회원이 활성 상태가 아닙니다."),
   PAYMENT_INVALID(HttpStatus.BAD_REQUEST, "PAYMENT_400_007", "결제 요청이 올바르지 않습니다."),
+  PAYMENT_INVALID_REQUEST_TOSS_API(
+      HttpStatus.BAD_REQUEST, "PAYMENT_400_008", "토스 페이먼츠 API 응답값이 올바르지 않습니다."),
+  PAYMENT_REJECT_TOSS_PAYMENT(HttpStatus.BAD_REQUEST, "PAYMENT_400_009", "결제 승인 요청이 거절되었습니다."),
+
   PAYMENT_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_001", "결제 회원 정보를 찾을 수 없습니다."),
   PAYMENT_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_002", "결제 계좌 정보를 찾을 수 없습니다."),
   PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_003", "결제 정보를 찾을 수 없습니다."),
