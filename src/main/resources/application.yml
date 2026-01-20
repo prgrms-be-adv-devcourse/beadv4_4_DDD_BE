@@ -76,3 +76,7 @@ cloud:
       bucket: team01-storage
     stack:
       auto: false
+
+custom:
+  global:
+    internalBackUrl: http://localhost:${server.port:8080}

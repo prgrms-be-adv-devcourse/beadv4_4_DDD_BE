@@ -3,7 +3,7 @@ package com.modeunsa.boundedcontext.settlement.in.batch;
 import com.modeunsa.boundedcontext.settlement.app.SettlementFacade;
 import com.modeunsa.boundedcontext.settlement.app.dto.SettlementOrderItemDto;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementItem;
-import com.modeunsa.boundedcontext.settlement.in.OrderApiClient;
+import com.modeunsa.boundedcontext.settlement.in.SettlementOrderApiClient;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class SettlementCollectItemsAndCalculatePayoutsStepConfig {
   private final JobRepository jobRepository;
   private final PlatformTransactionManager transactionManager;
   private final SettlementFacade settlementFacade;
-  private final OrderApiClient orderApiClient;
+  private final SettlementOrderApiClient orderApiClient;
 
   @Bean
   public Step collectItemsAndCalculatePayoutsStep() {
