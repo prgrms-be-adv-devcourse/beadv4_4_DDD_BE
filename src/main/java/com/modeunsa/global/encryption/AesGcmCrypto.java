@@ -153,9 +153,4 @@ public class AesGcmCrypto implements Crypto {
       throw new EncryptionException("복호화 중 오류가 발생했습니다.", e);
     }
   }
-
-  @Override
-  public boolean isEnabled() {
-    return this.enabled;
-  }
 }
