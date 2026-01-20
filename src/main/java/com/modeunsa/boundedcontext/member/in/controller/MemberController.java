@@ -77,7 +77,7 @@ public class MemberController {
   @GetMapping("/addresses")
   public ResponseEntity<ApiResponse> getDeliveryAddresses(
       @Parameter(hidden = true) @AuthenticationPrincipal Long memberId) {
-    List<MemberDeliveryAddressResponse> response = memberFacade.getMemberAddresses(memberId);
+    List<MemberDeliveryAddressResponse> response = memberFacade.getMemberDeliveryAddresses(memberId);
     return ApiResponse.onSuccess(SuccessStatus.MEMBER_ADDRESS_LIST_GET_SUCCESS, response);
   }
 

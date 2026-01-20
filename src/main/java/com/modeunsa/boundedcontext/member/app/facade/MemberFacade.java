@@ -62,7 +62,7 @@ public class MemberFacade {
   }
 
   @Transactional(readOnly = true)
-  public List<MemberDeliveryAddressResponse> getMemberAddresses(Long memberId) {
+  public List<MemberDeliveryAddressResponse> getMemberDeliveryAddresses(Long memberId) {
     Member member = memberSupport.getMember(memberId);
     return member.getAddresses().stream()
         .map(MemberDeliveryAddressResponse::from)
