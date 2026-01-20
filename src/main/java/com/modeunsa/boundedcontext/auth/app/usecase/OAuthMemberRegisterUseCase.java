@@ -21,22 +21,22 @@ public class OAuthMemberRegisterUseCase {
   public OAuthAccount execute(OAuthUserInfo userInfo) {
     log.info(
         "신규 회원 가입 - provider: {}, providerId: {}",
-        userInfo.getProvider(),
-        userInfo.getProviderId());
+        userInfo.provider(),
+        userInfo.providerId());
 
     // 1. Member 생성
     Member member =
         Member.builder()
-            .email(userInfo.getEmail())
-            .realName(userInfo.getName())
-            .phoneNumber(userInfo.getPhoneNumber())
+            .email(userInfo.email())
+            .realName(userInfo.name())
+            .phoneNumber(userInfo.phoneNumber())
             .build();
 
     // 2. 소셜 계정 연동 및 양방향 연관관계 설정
     OAuthAccount socialAccount =
         OAuthAccount.builder()
-            .oauthProvider(userInfo.getProvider())
-            .providerAccountId(userInfo.getProviderId())
+            .oauthProvider(userInfo.provider())
+            .providerAccountId(userInfo.providerId())
             .build();
 
     member.addOAuthAccount(socialAccount);
@@ -46,7 +46,7 @@ public class OAuthMemberRegisterUseCase {
 
     // 4. 회원가입 이벤트 발행
     eventPublisher.publishEvent(
-        MemberSignupEvent.of(member.getId(), userInfo.getEmail(), userInfo.getProvider()));
+        MemberSignupEvent.of(member.getId(), userInfo.email(), userInfo.provider()));
 
     return socialAccount;
   }

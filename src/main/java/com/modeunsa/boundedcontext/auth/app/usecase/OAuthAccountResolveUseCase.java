@@ -22,7 +22,7 @@ public class OAuthAccountResolveUseCase {
   // OAuth 계정 조회
   public OAuthAccount execute(OAuthProvider provider, OAuthUserInfo userInfo) {
     return socialAccountRepository
-        .findByOauthProviderAndProviderAccountId(provider, userInfo.getProviderId())
+        .findByOauthProviderAndProviderAccountId(provider, userInfo.providerId())
         .orElseGet(() -> registerWithDuplicateHandling(provider, userInfo));
   }
 
@@ -35,16 +35,16 @@ public class OAuthAccountResolveUseCase {
       log.warn(
           "동시 가입 요청 감지, 기존 계정 재조회 - provider: {}, providerId: {}",
           provider,
-          userInfo.getProviderId());
+          userInfo.providerId());
 
       return socialAccountRepository
-          .findByOauthProviderAndProviderAccountId(provider, userInfo.getProviderId())
+          .findByOauthProviderAndProviderAccountId(provider, userInfo.providerId())
           .orElseThrow(
               () -> {
                 log.error(
                     "중복 예외 발생 후 재조회 실패 - provider: {}, providerId: {}",
                     provider,
-                    userInfo.getProviderId());
+                    userInfo.providerId());
                 return new GeneralException(ErrorStatus.INTERNAL_SERVER_ERROR);
               });
     }

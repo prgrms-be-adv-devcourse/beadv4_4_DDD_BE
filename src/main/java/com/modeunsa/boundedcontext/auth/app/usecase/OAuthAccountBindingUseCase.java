@@ -24,7 +24,7 @@ public class OAuthAccountBindingUseCase {
     // 1. 이미 다른 회원이 해당 소셜 계정을 사용 중인지 확인
     boolean alreadyUsedByOther =
         socialAccountRepository.existsByOauthProviderAndProviderAccountId(
-            provider, userInfo.getProviderId());
+            provider, userInfo.providerId());
 
     if (alreadyUsedByOther) {
       throw new GeneralException(ErrorStatus.SOCIAL_ACCOUNT_ALREADY_IN_USE);
@@ -48,13 +48,13 @@ public class OAuthAccountBindingUseCase {
     log.info(
         "기존 회원에 소셜 계정 연동 - memberId: {}, provider: {}, providerId: {}",
         member.getId(),
-        userInfo.getProvider(),
-        userInfo.getProviderId());
+        userInfo.provider(),
+        userInfo.providerId());
 
     OAuthAccount socialAccount =
         OAuthAccount.builder()
-            .oauthProvider(userInfo.getProvider())
-            .providerAccountId(userInfo.getProviderId())
+            .oauthProvider(userInfo.provider())
+            .providerAccountId(userInfo.providerId())
             .build();
 
     member.addOAuthAccount(socialAccount);

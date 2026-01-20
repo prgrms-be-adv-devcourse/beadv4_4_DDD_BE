@@ -29,11 +29,11 @@ public class MemberProfileCreateUseCase {
     MemberProfile profile =
         MemberProfile.builder()
             .member(member)
-            .nickname(request.getNickname())
-            .profileImageUrl(request.getProfileImageUrl())
-            .heightCm(request.getHeightCm())
-            .weightKg(request.getWeightKg())
-            .skinType(request.getSkinType())
+            .nickname(request.nickname())
+            .profileImageUrl(request.profileImageUrl())
+            .heightCm(request.heightCm())
+            .weightKg(request.weightKg())
+            .skinType(request.skinType())
             .build();
 
     // 3. 연관관계 설정 및 저장

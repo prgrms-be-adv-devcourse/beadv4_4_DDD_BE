@@ -24,11 +24,11 @@ public class MemberProfileUpdateUseCase {
       throw new GeneralException(ErrorStatus.MEMBER_PROFILE_NOT_FOUND);
     } else {
       profile
-          .updateNickname(request.getNickname())
-          .updateProfileImageUrl(request.getProfileImageUrl())
-          .updateHeightCm(request.getHeightCm())
-          .updateWeightKg(request.getWeightKg())
-          .updateSkinType(request.getSkinType());
+          .updateNickname(request.nickname())
+          .updateProfileImageUrl(request.profileImageUrl())
+          .updateHeightCm(request.heightCm())
+          .updateWeightKg(request.weightKg())
+          .updateSkinType(request.skinType());
     }
   }
 }

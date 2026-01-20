@@ -19,16 +19,16 @@ public class MemberDeliveryAddressAddUseCase {
     MemberDeliveryAddress address =
         MemberDeliveryAddress.builder()
             .member(member)
-            .recipientName(request.getRecipientName())
-            .recipientPhone(request.getRecipientPhone())
-            .zipCode(request.getZipCode())
-            .address(request.getAddress())
-            .addressDetail(request.getAddressDetail())
-            .addressName(request.getAddressName())
-            .isDefault(request.getIsDefault() != null && request.getIsDefault())
+            .recipientName(request.recipientName())
+            .recipientPhone(request.recipientPhone())
+            .zipCode(request.zipCode())
+            .address(request.address())
+            .addressDetail(request.addressDetail())
+            .addressName(request.addressName())
+            .isDefault(request.isDefault() != null && request.isDefault())
             .build();
 
-    if (Boolean.TRUE.equals(request.getIsDefault())) {
+    if (Boolean.TRUE.equals(request.isDefault())) {
       member.setNewDefaultAddress(address);
     } else {
       member.addAddress(address);

@@ -16,8 +16,8 @@ public class MemberSignupEventListener {
   public void handleMemberSignup(MemberSignupEvent event) {
     log.info(
         "회원가입 이벤트 수신 - memberId: {}, email: {}, provider: {}",
-        event.getMemberId(),
-        event.getEmail(),
-        event.getProvider());
+        event.memberId(),
+        event.email(),
+        event.provider());
   }
 }
