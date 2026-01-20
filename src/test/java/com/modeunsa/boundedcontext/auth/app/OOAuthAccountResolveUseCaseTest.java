@@ -9,8 +9,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.modeunsa.boundedcontext.auth.app.usecase.OAuthMemberRegisterUseCase;
-import com.modeunsa.boundedcontext.auth.app.usecase.OAuthSocialAccountResolveUseCase;
-import com.modeunsa.boundedcontext.auth.domain.entity.AuthSocialAccount;
+import com.modeunsa.boundedcontext.auth.app.usecase.OAuthAccountResolveUseCase;
+import com.modeunsa.boundedcontext.auth.domain.entity.OAuthAccount;
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import com.modeunsa.boundedcontext.auth.out.repository.AuthSocialAccountRepository;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
@@ -28,9 +28,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 
 @ExtendWith(MockitoExtension.class)
-class OAuthSocialAccountResolveUseCaseTest {
+class OOAuthAccountResolveUseCaseTest {
 
-  @InjectMocks private OAuthSocialAccountResolveUseCase oauthSocialAccountResolveUseCase;
+  @InjectMocks private OAuthAccountResolveUseCase oauthAccountResolveUseCase;
 
   @Mock private AuthSocialAccountRepository socialAccountRepository;
   @Mock private OAuthMemberRegisterUseCase oauthMemberRegisterUseCase;
@@ -48,13 +48,13 @@ class OAuthSocialAccountResolveUseCaseTest {
       // given
       OAuthUserInfo userInfo = createUserInfo();
       Member member = createMemberWithId(1L);
-      AuthSocialAccount existingAccount = createSocialAccount(member);
+      OAuthAccount existingAccount = createSocialAccount(member);
 
       given(socialAccountRepository.findByOauthProviderAndProviderAccountId(provider, providerId))
           .willReturn(Optional.of(existingAccount));
 
       // when
-      AuthSocialAccount result = oauthSocialAccountResolveUseCase.execute(provider, userInfo);
+      OAuthAccount result = oauthAccountResolveUseCase.execute(provider, userInfo);
 
       // then
       assertThat(result).isEqualTo(existingAccount);
@@ -67,14 +67,14 @@ class OAuthSocialAccountResolveUseCaseTest {
       // given
       OAuthUserInfo userInfo = createUserInfo();
       Member member = createMemberWithId(1L);
-      AuthSocialAccount newAccount = createSocialAccount(member);
+      OAuthAccount newAccount = createSocialAccount(member);
 
       given(socialAccountRepository.findByOauthProviderAndProviderAccountId(provider, providerId))
           .willReturn(Optional.empty());
       given(oauthMemberRegisterUseCase.execute(userInfo)).willReturn(newAccount);
 
       // when
-      AuthSocialAccount result = oauthSocialAccountResolveUseCase.execute(provider, userInfo);
+      OAuthAccount result = oauthAccountResolveUseCase.execute(provider, userInfo);
 
       // then
       assertThat(result).isEqualTo(newAccount);
@@ -92,7 +92,7 @@ class OAuthSocialAccountResolveUseCaseTest {
       // given
       OAuthUserInfo userInfo = createUserInfo();
       Member member = createMemberWithId(1L);
-      AuthSocialAccount existingAccount = createSocialAccount(member);
+      OAuthAccount existingAccount = createSocialAccount(member);
 
       // 1차 조회: 없음
       // 신규 가입 시도: 중복키 예외
@@ -104,7 +104,7 @@ class OAuthSocialAccountResolveUseCaseTest {
           .willThrow(new DataIntegrityViolationException("Duplicate key"));
 
       // when
-      AuthSocialAccount result = oauthSocialAccountResolveUseCase.execute(provider, userInfo);
+      OAuthAccount result = oauthAccountResolveUseCase.execute(provider, userInfo);
 
       // then
       assertThat(result).isEqualTo(existingAccount);
@@ -128,7 +128,7 @@ class OAuthSocialAccountResolveUseCaseTest {
       // when & then
       assertThrows(
           GeneralException.class,
-          () -> oauthSocialAccountResolveUseCase.execute(provider, userInfo));
+          () -> oauthAccountResolveUseCase.execute(provider, userInfo));
 
       verify(socialAccountRepository, times(2))
           .findByOauthProviderAndProviderAccountId(provider, providerId);
@@ -152,9 +152,9 @@ class OAuthSocialAccountResolveUseCaseTest {
     return member;
   }
 
-  private AuthSocialAccount createSocialAccount(Member member) {
-    AuthSocialAccount socialAccount =
-        AuthSocialAccount.builder().oauthProvider(provider).providerAccountId(providerId).build();
+  private OAuthAccount createSocialAccount(Member member) {
+    OAuthAccount socialAccount =
+        OAuthAccount.builder().oauthProvider(provider).providerAccountId(providerId).build();
     socialAccount.assignMember(member);
     return socialAccount;
   }

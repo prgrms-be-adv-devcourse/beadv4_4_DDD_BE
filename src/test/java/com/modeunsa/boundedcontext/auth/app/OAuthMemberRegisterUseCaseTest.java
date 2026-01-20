@@ -7,7 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.modeunsa.boundedcontext.auth.app.usecase.OAuthMemberRegisterUseCase;
-import com.modeunsa.boundedcontext.auth.domain.entity.AuthSocialAccount;
+import com.modeunsa.boundedcontext.auth.domain.entity.OAuthAccount;
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
@@ -56,7 +56,7 @@ class OAuthMemberRegisterUseCaseTest {
             });
 
     // when
-    AuthSocialAccount result = oauthMemberRegisterUseCase.execute(userInfo);
+    OAuthAccount result = oauthMemberRegisterUseCase.execute(userInfo);
 
     // then
     assertThat(result).isNotNull();
@@ -85,14 +85,14 @@ class OAuthMemberRegisterUseCaseTest {
             });
 
     // when
-    AuthSocialAccount result = oauthMemberRegisterUseCase.execute(userInfo);
+    OAuthAccount result = oauthMemberRegisterUseCase.execute(userInfo);
 
     // then
     verify(memberRepository, times(1)).save(memberCaptor.capture());
     Member savedMember = memberCaptor.getValue();
 
     // 양방향 연관관계 확인: Member의 소셜 계정 목록에 포함되어 있어야 함
-    assertThat(savedMember.getOauthSocialAccounts()).contains(result);
+    assertThat(savedMember.getOauthSocialAccountOS()).contains(result);
     // AuthSocialAccount의 Member 참조 확인
     assertThat(result.getMember()).isEqualTo(savedMember);
   }
@@ -143,7 +143,7 @@ class OAuthMemberRegisterUseCaseTest {
             });
 
     // when
-    AuthSocialAccount result = oauthMemberRegisterUseCase.execute(userInfo);
+    OAuthAccount result = oauthMemberRegisterUseCase.execute(userInfo);
 
     // then
     assertThat(result).isNotNull();

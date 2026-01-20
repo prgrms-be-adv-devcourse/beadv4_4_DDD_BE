@@ -30,7 +30,7 @@ import lombok.ToString;
     uniqueConstraints = {
       @UniqueConstraint(columnNames = {"oauth_provider", "provider_account_id"})
     })
-public class AuthSocialAccount extends GeneratedIdAndAuditedEntity {
+public class OAuthAccount extends GeneratedIdAndAuditedEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(nullable = false)

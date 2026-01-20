@@ -1,6 +1,6 @@
 package com.modeunsa.boundedcontext.auth.app.usecase;
 
-import com.modeunsa.boundedcontext.auth.domain.entity.AuthSocialAccount;
+import com.modeunsa.boundedcontext.auth.domain.entity.OAuthAccount;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
 import com.modeunsa.shared.auth.dto.OAuthUserInfo;
@@ -20,7 +20,7 @@ public class OAuthMemberRegisterUseCase {
   private final ApplicationEventPublisher eventPublisher;
 
   @Transactional
-  public AuthSocialAccount execute(OAuthUserInfo userInfo) {
+  public OAuthAccount execute(OAuthUserInfo userInfo) {
     log.info(
         "신규 회원 가입 - provider: {}, providerId: {}",
         userInfo.getProvider(),
@@ -35,8 +35,8 @@ public class OAuthMemberRegisterUseCase {
             .build();
 
     // 2. 소셜 계정 연동 및 양방향 연관관계 설정
-    AuthSocialAccount socialAccount =
-        AuthSocialAccount.builder()
+    OAuthAccount socialAccount =
+        OAuthAccount.builder()
             .oauthProvider(userInfo.getProvider())
             .providerAccountId(userInfo.getProviderId())
             .build();

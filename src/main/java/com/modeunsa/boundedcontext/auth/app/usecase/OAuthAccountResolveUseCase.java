@@ -1,6 +1,6 @@
 package com.modeunsa.boundedcontext.auth.app.usecase;
 
-import com.modeunsa.boundedcontext.auth.domain.entity.AuthSocialAccount;
+import com.modeunsa.boundedcontext.auth.domain.entity.OAuthAccount;
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import com.modeunsa.boundedcontext.auth.out.repository.AuthSocialAccountRepository;
 import com.modeunsa.global.exception.GeneralException;
@@ -14,18 +14,18 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class OAuthSocialAccountResolveUseCase {
+public class OAuthAccountResolveUseCase {
 
   private final AuthSocialAccountRepository socialAccountRepository;
   private final OAuthMemberRegisterUseCase oauthMemberRegisterUseCase;
 
-  public AuthSocialAccount execute(OAuthProvider provider, OAuthUserInfo userInfo) {
+  public OAuthAccount execute(OAuthProvider provider, OAuthUserInfo userInfo) {
     return socialAccountRepository
         .findByOauthProviderAndProviderAccountId(provider, userInfo.getProviderId())
         .orElseGet(() -> registerWithDuplicateHandling(provider, userInfo));
   }
 
-  private AuthSocialAccount registerWithDuplicateHandling(
+  private OAuthAccount registerWithDuplicateHandling(
       OAuthProvider provider, OAuthUserInfo userInfo) {
     try {
       return oauthMemberRegisterUseCase.execute(userInfo);

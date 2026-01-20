@@ -11,8 +11,8 @@ import static org.mockito.Mockito.verify;
 
 import com.modeunsa.boundedcontext.auth.app.usecase.AuthTokenIssueUseCase;
 import com.modeunsa.boundedcontext.auth.app.usecase.OAuthLoginUseCase;
-import com.modeunsa.boundedcontext.auth.app.usecase.OAuthSocialAccountResolveUseCase;
-import com.modeunsa.boundedcontext.auth.domain.entity.AuthSocialAccount;
+import com.modeunsa.boundedcontext.auth.app.usecase.OAuthAccountResolveUseCase;
+import com.modeunsa.boundedcontext.auth.domain.entity.OAuthAccount;
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import com.modeunsa.boundedcontext.auth.out.client.OAuthClient;
 import com.modeunsa.boundedcontext.auth.out.client.OAuthClientFactory;
@@ -40,7 +40,7 @@ class OAuthLoginUseCaseTest {
   @InjectMocks private OAuthLoginUseCase oauthLoginUseCase;
 
   @Mock private OAuthClientFactory oauthClientFactory;
-  @Mock private OAuthSocialAccountResolveUseCase oauthSocialAccountResolveUseCase;
+  @Mock private OAuthAccountResolveUseCase oauthAccountResolveUseCase;
   @Mock private AuthTokenIssueUseCase authTokenIssueUseCase;
   @Mock private StringRedisTemplate redisTemplate;
   @Mock private ValueOperations<String, String> valueOperations;
@@ -103,12 +103,12 @@ class OAuthLoginUseCaseTest {
       setupOAuthClient();
 
       Member member = createMemberWithId(memberId);
-      AuthSocialAccount socialAccount = createSocialAccount(member);
+      OAuthAccount socialAccount = createSocialAccount(member);
       TokenResponse expectedToken =
           TokenResponse.of("access_token", "refresh_token", 3600L, 604800L);
 
       given(
-              oauthSocialAccountResolveUseCase.execute(
+              oauthAccountResolveUseCase.execute(
                   any(OAuthProvider.class), any(OAuthUserInfo.class)))
           .willReturn(socialAccount);
       given(authTokenIssueUseCase.execute(memberId, MemberRole.MEMBER)).willReturn(expectedToken);
@@ -119,7 +119,7 @@ class OAuthLoginUseCaseTest {
       // then
       assertThat(result).isEqualTo(expectedToken);
       verify(redisTemplate, times(1)).delete(stateKey);
-      verify(oauthSocialAccountResolveUseCase, times(1)).execute(any(), any());
+      verify(oauthAccountResolveUseCase, times(1)).execute(any(), any());
       verify(authTokenIssueUseCase, times(1)).execute(memberId, MemberRole.MEMBER);
     }
 
@@ -131,12 +131,12 @@ class OAuthLoginUseCaseTest {
       setupOAuthClient();
 
       Member member = createMemberWithId(memberId);
-      AuthSocialAccount socialAccount = createSocialAccount(member);
+      OAuthAccount socialAccount = createSocialAccount(member);
       TokenResponse expectedToken =
           TokenResponse.of("access_token", "refresh_token", 3600L, 604800L);
 
       given(
-              oauthSocialAccountResolveUseCase.execute(
+              oauthAccountResolveUseCase.execute(
                   any(OAuthProvider.class), any(OAuthUserInfo.class)))
           .willReturn(socialAccount);
       given(authTokenIssueUseCase.execute(memberId, MemberRole.MEMBER)).willReturn(expectedToken);
@@ -146,7 +146,7 @@ class OAuthLoginUseCaseTest {
 
       // then
       assertThat(result).isEqualTo(expectedToken);
-      verify(oauthSocialAccountResolveUseCase, times(1)).execute(any(), any());
+      verify(oauthAccountResolveUseCase, times(1)).execute(any(), any());
     }
   }
 
@@ -182,9 +182,9 @@ class OAuthLoginUseCaseTest {
     return member;
   }
 
-  private AuthSocialAccount createSocialAccount(Member member) {
-    AuthSocialAccount socialAccount =
-        AuthSocialAccount.builder()
+  private OAuthAccount createSocialAccount(Member member) {
+    OAuthAccount socialAccount =
+        OAuthAccount.builder()
             .oauthProvider(provider)
             .providerAccountId("kakao_12345")
             .build();

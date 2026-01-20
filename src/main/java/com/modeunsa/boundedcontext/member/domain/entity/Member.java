@@ -3,7 +3,7 @@ package com.modeunsa.boundedcontext.member.domain.entity;
 import static com.modeunsa.global.status.ErrorStatus.MEMBER_ADDRESS_LIMIT_EXCEEDED;
 import static com.modeunsa.global.status.ErrorStatus.MEMBER_DEFAULT_ADDRESS_REQUIRED;
 
-import com.modeunsa.boundedcontext.auth.domain.entity.AuthSocialAccount;
+import com.modeunsa.boundedcontext.auth.domain.entity.OAuthAccount;
 import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.boundedcontext.member.domain.types.MemberStatus;
 import com.modeunsa.global.exception.GeneralException;
@@ -57,7 +57,7 @@ public class Member extends GeneratedIdAndAuditedEntity {
   @Getter(AccessLevel.NONE)
   @Builder.Default
   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<AuthSocialAccount> oauthSocialAccounts = new ArrayList<>();
+  private List<OAuthAccount> oauthSocialAccountOS = new ArrayList<>();
 
   @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private MemberProfile profile;
@@ -69,8 +69,8 @@ public class Member extends GeneratedIdAndAuditedEntity {
 
   @Column private LocalDateTime withdrawalRequestedAt;
 
-  public List<AuthSocialAccount> getOauthSocialAccounts() {
-    return Collections.unmodifiableList(oauthSocialAccounts);
+  public List<OAuthAccount> getOauthSocialAccountOS() {
+    return Collections.unmodifiableList(oauthSocialAccountOS);
   }
 
   public List<MemberDeliveryAddress> getAddresses() {
@@ -142,8 +142,8 @@ public class Member extends GeneratedIdAndAuditedEntity {
     this.status = status;
   }
 
-  public void addOAuthAccount(AuthSocialAccount oauth) {
-    oauthSocialAccounts.add(oauth);
+  public void addOAuthAccount(OAuthAccount oauth) {
+    oauthSocialAccountOS.add(oauth);
     oauth.assignMember(this);
   }
 }

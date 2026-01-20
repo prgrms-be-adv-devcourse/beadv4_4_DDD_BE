@@ -1,6 +1,6 @@
 package com.modeunsa.boundedcontext.auth.app.usecase;
 
-import com.modeunsa.boundedcontext.auth.domain.entity.AuthSocialAccount;
+import com.modeunsa.boundedcontext.auth.domain.entity.OAuthAccount;
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import com.modeunsa.boundedcontext.auth.out.client.OAuthClient;
 import com.modeunsa.boundedcontext.auth.out.client.OAuthClientFactory;
@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 public class OAuthLoginUseCase {
 
   private final OAuthClientFactory oauthClientFactory;
-  private final OAuthSocialAccountResolveUseCase oauthSocialAccountResolveUseCase;
+  private final OAuthAccountResolveUseCase oauthAccountResolveUseCase;
   private final AuthTokenIssueUseCase authTokenIssueUseCase;
   private final StringRedisTemplate redisTemplate;
 
@@ -40,7 +40,7 @@ public class OAuthLoginUseCase {
         "OAuth 사용자 정보 조회 완료 - provider: {}, providerId: {}", provider, userInfo.getProviderId());
 
     // 4. 소셜 계정 조회 또는 신규 가입
-    AuthSocialAccount socialAccount = oauthSocialAccountResolveUseCase.execute(provider, userInfo);
+    OAuthAccount socialAccount = oauthAccountResolveUseCase.execute(provider, userInfo);
 
     Member member = socialAccount.getMember();
 
