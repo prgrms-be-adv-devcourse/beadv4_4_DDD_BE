@@ -8,8 +8,10 @@ import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmRespo
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentStatus;
 import com.modeunsa.boundedcontext.payment.domain.types.ProviderType;
 import com.modeunsa.global.exception.GeneralException;
+import com.modeunsa.global.jpa.converter.EncryptedStringConverter;
 import com.modeunsa.global.jpa.entity.AuditedEntity;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -74,6 +76,7 @@ public class Payment extends AuditedEntity {
   @Enumerated(EnumType.STRING)
   private ProviderType pgProvider;
 
+  @Convert(converter = EncryptedStringConverter.class)
   private String pgPaymentKey;
 
   private String pgOrderId;
@@ -84,8 +87,10 @@ public class Payment extends AuditedEntity {
 
   private String pgMethod;
 
+  @Convert(converter = EncryptedStringConverter.class)
   private String pgCustomerName;
 
+  @Convert(converter = EncryptedStringConverter.class)
   private String pgCustomerEmail;
 
   private Integer pgStatusCode;

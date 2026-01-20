@@ -82,5 +82,5 @@ custom:
     internalBackUrl: http://localhost:${server.port:8080}
 
 encryption:
-  enabled: false
+  enabled: true
   master-key: ${ENCRYPTION_MASTER_KEY:}

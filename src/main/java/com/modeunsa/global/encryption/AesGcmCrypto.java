@@ -44,6 +44,7 @@ public class AesGcmCrypto implements Crypto {
 
   // 1. master-key 인 암호화 키를 Base64 디코딩하여 SecretKey 객체 생성
   @PostConstruct
+  @Override
   public void init() {
     if (!enabled) {
       log.warn("암호화가 비활성화되어 있습니다. 민감 정보가 평문으로 저장됩니다.");
