@@ -56,3 +56,7 @@ payment:
   accounts:
     system-member-id: 1
     holder-member-id: 2
+
+custom:
+  global:
+    internalBackUrl: http://localhost:${server.port:8080}

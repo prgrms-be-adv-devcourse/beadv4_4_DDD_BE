@@ -8,6 +8,7 @@ import com.modeunsa.shared.order.dto.CreateCartItemRequestDto;
 import com.modeunsa.shared.order.dto.CreateCartItemResponseDto;
 import com.modeunsa.shared.order.dto.CreateCartOrderRequestDto;
 import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
+import com.modeunsa.shared.order.dto.OrderDto;
 import com.modeunsa.shared.order.dto.OrderListResponseDto;
 import com.modeunsa.shared.order.dto.OrderResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -128,5 +129,11 @@ public class ApiV1OrderController {
     CartItemsResponseDto dto = orderFacade.getCartItems(memberId);
 
     return ApiResponse.onSuccess(SuccessStatus.OK, dto);
+  }
+
+  @Operation(summary = "주문 조회 기능", description = "정산 모듈에서 사용하는 주문 조회 API입니다.")
+  @GetMapping("/{id}")
+  public OrderDto getItems(@PathVariable Long id) {
+    return orderFacade.findOrderById(id);
   }
 }
