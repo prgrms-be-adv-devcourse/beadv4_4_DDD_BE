@@ -26,14 +26,14 @@ public class PaymentMember extends ManualIdAndAuditedEntity {
 
   private static final String customerKeyPrefix = "CUSTOMER";
 
-  @Column(nullable = false, unique = true)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(nullable = false)
   private String email;
 
   @Convert(converter = EncryptedStringConverter.class)
   @Column(nullable = false)
   private String name;
 
-  @Convert(converter = EncryptedStringConverter.class)
   @Column(nullable = false, unique = true)
   private String customerKey;
 
