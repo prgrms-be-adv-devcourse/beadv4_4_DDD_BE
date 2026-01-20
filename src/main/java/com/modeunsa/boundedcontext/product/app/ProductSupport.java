@@ -11,6 +11,7 @@ import com.modeunsa.boundedcontext.product.out.ProductMemberSellerRepository;
 import com.modeunsa.boundedcontext.product.out.ProductRepository;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +43,10 @@ public class ProductSupport {
         ProductPolicy.DISPLAYABLE_SALE_STATUES_FOR_ALL,
         ProductPolicy.DISPLAYABLE_PRODUCT_STATUSES_FOR_ALL,
         pageable);
+  }
+
+  public List<Product> getProducts(List<Long> productIds) {
+    return productRepository.findAllById(productIds);
   }
 
   public ProductMemberSeller getProductMemberSeller(Long sellerId) {

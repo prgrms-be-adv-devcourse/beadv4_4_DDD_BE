@@ -3,6 +3,8 @@ package com.modeunsa.boundedcontext.product.app;
 import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.shared.product.dto.ProductDetailResponse;
 import com.modeunsa.shared.product.dto.ProductDto;
+import com.modeunsa.shared.product.dto.ProductOrderDto;
+import com.modeunsa.shared.product.dto.ProductOrderResponse;
 import com.modeunsa.shared.product.dto.ProductResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -18,4 +20,10 @@ public abstract class ProductMapper {
 
   @Mapping(source = "seller.id", target = "sellerId")
   public abstract ProductDto toDto(Product product);
+
+  @Mapping(source = "quantity", target = "stock")
+  @Mapping(source = "id", target = "productId")
+  public abstract ProductOrderDto toProductOrderDto(Product product);
+
+  public abstract ProductOrderResponse toProductOrderResponse(ProductOrderDto dto);
 }
