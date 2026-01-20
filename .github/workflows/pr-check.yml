@@ -64,6 +64,8 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    env:
+      ENCRYPTION_MASTER_KEY: ${{ secrets.ENCRYPTION_MASTER_KEY_TEST }}
 
     services:
       redis:
