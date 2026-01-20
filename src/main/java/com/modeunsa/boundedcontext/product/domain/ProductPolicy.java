@@ -22,6 +22,8 @@ public class ProductPolicy {
   public static final Set<ProductStatus> DISPLAYABLE_PRODUCT_STATUES_FOR_SELLER =
       EnumSet.of(ProductStatus.DRAFT, ProductStatus.COMPLETED, ProductStatus.CANCELED);
 
+  public static final Set<SaleStatus> ORDERABLE_SALE_STATUES = EnumSet.of(SaleStatus.SALE);
+
   private static final EnumSet<ProductUpdatableField> DRAFT_ALLOWED =
       EnumSet.allOf(ProductUpdatableField.class);
   private static final EnumSet<ProductUpdatableField> COMPLETED_ALLOWED =

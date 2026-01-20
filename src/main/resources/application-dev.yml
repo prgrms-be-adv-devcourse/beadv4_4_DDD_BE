@@ -49,6 +49,8 @@ spring:
       initialize-schema: never
 
 custom:
+  global:
+    internalBackUrl: http://localhost:${server.port:8080}
   security:
     permit-all: false
     permit-urls: /h2-console/**,/swagger-ui/**,/v3/api-docs/**,/api/v1/**
