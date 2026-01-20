@@ -73,7 +73,8 @@ public class RegisterSellerUseCase {
               .settlementBankName(request.settlementBankName())
               .settlementBankAccount(request.settlementBankAccount())
               .businessLicenseUrl(uploadedLicenseUrl)
-              .status(SellerStatus.PENDING)
+              // TODO: 기본 상태를 PENDING으로 변경 예정
+              .status(SellerStatus.ACTIVE)
               .requestedAt(LocalDateTime.now())
               .build();
 

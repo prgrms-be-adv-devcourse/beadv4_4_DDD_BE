@@ -82,9 +82,10 @@ public class MemberSeller extends GeneratedIdAndAuditedEntity {
       String businessLicenseUrl) {
 
     // 거절된 상태가 아니면 재신청 불가
-    if (this.status != SellerStatus.REJECTED) {
-      throw new GeneralException(ErrorStatus.SELLER_ALREADY_REQUESTED);
-    }
+    // TODO: 심사 로직 구현 후 원복 예정
+    //    if (this.status != SellerStatus.REJECTED) {
+    //      throw new GeneralException(ErrorStatus.SELLER_ALREADY_REQUESTED);
+    //    }
 
     this.businessName = businessName;
     this.representativeName = representativeName;
@@ -96,7 +97,8 @@ public class MemberSeller extends GeneratedIdAndAuditedEntity {
     this.businessLicenseUrl = businessLicenseUrl;
 
     // 상태 초기화
-    this.status = SellerStatus.PENDING;
+    // TODO: 기본 상태를 PENDING으로 변경 예정
+    this.status = SellerStatus.ACTIVE;
     this.requestedAt = LocalDateTime.now();
   }
 }
