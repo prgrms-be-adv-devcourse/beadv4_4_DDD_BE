@@ -84,6 +84,7 @@ public class ProductFacade {
     productDeleteFavoriteUseCase.deleteProductFavorite(memberId, productId);
   }
 
+  @Transactional
   public List<ProductStockResponse> updateStock(
       ProductStockUpdateRequest productStockUpdateRequest) {
     return productUpdateStockUseCase.updateStock(productStockUpdateRequest).stream()
