@@ -33,6 +33,7 @@ public class MemberProfile extends GeneratedIdAndAuditedEntity {
 
   private Integer weightKg;
 
+  // TODO: enum으로 변경 고려
   @Column(length = 30)
   private String skinType;
 
