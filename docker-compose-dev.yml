@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - modeunsa-net
+    depends_on:
+      - modeunsa-app
+      - web-client
+
+  modeunsa-app:
+    image: kjuiop/modeunsa-app:0.0.0
+    container_name: modeunsa-app
+    ports:
+      - "8080:8080"
+    entrypoint: ["java", "-jar", "-Dspring.profiles.active=dev", "app.jar"]
+    env_file:
+      - .env
+    networks:
+      - modeunsa-net
+
+  web-client:
+    build:
+      context: ./web-client
+      dockerfile: Dockerfile
+    container_name: web-client
+    environment:
+      - NODE_ENV=production
+    networks:
+      - modeunsa-net
+
+networks:
+  modeunsa-net:
+    driver: bridge
+

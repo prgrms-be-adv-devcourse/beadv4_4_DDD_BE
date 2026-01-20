@@ -52,7 +52,7 @@ export default function Home() {
   useEffect(() => {
     const fetchMemberInfo = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? ''
         const response = await fetch(`${apiUrl}/api/v1/payments/members/${memberId}`)
         
         if (!response.ok) {
@@ -122,7 +122,7 @@ export default function Home() {
 
     try {
       const amount = 19800 // 19,800원
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? ''
 
       // 1) 먼저 결제 요청 API 호출
       const paymentRes = await fetch(`${apiUrl}/api/v1/payments`, {

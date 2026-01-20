@@ -1,7 +1,7 @@
 'use client'
 
 import { useSearchParams, useRouter } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 
 interface ConfirmPaymentResponse {
   orderNo: string
@@ -14,7 +14,7 @@ interface ApiResponse {
   result: ConfirmPaymentResponse
 }
 
-export default function SuccessPage() {
+function SuccessPageContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [isConfirming, setIsConfirming] = useState(true)
@@ -89,7 +89,7 @@ export default function SuccessPage() {
 
       try {
         // 2. API 호출
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? ''
         const requestBody = {
           memberId: parseInt(memberId, 10),
           paymentKey: paymentKey,
@@ -98,18 +98,16 @@ export default function SuccessPage() {
           pgCustomerName: pgCustomerName,
           pgCustomerEmail: pgCustomerEmail,
         }
-        console.log('[결제 승인] API 요청', { url: `${apiUrl}/api/v1/payments/${orderNo}/payment/confirm/by/tossPayments`, body: requestBody })
+        const requestUrl = `${apiUrl}/api/v1/payments/${orderNo}/payment/confirm/by/tossPayments`
+        console.log('[결제 승인] API 요청', { url: requestUrl, body: requestBody })
         
-        const response = await fetch(
-          `${apiUrl}/api/v1/payments/${orderNo}/payment/confirm/by/tossPayments`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(requestBody),
-          }
-        )
+        const response = await fetch(requestUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
+        })
 
         console.log('[결제 승인] API 응답 상태', { status: response.status, ok: response.ok })
 
@@ -260,3 +258,43 @@ export default function SuccessPage() {
     </main>
   )
 }
+
+export default function SuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="success-page">
+          <div className="success-icon">
+            <div
+              style={{
+                width: '64px',
+                height: '64px',
+                border: '4px solid #f3f3f3',
+                borderTop: '4px solid #4CAF50',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+              }}
+            ></div>
+          </div>
+          <div className="success-messages">
+            <h1 className="success-title">결제 승인 중...</h1>
+            <p className="success-subtitle">잠시만 기다려주세요.</p>
+          </div>
+          <style jsx>{`
+            @keyframes spin {
+              0% {
+                transform: rotate(0deg);
+              }
+              100% {
+                transform: rotate(360deg);
+              }
+            }
+          `}</style>
+        </main>
+      }
+    >
+      <SuccessPageContent />
+    </Suspense>
+  )
+}
+

@@ -1,12 +1,13 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 
-export default function FailurePage() {
+function FailurePageContent() {
   const searchParams = useSearchParams()
   const orderNo = searchParams.get('orderNo') || 'N/A'
   const amount = searchParams.get('amount')
-  
+
   // 시도일시는 현재 시간으로 표시
   const attemptDate = new Date().toLocaleString('ko-KR', {
     year: 'numeric',
@@ -14,9 +15,9 @@ export default function FailurePage() {
     day: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
-    second: '2-digit'
+    second: '2-digit',
   })
-  
+
   // 금액 포맷팅
   const formattedAmount = amount
     ? new Intl.NumberFormat('ko-KR').format(parseFloat(amount)) + '원'
@@ -26,16 +27,30 @@ export default function FailurePage() {
     <main className="failure-page">
       {/* 실패 아이콘 */}
       <div className="failure-icon">
-        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="32" cy="32" r="32" fill="#F44336"/>
-          <path d="M20 20L44 44M44 20L20 44" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+        <svg
+          width="64"
+          height="64"
+          viewBox="0 0 64 64"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <circle cx="32" cy="32" r="32" fill="#F44336" />
+          <path
+            d="M20 20L44 44M44 20L20 44"
+            stroke="white"
+            strokeWidth="4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
       </div>
 
       {/* 메인 메시지 */}
       <div className="failure-messages">
         <h1 className="failure-title">결제에 실패했습니다</h1>
-        <p className="failure-subtitle">결제 처리 중 오류가 발생했습니다. 다시 시도해주세요.</p>
+        <p className="failure-subtitle">
+          결제 처리 중 오류가 발생했습니다. 다시 시도해주세요.
+        </p>
       </div>
 
       {/* 오류 정보 카드 */}
@@ -72,3 +87,12 @@ export default function FailurePage() {
     </main>
   )
 }
+
+export default function FailurePage() {
+  return (
+    <Suspense fallback={<div>결제 실패 정보를 불러오는 중입니다...</div>}>
+      <FailurePageContent />
+    </Suspense>
+  )
+}
+

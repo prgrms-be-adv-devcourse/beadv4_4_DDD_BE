@@ -24,7 +24,6 @@ RUN addgroup -S nodejs && adduser -S nextjs -G nodejs
 # standalone 결과물만 복사
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/public ./public
 
 USER nextjs
 
