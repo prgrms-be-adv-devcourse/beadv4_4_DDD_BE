@@ -62,6 +62,8 @@ public enum ErrorStatus {
   MEMBER_ALREADY_EXISTS(HttpStatus.CONFLICT, "MEMBER_409_001", "이미 존재하는 회원입니다."),
   MEMBER_EMAIL_DUPLICATE(HttpStatus.CONFLICT, "MEMBER_409_002", "이미 사용 중인 이메일입니다."),
   SELLER_ALREADY_REGISTERED(HttpStatus.CONFLICT, "MEMBER_409_003", "이미 판매자 신청을 하셨습니다."),
+  SOCIAL_ACCOUNT_ALREADY_LINKED(HttpStatus.CONFLICT, "MEMBER_409_004", "이미 연동된 소셜 계정입니다."),
+  SOCIAL_ACCOUNT_ALREADY_IN_USE(HttpStatus.CONFLICT, "MEMBER_409_005", "다른 회원이 사용 중인 소셜 계정입니다."),
 
   // Order
   ORDER_STOCK_NOT_ENOUGH(HttpStatus.BAD_REQUEST, "ORDER_400_001", "상품의 재고가 부족합니다."),
