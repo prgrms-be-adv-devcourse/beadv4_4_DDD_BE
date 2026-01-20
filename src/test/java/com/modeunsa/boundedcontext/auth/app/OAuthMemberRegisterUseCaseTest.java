@@ -117,8 +117,8 @@ class OAuthMemberRegisterUseCaseTest {
     // then
     verify(eventPublisher, times(1)).publishEvent(eventCaptor.capture());
     MemberSignupEvent event = eventCaptor.getValue();
-    assertThat(event.getEmail()).isEqualTo(email);
-    assertThat(event.getProvider()).isEqualTo(provider);
+    assertThat(event.email()).isEqualTo(email);
+    assertThat(event.provider()).isEqualTo(provider);
   }
 
   @Test
