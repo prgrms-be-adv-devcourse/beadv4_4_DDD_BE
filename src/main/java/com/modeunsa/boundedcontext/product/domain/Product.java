@@ -60,7 +60,7 @@ public class Product extends GeneratedIdAndAuditedEntity {
   // TODO: 이벤트/트랜잭션으로 증감 관리 (정합성 전략 필요)
   @Builder.Default private int favoriteCount = 0;
 
-  @Builder.Default private int quantity = 0;
+  @Builder.Default private int stock = 0;
 
   @OneToMany(mappedBy = "product")
   @OrderBy("sortOrder ASC")
@@ -72,7 +72,7 @@ public class Product extends GeneratedIdAndAuditedEntity {
       String name,
       ProductCategory category,
       String description,
-      int quantity) {
+      int stock) {
     return Product.builder()
         .seller(seller)
         .name(name)
@@ -82,7 +82,7 @@ public class Product extends GeneratedIdAndAuditedEntity {
         .saleStatus(SaleStatus.NOT_SALE)
         .productStatus(ProductStatus.DRAFT)
         .favoriteCount(0)
-        .quantity(quantity)
+        .stock(stock)
         .build();
   }
 
@@ -93,7 +93,7 @@ public class Product extends GeneratedIdAndAuditedEntity {
       SaleStatus saleStatus,
       BigDecimal price,
       BigDecimal salePrice,
-      Integer quantity) {
+      Integer stock) {
 
     if (name != null) {
       this.name = name;
@@ -113,8 +113,8 @@ public class Product extends GeneratedIdAndAuditedEntity {
     if (salePrice != null) {
       this.salePrice = salePrice;
     }
-    if (quantity != null) {
-      this.quantity = quantity;
+    if (stock != null) {
+      this.stock = stock;
     }
     // TODO: image 수정 추가
   }
@@ -124,10 +124,10 @@ public class Product extends GeneratedIdAndAuditedEntity {
   }
 
   public void decreaseStock(int requestedQty) {
-    if (this.quantity < requestedQty) {
-      throw new InvalidStockException(this.quantity, requestedQty);
+    if (this.stock < requestedQty) {
+      throw new InvalidStockException(this.stock, requestedQty);
     }
-    this.quantity = this.quantity - requestedQty;
+    this.stock = this.stock - requestedQty;
   }
 
   public void addImage(ProductImage image) {

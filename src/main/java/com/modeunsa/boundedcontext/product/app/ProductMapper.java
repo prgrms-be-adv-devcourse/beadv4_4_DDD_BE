@@ -23,7 +23,7 @@ public abstract class ProductMapper {
   @Mapping(source = "seller.id", target = "sellerId")
   public abstract ProductDto toDto(Product product);
 
-  @Mapping(source = "quantity", target = "stock")
+  @Mapping(source = "stock", target = "stock")
   @Mapping(source = "id", target = "productId")
   public abstract ProductOrderDto toProductOrderDto(Product product);
 

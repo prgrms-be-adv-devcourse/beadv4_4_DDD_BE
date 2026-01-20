@@ -61,6 +61,6 @@ public class ProductUpdateStockUseCase {
       isSucceed = false;
     }
     productRepository.save(product);
-    return new ProductStockDto(product.getId(), isSucceed, product.getQuantity());
+    return new ProductStockDto(product.getId(), isSucceed, product.getStock());
   }
 }
