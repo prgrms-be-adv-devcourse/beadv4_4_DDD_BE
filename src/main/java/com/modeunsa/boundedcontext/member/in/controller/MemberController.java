@@ -51,7 +51,7 @@ public class MemberController {
   @PostMapping("/profile")
   public ResponseEntity<ApiResponse> createProfile(
       @Parameter(hidden = true) @AuthenticationPrincipal Long memberId,
-      @RequestBody MemberProfileCreateRequest request) {
+      @RequestBody @Valid MemberProfileCreateRequest request) {
     memberFacade.createProfile(memberId, request);
     return ApiResponse.onSuccess(SuccessStatus.MEMBER_PROFILE_CREATE_SUCCESS);
   }
@@ -98,7 +98,7 @@ public class MemberController {
   @PutMapping("/profile")
   public ResponseEntity<ApiResponse> updateProfile(
       @Parameter(hidden = true) @AuthenticationPrincipal Long memberId,
-      @RequestBody MemberProfileUpdateRequest request) {
+      @RequestBody @Valid MemberProfileUpdateRequest request) {
     memberFacade.updateProfile(memberId, request);
     return ApiResponse.onSuccess(SuccessStatus.MEMBER_PROFILE_UPDATE_SUCCESS);
   }
