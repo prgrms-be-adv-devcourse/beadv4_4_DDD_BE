@@ -61,6 +61,7 @@ public enum ErrorStatus {
   MEMBER_ALREADY_EXISTS(HttpStatus.CONFLICT, "MEMBER_409_001", "이미 존재하는 회원입니다."),
   MEMBER_EMAIL_DUPLICATE(HttpStatus.CONFLICT, "MEMBER_409_002", "이미 사용 중인 이메일입니다."),
   SELLER_ALREADY_REGISTERED(HttpStatus.CONFLICT, "MEMBER_409_003", "이미 판매자 신청을 하셨습니다."),
+  SELLER_ALREADY_REQUESTED(HttpStatus.CONFLICT, "MEMBER_409_004", "현재 판매자 승인 심사 대기 중입니다."),
 
   // Order
   ORDER_STOCK_NOT_ENOUGH(HttpStatus.BAD_REQUEST, "ORDER_400_001", "상품의 재고가 부족합니다."),
@@ -125,7 +126,15 @@ public enum ErrorStatus {
 
   // Settlement 404
   SETTLEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "SETTLEMENT_404_001", "정산서가 존재하지 않습니다."),
-  SETTLEMENT_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "SETTLEMENT_404_002", "회원을 찾을 수 없습니다.");
+  SETTLEMENT_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "SETTLEMENT_404_002", "회원을 찾을 수 없습니다."),
+
+  // S3 Image 400
+  IMAGE_FILE_REQUIRED(HttpStatus.BAD_REQUEST, "IMAGE_400_001", "이미지 파일은 필수입니다."),
+  IMAGE_FILE_EMPTY(HttpStatus.BAD_REQUEST, "IMAGE_400_002", "이미지 파일이 비어있습니다."),
+  IMAGE_FILE_EXTENSION_NOT_SUPPORTED(HttpStatus.BAD_REQUEST, "IMAGE_400_003", "지원하지 않는 파일 형식입니다."),
+  // S3 Image 500
+  IMAGE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "IMAGE_500_001", "이미지 업로드에 실패했습니다."),
+  ;
 
   private final HttpStatus httpStatus;
   private final String code;
