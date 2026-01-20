@@ -63,6 +63,8 @@ public class RegisterSellerUseCase {
           request.settlementBankAccount(),
           uploadedLicenseUrl);
     } else { // 신규 신청
+      MemberSeller.validateBankAccount(request.settlementBankAccount());
+
       seller =
           MemberSeller.builder()
               .member(member)

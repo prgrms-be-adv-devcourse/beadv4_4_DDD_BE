@@ -68,7 +68,7 @@ public class MemberSeller extends GeneratedIdAndAuditedEntity {
     this.member.changeRole(MemberRole.SELLER);
   }
 
-  private void validateBankAccount(String account) {
+  public static void validateBankAccount(String account) {
     if (!account.matches(BANK_ACCOUNT_PATTERN)) {
       throw new GeneralException(ErrorStatus.SELLER_INVALID_BANK_ACCOUNT);
     }
