@@ -68,6 +68,9 @@ public enum ErrorStatus {
   SOCIAL_ACCOUNT_ALREADY_LINKED(HttpStatus.CONFLICT, "MEMBER_409_004", "이미 연동된 소셜 계정입니다."),
   SOCIAL_ACCOUNT_ALREADY_IN_USE(HttpStatus.CONFLICT, "MEMBER_409_005", "다른 회원이 사용 중인 소셜 계정입니다."),
   MEMBER_PROFILE_ALREADY_EXISTS(HttpStatus.CONFLICT, "MEMBER_409_007", "이미 프로필이 존재합니다."),
+  ADDRESS_ALREADY_DEFAULT(HttpStatus.CONFLICT, "ADDRESS_409_001", "이미 기본 배송지로 설정되어 있습니다."),
+  MEMBER_ALREADY_HAS_DEFAULT_ADDRESS(
+      HttpStatus.CONFLICT, "MEMBER_409_006", "이미 기본 배송지가 존재합니다."),
 
   // Order
   ORDER_STOCK_NOT_ENOUGH(HttpStatus.BAD_REQUEST, "ORDER_400_001", "상품의 재고가 부족합니다."),

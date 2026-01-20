@@ -13,7 +13,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -45,7 +44,7 @@ public class Member extends GeneratedIdAndAuditedEntity {
   @Builder.Default
   private MemberStatus status = MemberStatus.ACTIVE;
 
-  @Column(unique = true, length = 255)
+  @Column(unique = true)
   private String email;
 
   @Column(length = 30)
@@ -59,7 +58,7 @@ public class Member extends GeneratedIdAndAuditedEntity {
   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<OAuthAccount> oauthAccount = new ArrayList<>();
 
-  @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
   private MemberProfile profile;
 
   @Getter(AccessLevel.NONE)
@@ -149,5 +148,12 @@ public class Member extends GeneratedIdAndAuditedEntity {
 
   public void deleteDeliveryAddress(Long addressId) {
     addresses.removeIf(address -> address.getId().equals(addressId));
+  }
+
+  public MemberDeliveryAddress getDefaultDeliveryAddress() {
+    return addresses.stream()
+        .filter(MemberDeliveryAddress::getIsDefault)
+        .findFirst()
+        .orElse(null);
   }
 }
