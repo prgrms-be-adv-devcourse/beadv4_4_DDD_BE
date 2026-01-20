@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class MemberDeliveryAddressSetDefaultUseCase {
+public class MemberDeliveryAddressSetAsDefaultUseCase {
   private final MemberSupport memberSupport;
   private final MemberDeliveryAddressRepository addressRepository;
 

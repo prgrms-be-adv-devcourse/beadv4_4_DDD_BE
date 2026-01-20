@@ -25,6 +25,7 @@ public enum SuccessStatus {
   MEMBER_PROFILE_UPDATE_SUCCESS(HttpStatus.OK, "MEMBER_200_005", "프로필 수정에 성공했습니다."),
   MEMBER_DEFAULT_ADDRESS_UPDATE_SUCCESS(HttpStatus.OK, "MEMBER_200_006", "기본 배송지 변경에 성공했습니다."),
   MEMBER_ADDRESS_DELETE_SUCCESS(HttpStatus.OK, "MEMBER_200_007", "배송지 삭제에 성공했습니다."),
+  MEMBER_ADDRESS_UPDATE_SUCCESS(HttpStatus.OK, "MEMBER_200_008", "배송지 수정에 성공했습니다."),
 
   // Member 201
   MEMBER_ADDRESS_CREATE_SUCCESS(HttpStatus.CREATED, "MEMBER_201_001", "배송지 등록에 성공했습니다."),

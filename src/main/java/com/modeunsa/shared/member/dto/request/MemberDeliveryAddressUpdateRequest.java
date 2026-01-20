@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class MemberDeliveryAddressCreateRequest {
+public class MemberDeliveryAddressUpdateRequest {
   @NotBlank(message = "수령인 이름은 필수입니다.")
   private String recipientName;
 
@@ -25,5 +25,4 @@ public class MemberDeliveryAddressCreateRequest {
   private String addressDetail;
 
   private String addressName;
-  private Boolean isDefault;
 }

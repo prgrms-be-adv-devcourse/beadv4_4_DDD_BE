@@ -5,6 +5,7 @@ import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.status.SuccessStatus;
 import com.modeunsa.shared.member.dto.request.MemberBasicInfoUpdateRequest;
 import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressCreateRequest;
+import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressUpdateRequest;
 import com.modeunsa.shared.member.dto.request.MemberProfileCreateRequest;
 import com.modeunsa.shared.member.dto.request.MemberProfileUpdateRequest;
 import com.modeunsa.shared.member.dto.response.MemberBasicInfoResponse;
@@ -85,6 +86,16 @@ public class MemberController {
       @AuthenticationPrincipal UserDetails user, @RequestBody MemberProfileUpdateRequest request) {
     memberFacade.updateProfile(Long.valueOf(user.getUsername()), request);
     return ApiResponse.onSuccess(SuccessStatus.MEMBER_PROFILE_UPDATE_SUCCESS);
+  }
+
+  @PatchMapping("/addresses/{addressId}")
+  public ResponseEntity<ApiResponse> updateAddress(
+      @AuthenticationPrincipal UserDetails user,
+      @PathVariable Long addressId,
+      @RequestBody @Valid MemberDeliveryAddressUpdateRequest request
+  ) {
+    memberFacade.updateDeliveryAddress(Long.valueOf(user.getUsername()), addressId, request);
+    return ApiResponse.onSuccess(SuccessStatus.MEMBER_ADDRESS_UPDATE_SUCCESS);
   }
 
   @PatchMapping("/addresses/{addressId}/default")

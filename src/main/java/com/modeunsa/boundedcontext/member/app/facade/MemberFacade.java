@@ -4,13 +4,15 @@ import com.modeunsa.boundedcontext.member.app.support.MemberSupport;
 import com.modeunsa.boundedcontext.member.app.usecase.MemberBasicInfoUpdateUseCase;
 import com.modeunsa.boundedcontext.member.app.usecase.MemberDeliveryAddressAddUseCase;
 import com.modeunsa.boundedcontext.member.app.usecase.MemberDeliveryAddressDeleteUseCase;
-import com.modeunsa.boundedcontext.member.app.usecase.MemberDeliveryAddressSetDefaultUseCase;
+import com.modeunsa.boundedcontext.member.app.usecase.MemberDeliveryAddressSetAsDefaultUseCase;
+import com.modeunsa.boundedcontext.member.app.usecase.MemberDeliveryAddressUpdateUseCase;
 import com.modeunsa.boundedcontext.member.app.usecase.MemberProfileCreateUseCase;
 import com.modeunsa.boundedcontext.member.app.usecase.MemberProfileUpdateUseCase;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.entity.MemberProfile;
 import com.modeunsa.shared.member.dto.request.MemberBasicInfoUpdateRequest;
 import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressCreateRequest;
+import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressUpdateRequest;
 import com.modeunsa.shared.member.dto.request.MemberProfileCreateRequest;
 import com.modeunsa.shared.member.dto.request.MemberProfileUpdateRequest;
 import com.modeunsa.shared.member.dto.response.MemberBasicInfoResponse;
@@ -30,7 +32,8 @@ public class MemberFacade {
   private final MemberProfileCreateUseCase memberProfileCreateUseCase;
   private final MemberProfileUpdateUseCase memberProfileUpdateUseCase;
   private final MemberDeliveryAddressAddUseCase memberDeliveryAddressAddUseCase;
-  private final MemberDeliveryAddressSetDefaultUseCase memberDeliveryAddressSetDefaultUseCase;
+  private final MemberDeliveryAddressUpdateUseCase updateMemberDeliveryAddressUseCase;
+  private final MemberDeliveryAddressSetAsDefaultUseCase memberDeliveryAddressSetAsDefaultUseCase;
   private final MemberDeliveryAddressDeleteUseCase memberDeliveryAddressDeleteUseCase;
   private final MemberSupport memberSupport;
 
@@ -78,8 +81,13 @@ public class MemberFacade {
   }
 
   @Transactional
+  public void updateDeliveryAddress(Long memberId, Long addressId, MemberDeliveryAddressUpdateRequest request) {
+    updateMemberDeliveryAddressUseCase.execute(memberId, addressId, request);
+  }
+
+  @Transactional
   public void setDefaultAddress(Long memberId, Long addressId) {
-    memberDeliveryAddressSetDefaultUseCase.execute(memberId, addressId);
+    memberDeliveryAddressSetAsDefaultUseCase.execute(memberId, addressId);
   }
 
   /** 삭제 (Delete) */
