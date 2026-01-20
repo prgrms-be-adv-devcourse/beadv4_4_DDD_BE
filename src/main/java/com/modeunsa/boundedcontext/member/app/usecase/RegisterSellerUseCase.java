@@ -82,6 +82,6 @@ public class RegisterSellerUseCase {
     }
 
     // 5. 이벤트 발행
-    eventPublisher.publishEvent(new SellerRegisteredEvent(seller));
+    eventPublisher.publishEvent(new SellerRegisteredEvent(seller.getId()));
   }
 }
