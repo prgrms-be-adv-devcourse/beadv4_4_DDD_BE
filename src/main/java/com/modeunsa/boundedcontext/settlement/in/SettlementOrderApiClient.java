@@ -8,7 +8,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 @Component
-public class OrderApiClient {
+public class SettlementOrderApiClient {
 
   // TODO: 실제 API 호출로 교체
   public List<SettlementOrderItemDto> getSettlementTargetOrders(int page, int size) {
