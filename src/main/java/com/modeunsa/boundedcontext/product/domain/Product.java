@@ -130,6 +130,10 @@ public class Product extends GeneratedIdAndAuditedEntity {
     this.stock = this.stock - requestedQty;
   }
 
+  public void increaseStock(int requestedQty) {
+    this.stock = this.stock + requestedQty;
+  }
+
   public void addImage(ProductImage image) {
     images.add(image);
     image.setProduct(this);

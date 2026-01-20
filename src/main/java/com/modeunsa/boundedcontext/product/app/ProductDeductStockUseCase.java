@@ -3,8 +3,6 @@ package com.modeunsa.boundedcontext.product.app;
 import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.boundedcontext.product.domain.exception.InvalidStockException;
 import com.modeunsa.boundedcontext.product.out.ProductRepository;
-import com.modeunsa.global.exception.GeneralException;
-import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.product.dto.ProductStockDto;
 import com.modeunsa.shared.product.dto.ProductStockUpdateRequest;
 import com.modeunsa.shared.product.dto.ProductStockUpdateRequest.ProductOrderItemDto;
@@ -31,7 +29,8 @@ public class ProductDeductStockUseCase {
             .toList();
 
     // 상품 ID 검증
-    this.validateProducts(sortedItems);
+    productSupport.validateProducts(
+        sortedItems.stream().map(ProductOrderItemDto::productId).toList());
 
     // 재고 차감
     List<ProductStockDto> products = new ArrayList<>();
@@ -40,14 +39,6 @@ public class ProductDeductStockUseCase {
     }
 
     return products;
-  }
-
-  private void validateProducts(List<ProductOrderItemDto> sortedItems) {
-    for (ProductOrderItemDto item : sortedItems) {
-      if (item.productId() == null) {
-        throw new GeneralException(ErrorStatus.PRODUCT_NOT_FOUND);
-      }
-    }
   }
 
   private ProductStockDto decreaseStock(ProductOrderItemDto itemDto) {
