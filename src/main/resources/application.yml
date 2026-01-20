@@ -39,6 +39,10 @@ spring:
       enabled: false
     jdbc:
       initialize-schema: always
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 
 settlement:
   scheduler:
@@ -60,3 +64,20 @@ payment:
 custom:
   global:
     internalBackUrl: http://localhost:${server.port:8080}
+
+  toss:
+    base-url: ${TOSS_API_BASE_URL:https://api.tosspayments.com}
+    confirm-path: ${TOSS_API_CONFIRM_PATH:/v1/payments/confirm}
+    secret-key: ${TOSS_PAYMENTS_SECRET_KEY:}
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+    region:
+      static-region: ap-northeast-2
+    s3:
+      bucket: team01-storage
+    stack:
+      auto: false
