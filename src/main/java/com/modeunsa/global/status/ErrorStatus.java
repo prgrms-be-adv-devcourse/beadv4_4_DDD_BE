@@ -27,6 +27,7 @@ public enum ErrorStatus {
   AUTH_INVALID_TOKEN_FORMAT(HttpStatus.BAD_REQUEST, "AUTH_400_003", "잘못된 토큰 형식입니다."),
   AUTH_NOT_ACCESS_TOKEN(HttpStatus.BAD_REQUEST, "AUTH_400_004", "Access Token이 아닙니다."),
   AUTH_UNAUTHORIZED(HttpStatus.BAD_REQUEST, "AUTH_400_005", "인증되지 않은 사용자입니다."),
+  OAUTH_INVALID_STATE(HttpStatus.BAD_REQUEST, "AUTH_400_006", "유효하지 않은 state 값입니다."),
   // Auth 401
   AUTH_INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_001", "유효하지 않은 토큰입니다."),
   AUTH_EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_002", "만료된 토큰입니다."),
@@ -61,6 +62,8 @@ public enum ErrorStatus {
   MEMBER_ALREADY_EXISTS(HttpStatus.CONFLICT, "MEMBER_409_001", "이미 존재하는 회원입니다."),
   MEMBER_EMAIL_DUPLICATE(HttpStatus.CONFLICT, "MEMBER_409_002", "이미 사용 중인 이메일입니다."),
   SELLER_ALREADY_REGISTERED(HttpStatus.CONFLICT, "MEMBER_409_003", "이미 판매자 신청을 하셨습니다."),
+  SOCIAL_ACCOUNT_ALREADY_LINKED(HttpStatus.CONFLICT, "MEMBER_409_004", "이미 연동된 소셜 계정입니다."),
+  SOCIAL_ACCOUNT_ALREADY_IN_USE(HttpStatus.CONFLICT, "MEMBER_409_005", "다른 회원이 사용 중인 소셜 계정입니다."),
 
   // Order
   ORDER_STOCK_NOT_ENOUGH(HttpStatus.BAD_REQUEST, "ORDER_400_001", "상품의 재고가 부족합니다."),

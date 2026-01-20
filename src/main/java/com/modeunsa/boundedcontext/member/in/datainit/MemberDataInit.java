@@ -1,6 +1,6 @@
 package com.modeunsa.boundedcontext.member.in.datainit;
 
-import com.modeunsa.boundedcontext.auth.domain.entity.AuthSocialAccount;
+import com.modeunsa.boundedcontext.auth.domain.entity.OAuthAccount;
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.entity.MemberDeliveryAddress;
@@ -216,8 +216,8 @@ public class MemberDataInit {
   }
 
   private void addOAuthAccount(Member member, OAuthProvider provider, String providerAccountId) {
-    AuthSocialAccount socialAccount =
-        AuthSocialAccount.builder()
+    OAuthAccount socialAccount =
+        OAuthAccount.builder()
             .member(member)
             .oauthProvider(provider)
             .providerAccountId(providerAccountId)
