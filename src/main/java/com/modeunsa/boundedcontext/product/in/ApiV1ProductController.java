@@ -9,11 +9,14 @@ import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.global.status.SuccessStatus;
 import com.modeunsa.shared.product.dto.ProductCreateRequest;
 import com.modeunsa.shared.product.dto.ProductDetailResponse;
+import com.modeunsa.shared.product.dto.ProductOrderResponse;
+import com.modeunsa.shared.product.dto.ProductOrderValidateRequest;
 import com.modeunsa.shared.product.dto.ProductResponse;
 import com.modeunsa.shared.product.dto.ProductUpdateRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -122,5 +125,12 @@ public class ApiV1ProductController {
     }
     productFacade.deleteProductFavorite(memberId, productId);
     return ApiResponse.onSuccess(SuccessStatus.OK);
+  }
+
+  @Operation(summary = "주문 상품 검증용 상품 리스트 조회", description = "주문 직전 상품의 유효성 검증을 위해 상품 리스트를 조회합니다.")
+  @PostMapping("/validate-order")
+  public List<ProductOrderResponse> validateOrderProducts(
+      @Valid @RequestBody ProductOrderValidateRequest productOrderValidateRequest) {
+    return productFacade.getProducts(productOrderValidateRequest.productIds());
   }
 }
