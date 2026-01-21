@@ -50,7 +50,7 @@ class OAuthAccountResolveUseCaseTest {
       Member member = createMemberWithId(1L);
       OAuthAccount existingAccount = createSocialAccount(member);
 
-      given(socialAccountRepository.findByOauthProviderAndProviderAccountId(provider, providerId))
+      given(socialAccountRepository.findByOauthProviderAndProviderId(provider, providerId))
           .willReturn(Optional.of(existingAccount));
 
       // when
@@ -69,7 +69,7 @@ class OAuthAccountResolveUseCaseTest {
       Member member = createMemberWithId(1L);
       OAuthAccount newAccount = createSocialAccount(member);
 
-      given(socialAccountRepository.findByOauthProviderAndProviderAccountId(provider, providerId))
+      given(socialAccountRepository.findByOauthProviderAndProviderId(provider, providerId))
           .willReturn(Optional.empty());
       given(oauthMemberRegisterUseCase.execute(userInfo)).willReturn(newAccount);
 
@@ -97,7 +97,7 @@ class OAuthAccountResolveUseCaseTest {
       // 1차 조회: 없음
       // 신규 가입 시도: 중복키 예외
       // 2차 조회: 있음 (다른 요청이 먼저 생성)
-      given(socialAccountRepository.findByOauthProviderAndProviderAccountId(provider, providerId))
+      given(socialAccountRepository.findByOauthProviderAndProviderId(provider, providerId))
           .willReturn(Optional.empty())
           .willReturn(Optional.of(existingAccount));
       given(oauthMemberRegisterUseCase.execute(userInfo))
@@ -109,7 +109,7 @@ class OAuthAccountResolveUseCaseTest {
       // then
       assertThat(result).isEqualTo(existingAccount);
       verify(socialAccountRepository, times(2))
-          .findByOauthProviderAndProviderAccountId(provider, providerId);
+          .findByOauthProviderAndProviderId(provider, providerId);
       verify(oauthMemberRegisterUseCase, times(1)).execute(userInfo);
     }
 
@@ -119,7 +119,7 @@ class OAuthAccountResolveUseCaseTest {
       // given
       OAuthUserInfo userInfo = createUserInfo();
 
-      given(socialAccountRepository.findByOauthProviderAndProviderAccountId(provider, providerId))
+      given(socialAccountRepository.findByOauthProviderAndProviderId(provider, providerId))
           .willReturn(Optional.empty())
           .willReturn(Optional.empty());
       given(oauthMemberRegisterUseCase.execute(userInfo))
@@ -130,7 +130,7 @@ class OAuthAccountResolveUseCaseTest {
           GeneralException.class, () -> oauthAccountResolveUseCase.execute(provider, userInfo));
 
       verify(socialAccountRepository, times(2))
-          .findByOauthProviderAndProviderAccountId(provider, providerId);
+          .findByOauthProviderAndProviderId(provider, providerId);
     }
   }
 
@@ -153,7 +153,7 @@ class OAuthAccountResolveUseCaseTest {
 
   private OAuthAccount createSocialAccount(Member member) {
     OAuthAccount socialAccount =
-        OAuthAccount.builder().oauthProvider(provider).providerAccountId(providerId).build();
+        OAuthAccount.builder().oauthProvider(provider).providerId(providerId).build();
     socialAccount.assignMember(member);
     return socialAccount;
   }

@@ -5,10 +5,9 @@ import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import com.modeunsa.boundedcontext.auth.in.util.AuthRequestUtils;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.response.ApiResponse;
-import com.modeunsa.global.security.jwt.JwtTokenProvider;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.global.status.SuccessStatus;
-import com.modeunsa.shared.auth.dto.TokenResponse;
+import com.modeunsa.shared.auth.dto.JwtTokenResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,7 +31,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class ApiV1AuthController {
 
   private final AuthFacade authFacade;
-  private final JwtTokenProvider jwtTokenProvider;
 
   @Operation(summary = "OAuth2 로그인 URL 조회", description = "OAuth2 로그인 URL을 반환합니다.")
   @GetMapping("/oauth/{provider}/url")
@@ -53,9 +51,10 @@ public class ApiV1AuthController {
       @Parameter(description = "state 값", required = true) @RequestParam String state) {
 
     OAuthProvider oauthProvider = AuthRequestUtils.findProvider(provider);
-    TokenResponse tokenResponse = authFacade.oauthLogin(oauthProvider, code, redirectUri, state);
+    JwtTokenResponse jwtTokenResponse =
+        authFacade.oauthLogin(oauthProvider, code, redirectUri, state);
 
-    return ApiResponse.onSuccess(SuccessStatus.AUTH_LOGIN_SUCCESS, tokenResponse);
+    return ApiResponse.onSuccess(SuccessStatus.AUTH_LOGIN_SUCCESS, jwtTokenResponse);
   }
 
   @Operation(summary = "토큰 재발급", description = "Refresh Token을 사용하여 Access Token을 재발급합니다.")
@@ -64,9 +63,9 @@ public class ApiV1AuthController {
       @Parameter(description = "Refresh Token", required = true) @RequestHeader("RefreshToken")
           String refreshToken) {
     // TODO: 실제로는 Refresh Token 내부의 정보나 DB 조회를 통해 Role을 가져와야 할 수 있습니다.
-    TokenResponse tokenResponse = authFacade.reissueToken(refreshToken);
+    JwtTokenResponse jwtTokenResponse = authFacade.reissueToken(refreshToken);
 
-    return ApiResponse.onSuccess(SuccessStatus.AUTH_TOKEN_REFRESH_SUCCESS, tokenResponse);
+    return ApiResponse.onSuccess(SuccessStatus.AUTH_TOKEN_REFRESH_SUCCESS, jwtTokenResponse);
   }
 
   @Operation(summary = "로그아웃", description = "Access Token을 블랙리스트에 등록하고 Refresh Token을 삭제합니다.")

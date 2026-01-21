@@ -5,7 +5,7 @@ import com.modeunsa.boundedcontext.auth.out.client.OAuthClient;
 import com.modeunsa.boundedcontext.auth.out.client.OAuthClientFactory;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
-import com.modeunsa.shared.auth.dto.OAuthTokenResponse;
+import com.modeunsa.shared.auth.dto.OAuthProviderTokenResponse;
 import com.modeunsa.shared.auth.dto.OAuthUserInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +28,8 @@ public class OAuthAccountLinkUseCase {
 
     // 2. OAuth 토큰 교환 및 사용자 정보 조회 (외부 API 호출)
     OAuthClient oauthClient = oauthClientFactory.getClient(provider);
-    OAuthTokenResponse tokenResponse = oauthClient.getToken(code, redirectUri);
-    OAuthUserInfo userInfo = oauthClient.getUserInfo(tokenResponse.getAccessToken());
+    OAuthProviderTokenResponse tokenResponse = oauthClient.getToken(code, redirectUri);
+    OAuthUserInfo userInfo = oauthClient.getUserInfo(tokenResponse.accessToken());
 
     // 3. DB 작업 및 검증 (별도 서비스 호출 -> 트랜잭션 적용됨)
     oauthAccountBindingUseCase.link(memberId, provider, userInfo);

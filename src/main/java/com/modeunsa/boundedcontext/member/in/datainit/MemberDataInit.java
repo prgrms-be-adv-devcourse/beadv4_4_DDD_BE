@@ -215,12 +215,12 @@ public class MemberDataInit {
     member.addAddress(deliveryAddress);
   }
 
-  private void addOAuthAccount(Member member, OAuthProvider provider, String providerAccountId) {
+  private void addOAuthAccount(Member member, OAuthProvider provider, String providerId) {
     OAuthAccount socialAccount =
         OAuthAccount.builder()
             .member(member)
             .oauthProvider(provider)
-            .providerAccountId(providerAccountId)
+            .providerId(providerId)
             .build();
     member.addOAuthAccount(socialAccount);
   }

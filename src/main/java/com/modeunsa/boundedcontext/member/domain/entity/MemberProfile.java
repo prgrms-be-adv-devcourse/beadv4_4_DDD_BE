@@ -33,6 +33,7 @@ public class MemberProfile extends GeneratedIdAndAuditedEntity {
 
   private Integer weightKg;
 
+  // TODO: enum으로 변경 고려
   @Column(length = 30)
   private String skinType;
 
@@ -47,6 +48,7 @@ public class MemberProfile extends GeneratedIdAndAuditedEntity {
     return this;
   }
 
+  // TODO: S3 연동 후 수정 필요
   public MemberProfile updateProfileImageUrl(String profileImageUrl) {
     if (profileImageUrl != null) {
       this.profileImageUrl = profileImageUrl;

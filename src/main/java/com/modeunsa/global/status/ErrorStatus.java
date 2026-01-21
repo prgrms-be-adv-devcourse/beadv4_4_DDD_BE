@@ -52,18 +52,28 @@ public enum ErrorStatus {
   SELLER_CANNOT_REJECT(HttpStatus.BAD_REQUEST, "MEMBER_400_004", "승인 대기 상태가 아닌 판매자는 거절할 수 없습니다."),
   SELLER_CANNOT_SUSPEND(HttpStatus.BAD_REQUEST, "MEMBER_400_005", "활성화 상태가 아닌 판매자는 정지할 수 없습니다."),
   SELLER_INVALID_BANK_ACCOUNT(HttpStatus.BAD_REQUEST, "MEMBER_400_006", "계좌번호 형식이 올바르지 않습니다."),
+  MEMBER_INVALID_ID_FORMAT(HttpStatus.BAD_REQUEST, "MEMBER400_007", "회원 ID 형식이 올바르지 않습니다."),
   // Member 403
   MEMBER_SUSPENDED(HttpStatus.FORBIDDEN, "MEMBER_403_001", "정지된 회원입니다."),
   MEMBER_WITHDRAWN(HttpStatus.FORBIDDEN, "MEMBER_403_002", "탈퇴한 회원입니다."),
+  ADDRESS_ACCESS_DENIED(HttpStatus.FORBIDDEN, "MEMBER_403_003", "배송지에 대한 접근 권한이 없습니다."),
   // Member 404
   MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER_404_001", "회원을 찾을 수 없습니다."),
   SELLER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER_404_002", "판매자 정보가 없습니다."),
+  ADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER_404_003", "배송지 정보를 찾을 수 없습니다."),
+  MEMBER_PROFILE_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER_404_004", "회원 프로필을 찾을 수 없습니다."),
+  MEMBER_DELIVERY_ADDRESS_NOT_FOUND(
+      HttpStatus.NOT_FOUND, "MEMBER_404_005", "회원 배송지 정보를 찾을 수 없습니다."),
   // Member 409
   MEMBER_ALREADY_EXISTS(HttpStatus.CONFLICT, "MEMBER_409_001", "이미 존재하는 회원입니다."),
   MEMBER_EMAIL_DUPLICATE(HttpStatus.CONFLICT, "MEMBER_409_002", "이미 사용 중인 이메일입니다."),
   SELLER_ALREADY_REGISTERED(HttpStatus.CONFLICT, "MEMBER_409_003", "이미 판매자 신청을 하셨습니다."),
-  SOCIAL_ACCOUNT_ALREADY_LINKED(HttpStatus.CONFLICT, "MEMBER_409_004", "이미 연동된 소셜 계정입니다."),
-  SOCIAL_ACCOUNT_ALREADY_IN_USE(HttpStatus.CONFLICT, "MEMBER_409_005", "다른 회원이 사용 중인 소셜 계정입니다."),
+  SELLER_ALREADY_REQUESTED(HttpStatus.CONFLICT, "MEMBER_409_004", "현재 판매자 승인 심사 대기 중입니다."),
+  SOCIAL_ACCOUNT_ALREADY_LINKED(HttpStatus.CONFLICT, "MEMBER_409_005", "이미 연동된 소셜 계정입니다."),
+  SOCIAL_ACCOUNT_ALREADY_IN_USE(HttpStatus.CONFLICT, "MEMBER_409_006", "다른 회원이 사용 중인 소셜 계정입니다."),
+  MEMBER_PROFILE_ALREADY_EXISTS(HttpStatus.CONFLICT, "MEMBER_409_007", "이미 프로필이 존재합니다."),
+  ADDRESS_ALREADY_DEFAULT(HttpStatus.CONFLICT, "ADDRESS_409_008", "이미 기본 배송지로 설정되어 있습니다."),
+  MEMBER_ALREADY_HAS_DEFAULT_ADDRESS(HttpStatus.CONFLICT, "MEMBER_409_009", "이미 기본 배송지가 존재합니다."),
 
   // Order
   ORDER_STOCK_NOT_ENOUGH(HttpStatus.BAD_REQUEST, "ORDER_400_001", "상품의 재고가 부족합니다."),
@@ -87,12 +97,10 @@ public enum ErrorStatus {
   INVALID_PRODUCT_UPDATE_FIELD(HttpStatus.BAD_REQUEST, "PRODUCT_400_008", "수정 불가한 필드입니다."),
   INVALID_PRODUCT_MEMBER(HttpStatus.BAD_REQUEST, "PRODUCT_400_009", "판매자 정보가 다릅니다."),
   PRODUCT_FIELD_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_010", "필수값을 입력해주세요."),
-
   // PRODUCT 404
   PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT_404_001", "상품이 존재하지 않습니다."),
   PRODUCT_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT_404_002", "존재하지 않는 회원입니다."),
   PRODUCT_SELLER_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT_404_003", "존재하지 않는 판매자입니다."),
-
   // PRODUCT 409
   PRODUCT_STOCK_LOCK_FAILURE(HttpStatus.CONFLICT, "PRODUCT_409_001", "재고 처리 중 락 획득에 실패했습니다."),
 
@@ -137,6 +145,13 @@ public enum ErrorStatus {
   // Settlement 404
   SETTLEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "SETTLEMENT_404_001", "정산서가 존재하지 않습니다."),
   SETTLEMENT_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "SETTLEMENT_404_002", "회원을 찾을 수 없습니다."),
+
+  // S3 Image 400
+  IMAGE_FILE_REQUIRED(HttpStatus.BAD_REQUEST, "IMAGE_400_001", "이미지 파일은 필수입니다."),
+  IMAGE_FILE_EMPTY(HttpStatus.BAD_REQUEST, "IMAGE_400_002", "이미지 파일이 비어있습니다."),
+  IMAGE_FILE_EXTENSION_NOT_SUPPORTED(HttpStatus.BAD_REQUEST, "IMAGE_400_003", "지원하지 않는 파일 형식입니다."),
+  // S3 Image 500
+  IMAGE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "IMAGE_500_001", "이미지 업로드에 실패했습니다."),
 
   // ElasticSearch 400
   ELASTICSEARCH_SEARCH_FAILED(HttpStatus.NOT_FOUND, "ELASTICSEARCH_400_001", "검색에 실패하였습니다."),

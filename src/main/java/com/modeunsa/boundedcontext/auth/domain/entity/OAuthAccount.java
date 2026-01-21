@@ -27,9 +27,7 @@ import lombok.ToString;
 @ToString(exclude = "member")
 @Table(
     name = "auth_oauth_account",
-    uniqueConstraints = {
-      @UniqueConstraint(columnNames = {"oauth_provider", "provider_account_id"})
-    })
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"oauth_provider", "provider_id"})})
 public class OAuthAccount extends GeneratedIdAndAuditedEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -41,7 +39,7 @@ public class OAuthAccount extends GeneratedIdAndAuditedEntity {
   private OAuthProvider oauthProvider;
 
   @Column(nullable = false, length = 200)
-  private String providerAccountId;
+  private String providerId;
 
   public void assignMember(Member member) {
     this.member = member;

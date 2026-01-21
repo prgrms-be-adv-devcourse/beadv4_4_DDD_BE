@@ -10,7 +10,10 @@ import com.modeunsa.boundedcontext.auth.app.usecase.OAuthMemberRegisterUseCase;
 import com.modeunsa.boundedcontext.auth.domain.entity.OAuthAccount;
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
+import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
+import com.modeunsa.boundedcontext.member.domain.types.MemberStatus;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
+import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
 import com.modeunsa.shared.auth.dto.OAuthUserInfo;
 import com.modeunsa.shared.auth.event.MemberSignupEvent;
 import java.lang.reflect.Field;
@@ -22,7 +25,6 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
 
 @ExtendWith(MockitoExtension.class)
 class OAuthMemberRegisterUseCaseTest {
@@ -30,7 +32,7 @@ class OAuthMemberRegisterUseCaseTest {
   @InjectMocks private OAuthMemberRegisterUseCase oauthMemberRegisterUseCase;
 
   @Mock private MemberRepository memberRepository;
-  @Mock private ApplicationEventPublisher eventPublisher;
+  @Mock private SpringDomainEventPublisher eventPublisher;
 
   @Captor private ArgumentCaptor<Member> memberCaptor;
   @Captor private ArgumentCaptor<MemberSignupEvent> eventCaptor;
@@ -61,7 +63,7 @@ class OAuthMemberRegisterUseCaseTest {
     // then
     assertThat(result).isNotNull();
     assertThat(result.getOauthProvider()).isEqualTo(provider);
-    assertThat(result.getProviderAccountId()).isEqualTo(providerId);
+    assertThat(result.getProviderId()).isEqualTo(providerId);
 
     verify(memberRepository, times(1)).save(memberCaptor.capture());
     Member savedMember = memberCaptor.getValue();
@@ -115,10 +117,15 @@ class OAuthMemberRegisterUseCaseTest {
     oauthMemberRegisterUseCase.execute(userInfo);
 
     // then
-    verify(eventPublisher, times(1)).publishEvent(eventCaptor.capture());
+    verify(eventPublisher, times(1)).publish(eventCaptor.capture());
     MemberSignupEvent event = eventCaptor.getValue();
-    assertThat(event.getEmail()).isEqualTo(email);
-    assertThat(event.getProvider()).isEqualTo(provider);
+
+    assertThat(event.memberId()).isEqualTo(1L);
+    assertThat(event.realName()).isEqualTo(name);
+    assertThat(event.email()).isEqualTo(email);
+    assertThat(event.phoneNumber()).isEqualTo(phoneNumber);
+    assertThat(event.role()).isEqualTo(MemberRole.MEMBER);
+    assertThat(event.status()).isEqualTo(MemberStatus.ACTIVE);
   }
 
   @Test
@@ -172,8 +179,7 @@ class OAuthMemberRegisterUseCaseTest {
     // then
     verify(memberRepository, times(1)).save(memberCaptor.capture());
     Member savedMember = memberCaptor.getValue();
-    assertThat(savedMember.getRole())
-        .isEqualTo(com.modeunsa.boundedcontext.member.domain.types.MemberRole.MEMBER);
+    assertThat(savedMember.getRole()).isEqualTo(MemberRole.MEMBER);
   }
 
   @Test
@@ -196,8 +202,7 @@ class OAuthMemberRegisterUseCaseTest {
     // then
     verify(memberRepository, times(1)).save(memberCaptor.capture());
     Member savedMember = memberCaptor.getValue();
-    assertThat(savedMember.getStatus())
-        .isEqualTo(com.modeunsa.boundedcontext.member.domain.types.MemberStatus.ACTIVE);
+    assertThat(savedMember.getStatus()).isEqualTo(MemberStatus.ACTIVE);
   }
 
   // --- Helper Methods ---

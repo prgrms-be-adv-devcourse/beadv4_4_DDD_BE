@@ -72,12 +72,16 @@ public class Product extends GeneratedIdAndAuditedEntity {
       String name,
       ProductCategory category,
       String description,
+      BigDecimal salePrice,
+      BigDecimal price,
       int stock) {
     return Product.builder()
         .seller(seller)
         .name(name)
         .category(category)
         .description(description)
+        .salePrice(salePrice)
+        .price(price)
         .currency(ProductCurrency.KRW)
         .saleStatus(SaleStatus.NOT_SALE)
         .productStatus(ProductStatus.DRAFT)
