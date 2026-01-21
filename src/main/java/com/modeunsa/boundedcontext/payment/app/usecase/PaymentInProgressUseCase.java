@@ -81,7 +81,7 @@ public class PaymentInProgressUseCase {
     payment.validateChargeAmount(context.chargeAmount());
 
     // 5. PG 결제 정보 반영
-    payment.updatePgIngo(context);
+    payment.updatePgInfo(context);
 
     return PaymentProcessContext.fromPaymentForInProgress(payment);
   }

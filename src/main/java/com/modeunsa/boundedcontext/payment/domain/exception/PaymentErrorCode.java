@@ -8,7 +8,7 @@ public enum PaymentErrorCode {
   INSUFFICIENT_BALANCE("잔액이 부족합니다. 입력된 금액: %s"),
   DUPLICATE_PAYMENT("중복 결제 요청입니다. 회원 ID: %d, 주문 번호: %s"),
   INVALID_PAYMENT("유효하지 않은 결제 요청입니다. 회원 ID: %d, 주문 번호: %s"),
-  INVALID_CHARGE_AMOUNT("부족한 금액과 PG 결제 금액이 다릅니다.. 회원 ID: %d, 주문 번호: %s, 부족 금액: %d, PG 요청 금액: %d"),
+  INVALID_CHARGE_AMOUNT("부족한 금액과 PG 결제 금액이 다릅니다. 회원 ID: %d, 주문 번호: %s, 부족 금액: %s, PG 요청 금액: %s"),
   ;
 
   private final String messageTemplate;

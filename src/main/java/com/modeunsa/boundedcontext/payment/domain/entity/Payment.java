@@ -178,16 +178,22 @@ public class Payment extends AuditedEntity {
   }
 
   public void validateChargeAmount(BigDecimal chargeAmount) {
-    if (shortAmount.compareTo(chargeAmount) == 0) {
-      return;
+    if (chargeAmount == null) {
+      throw new PaymentDomainException(
+          INVALID_CHARGE_AMOUNT, getId().getMemberId(), getId().getOrderNo(), this.shortAmount);
     }
-    throw new PaymentDomainException(
-        INVALID_CHARGE_AMOUNT,
-        INVALID_CHARGE_AMOUNT.format(
-            getId().getMemberId(), getId().getOrderNo(), this.shortAmount, chargeAmount));
+
+    if (shortAmount.compareTo(chargeAmount) != 0) {
+      throw new PaymentDomainException(
+          INVALID_CHARGE_AMOUNT,
+          getId().getMemberId(),
+          getId().getOrderNo(),
+          this.shortAmount,
+          chargeAmount);
+    }
   }
 
-  public void updatePgIngo(PaymentProcessContext context) {
+  public void updatePgInfo(PaymentProcessContext context) {
     this.pgProvider = ProviderType.TOSS_PAYMENTS;
     this.pgPaymentKey = context.paymentKey();
     this.pgCustomerName = context.pgCustomerName();
