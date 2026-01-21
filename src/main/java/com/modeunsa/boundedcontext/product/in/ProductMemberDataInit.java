@@ -5,12 +5,14 @@ import com.modeunsa.boundedcontext.product.domain.ProductMemberSeller;
 import com.modeunsa.boundedcontext.product.out.ProductMemberRepository;
 import com.modeunsa.boundedcontext.product.out.ProductMemberSellerRepository;
 import jakarta.transaction.Transactional;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.annotation.Order;
 
+@Log4j2
 @Configuration
 public class ProductMemberDataInit {
   private final ProductMemberDataInit self;
@@ -37,6 +39,9 @@ public class ProductMemberDataInit {
 
   @Transactional
   public void makeBaseSellers() {
+    if (productMemberRepository.count() > 0 || productMemberSellerRepository.count() > 0) {
+      return;
+    }
     ProductMember member1 =
         ProductMember.builder()
             .email("123@abc.com")
