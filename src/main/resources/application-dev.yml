@@ -48,6 +48,10 @@ spring:
     jdbc:
       initialize-schema: never
 
+  elasticsearch:
+    uris:
+      - http://localhost:9200
+
 custom:
   global:
     internalBackUrl: http://localhost:${server.port:8080}

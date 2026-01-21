@@ -44,6 +44,10 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
 
+  elasticsearch:
+    connect-timeout: 3s
+    socket-timeout: 10s
+
 settlement:
   scheduler:
     daily-03: "0 0 3 * * *"
