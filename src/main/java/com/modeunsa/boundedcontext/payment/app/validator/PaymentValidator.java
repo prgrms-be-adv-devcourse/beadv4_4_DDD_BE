@@ -1,9 +1,11 @@
 package com.modeunsa.boundedcontext.payment.app.validator;
 
+import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentDomainException;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode;
 import com.modeunsa.boundedcontext.payment.out.PaymentRepository;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -19,10 +21,18 @@ public class PaymentValidator {
    걸 수 없음)
   */
   public void validateNotDuplicate(PaymentId paymentId) {
-    boolean exists = paymentRepository.existsById(paymentId);
-    if (exists) {
-      throw new PaymentDomainException(
-          PaymentErrorCode.DUPLICATE_PAYMENT, paymentId.getMemberId(), paymentId.getOrderNo());
+
+    Optional<Payment> findPayment = paymentRepository.findById(paymentId);
+    if (findPayment.isEmpty()) {
+      return;
     }
+
+    Payment payment = findPayment.get();
+    if (payment.isRetryable()) {
+      return;
+    }
+
+    throw new PaymentDomainException(
+        PaymentErrorCode.DUPLICATE_PAYMENT, paymentId.getMemberId(), paymentId.getOrderNo());
   }
 }

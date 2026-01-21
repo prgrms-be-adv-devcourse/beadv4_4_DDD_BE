@@ -1,6 +1,6 @@
 package com.modeunsa.boundedcontext.payment.app.event;
 
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequest;
+import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode;
 import com.modeunsa.global.event.EventUtils;
 import com.modeunsa.global.event.TraceableEvent;
@@ -19,8 +19,9 @@ public record PaymentFailedEvent(
     this(memberId, orderNo, amount, failureReason, EventUtils.extractTraceId());
   }
 
-  public static PaymentFailedEvent from(PaymentRequest request, PaymentErrorCode failureReason) {
+  public static PaymentFailedEvent from(
+      PaymentProcessContext context, PaymentErrorCode failureReason) {
     return new PaymentFailedEvent(
-        request.buyerId(), request.orderNo(), request.totalAmount(), failureReason);
+        context.buyerId(), context.orderNo(), context.totalAmount(), failureReason);
   }
 }

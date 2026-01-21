@@ -55,8 +55,4 @@ public class PaymentAccountSupport {
         .findByMemberIdWithLock(holderMemberId)
         .orElseThrow(() -> new GeneralException(ErrorStatus.PAYMENT_ACCOUNT_NOT_FOUND));
   }
-
-  public long countMemberAccount() {
-    return paymentAccountRepository.count();
-  }
 }

@@ -1,8 +1,10 @@
 package com.modeunsa.boundedcontext.payment.domain.entity;
 
+import static com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode.INVALID_CHARGE_AMOUNT;
+import static com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode.INVALID_PAYMENT;
 import static jakarta.persistence.CascadeType.PERSIST;
 
-import com.modeunsa.boundedcontext.payment.app.dto.ConfirmPaymentRequest;
+import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
 import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmResponse;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentDomainException;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode;
@@ -70,6 +72,11 @@ public class Payment extends AuditedEntity {
   @Column(nullable = false, precision = 19, scale = 2)
   private BigDecimal totalAmount;
 
+  private boolean needCharge;
+
+  @Column(precision = 19, scale = 2)
+  private BigDecimal shortAmount;
+
   @Column(length = 20)
   @Enumerated(EnumType.STRING)
   private PaymentErrorCode failedErrorCode;
@@ -103,6 +110,20 @@ public class Payment extends AuditedEntity {
   private Integer pgStatusCode;
 
   @Lob private String pgFailureReason;
+
+  public static Payment createPending(PaymentId id, Long orderId, BigDecimal totalAmount) {
+    validateTotalAmount(totalAmount);
+    return Payment.builder()
+        .id(id)
+        .orderId(orderId)
+        .totalAmount(totalAmount)
+        .status(PaymentStatus.PENDING)
+        .build();
+  }
+
+  public void inProgress(PaymentProcessContext context) {
+    changeStatus(PaymentStatus.IN_PROGRESS);
+  }
 
   public static Payment create(
       PaymentId id, Long orderId, BigDecimal totalAmount, BigDecimal pgPaymentAmount) {
@@ -151,16 +172,6 @@ public class Payment extends AuditedEntity {
     }
   }
 
-  public void inProgressPayment(ConfirmPaymentRequest req) {
-    this.pgCustomerName = req.pgCustomerName();
-    this.pgCustomerEmail = req.pgCustomerEmail();
-    this.pgPaymentKey = req.paymentKey();
-    this.pgOrderId = req.orderId();
-    this.pgPaymentAmount = BigDecimal.valueOf(req.amount());
-    this.pgProvider = ProviderType.TOSS_PAYMENTS;
-    changeStatus(PaymentStatus.IN_PROGRESS);
-  }
-
   public void failedPayment(PaymentErrorCode errorCode, Long memberId, String orderNo) {
     this.failedErrorCode = errorCode;
     this.failedAt = LocalDateTime.now();
@@ -172,6 +183,7 @@ public class Payment extends AuditedEntity {
     this.pgMethod = tossRes.method();
     this.pgStatus = tossRes.status();
     this.pgStatusCode = HttpStatus.OK.value();
+    this.pgPaymentAmount = BigDecimal.valueOf(tossRes.totalAmount());
     changeStatus(PaymentStatus.APPROVED);
   }
 
@@ -180,5 +192,44 @@ public class Payment extends AuditedEntity {
     this.pgFailureReason = message;
     this.failedAt = LocalDateTime.now();
     changeStatusByFailure(PaymentStatus.FAILED, message);
+  }
+
+  public void changePendingStatus() {
+    if (!isRetryable()) {
+      throw new PaymentDomainException(
+          INVALID_PAYMENT, INVALID_PAYMENT.format(getId().getMemberId(), getId().getOrderNo()));
+    }
+    changeStatus(PaymentStatus.PENDING);
+  }
+
+  public void changeInProgress() {
+    changeStatus(PaymentStatus.IN_PROGRESS);
+  }
+
+  public boolean isRetryable() {
+    return this.status == PaymentStatus.PENDING || this.status == PaymentStatus.FAILED;
+  }
+
+  public void updateChargeInfo(boolean needCharge, BigDecimal shortAmount) {
+    this.needCharge = needCharge;
+    this.shortAmount = shortAmount;
+  }
+
+  public void validateChargeAmount(BigDecimal chargeAmount) {
+    if (shortAmount.compareTo(chargeAmount) == 0) {
+      return;
+    }
+    throw new PaymentDomainException(
+        INVALID_CHARGE_AMOUNT,
+        INVALID_CHARGE_AMOUNT.format(
+            getId().getMemberId(), getId().getOrderNo(), this.shortAmount, chargeAmount));
+  }
+
+  public void updatePgIngo(PaymentProcessContext context) {
+    this.pgProvider = ProviderType.TOSS_PAYMENTS;
+    this.pgPaymentKey = context.paymentKey();
+    this.pgCustomerName = context.pgCustomerName();
+    this.pgCustomerEmail = context.pgCustomerEmail();
+    this.pgOrderId = context.pgOrderId();
   }
 }
