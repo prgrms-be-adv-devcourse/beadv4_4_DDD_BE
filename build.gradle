@@ -86,6 +86,10 @@ dependencies {
 
     // AWS SDK
     implementation 'software.amazon.awssdk:s3:2.25.0'
+
+    // thymeleaf
+//    implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf:3.1.0'
 }
 
 jar {

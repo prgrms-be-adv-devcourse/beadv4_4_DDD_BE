@@ -53,7 +53,7 @@ custom:
     internalBackUrl: http://localhost:${server.port:8080}
   security:
     permit-all: false
-    permit-urls: /h2-console/**,/swagger-ui/**,/v3/api-docs/**,/api/v1/auths/**,/api/v1/members/**,/api/v1/products/**,/api/v1/orders/**,/api/v1/payments/**,/api/v1/contents/**,/api/v1/settlements/**
+    permit-urls: /h2-console/**,/swagger-ui/**,/v3/api-docs/**,/api/v1/auths/**,/api/v1/members/**,/api/v1/products/**,/api/v1/orders/**,/api/v1/payments/**,/api/v1/contents/**,/api/v1/settlements/**,/api/v1/file-uploads/**
     oauth2:
       allowed-redirect-domains:
         - localhost
