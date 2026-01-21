@@ -8,5 +8,5 @@ public record PaymentPayoutInfo(
     Long settlementId,
     Long payeeId,
     BigDecimal amount,
-    LocalDateTime payoutAt,
-    PayoutEventType payoutEventType) {}
+    PayoutEventType payoutEventType,
+    LocalDateTime payoutAt) {}

@@ -66,7 +66,7 @@ class PaymentPayoutCompleteUseCaseTest {
     BigDecimal payoutAmount = BigDecimal.valueOf(5000);
     PaymentPayoutInfo payoutInfo =
         new PaymentPayoutInfo(
-            1L, systemMember.getId(), payoutAmount, LocalDateTime.now(), PayoutEventType.FEE);
+            1L, systemMember.getId(), payoutAmount, PayoutEventType.FEE, LocalDateTime.now());
 
     // 락 매니저 내부에서 호출되는 support 메서드 mock
     when(paymentAccountSupport.getPaymentAccountByMemberIdForUpdate(holderMember.getId()))
@@ -94,7 +94,7 @@ class PaymentPayoutCompleteUseCaseTest {
     BigDecimal payoutAmount = BigDecimal.valueOf(10000);
     PaymentPayoutInfo payoutInfo =
         new PaymentPayoutInfo(
-            1L, payeeMember.getId(), payoutAmount, LocalDateTime.now(), PayoutEventType.AMOUNT);
+            1L, payeeMember.getId(), payoutAmount, PayoutEventType.AMOUNT, LocalDateTime.now());
 
     when(paymentAccountSupport.getPaymentAccountByMemberIdForUpdate(holderMember.getId()))
         .thenReturn(holderAccount);
@@ -123,8 +123,8 @@ class PaymentPayoutCompleteUseCaseTest {
             1L,
             payeeMember.getId(),
             BigDecimal.valueOf(10000),
-            LocalDateTime.now(),
-            PayoutEventType.AMOUNT);
+            PayoutEventType.AMOUNT,
+            LocalDateTime.now());
 
     when(paymentAccountSupport.getPaymentAccountByMemberIdForUpdate(holderMember.getId()))
         .thenReturn(holderAccount);
@@ -152,8 +152,8 @@ class PaymentPayoutCompleteUseCaseTest {
             1L,
             payeeMember.getId(),
             BigDecimal.valueOf(2000),
-            LocalDateTime.now(),
-            PayoutEventType.FEE);
+            PayoutEventType.FEE,
+            LocalDateTime.now());
 
     when(paymentAccountSupport.getPaymentAccountByMemberIdForUpdate(holderMember.getId()))
         .thenReturn(holderAccount);
