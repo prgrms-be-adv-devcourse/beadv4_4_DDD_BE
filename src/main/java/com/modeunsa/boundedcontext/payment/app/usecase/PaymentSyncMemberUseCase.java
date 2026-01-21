@@ -19,7 +19,6 @@ public class PaymentSyncMemberUseCase {
 
   public void createPaymentMember(PaymentMemberDto member) {
 
-    // TODO: MemberSignupEvent 에서 name, status 값을 추가로 받은 이후에 반영할 것
     PaymentMember paymentMember =
         PaymentMember.create(member.id(), member.email(), member.name(), member.status());
 
