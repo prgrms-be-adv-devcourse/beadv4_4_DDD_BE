@@ -10,6 +10,7 @@ import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentResponse;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberResponse;
+import com.modeunsa.boundedcontext.payment.app.dto.order.PaymentOrderInfo;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentFailedEvent;
 import com.modeunsa.boundedcontext.payment.app.mapper.PaymentMapper;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
@@ -27,7 +28,6 @@ import com.modeunsa.boundedcontext.payment.app.usecase.PaymentSyncMemberUseCase;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
-import com.modeunsa.shared.payment.dto.PaymentDto;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -79,8 +79,8 @@ public class PaymentFacade {
     paymentPayoutCompleteUseCase.execute(payout);
   }
 
-  public void refund(PaymentDto payment, RefundEventType refundEventType) {
-    paymentRefundUseCase.execute(payment, refundEventType);
+  public void refund(PaymentOrderInfo orderInfo, RefundEventType refundEventType) {
+    paymentRefundUseCase.execute(orderInfo, refundEventType);
   }
 
   /*
