@@ -3,7 +3,7 @@ package com.modeunsa.boundedcontext.auth.out.client;
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
-import com.modeunsa.shared.auth.dto.OAuthTokenResponse;
+import com.modeunsa.shared.auth.dto.OAuthProviderTokenResponse;
 import com.modeunsa.shared.auth.dto.OAuthUserInfo;
 import java.time.Duration;
 import java.util.Map;
@@ -55,7 +55,7 @@ public class KakaoOAuthClient implements OAuthClient {
   }
 
   @Override
-  public OAuthTokenResponse getToken(String code, String redirectUri) {
+  public OAuthProviderTokenResponse getToken(String code, String redirectUri) {
     OAuthClientProperties.Registration kakaoProps = properties.registration().get("kakao");
     String finalRedirectUri = redirectUri != null ? redirectUri : kakaoProps.redirectUri();
 
@@ -76,7 +76,7 @@ public class KakaoOAuthClient implements OAuthClient {
               .retrieve()
               .body(new ParameterizedTypeReference<>() {});
 
-      return OAuthTokenResponse.of(
+      return OAuthProviderTokenResponse.of(
           (String) response.get("access_token"),
           (String) response.get("refresh_token"),
           (String) response.get("token_type"),

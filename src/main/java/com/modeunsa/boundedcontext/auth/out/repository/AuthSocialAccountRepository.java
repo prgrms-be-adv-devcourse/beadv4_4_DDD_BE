@@ -7,11 +7,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface AuthSocialAccountRepository extends JpaRepository<OAuthAccount, Long> {
 
-  Optional<OAuthAccount> findByOauthProviderAndProviderAccountId(
-      OAuthProvider oauthProvider, String providerAccountId);
+  Optional<OAuthAccount> findByOauthProviderAndProviderId(
+      OAuthProvider oauthProvider, String providerId);
 
-  boolean existsByOauthProviderAndProviderAccountId(
-      OAuthProvider oauthProvider, String providerAccountId);
+  boolean existsByOauthProviderAndProviderId(OAuthProvider oauthProvider, String providerId);
 
   // 해당 회원이 특정 provider로 이미 연동했는지 확인
   boolean existsByMemberIdAndOauthProvider(Long memberId, OAuthProvider oauthProvider);

@@ -1,7 +1,7 @@
 package com.modeunsa.boundedcontext.auth.out.client;
 
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
-import com.modeunsa.shared.auth.dto.OAuthTokenResponse;
+import com.modeunsa.shared.auth.dto.OAuthProviderTokenResponse;
 import com.modeunsa.shared.auth.dto.OAuthUserInfo;
 
 public interface OAuthClient {
@@ -13,7 +13,7 @@ public interface OAuthClient {
   OAuthProvider getProvider();
 
   // 인가 코드로 토큰 교환
-  OAuthTokenResponse getToken(String code, String redirectUri);
+  OAuthProviderTokenResponse getToken(String code, String redirectUri);
 
   // 토큰으로 사용자 정보 조회
   OAuthUserInfo getUserInfo(String accessToken);

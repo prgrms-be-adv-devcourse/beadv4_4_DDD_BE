@@ -1,18 +1,12 @@
 package com.modeunsa.shared.auth.event;
 
-import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
+import com.modeunsa.boundedcontext.member.domain.types.MemberStatus;
 
-@Getter
-@RequiredArgsConstructor
-public class MemberSignupEvent {
-
-  private final Long memberId;
-  private final String email; // nullable
-  private final OAuthProvider provider;
-
-  public static MemberSignupEvent of(Long memberId, String email, OAuthProvider provider) {
-    return new MemberSignupEvent(memberId, email, provider);
-  }
-}
+public record MemberSignupEvent(
+    Long memberId,
+    String realName,
+    String email,
+    String phoneNumber,
+    MemberRole role,
+    MemberStatus status) {}
