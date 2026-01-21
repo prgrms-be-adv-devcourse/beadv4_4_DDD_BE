@@ -4,6 +4,10 @@ import com.modeunsa.boundedcontext.content.app.ContentFacade;
 import com.modeunsa.boundedcontext.content.app.dto.ContentRequest;
 import com.modeunsa.boundedcontext.content.app.dto.ContentResponse;
 import com.modeunsa.boundedcontext.content.domain.entity.ContentMember;
+import com.modeunsa.boundedcontext.content.out.search.ContentSearchCondition;
+import com.modeunsa.boundedcontext.content.out.search.ContentSearchDocument;
+import com.modeunsa.boundedcontext.content.out.search.ContentSearchUseCase;
+import com.modeunsa.global.elasticsearch.model.ElasticSearchPage;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.status.SuccessStatus;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ApiV1ContentController {
 
   private final ContentFacade contentFacade;
+  private final ContentSearchUseCase contentSearchUseCase;
 
   @Operation(summary = "콘텐츠 생성", description = "콘텐츠를 생성합니다.")
   @PostMapping
@@ -39,7 +44,7 @@ public class ApiV1ContentController {
   }
 
   @Operation(summary = "콘텐츠 수정", description = "콘텐츠를 수정합니다.")
-  @PatchMapping("/{content_Id}")
+  @PatchMapping("/{contentId}")
   public ResponseEntity<ApiResponse> updateContent(
       @PathVariable Long contentId,
       @Valid @RequestBody ContentRequest contentRequest,
@@ -50,7 +55,7 @@ public class ApiV1ContentController {
   }
 
   @Operation(summary = "콘텐츠 삭제", description = "콘텐츠를 삭제합니다.")
-  @DeleteMapping
+  @DeleteMapping("/{contentId}")
   public ResponseEntity<ApiResponse> deleteContent(
       @PathVariable Long contentId, ContentMember author) {
     contentFacade.deleteContent(contentId, author);
@@ -63,5 +68,16 @@ public class ApiV1ContentController {
     Page<ContentResponse> result = contentFacade.getContents(page);
 
     return ApiResponse.onSuccess(SuccessStatus.CONTENT_LIST_GET_SUCCESS, result);
+  }
+
+  @Operation(summary = "콘텐츠 검색 기능", description = "컨텐츠 내에서 글, 태그 검색 조회를 합니다.")
+  @GetMapping("/search")
+  public ElasticSearchPage<ContentSearchDocument> searchContent(
+      @RequestParam String keyword,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "20") int size) {
+    ContentSearchCondition condition = new ContentSearchCondition(keyword, page, size);
+
+    return contentSearchUseCase.search(condition);
   }
 }
