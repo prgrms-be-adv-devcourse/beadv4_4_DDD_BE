@@ -37,9 +37,9 @@ public class PaymentAccountSupport {
   }
 
   public PaymentAccount getPayeeAccount(PaymentPayoutDto payout) {
-    return switch (payout.getPayoutEventType()) {
+    return switch (payout.payoutEventType()) {
       case FEE -> getSystemAccount();
-      case AMOUNT -> getPaymentAccountByMemberId(payout.getPayeeId());
+      case AMOUNT -> getPaymentAccountByMemberId(payout.payeeId());
     };
   }
 

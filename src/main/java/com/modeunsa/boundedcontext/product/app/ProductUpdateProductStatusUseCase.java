@@ -35,6 +35,7 @@ public class ProductUpdateProductStatusUseCase {
 
     ProductDto productDto = productMapper.toDto(productRepository.save(product));
 
+    // TODO: ProductStatus.COMPLETED 로 변경 시 상품 생성되도록
     eventPublisher.publish(new ProductStatusUpdatedEvent(productDto));
 
     return product;

@@ -64,6 +64,11 @@ payment:
   accounts:
     system-member-id: 1
     holder-member-id: 2
+  toss:
+    base-url: ${TOSS_API_BASE_URL:https://api.tosspayments.com}
+    confirm-path: ${TOSS_API_CONFIRM_PATH:/v1/payments/confirm}
+    secret-key: ${TOSS_PAYMENTS_SECRET_KEY:}
+
 cloud:
   aws:
     credentials:
@@ -75,3 +80,11 @@ cloud:
       bucket: team01-storage
     stack:
       auto: false
+
+custom:
+  global:
+    internalBackUrl: http://localhost:${server.port:8080}
+
+encryption:
+  enabled: true
+  master-key: ${ENCRYPTION_MASTER_KEY}

@@ -26,10 +26,11 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(exclude = "member")
 @Table(
+    name = "auth_oauth_account",
     uniqueConstraints = {
       @UniqueConstraint(columnNames = {"oauth_provider", "provider_account_id"})
     })
-public class MemberOAuth extends GeneratedIdAndAuditedEntity {
+public class OAuthAccount extends GeneratedIdAndAuditedEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(nullable = false)
@@ -42,7 +43,7 @@ public class MemberOAuth extends GeneratedIdAndAuditedEntity {
   @Column(nullable = false, length = 200)
   private String providerAccountId;
 
-  void setMember(Member member) {
+  public void assignMember(Member member) {
     this.member = member;
   }
 }

@@ -3,10 +3,15 @@ package com.modeunsa.boundedcontext.payment.domain.entity;
 import static com.modeunsa.global.status.ErrorStatus.PAYMENT_INVALID;
 import static jakarta.persistence.CascadeType.PERSIST;
 
+import com.modeunsa.boundedcontext.payment.app.dto.ConfirmPaymentRequest;
+import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmResponse;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentStatus;
+import com.modeunsa.boundedcontext.payment.domain.types.ProviderType;
 import com.modeunsa.global.exception.GeneralException;
+import com.modeunsa.global.jpa.converter.EncryptedStringConverter;
 import com.modeunsa.global.jpa.entity.AuditedEntity;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -24,6 +29,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
 
 @Entity
 @Table(
@@ -66,35 +72,41 @@ public class Payment extends AuditedEntity {
   @Column(precision = 19, scale = 2)
   private BigDecimal pgPaymentAmount;
 
-  private String pgProvider;
+  @Column(length = 20)
+  @Enumerated(EnumType.STRING)
+  private ProviderType pgProvider;
 
-  private String pgCustomerKey;
+  @Convert(converter = EncryptedStringConverter.class)
+  private String pgPaymentKey;
 
-  private String pgOrderNo;
+  private String pgOrderId;
 
+  private String pgOrderName;
+
+  private String pgStatus;
+
+  private String pgMethod;
+
+  @Convert(converter = EncryptedStringConverter.class)
   private String pgCustomerName;
 
+  @Convert(converter = EncryptedStringConverter.class)
   private String pgCustomerEmail;
 
-  @Lob private Integer pgRawResponse;
+  private Integer pgStatusCode;
 
   @Lob private String pgFailureReason;
 
   public static Payment create(
       PaymentId id, Long orderId, BigDecimal totalAmount, BigDecimal pgPaymentAmount) {
     validateTotalAmount(totalAmount);
-
-    Payment payment =
-        Payment.builder()
-            .id(id)
-            .orderId(orderId)
-            .totalAmount(totalAmount)
-            .pgPaymentAmount(pgPaymentAmount)
-            .status(PaymentStatus.READY)
-            .build();
-
-    payment.addInitialLog();
-    return payment;
+    return Payment.builder()
+        .id(id)
+        .orderId(orderId)
+        .totalAmount(totalAmount)
+        .pgPaymentAmount(pgPaymentAmount)
+        .status(PaymentStatus.READY)
+        .build();
   }
 
   public void changeStatus(PaymentStatus newStatus) {
@@ -103,8 +115,14 @@ public class Payment extends AuditedEntity {
     addPaymentLog(beforeStatus, newStatus);
   }
 
-  private void addInitialLog() {
-    PaymentLog paymentLog = PaymentLog.addInitialLog(this, status);
+  public void changeStatusByFailure(PaymentStatus newStatus, String message) {
+    PaymentStatus before = this.status;
+    this.status = newStatus;
+    addPaymentLog(before, newStatus, message);
+  }
+
+  public void addInitialLog(Payment payment) {
+    PaymentLog paymentLog = PaymentLog.addInitialLog(payment, PaymentStatus.READY);
     this.paymentLogs.add(paymentLog);
   }
 
@@ -113,9 +131,38 @@ public class Payment extends AuditedEntity {
     this.paymentLogs.add(paymentLog);
   }
 
+  private void addPaymentLog(PaymentStatus beforeStatus, PaymentStatus afterStatus, String reason) {
+    PaymentLog paymentLog = PaymentLog.addLog(this, beforeStatus, afterStatus, reason);
+    this.paymentLogs.add(paymentLog);
+  }
+
   private static void validateTotalAmount(BigDecimal totalAmount) {
     if (totalAmount.compareTo(BigDecimal.ZERO) < 0) {
       throw new GeneralException(PAYMENT_INVALID);
     }
+  }
+
+  public void inProgressPayment(ConfirmPaymentRequest req) {
+    this.pgCustomerName = req.pgCustomerName();
+    this.pgCustomerEmail = req.pgCustomerEmail();
+    this.pgPaymentKey = req.paymentKey();
+    this.pgOrderId = req.orderId();
+    this.pgPaymentAmount = BigDecimal.valueOf(req.amount());
+    this.pgProvider = ProviderType.TOSS_PAYMENTS;
+    changeStatus(PaymentStatus.IN_PROGRESS);
+  }
+
+  public void approveTossPayment(TossPaymentsConfirmResponse tossRes) {
+    this.pgOrderName = tossRes.orderName();
+    this.pgMethod = tossRes.method();
+    this.pgStatus = tossRes.status();
+    this.pgStatusCode = HttpStatus.OK.value();
+    changeStatus(PaymentStatus.APPROVED);
+  }
+
+  public void failedTossPayment(HttpStatus httpStatus, String message) {
+    this.pgStatusCode = httpStatus.value();
+    this.pgFailureReason = message;
+    changeStatusByFailure(PaymentStatus.FAILED, message);
   }
 }

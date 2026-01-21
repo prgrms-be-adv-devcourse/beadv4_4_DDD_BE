@@ -6,8 +6,12 @@ import com.modeunsa.boundedcontext.product.domain.ProductMember;
 import com.modeunsa.boundedcontext.product.domain.ProductStatus;
 import com.modeunsa.shared.product.dto.ProductCreateRequest;
 import com.modeunsa.shared.product.dto.ProductDetailResponse;
+import com.modeunsa.shared.product.dto.ProductOrderResponse;
 import com.modeunsa.shared.product.dto.ProductResponse;
+import com.modeunsa.shared.product.dto.ProductStockResponse;
+import com.modeunsa.shared.product.dto.ProductStockUpdateRequest;
 import com.modeunsa.shared.product.dto.ProductUpdateRequest;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +28,8 @@ public class ProductFacade {
   private final ProductUpdateProductStatusUseCase productUpdateProductStatusUseCase;
   private final ProductCreateFavoriteUseCase productCreateFavoriteUseCase;
   private final ProductDeleteFavoriteUseCase productDeleteFavoriteUseCase;
+  private final ProductValidateOrderUseCase productValidateOrderUseCase;
+  private final ProductDeductStockUseCase productDeductStockUseCase;
   private final ProductSupport productSupport;
   private final ProductMapper productMapper;
 
@@ -44,6 +50,12 @@ public class ProductFacade {
       Long memberId, ProductCategory category, Pageable pageable) {
     Page<Product> products = productSupport.getProducts(memberId, category, pageable);
     return products.map(productMapper::toResponse);
+  }
+
+  public List<ProductOrderResponse> getProducts(List<Long> productIds) {
+    return productValidateOrderUseCase.validateOrder(productIds).stream()
+        .map(productMapper::toProductOrderResponse)
+        .toList();
   }
 
   @Transactional
@@ -70,5 +82,13 @@ public class ProductFacade {
   @Transactional
   public void deleteProductFavorite(Long memberId, Long productId) {
     productDeleteFavoriteUseCase.deleteProductFavorite(memberId, productId);
+  }
+
+  @Transactional
+  public List<ProductStockResponse> deductStock(
+      ProductStockUpdateRequest productStockUpdateRequest) {
+    return productDeductStockUseCase.deductStock(productStockUpdateRequest).stream()
+        .map(productMapper::toProductStockResponse)
+        .toList();
   }
 }

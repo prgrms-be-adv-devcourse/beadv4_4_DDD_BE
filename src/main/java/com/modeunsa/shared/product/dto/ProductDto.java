@@ -24,7 +24,7 @@ public class ProductDto {
   private ProductCurrency currency;
   private ProductStatus productStatus;
   private SaleStatus saleStatus;
-  private int quantity;
+  private int stock;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
   private Long createdBy;

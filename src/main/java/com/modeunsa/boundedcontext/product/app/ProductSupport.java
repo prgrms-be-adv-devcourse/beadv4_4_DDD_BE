@@ -11,6 +11,7 @@ import com.modeunsa.boundedcontext.product.out.ProductMemberSellerRepository;
 import com.modeunsa.boundedcontext.product.out.ProductRepository;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,6 +45,10 @@ public class ProductSupport {
         pageable);
   }
 
+  public List<Product> getProducts(List<Long> productIds) {
+    return productRepository.findAllById(productIds);
+  }
+
   public ProductMemberSeller getProductMemberSeller(Long sellerId) {
     return productMemberSellerRepository
         .findById(sellerId)
@@ -66,5 +71,9 @@ public class ProductSupport {
 
   public boolean existsProductFavorite(Long memberId, Long productId) {
     return productFavoriteRepository.existsByMemberIdAndProductId(memberId, productId);
+  }
+
+  public Product getProductForUpdate(Long productId) {
+    return productRepository.findByIdForUpdate(productId);
   }
 }
