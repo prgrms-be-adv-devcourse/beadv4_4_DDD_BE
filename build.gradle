@@ -81,9 +81,6 @@ dependencies {
     // ElasticSearch
     implementation "org.springframework.boot:spring-boot-starter-data-elasticsearch"
 
-    // thymeleaf
-//    implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf:3.1.0'
 }
 
 jar {
