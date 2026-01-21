@@ -14,6 +14,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -59,7 +60,7 @@ public class Member extends GeneratedIdAndAuditedEntity {
   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<OAuthAccount> oauthAccount = new ArrayList<>();
 
-  @OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
+  @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private MemberProfile profile;
 
   @Getter(AccessLevel.NONE)
@@ -127,11 +128,10 @@ public class Member extends GeneratedIdAndAuditedEntity {
     return this;
   }
 
-  public Member updateEmail(String email) {
+  public void updateEmail(String email) {
     if (email != null) {
       this.email = email;
     }
-    return this;
   }
 
   public void changeRole(MemberRole role) {
