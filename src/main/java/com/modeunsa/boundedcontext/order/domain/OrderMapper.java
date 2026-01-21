@@ -41,8 +41,8 @@ public interface OrderMapper {
   @Mapping(target = "productId", source = "productId")
   OrderItemDto toItemDto(OrderItem orderItem);
 
-  @Mapping(target = "productName", source = "product.name")
-  OrderItem toOrderItemFromCart(OrderProduct product, CartItem cartItem);
+  @Mapping(target = "productName", source = "productInfo.name")
+  OrderItem toOrderItem(ProductOrderResponse productInfo, int quantity);
 
   // ---- 주문 ----
   @Mapping(target = "orderId", source = "id")

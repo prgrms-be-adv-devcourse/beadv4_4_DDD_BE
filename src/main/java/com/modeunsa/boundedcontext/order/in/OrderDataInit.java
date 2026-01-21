@@ -42,8 +42,8 @@ public class OrderDataInit {
   public ApplicationRunner orderDataInitApplicationRunner() {
     return args -> {
       self.makeBaseMembers(); // 1. 회원 먼저 생성
-      // self.makeBaseProducts(); // 2. 상품 생성 (회원 필요)
-      // self.makeBaseCartItems(); // 3. 장바구니 담기 테스트 (회원+상품 필요)
+      self.makeBaseProducts(); // 2. 상품 생성 (회원 필요)
+      self.makeBaseCartItems(); // 3. 장바구니 담기 테스트 (회원+상품 필요)
       self.makeBaseOrders(); // 4. 주문
     };
   }
