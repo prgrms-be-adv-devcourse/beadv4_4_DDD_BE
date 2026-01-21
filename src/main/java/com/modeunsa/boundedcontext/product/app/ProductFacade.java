@@ -101,12 +101,11 @@ public class ProductFacade {
     productRestoreStockUseCase.restoreStock(orderDto);
   }
 
-  public void createProductMember(Long memberId, String email, String name, String phoneNumber) {
+  public void syncMember(Long memberId, String email, String name, String phoneNumber) {
     productCreateMemberUseCase.createMember(memberId, email, name, phoneNumber);
   }
 
-  public void createProductMemberSeller(
-      Long sellerId, String businessName, String representativeName) {
+  public void syncSeller(Long sellerId, String businessName, String representativeName) {
     productCreateSellerUseCase.createMemberSeller(sellerId, businessName, representativeName);
   }
 }

@@ -27,14 +27,14 @@ public class ProductEventListener {
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Transactional(propagation = REQUIRES_NEW)
   public void handleMemberSignupEvent(MemberSignupEvent event) {
-    productFacade.createProductMember(
+    productFacade.syncMember(
         event.memberId(), event.email(), event.realName(), event.phoneNumber());
   }
 
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Transactional(propagation = REQUIRES_NEW)
   public void handleSellerRegisteredEvent(SellerRegisteredEvent event) {
-    productFacade.createProductMemberSeller(
+    productFacade.syncSeller(
         event.memberSellerId(), event.businessName(), event.representativeName());
   }
 }
