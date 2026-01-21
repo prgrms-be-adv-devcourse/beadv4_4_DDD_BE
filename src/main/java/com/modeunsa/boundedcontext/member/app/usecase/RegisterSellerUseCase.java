@@ -5,6 +5,7 @@ import com.modeunsa.boundedcontext.member.domain.entity.MemberSeller;
 import com.modeunsa.boundedcontext.member.domain.types.SellerStatus;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
 import com.modeunsa.boundedcontext.member.out.repository.MemberSellerRepository;
+import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.member.dto.SellerRegisterRequest;
@@ -12,7 +13,6 @@ import com.modeunsa.shared.member.event.SellerRegisteredEvent;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,7 +21,7 @@ public class RegisterSellerUseCase {
 
   private final MemberRepository memberRepository;
   private final MemberSellerRepository memberSellerRepository;
-  private final ApplicationEventPublisher eventPublisher;
+  private final SpringDomainEventPublisher eventPublisher;
 
   public void execute(Long memberId, SellerRegisterRequest request, String licenseImage) {
     // 1. 회원 조회
@@ -82,6 +82,12 @@ public class RegisterSellerUseCase {
     }
 
     // 5. 이벤트 발행
-    eventPublisher.publishEvent(new SellerRegisteredEvent(seller.getId()));
+    eventPublisher.publish(
+        new SellerRegisteredEvent(
+            seller.getId(),
+            seller.getBusinessName(),
+            seller.getSettlementBankName(),
+            seller.getSettlementBankAccount(),
+            seller.getStatus()));
   }
 }
