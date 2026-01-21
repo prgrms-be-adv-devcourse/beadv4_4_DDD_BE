@@ -48,7 +48,6 @@ public class PaymentFacade {
   private final PaymentAccountSupport paymentAccountSupport;
   private final PaymentMapper paymentMapper;
 
-  @Transactional
   public void createPaymentMember(PaymentMemberDto paymentMemberDto) {
     paymentSyncMemberUseCase.createPaymentMember(paymentMemberDto);
   }
@@ -61,7 +60,6 @@ public class PaymentFacade {
     return paymentMapper.toPaymentMemberResponse(paymentMember, paymentAccount);
   }
 
-  @Transactional
   public void createPaymentAccount(Long memberId) {
     paymentCreateAccountUseCase.createPaymentAccount(memberId);
   }

@@ -1,8 +1,10 @@
 package com.modeunsa.boundedcontext.payment.app.mapper;
 
+import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberResponse;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
+import com.modeunsa.shared.auth.event.MemberSignupEvent;
 import com.modeunsa.shared.order.dto.OrderDto;
 import com.modeunsa.shared.payment.dto.PaymentDto;
 import org.mapstruct.Mapper;
@@ -18,4 +20,7 @@ public interface PaymentMapper {
   @Mapping(target = "balance", source = "paymentAccount.balance")
   PaymentMemberResponse toPaymentMemberResponse(
       PaymentMember paymentMember, PaymentAccount paymentAccount);
+
+  @Mapping(target = "id", source = "memberSignupEvent.memberId")
+  PaymentMemberDto toPaymentMemberDto(MemberSignupEvent memberSignupEvent);
 }
