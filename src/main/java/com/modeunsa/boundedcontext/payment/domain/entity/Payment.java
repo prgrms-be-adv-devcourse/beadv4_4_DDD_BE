@@ -70,7 +70,7 @@ public class Payment extends AuditedEntity {
   @Column(nullable = false, precision = 19, scale = 2)
   private BigDecimal totalAmount;
 
-  @Column(nullable = false, length = 20)
+  @Column(length = 20)
   @Enumerated(EnumType.STRING)
   private PaymentErrorCode failedErrorCode;
 

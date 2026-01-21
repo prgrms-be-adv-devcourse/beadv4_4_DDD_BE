@@ -5,6 +5,7 @@ import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMI
 
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
+import com.modeunsa.boundedcontext.payment.app.event.PaymentFailedEvent;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentMemberCreatedEvent;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentOrderCanceledEvent;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentPayoutCompletedEvent;
@@ -12,7 +13,6 @@ import com.modeunsa.boundedcontext.payment.app.mapper.PaymentMapper;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
 import com.modeunsa.shared.auth.event.MemberSignupEvent;
 import com.modeunsa.shared.payment.dto.PaymentDto;
-import com.modeunsa.shared.payment.event.PaymentFailedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

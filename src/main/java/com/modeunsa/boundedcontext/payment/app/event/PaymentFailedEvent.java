@@ -1,4 +1,4 @@
-package com.modeunsa.shared.payment.event;
+package com.modeunsa.boundedcontext.payment.app.event;
 
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequest;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode;

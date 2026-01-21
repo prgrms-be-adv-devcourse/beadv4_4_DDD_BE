@@ -2,6 +2,7 @@ package com.modeunsa.boundedcontext.payment.app.usecase;
 
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequest;
+import com.modeunsa.boundedcontext.payment.app.event.PaymentFailedEvent;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentMemberSupport;
 import com.modeunsa.boundedcontext.payment.app.validator.PaymentValidator;
@@ -13,7 +14,6 @@ import com.modeunsa.boundedcontext.payment.domain.exception.PaymentDomainExcepti
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode;
 import com.modeunsa.boundedcontext.payment.out.PaymentRepository;
 import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
-import com.modeunsa.shared.payment.event.PaymentFailedEvent;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
