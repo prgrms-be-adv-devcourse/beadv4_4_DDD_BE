@@ -4,6 +4,7 @@ import com.modeunsa.boundedcontext.product.app.ProductCreateProductUseCase;
 import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
 import com.modeunsa.boundedcontext.product.domain.ProductMemberSeller;
+import com.modeunsa.boundedcontext.product.out.ProductMemberRepository;
 import com.modeunsa.boundedcontext.product.out.ProductMemberSellerRepository;
 import com.modeunsa.boundedcontext.product.out.ProductRepository;
 import com.modeunsa.shared.product.dto.ProductCreateRequest;
@@ -22,17 +23,20 @@ public class ProductDataInit {
   private final ProductRepository productRepository;
   private final ProductMemberSellerRepository productMemberSellerRepository;
   private final ProductCreateProductUseCase productCreateProductUseCase;
+  private final ProductMemberRepository productMemberRepository;
 
   public ProductDataInit(
       @Lazy ProductDataInit self,
       ProductRepository productRepository,
       ProductMemberSellerRepository productMemberSellerRepository,
-      ProductCreateProductUseCase productCreateProductUseCase) {
+      ProductCreateProductUseCase productCreateProductUseCase,
+      ProductMemberRepository productMemberRepository) {
 
     this.self = self;
     this.productRepository = productRepository;
     this.productMemberSellerRepository = productMemberSellerRepository;
     this.productCreateProductUseCase = productCreateProductUseCase;
+    this.productMemberRepository = productMemberRepository;
   }
 
   @Bean
@@ -45,6 +49,9 @@ public class ProductDataInit {
 
   @Transactional
   public void makeBaseProducts() {
+    if (productRepository.count() > 0) {
+      return;
+    }
     ProductMemberSeller seller1 = productMemberSellerRepository.findById(1L).get();
     ProductMemberSeller seller2 = productMemberSellerRepository.findById(2L).get();
 

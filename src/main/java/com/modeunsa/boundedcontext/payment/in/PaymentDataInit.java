@@ -45,6 +45,10 @@ public class PaymentDataInit {
   @Transactional
   public void makeBasePaymentMembers() {
 
+    if (paymentFacade.countMember() > 0) {
+      return;
+    }
+
     PaymentMemberDto systemMember =
         new PaymentMemberDto(1L, "system@example.com", "시스템", MemberStatus.ACTIVE);
 
@@ -69,6 +73,11 @@ public class PaymentDataInit {
 
   @Transactional
   public void makeBaseCredits() {
+
+    if (paymentFacade.countMemberAccount() > 0) {
+      return;
+    }
+
     paymentFacade.creditAccount(
         new PaymentAccountDepositRequest(
             3L, BigDecimal.valueOf(150_000), PaymentEventType.CHARGE_BANK_TRANSFER));

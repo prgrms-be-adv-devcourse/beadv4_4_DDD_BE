@@ -37,6 +37,9 @@ public class ProductMemberDataInit {
 
   @Transactional
   public void makeBaseSellers() {
+    if (productMemberRepository.count() > 0 || productMemberSellerRepository.count() > 0) {
+      return;
+    }
     ProductMember member1 =
         ProductMember.builder()
             .email("123@abc.com")
