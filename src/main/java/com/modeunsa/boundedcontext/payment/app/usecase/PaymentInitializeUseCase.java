@@ -36,7 +36,7 @@ public class PaymentInitializeUseCase {
     }
 
     Payment payment =
-        Payment.createPending(paymentId, paymentRequest.orderId(), paymentRequest.totalAmount());
+        Payment.create(paymentId, paymentRequest.orderId(), paymentRequest.totalAmount());
     return savePayment(payment);
   }
 

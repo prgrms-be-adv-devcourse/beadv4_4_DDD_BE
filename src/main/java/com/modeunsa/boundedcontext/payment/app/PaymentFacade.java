@@ -142,8 +142,4 @@ public class PaymentFacade {
   public void handlePaymentFailed(PaymentFailedEvent paymentFailedEvent) {
     paymentFailUseCase.execute(paymentFailedEvent);
   }
-
-  public long countMember() {
-    return paymentMemberSupport.countMember();
-  }
 }

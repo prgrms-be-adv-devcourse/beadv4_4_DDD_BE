@@ -1,5 +1,6 @@
 package com.modeunsa.boundedcontext.payment.domain.entity;
 
+import static com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode.INSUFFICIENT_BALANCE;
 import static com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode.INVALID_CHARGE_AMOUNT;
 import static com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode.INVALID_PAYMENT;
 import static jakarta.persistence.CascadeType.PERSIST;
@@ -111,7 +112,7 @@ public class Payment extends AuditedEntity {
 
   @Lob private String pgFailureReason;
 
-  public static Payment createPending(PaymentId id, Long orderId, BigDecimal totalAmount) {
+  public static Payment create(PaymentId id, Long orderId, BigDecimal totalAmount) {
     validateTotalAmount(totalAmount);
     return Payment.builder()
         .id(id)
@@ -121,20 +122,9 @@ public class Payment extends AuditedEntity {
         .build();
   }
 
-  public void inProgress(PaymentProcessContext context) {
-    changeStatus(PaymentStatus.IN_PROGRESS);
-  }
-
-  public static Payment create(
-      PaymentId id, Long orderId, BigDecimal totalAmount, BigDecimal pgPaymentAmount) {
-    validateTotalAmount(totalAmount);
-    return Payment.builder()
-        .id(id)
-        .orderId(orderId)
-        .totalAmount(totalAmount)
-        .pgPaymentAmount(pgPaymentAmount)
-        .status(PaymentStatus.READY)
-        .build();
+  public void addInitialLog(Payment payment) {
+    PaymentLog paymentLog = PaymentLog.addInitialLog(payment, PaymentStatus.READY);
+    this.paymentLogs.add(paymentLog);
   }
 
   public void changeStatus(PaymentStatus newStatus) {
@@ -149,35 +139,6 @@ public class Payment extends AuditedEntity {
     addPaymentLog(before, newStatus, message);
   }
 
-  public void addInitialLog(Payment payment) {
-    PaymentLog paymentLog = PaymentLog.addInitialLog(payment, PaymentStatus.READY);
-    this.paymentLogs.add(paymentLog);
-  }
-
-  private void addPaymentLog(PaymentStatus beforeStatus, PaymentStatus afterStatus) {
-    PaymentLog paymentLog = PaymentLog.addLog(this, beforeStatus, afterStatus);
-    this.paymentLogs.add(paymentLog);
-  }
-
-  private void addPaymentLog(PaymentStatus beforeStatus, PaymentStatus afterStatus, String reason) {
-    PaymentLog paymentLog = PaymentLog.addLog(this, beforeStatus, afterStatus, reason);
-    this.paymentLogs.add(paymentLog);
-  }
-
-  private static void validateTotalAmount(BigDecimal totalAmount) {
-    if (totalAmount.compareTo(BigDecimal.ZERO) < 0) {
-      throw new PaymentDomainException(
-          PaymentErrorCode.INSUFFICIENT_BALANCE,
-          String.format("결제 금액은 0보다 작을 수 없습니다. 입력된 금액: %s", totalAmount));
-    }
-  }
-
-  public void failedPayment(PaymentErrorCode errorCode, Long memberId, String orderNo) {
-    this.failedErrorCode = errorCode;
-    this.failedAt = LocalDateTime.now();
-    changeStatusByFailure(PaymentStatus.FAILED, errorCode.format(memberId, orderNo));
-  }
-
   public void approveTossPayment(TossPaymentsConfirmResponse tossRes) {
     this.pgOrderName = tossRes.orderName();
     this.pgMethod = tossRes.method();
@@ -185,6 +146,12 @@ public class Payment extends AuditedEntity {
     this.pgStatusCode = HttpStatus.OK.value();
     this.pgPaymentAmount = BigDecimal.valueOf(tossRes.totalAmount());
     changeStatus(PaymentStatus.APPROVED);
+  }
+
+  public void failedPayment(PaymentErrorCode errorCode, Long memberId, String orderNo) {
+    this.failedErrorCode = errorCode;
+    this.failedAt = LocalDateTime.now();
+    changeStatusByFailure(PaymentStatus.FAILED, errorCode.format(memberId, orderNo));
   }
 
   public void failedTossPayment(HttpStatus httpStatus, String message) {
@@ -197,17 +164,13 @@ public class Payment extends AuditedEntity {
   public void changePendingStatus() {
     if (!isRetryable()) {
       throw new PaymentDomainException(
-          INVALID_PAYMENT, INVALID_PAYMENT.format(getId().getMemberId(), getId().getOrderNo()));
+          INVALID_PAYMENT, getId().getMemberId(), getId().getOrderNo());
     }
     changeStatus(PaymentStatus.PENDING);
   }
 
   public void changeInProgress() {
     changeStatus(PaymentStatus.IN_PROGRESS);
-  }
-
-  public boolean isRetryable() {
-    return this.status == PaymentStatus.PENDING || this.status == PaymentStatus.FAILED;
   }
 
   public void updateChargeInfo(boolean needCharge, BigDecimal shortAmount) {
@@ -231,5 +194,25 @@ public class Payment extends AuditedEntity {
     this.pgCustomerName = context.pgCustomerName();
     this.pgCustomerEmail = context.pgCustomerEmail();
     this.pgOrderId = context.pgOrderId();
+  }
+
+  private void addPaymentLog(PaymentStatus beforeStatus, PaymentStatus afterStatus) {
+    PaymentLog paymentLog = PaymentLog.addLog(this, beforeStatus, afterStatus);
+    this.paymentLogs.add(paymentLog);
+  }
+
+  private void addPaymentLog(PaymentStatus beforeStatus, PaymentStatus afterStatus, String reason) {
+    PaymentLog paymentLog = PaymentLog.addLog(this, beforeStatus, afterStatus, reason);
+    this.paymentLogs.add(paymentLog);
+  }
+
+  private static void validateTotalAmount(BigDecimal totalAmount) {
+    if (totalAmount.compareTo(BigDecimal.ZERO) < 0) {
+      throw new PaymentDomainException(INSUFFICIENT_BALANCE, totalAmount);
+    }
+  }
+
+  private boolean isRetryable() {
+    return this.status == PaymentStatus.PENDING || this.status == PaymentStatus.FAILED;
   }
 }
