@@ -1,6 +1,5 @@
 package com.modeunsa.boundedcontext.payment.domain.entity;
 
-import static com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode.INSUFFICIENT_BALANCE;
 import static com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode.INVALID_CHARGE_AMOUNT;
 import static com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode.INVALID_PAYMENT;
 import static jakarta.persistence.CascadeType.PERSIST;
@@ -208,7 +207,7 @@ public class Payment extends AuditedEntity {
 
   private static void validateTotalAmount(BigDecimal totalAmount) {
     if (totalAmount.compareTo(BigDecimal.ZERO) < 0) {
-      throw new PaymentDomainException(INSUFFICIENT_BALANCE, totalAmount);
+      throw new PaymentDomainException(INVALID_PAYMENT, totalAmount);
     }
   }
 
