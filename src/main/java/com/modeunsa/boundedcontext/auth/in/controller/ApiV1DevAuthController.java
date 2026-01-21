@@ -1,10 +1,11 @@
 package com.modeunsa.boundedcontext.auth.in.controller;
 
+import com.modeunsa.boundedcontext.auth.app.facade.AuthFacade;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
 import com.modeunsa.global.exception.GeneralException;
-import com.modeunsa.global.security.jwt.JwtTokenProvider;
 import com.modeunsa.global.status.ErrorStatus;
+import com.modeunsa.shared.auth.dto.JwtTokenResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ApiV1DevAuthController {
   private final MemberRepository memberRepository;
-  private final JwtTokenProvider jwtTokenProvider;
+  private final AuthFacade authFacade;
 
   @Operation(
       summary = "개발용 프리패스 로그인",
@@ -31,17 +32,13 @@ public class ApiV1DevAuthController {
           MemberDataInit으로 생성된 더미 데이터의 ID를 확인 후 사용하세요.<br>
           """)
   @PostMapping("/login")
-  public DevLoginResponse devLogin(@RequestParam Long memberId) {
+  public JwtTokenResponse devLogin(@RequestParam Long memberId) {
     Member member =
         memberRepository
             .findById(memberId)
             .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
-    // 기존 로그인 로직에서 사용하는 토큰 생성 메서드를 호출
-    String accessToken = jwtTokenProvider.createAccessToken(member.getId(), member.getRole());
-    String refreshToken = jwtTokenProvider.createRefreshToken(member.getId(), member.getRole());
-
-    return new DevLoginResponse(accessToken, refreshToken);
+    return authFacade.login(member.getId(), member.getRole());
   }
 
   public record DevLoginResponse(String accessToken, String refreshToken) {}
