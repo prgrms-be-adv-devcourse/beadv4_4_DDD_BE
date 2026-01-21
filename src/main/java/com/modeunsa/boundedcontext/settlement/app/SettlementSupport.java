@@ -3,11 +3,9 @@ package com.modeunsa.boundedcontext.settlement.app;
 import com.modeunsa.boundedcontext.settlement.domain.entity.Settlement;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementCandidateItem;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementItem;
-import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementMember;
-import com.modeunsa.boundedcontext.settlement.domain.policy.SettlementPolicy;
 import com.modeunsa.boundedcontext.settlement.out.SettlementCandidateItemRepository;
-import com.modeunsa.boundedcontext.settlement.out.SettlementMemberRepository;
 import com.modeunsa.boundedcontext.settlement.out.SettlementRepository;
+import com.modeunsa.global.config.SettlementConfig;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.settlement.dto.SettlementItemResponseDto;
@@ -26,8 +24,8 @@ import org.springframework.stereotype.Service;
 public class SettlementSupport {
 
   private final SettlementRepository settlementRepository;
-  private final SettlementMemberRepository settlementMemberRepository;
   private final SettlementCandidateItemRepository settlementCandidateItemRepository;
+  private final SettlementConfig settlementConfig;
 
   public SettlementResponseDto getSettlement(Long sellerMemberId, int year, int month) {
     // 1. 정산서를 불러온다.
@@ -36,15 +34,11 @@ public class SettlementSupport {
             .findBySellerMemberIdAndSettlementYearAndSettlementMonth(sellerMemberId, year, month)
             .orElseThrow(() -> new GeneralException(ErrorStatus.SETTLEMENT_NOT_FOUND));
 
-    SettlementMember systemMember =
-        settlementMemberRepository
-            .findByName(SettlementPolicy.SYSTEM)
-            .orElseThrow(() -> new GeneralException(ErrorStatus.SETTLEMENT_MEMBER_NOT_FOUND));
+    Long systemMemberId = settlementConfig.getSystemMemberId();
 
     Settlement feeSettlement =
         settlementRepository
-            .findBySellerMemberIdAndSettlementYearAndSettlementMonth(
-                systemMember.getId(), year, month)
+            .findBySellerMemberIdAndSettlementYearAndSettlementMonth(systemMemberId, year, month)
             .orElseThrow(() -> new GeneralException(ErrorStatus.SETTLEMENT_NOT_FOUND));
 
     // 수수료를 map으로 저장

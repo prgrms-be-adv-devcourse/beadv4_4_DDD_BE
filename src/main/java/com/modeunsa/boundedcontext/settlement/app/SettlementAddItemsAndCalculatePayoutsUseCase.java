@@ -4,13 +4,9 @@ import com.modeunsa.boundedcontext.settlement.domain.PayoutAmounts;
 import com.modeunsa.boundedcontext.settlement.domain.entity.Settlement;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementCandidateItem;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementItem;
-import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementMember;
-import com.modeunsa.boundedcontext.settlement.domain.policy.SettlementPolicy;
 import com.modeunsa.boundedcontext.settlement.domain.types.SettlementEventType;
-import com.modeunsa.boundedcontext.settlement.out.SettlementMemberRepository;
 import com.modeunsa.boundedcontext.settlement.out.SettlementRepository;
-import com.modeunsa.global.exception.GeneralException;
-import com.modeunsa.global.status.ErrorStatus;
+import com.modeunsa.global.config.SettlementConfig;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +17,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class SettlementAddItemsAndCalculatePayoutsUseCase {
   private final SettlementRepository settlementRepository;
-  private final SettlementMemberRepository settlementMemberRepository;
+  private final SettlementConfig settlementConfig;
 
   public List<SettlementItem> addItemsAndCalculatePayouts(
       SettlementCandidateItem settlementCandidateItem) {
@@ -30,14 +26,10 @@ public class SettlementAddItemsAndCalculatePayoutsUseCase {
             settlementCandidateItem.getSellerMemberId(),
             settlementCandidateItem.getPurchaseConfirmedAt());
 
-    SettlementMember systemMember =
-        settlementMemberRepository
-            .findByName(SettlementPolicy.SYSTEM)
-            .orElseThrow(() -> new GeneralException(ErrorStatus.SETTLEMENT_MEMBER_NOT_FOUND));
+    Long systemMemberId = settlementConfig.getSystemMemberId();
 
     Settlement feeSettlement =
-        getOrCreateSettlement(
-            systemMember.getId(), settlementCandidateItem.getPurchaseConfirmedAt());
+        getOrCreateSettlement(systemMemberId, settlementCandidateItem.getPurchaseConfirmedAt());
 
     PayoutAmounts payoutAmounts = Settlement.calculatePayouts(settlementCandidateItem.getAmount());
 
@@ -56,7 +48,7 @@ public class SettlementAddItemsAndCalculatePayoutsUseCase {
         feeSettlement.addItem(
             settlementCandidateItem.getOrderItemId(),
             settlementCandidateItem.getBuyerMemberId(),
-            systemMember.getId(),
+            systemMemberId,
             payoutAmounts.feeAmount(),
             SettlementEventType.SETTLEMENT_PRODUCT_SALES_FEE,
             settlementCandidateItem.getPurchaseConfirmedAt()));

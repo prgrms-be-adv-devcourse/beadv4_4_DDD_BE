@@ -5,11 +5,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 import com.modeunsa.boundedcontext.settlement.domain.entity.Settlement;
-import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementMember;
 import com.modeunsa.boundedcontext.settlement.domain.policy.SettlementPolicy;
 import com.modeunsa.boundedcontext.settlement.domain.types.SettlementEventType;
-import com.modeunsa.boundedcontext.settlement.out.SettlementMemberRepository;
+import com.modeunsa.boundedcontext.settlement.out.SettlementCandidateItemRepository;
 import com.modeunsa.boundedcontext.settlement.out.SettlementRepository;
+import com.modeunsa.global.config.SettlementConfig;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.shared.settlement.dto.SettlementResponseDto;
 import java.math.BigDecimal;
@@ -19,36 +19,46 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.test.context.ActiveProfiles;
 
 @ExtendWith(MockitoExtension.class)
+@ActiveProfiles("test")
 @DisplayName("SettlementSupport 테스트")
 class SettlementSupportTest {
 
   @Mock private SettlementRepository settlementRepository;
-  @Mock private SettlementMemberRepository settlementMemberRepository;
 
-  @InjectMocks private SettlementSupport settlementSupport;
+  @Mock private SettlementCandidateItemRepository settlementCandidateItemRepository;
+
+  @Value("${settlement.member.system-member-id}")
+  private Long systemMemberId;
+
+  private SettlementSupport settlementSupport;
 
   private static final Long SELLER_ID = 7L;
-  private static final Long SYSTEM_ID = 1L;
   private static final Long BUYER_ID = 4L;
   private static final int YEAR = 2025;
   private static final int MONTH = 12;
 
   private Settlement sellerSettlement;
   private Settlement feeSettlement;
-  private SettlementMember systemMember;
 
   @BeforeEach
   void setUp() {
+    SettlementConfig settlementConfig = new SettlementConfig();
+    settlementConfig.setSystemMemberId(systemMemberId);
+
+    settlementSupport =
+        new SettlementSupport(
+            settlementRepository, settlementCandidateItemRepository, settlementConfig);
+
     SettlementPolicy.FEE_RATE = new BigDecimal("0.1");
 
     sellerSettlement = Settlement.create(SELLER_ID, YEAR, MONTH);
-    feeSettlement = Settlement.create(SYSTEM_ID, YEAR, MONTH);
-    systemMember = SettlementMember.create(SYSTEM_ID, "SYSTEM");
+    feeSettlement = Settlement.create(systemMemberId, YEAR, MONTH);
 
     // 판매자 정산 아이템 추가 (판매대금)
     sellerSettlement.addItem(
@@ -70,14 +80,14 @@ class SettlementSupportTest {
     feeSettlement.addItem(
         1001L,
         BUYER_ID,
-        SYSTEM_ID,
+        systemMemberId,
         new BigDecimal("1000"),
         SettlementEventType.SETTLEMENT_PRODUCT_SALES_FEE,
         LocalDateTime.now());
     feeSettlement.addItem(
         1002L,
         BUYER_ID,
-        SYSTEM_ID,
+        systemMemberId,
         new BigDecimal("2500"),
         SettlementEventType.SETTLEMENT_PRODUCT_SALES_FEE,
         LocalDateTime.now());
@@ -91,11 +101,8 @@ class SettlementSupportTest {
             SELLER_ID, YEAR, MONTH))
         .thenReturn(Optional.of(sellerSettlement));
 
-    when(settlementMemberRepository.findByName(SettlementPolicy.SYSTEM))
-        .thenReturn(Optional.of(systemMember));
-
     when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonth(
-            SYSTEM_ID, YEAR, MONTH))
+            systemMemberId, YEAR, MONTH))
         .thenReturn(Optional.of(feeSettlement));
 
     // when
@@ -117,11 +124,8 @@ class SettlementSupportTest {
             SELLER_ID, YEAR, MONTH))
         .thenReturn(Optional.of(sellerSettlement));
 
-    when(settlementMemberRepository.findByName(SettlementPolicy.SYSTEM))
-        .thenReturn(Optional.of(systemMember));
-
     when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonth(
-            SYSTEM_ID, YEAR, MONTH))
+            systemMemberId, YEAR, MONTH))
         .thenReturn(Optional.of(feeSettlement));
 
     // when
@@ -163,22 +167,6 @@ class SettlementSupportTest {
   }
 
   @Test
-  @DisplayName("시스템 멤버가 없으면 예외 발생")
-  void getSettlement_throws_whenSystemMemberNotFound() {
-    // given
-    when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonth(
-            SELLER_ID, YEAR, MONTH))
-        .thenReturn(Optional.of(sellerSettlement));
-
-    when(settlementMemberRepository.findByName(SettlementPolicy.SYSTEM))
-        .thenReturn(Optional.empty());
-
-    // when & then
-    assertThatThrownBy(() -> settlementSupport.getSettlement(SELLER_ID, YEAR, MONTH))
-        .isInstanceOf(GeneralException.class);
-  }
-
-  @Test
   @DisplayName("수수료 정산이 없으면 예외 발생")
   void getSettlement_throws_whenFeeSettlementNotFound() {
     // given
@@ -186,11 +174,8 @@ class SettlementSupportTest {
             SELLER_ID, YEAR, MONTH))
         .thenReturn(Optional.of(sellerSettlement));
 
-    when(settlementMemberRepository.findByName(SettlementPolicy.SYSTEM))
-        .thenReturn(Optional.of(systemMember));
-
     when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonth(
-            SYSTEM_ID, YEAR, MONTH))
+            systemMemberId, YEAR, MONTH))
         .thenReturn(Optional.empty());
 
     // when & then

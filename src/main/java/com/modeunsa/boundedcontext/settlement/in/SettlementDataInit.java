@@ -7,6 +7,7 @@ import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementMember;
 import com.modeunsa.boundedcontext.settlement.in.batch.SettlementJobLauncher;
 import com.modeunsa.boundedcontext.settlement.out.SettlementCandidateItemRepository;
 import com.modeunsa.boundedcontext.settlement.out.SettlementMemberRepository;
+import com.modeunsa.global.config.SettlementConfig;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Profile("!prod")
 public class SettlementDataInit {
-  private static final Long SYSTEM_MEMBER_ID = 1L;
   private static final Long SELLER_MEMBER_ID = 7L;
   private static final Long BUYER_MEMBER_ID = 4L;
 
@@ -33,18 +33,21 @@ public class SettlementDataInit {
   private final SettlementMemberRepository settlementMemberRepository;
   private final SettlementCandidateItemRepository settlementCandidateItemRepository;
   private final SettlementJobLauncher settlementJobLauncher;
+  private final SettlementConfig settlementConfig;
 
   public SettlementDataInit(
       @Lazy SettlementDataInit self,
       SettlementFacade settlementFacade,
       SettlementMemberRepository settlementMemberRepository,
       SettlementCandidateItemRepository settlementCandidateItemRepository,
-      SettlementJobLauncher settlementJobLauncher) {
+      SettlementJobLauncher settlementJobLauncher,
+      SettlementConfig settlementConfig) {
     this.self = self;
     this.settlementFacade = settlementFacade;
     this.settlementMemberRepository = settlementMemberRepository;
     this.settlementCandidateItemRepository = settlementCandidateItemRepository;
     this.settlementJobLauncher = settlementJobLauncher;
+    this.settlementConfig = settlementConfig;
   }
 
   @Bean
@@ -62,8 +65,9 @@ public class SettlementDataInit {
   public void initMembers() {
     log.info("1. 기본 멤버 데이터 초기화");
 
-    if (settlementMemberRepository.findByName("SYSTEM").isEmpty()) {
-      SettlementMember systemMember = SettlementMember.create(SYSTEM_MEMBER_ID, "SYSTEM");
+    Long systemMemberId = settlementConfig.getSystemMemberId();
+    if (settlementMemberRepository.findById(systemMemberId).isEmpty()) {
+      SettlementMember systemMember = SettlementMember.create(systemMemberId, "SYSTEM");
       settlementMemberRepository.save(systemMember);
       log.info("SYSTEM 멤버 생성: {}", systemMember.getId());
     }
