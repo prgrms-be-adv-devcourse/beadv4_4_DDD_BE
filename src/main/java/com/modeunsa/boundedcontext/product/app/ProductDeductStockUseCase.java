@@ -22,7 +22,7 @@ public class ProductDeductStockUseCase {
   private final ProductRepository productRepository;
 
   public List<ProductStockDto> deductStock(ProductStockUpdateRequest request) {
-    // 상품 ID 순으로 정렬
+    // 데드락 발생 방지를 위해 상품 ID 순으로 재정렬
     List<ProductOrderItemDto> sortedItems =
         request.items().stream()
             .sorted(Comparator.comparing(ProductOrderItemDto::productId))
