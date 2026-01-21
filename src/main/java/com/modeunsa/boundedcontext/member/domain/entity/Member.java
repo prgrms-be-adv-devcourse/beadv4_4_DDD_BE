@@ -7,10 +7,12 @@ import com.modeunsa.boundedcontext.auth.domain.entity.OAuthAccount;
 import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.boundedcontext.member.domain.types.MemberStatus;
 import com.modeunsa.global.exception.GeneralException;
+import com.modeunsa.global.jpa.converter.EncryptedStringConverter;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import com.modeunsa.global.status.ErrorStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -46,13 +48,16 @@ public class Member extends GeneratedIdAndAuditedEntity {
   @Builder.Default
   private MemberStatus status = MemberStatus.ACTIVE;
 
+  // TODO: unique 제약조건이 있어 암호화 여부 고민
   @Column(unique = true)
   private String email;
 
-  @Column(length = 30)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(length = 500)
   private String realName;
 
-  @Column(length = 20)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(length = 500)
   private String phoneNumber;
 
   @Getter(AccessLevel.NONE)
