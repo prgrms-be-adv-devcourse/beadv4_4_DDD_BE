@@ -1,0 +1,36 @@
+[Unit]
+Description=Modeunsa Docker Compose Application
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/home/ec2-user/app
+Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+
+# 환경변수 파일 로드
+EnvironmentFile=/home/ec2-user/app/config/env/.env.prod
+
+# 시작: 인프라 먼저, 그 다음 앱
+ExecStart=/bin/bash -c '\
+    docker network create modeunsa-net 2>/dev/null || true && \
+    docker-compose -f /home/ec2-user/app/docker/docker-compose.yml \
+                   --env-file /home/ec2-user/app/env/.env.prod \
+                   up -d mysql redis elasticsearch && \
+    sleep 30 && \
+    docker start app-blue 2>/dev/null || docker start app-green 2>/dev/null || true && \
+    docker start nginx 2>/dev/null || true'
+
+# 종료
+ExecStop=/bin/bash -c '\
+    docker stop nginx app-blue app-green 2>/dev/null || true && \
+    docker-compose -f /home/ec2-user/app/docker/docker-compose.yml down'
+
+# 재시작 설정
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

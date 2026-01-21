@@ -11,6 +11,9 @@ concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: false
 
+env:
+  DOCKER_IMAGE: ${{ secrets.DOCKER_USERNAME }}/modeunsa
+
 jobs:
   deploy:
     name: Build & Deploy
@@ -47,8 +50,10 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/modeunsa:${{ steps.version.outputs.VERSION }} .
-          docker push ${{ secrets.DOCKER_USERNAME }}/modeunsa:${{ steps.version.outputs.VERSION }}
+          docker build -t ${{ env.DOCKER_IMAGE }}:${{ steps.version.outputs.VERSION }} .
+          docker build -t ${{ env.DOCKER_IMAGE }}:latest .
+          docker push ${{ env.DOCKER_IMAGE }}:${{ steps.version.outputs.VERSION }}
+          docker push ${{ env.DOCKER_IMAGE }}:latest
 
       - name: Copy files to EC2
         uses: appleboy/scp-action@v0.1.7
@@ -56,8 +61,10 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.EC2_KEY }}
-          source: "docker-compose.yml,nginx-blue.conf,nginx-green.conf,deploy.sh"
-          target: "/home/ec2-user/app"
+          source: "infra/docker/*,infra/nginx/*,infra/scripts/*,infra/systemd/*"
+          target: "/home/ec2-user/app/infra/"
+          strip_components: 1
+          overwrite: true
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
@@ -68,6 +75,25 @@ jobs:
           script: |
             set -e
             cd /home/ec2-user/app
-            chmod +x deploy.sh
-            ./deploy.sh ${{ secrets.DOCKER_USERNAME }}/modeunsa:${{ steps.version.outputs.VERSION }}
+            
+            # 디렉토리 구조 확인/생성
+            mkdir -p docker nginx env scripts
+            
+            # 배포 실행
+            chmod +x scripts/deploy.sh
+            ./scripts/deploy.sh ${{ env.DOCKER_IMAGE }}:${{ steps.version.outputs.VERSION }}
           script_stop: true
+
+      - name: Verify deployment
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            echo "=========================================="
+            echo "📋 배포 상태 확인"
+            echo "=========================================="
+            docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+            echo ""
+            curl -sf http://localhost/health && echo "✅ Health check passed" || echo "⚠️ Health check failed"

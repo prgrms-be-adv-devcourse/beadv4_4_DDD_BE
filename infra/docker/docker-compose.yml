@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: modeunsa-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    networks:
+      - modeunsa-net
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: modeunsa-redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    networks:
+      - modeunsa-net
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  elasticsearch:
+    build:
+      context: elasticsearch
+    image: elasticsearch:nori
+    restart: unless-stopped
+    container_name: modeunsa-elasticsearch
+    ports:
+      - "${ES_PORT:-9200}:9200"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    networks:
+      - modeunsa-net
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+
+networks:
+  modeunsa-net:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  redis_data:
+  es_data:
