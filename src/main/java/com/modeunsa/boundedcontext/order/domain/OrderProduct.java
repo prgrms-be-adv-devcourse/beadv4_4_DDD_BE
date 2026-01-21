@@ -24,17 +24,4 @@ public class OrderProduct extends ManualIdAndAuditedEntity {
   private String description;
   @Builder.Default private BigDecimal salePrice = BigDecimal.ZERO;
   @Builder.Default private BigDecimal price = BigDecimal.ZERO;
-  @Builder.Default private int qty = 0;
-
-  // 재고 검증
-  public boolean isStockAvailable(int requestQuantity) {
-    return this.qty >= requestQuantity;
-  }
-
-  // 재고 차감
-  public void decreaseStock(int quantity) {
-    if (isStockAvailable(quantity)) {
-      this.qty = this.qty - quantity;
-    }
-  }
 }
