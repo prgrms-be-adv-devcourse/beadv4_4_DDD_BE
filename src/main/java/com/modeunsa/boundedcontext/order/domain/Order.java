@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -28,7 +29,9 @@ import lombok.NoArgsConstructor;
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "order_order")
+@Table(
+    name = "order_order",
+    indexes = @Index(name = "idx_status_paid_at", columnList = "status, paidAt"))
 public class Order extends GeneratedIdAndAuditedEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -71,6 +74,8 @@ public class Order extends GeneratedIdAndAuditedEntity {
   private LocalDateTime paymentDeadlineAt;
 
   private LocalDateTime deliveredAt;
+
+  private LocalDateTime paidAt;
 
   /** 도메인 메서드 */
   @PrePersist
@@ -144,9 +149,19 @@ public class Order extends GeneratedIdAndAuditedEntity {
   // 결제 완료
   public void approve() {
     this.status = OrderStatus.PAID;
+    this.paidAt = LocalDateTime.now();
   }
 
   public void reject() {
     this.status = OrderStatus.PAYMENT_FAILED;
+  }
+
+  public void deliveryComplete() {
+    this.status = OrderStatus.DELIVERED;
+    this.deliveredAt = LocalDateTime.now();
+  }
+
+  public void confirm() {
+    this.status = OrderStatus.PURCHASE_CONFIRMED;
   }
 }
