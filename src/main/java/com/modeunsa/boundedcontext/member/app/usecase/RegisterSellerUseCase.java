@@ -86,6 +86,7 @@ public class RegisterSellerUseCase {
         new SellerRegisteredEvent(
             seller.getId(),
             seller.getBusinessName(),
+            seller.getRepresentativeName(),
             seller.getSettlementBankName(),
             seller.getSettlementBankAccount(),
             seller.getStatus()));
