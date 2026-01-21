@@ -81,6 +81,7 @@ public class SettlementMonthSettlementStepConfig {
           settlement.getId(),
           settlement.getSellerMemberId(),
           settlement.getAmount(),
+          settlement.getType().getCompleteType(),
           settlement.getPayoutAt());
     };
   }

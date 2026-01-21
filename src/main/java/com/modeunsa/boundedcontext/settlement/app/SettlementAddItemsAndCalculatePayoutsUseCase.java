@@ -24,12 +24,16 @@ public class SettlementAddItemsAndCalculatePayoutsUseCase {
     Settlement sellerSettlement =
         getOrCreateSettlement(
             settlementCandidateItem.getSellerMemberId(),
-            settlementCandidateItem.getPurchaseConfirmedAt());
+            settlementCandidateItem.getPurchaseConfirmedAt(),
+            SettlementEventType.SETTLEMENT_PRODUCT_SALES_AMOUNT);
 
     Long systemMemberId = settlementConfig.getSystemMemberId();
 
     Settlement feeSettlement =
-        getOrCreateSettlement(systemMemberId, settlementCandidateItem.getPurchaseConfirmedAt());
+        getOrCreateSettlement(
+            systemMemberId,
+            settlementCandidateItem.getPurchaseConfirmedAt(),
+            SettlementEventType.SETTLEMENT_PRODUCT_SALES_FEE);
 
     PayoutAmounts payoutAmounts = Settlement.calculatePayouts(settlementCandidateItem.getAmount());
 
@@ -56,12 +60,14 @@ public class SettlementAddItemsAndCalculatePayoutsUseCase {
     return items;
   }
 
-  private Settlement getOrCreateSettlement(Long sellerMemberId, LocalDateTime purchaseConfirmedAt) {
+  private Settlement getOrCreateSettlement(
+      Long sellerMemberId, LocalDateTime purchaseConfirmedAt, SettlementEventType type) {
     int year = purchaseConfirmedAt.getYear();
     int month = purchaseConfirmedAt.getMonthValue();
 
     return settlementRepository
         .findBySellerMemberIdAndSettlementYearAndSettlementMonth(sellerMemberId, year, month)
-        .orElseGet(() -> settlementRepository.save(Settlement.create(sellerMemberId, year, month)));
+        .orElseGet(
+            () -> settlementRepository.save(Settlement.create(sellerMemberId, year, month, type)));
   }
 }
