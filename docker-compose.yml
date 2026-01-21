@@ -38,6 +38,8 @@ services:
       - DB_USERNAME=root
       - DB_PASSWORD=${MYSQL_ROOT_PWD}
       - JWT_SECRET=${JWT_SECRET}
+      - ES_HOST=elasticsearch
+      - ES_PORT=9200
     networks:
       - modeunsa-net
     profiles:
@@ -57,6 +59,8 @@ services:
       - DB_USERNAME=root
       - DB_PASSWORD=${MYSQL_ROOT_PWD}
       - JWT_SECRET=${JWT_SECRET}
+      - ES_HOST=elasticsearch
+      - ES_PORT=9200
     networks:
       - modeunsa-net
     profiles:
@@ -71,6 +75,22 @@ services:
     volumes:
       - redis_data:/data
 
+  elasticsearch:
+    build:
+      context: ./docker/elasticsearch
+    image: elasticsearch:nori
+    container_name: elasticsearch
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    networks:
+      - modeunsa-net
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+
 networks:
   modeunsa-net:
     driver: bridge
@@ -78,3 +98,4 @@ networks:
 volumes:
   redis_data:
   mysql_data:
+  es_data:

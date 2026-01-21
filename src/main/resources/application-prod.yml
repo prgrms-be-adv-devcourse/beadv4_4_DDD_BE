@@ -48,9 +48,7 @@ spring:
 
   elasticsearch:
     uris:
-      - https://prod-es.internal
-    username: ${ES_USERNAME}
-    password: ${ES_PASSWORD}
+      - http://elasticsearch:9200
 
 custom:
   security:
