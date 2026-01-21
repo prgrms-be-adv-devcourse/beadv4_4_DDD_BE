@@ -40,6 +40,4 @@ public class ApiV1DevAuthController {
 
     return authFacade.login(member.getId(), member.getRole());
   }
-
-  public record DevLoginResponse(String accessToken, String refreshToken) {}
 }
