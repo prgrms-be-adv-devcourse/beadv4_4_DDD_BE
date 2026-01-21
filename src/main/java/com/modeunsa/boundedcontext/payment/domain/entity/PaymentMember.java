@@ -1,5 +1,7 @@
 package com.modeunsa.boundedcontext.payment.domain.entity;
 
+import com.modeunsa.boundedcontext.payment.domain.exception.PaymentDomainException;
+import com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode;
 import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
 import com.modeunsa.global.jpa.converter.EncryptedStringConverter;
 import com.modeunsa.global.jpa.entity.ManualIdAndAuditedEntity;
@@ -52,11 +54,18 @@ public class PaymentMember extends ManualIdAndAuditedEntity {
         .build();
   }
 
+  public void validateCanOrder() {
+    if (!canOrder()) {
+      throw new PaymentDomainException(
+          PaymentErrorCode.MEMBER_IN_ACTIVE, this.getId(), this.status);
+    }
+  }
+
   private static String generateCustomerKey(Long id) {
     return String.format("%s_%08d", customerKeyPrefix, id);
   }
 
-  public boolean canOrder() {
+  private boolean canOrder() {
     return this.status == MemberStatus.ACTIVE;
   }
 }

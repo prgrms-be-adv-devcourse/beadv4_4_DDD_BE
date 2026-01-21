@@ -42,14 +42,8 @@ public class PaymentEventListener {
 
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Transactional(propagation = REQUIRES_NEW)
-  public void handlePayoutCompletedEvent(PaymentPayoutCompletedEvent paymentPayoutCompletedEvent) {
-    paymentFacade.completePayout(paymentPayoutCompletedEvent.payout());
-  }
-
-  @TransactionalEventListener(phase = AFTER_COMMIT)
-  @Transactional(propagation = REQUIRES_NEW)
   public void handlePaymentFailedEvent(PaymentFailedEvent paymentFailedEvent) {
-    paymentFacade.refund(paymentFailedEvent.payment(), RefundEventType.PAYMENT_FAILED);
+    //    paymentFacade.refund(paymentFailedEvent.payment(), RefundEventType.PAYMENT_FAILED);
   }
 
   @TransactionalEventListener(phase = AFTER_COMMIT)
@@ -57,5 +51,11 @@ public class PaymentEventListener {
   public void handleOrderCanceledEvent(PaymentOrderCanceledEvent paymentOrderCanceledEvent) {
     PaymentDto payment = paymentMapper.toPaymentDto(paymentOrderCanceledEvent.order());
     paymentFacade.refund(payment, RefundEventType.ORDER_CANCELLED);
+  }
+
+  @TransactionalEventListener(phase = AFTER_COMMIT)
+  @Transactional(propagation = REQUIRES_NEW)
+  public void handlePayoutCompletedEvent(PaymentPayoutCompletedEvent paymentPayoutCompletedEvent) {
+    paymentFacade.completePayout(paymentPayoutCompletedEvent.payout());
   }
 }

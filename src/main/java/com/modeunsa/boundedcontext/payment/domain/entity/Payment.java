@@ -1,13 +1,13 @@
 package com.modeunsa.boundedcontext.payment.domain.entity;
 
-import static com.modeunsa.global.status.ErrorStatus.PAYMENT_INVALID;
 import static jakarta.persistence.CascadeType.PERSIST;
 
 import com.modeunsa.boundedcontext.payment.app.dto.ConfirmPaymentRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmResponse;
+import com.modeunsa.boundedcontext.payment.domain.exception.PaymentDomainException;
+import com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentStatus;
 import com.modeunsa.boundedcontext.payment.domain.types.ProviderType;
-import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.jpa.converter.EncryptedStringConverter;
 import com.modeunsa.global.jpa.entity.AuditedEntity;
 import jakarta.persistence.Column;
@@ -138,7 +138,9 @@ public class Payment extends AuditedEntity {
 
   private static void validateTotalAmount(BigDecimal totalAmount) {
     if (totalAmount.compareTo(BigDecimal.ZERO) < 0) {
-      throw new GeneralException(PAYMENT_INVALID);
+      throw new PaymentDomainException(
+          PaymentErrorCode.INSUFFICIENT_BALANCE,
+          String.format("결제 금액은 0보다 작을 수 없습니다. 입력된 금액: %s", totalAmount));
     }
   }
 
