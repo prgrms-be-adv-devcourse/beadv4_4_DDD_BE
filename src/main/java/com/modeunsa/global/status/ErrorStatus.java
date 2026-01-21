@@ -87,10 +87,14 @@ public enum ErrorStatus {
   INVALID_PRODUCT_UPDATE_FIELD(HttpStatus.BAD_REQUEST, "PRODUCT_400_008", "수정 불가한 필드입니다."),
   INVALID_PRODUCT_MEMBER(HttpStatus.BAD_REQUEST, "PRODUCT_400_009", "판매자 정보가 다릅니다."),
   PRODUCT_FIELD_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_010", "필수값을 입력해주세요."),
+
   // PRODUCT 404
   PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT_404_001", "상품이 존재하지 않습니다."),
-  PRODUCT_MEMBER_NOT_FOUND(HttpStatus.BAD_REQUEST, "PRODUCT_400_002", "존재하지 않는 회원입니다."),
-  PRODUCT_SELLER_NOT_FOUND(HttpStatus.BAD_REQUEST, "PRODUCT_400_003", "존재하지 않는 판매자입니다."),
+  PRODUCT_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT_404_002", "존재하지 않는 회원입니다."),
+  PRODUCT_SELLER_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT_404_003", "존재하지 않는 판매자입니다."),
+
+  // PRODUCT 409
+  PRODUCT_STOCK_LOCK_FAILURE(HttpStatus.CONFLICT, "PRODUCT_409_001", "재고 처리 중 락 획득에 실패했습니다."),
 
   // Payment
   PAYMENT_MEMBER_DUPLICATE(HttpStatus.BAD_REQUEST, "PAYMENT_400_001", "이미 등록된 결제 회원 정보가 존재합니다."),
@@ -132,7 +136,14 @@ public enum ErrorStatus {
 
   // Settlement 404
   SETTLEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "SETTLEMENT_404_001", "정산서가 존재하지 않습니다."),
-  SETTLEMENT_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "SETTLEMENT_404_002", "회원을 찾을 수 없습니다.");
+  SETTLEMENT_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "SETTLEMENT_404_002", "회원을 찾을 수 없습니다."),
+
+  // ElasticSearch 400
+  ELASTICSEARCH_SEARCH_FAILED(HttpStatus.NOT_FOUND, "ELASTICSEARCH_400_001", "검색에 실패하였습니다."),
+  ELASTICSEARCH_INDEX_FAILED(HttpStatus.NOT_FOUND, "ELASTICSEARCH_400_002", "인덱싱에 실패하였습니다."),
+  ELASTICSEARCH_DELETE_FAILED(HttpStatus.NOT_FOUND, "ELASTICSEARCH_400_003", "삭제에 실패하였습니다."),
+  ELASTICSEARCH_BULKINDEX_FAILED(HttpStatus.NOT_FOUND, "ELASTICSEARCH_400_004", "대량 인덱싱에 실패하였습니다."),
+  ;
 
   private final HttpStatus httpStatus;
   private final String code;

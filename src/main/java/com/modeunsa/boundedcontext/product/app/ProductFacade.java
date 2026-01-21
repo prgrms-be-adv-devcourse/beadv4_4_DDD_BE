@@ -4,6 +4,7 @@ import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
 import com.modeunsa.boundedcontext.product.domain.ProductMember;
 import com.modeunsa.boundedcontext.product.domain.ProductStatus;
+import com.modeunsa.shared.order.dto.OrderDto;
 import com.modeunsa.shared.product.dto.ProductCreateRequest;
 import com.modeunsa.shared.product.dto.ProductDetailResponse;
 import com.modeunsa.shared.product.dto.ProductOrderResponse;
@@ -30,6 +31,7 @@ public class ProductFacade {
   private final ProductDeleteFavoriteUseCase productDeleteFavoriteUseCase;
   private final ProductValidateOrderUseCase productValidateOrderUseCase;
   private final ProductDeductStockUseCase productDeductStockUseCase;
+  private final ProductRestoreStockUseCase productRestoreStockUseCase;
   private final ProductSupport productSupport;
   private final ProductMapper productMapper;
 
@@ -90,5 +92,9 @@ public class ProductFacade {
     return productDeductStockUseCase.deductStock(productStockUpdateRequest).stream()
         .map(productMapper::toProductStockResponse)
         .toList();
+  }
+
+  public void restoreStock(OrderDto orderDto) {
+    productRestoreStockUseCase.restoreStock(orderDto);
   }
 }

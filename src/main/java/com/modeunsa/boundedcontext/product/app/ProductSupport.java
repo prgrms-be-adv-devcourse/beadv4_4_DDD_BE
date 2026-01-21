@@ -76,4 +76,12 @@ public class ProductSupport {
   public Product getProductForUpdate(Long productId) {
     return productRepository.findByIdForUpdate(productId);
   }
+
+  public void validateProducts(List<Long> productIds) {
+    for (Long productId : productIds) {
+      if (productId == null) {
+        throw new GeneralException(ErrorStatus.PRODUCT_NOT_FOUND);
+      }
+    }
+  }
 }
