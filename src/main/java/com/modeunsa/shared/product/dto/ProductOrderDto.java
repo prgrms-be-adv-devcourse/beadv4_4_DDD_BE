@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 
 public record ProductOrderDto(
     Long productId,
+    Long sellerId,
     String name,
     BigDecimal salePrice, // 판매가
     int stock,
@@ -13,6 +14,12 @@ public record ProductOrderDto(
 
   public ProductOrderDto setIsAvailable(boolean isAvailable) {
     return new ProductOrderDto(
-        this.productId, this.name, this.salePrice, this.stock, this.saleStatus, isAvailable);
+        this.productId,
+        this.sellerId,
+        this.name,
+        this.salePrice,
+        this.stock,
+        this.saleStatus,
+        isAvailable);
   }
 }

@@ -45,7 +45,7 @@ public class OrderItem extends GeneratedIdAndAuditedEntity {
   @Column(name = "sale_price", nullable = false)
   private BigDecimal salePrice; // 판매가
 
-  @Column(name = "price", nullable = false)
+  @Column(name = "price") // TODO: 주문서에 정가도 같이 넘겨줄 건지
   private BigDecimal price; // 정가
 
   // --- 도메인 메서드 ---

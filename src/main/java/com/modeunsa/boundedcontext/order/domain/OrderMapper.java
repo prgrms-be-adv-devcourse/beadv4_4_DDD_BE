@@ -9,6 +9,7 @@ import com.modeunsa.shared.order.dto.OrderItemDto;
 import com.modeunsa.shared.order.dto.OrderItemResponseDto;
 import com.modeunsa.shared.order.dto.OrderListResponseDto;
 import com.modeunsa.shared.order.dto.OrderResponseDto;
+import com.modeunsa.shared.product.dto.ProductOrderResponse;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.mapstruct.Mapper;
@@ -28,9 +29,12 @@ public interface OrderMapper {
   CartItemDto toCartItemDto(CartItem cartItem, OrderProduct product);
 
   // 주문 상품
+  @Mapping(target = "productId", source = "product.productId")
   @Mapping(target = "productName", source = "product.name")
   @Mapping(target = "order", ignore = true)
-  OrderItem toOrderItemEntity(OrderProduct product, @Valid CreateOrderRequestDto requestDto);
+  @Mapping(target = "sellerId", source = "product.sellerId")
+  OrderItem toOrderItemEntity(
+      ProductOrderResponse product, @Valid CreateOrderRequestDto requestDto);
 
   OrderItemResponseDto toOrderItemResponseDto(OrderItem orderItem);
 

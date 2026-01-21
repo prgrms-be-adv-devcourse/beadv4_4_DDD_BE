@@ -60,7 +60,14 @@ public class ExceptionAdvice {
   @ExceptionHandler(GeneralException.class)
   public ResponseEntity<ApiResponse> handleGeneralException(GeneralException e) {
     storeException(e);
+    System.out.println(">>> 예외 핸들러 도착! data 값: " + e.getData());
+    if (e.getData() != null) {
+      System.out.println(">>> 데이터가 있어서 onFailure(..., data) 호출함");
+      // 데이터가 있는 경우
+      return ApiResponse.onFailure(e.getErrorStatus(), e.getData());
+    }
 
+    System.out.println(">>> 데이터가 없어서 그냥 에러 메시지만 보냄");
     return ApiResponse.onFailure(e.getErrorStatus(), e.getMessage());
   }
 

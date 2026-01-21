@@ -42,8 +42,8 @@ public class OrderDataInit {
   public ApplicationRunner orderDataInitApplicationRunner() {
     return args -> {
       self.makeBaseMembers(); // 1. 회원 먼저 생성
-      self.makeBaseProducts(); // 2. 상품 생성 (회원 필요)
-      self.makeBaseCartItems(); // 3. 장바구니 담기 테스트 (회원+상품 필요)
+      // self.makeBaseProducts(); // 2. 상품 생성 (회원 필요)
+      // self.makeBaseCartItems(); // 3. 장바구니 담기 테스트 (회원+상품 필요)
       self.makeBaseOrders(); // 4. 주문
     };
   }
@@ -133,16 +133,16 @@ public class OrderDataInit {
     }
 
     OrderMember buyer1 = orderFacade.findByMemberId(1L); // user1이 구매
-    OrderProduct product1 = orderFacade.findByProductId(5L); // 셔츠 구매
+    // OrderProduct product1 = orderFacade.findByProductId(5L); // 셔츠 구매
 
     OrderMember buyer2 = orderFacade.findByMemberId(2L); // user1이 구매
-    OrderProduct product2 = orderFacade.findByProductId(6L); // 바지 구매
+    // OrderProduct product2 = orderFacade.findByProductId(6L); // 바지 구매
 
     // 단건 주문 생성
     orderFacade.createOrder(
         buyer1.getId(),
         new CreateOrderRequestDto(
-            product1.getId(), // productId
+            5L, // productId
             2, // quantity (2개 구매)
             "홍길동", // recipientrName
             "010-1234-5678", // recipientPhone
@@ -156,8 +156,8 @@ public class OrderDataInit {
     orderFacade.createOrder(
         buyer2.getId(),
         new CreateOrderRequestDto(
-            product2.getId(), // productId
-            7, // quantity (2개 구매)
+            6L, // productId
+            3, // quantity (3개 구매)
             "세종대왕", // recipientName
             "010-1234-5678", // recipientPhone
             "12345", // zipcode
@@ -165,6 +165,6 @@ public class OrderDataInit {
             "203동" // addressDetail
             ));
 
-    log.info("Test Single Order Created: user2 bought '셔츠' (qty: 7)");
+    log.info("Test Single Order Created: user2 bought '셔츠' (qty: 3)");
   }
 }
