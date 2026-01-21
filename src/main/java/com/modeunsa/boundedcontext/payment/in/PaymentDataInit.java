@@ -42,6 +42,10 @@ public class PaymentDataInit {
   @Transactional
   public void makeBaseCredits() {
 
+    if (paymentFacade.countAccountLog() > 0) {
+      return;
+    }
+
     paymentFacade.creditAccount(
         new PaymentAccountDepositRequest(
             1L, BigDecimal.valueOf(100_000), PaymentEventType.CHARGE_BANK_TRANSFER));
