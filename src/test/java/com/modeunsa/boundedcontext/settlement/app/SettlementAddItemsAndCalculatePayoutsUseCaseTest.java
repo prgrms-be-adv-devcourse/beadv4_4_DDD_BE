@@ -58,8 +58,12 @@ class SettlementAddItemsAndCalculatePayoutsUseCaseTest {
     int year = LocalDateTime.now().getYear();
     int month = LocalDateTime.now().getMonthValue();
 
-    sellerSettlement = Settlement.create(SELLER_ID, year, month);
-    feeSettlement = Settlement.create(systemMemberId, year, month);
+    sellerSettlement =
+        Settlement.create(
+            SELLER_ID, year, month, SettlementEventType.SETTLEMENT_PRODUCT_SALES_AMOUNT);
+    feeSettlement =
+        Settlement.create(
+            systemMemberId, year, month, SettlementEventType.SETTLEMENT_PRODUCT_SALES_FEE);
 
     candidateItem =
         SettlementCandidateItem.create(
