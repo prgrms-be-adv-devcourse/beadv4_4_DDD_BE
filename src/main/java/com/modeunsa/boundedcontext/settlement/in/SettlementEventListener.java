@@ -4,6 +4,7 @@ import static org.springframework.transaction.annotation.Propagation.REQUIRES_NE
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
 import com.modeunsa.boundedcontext.settlement.app.SettlementFacade;
+import com.modeunsa.boundedcontext.settlement.app.event.SettlementItemCollectedEvent;
 import com.modeunsa.boundedcontext.settlement.app.event.SettlementMemberEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -19,5 +20,11 @@ public class SettlementEventListener {
   @Transactional(propagation = REQUIRES_NEW)
   public void handle(SettlementMemberEvent event) {
     settlementFacade.syncMember(event.memberId(), event.memberRole());
+  }
+
+  @TransactionalEventListener(phase = AFTER_COMMIT)
+  @Transactional(propagation = REQUIRES_NEW)
+  public void handle(SettlementItemCollectedEvent event) {
+    settlementFacade.collectCandidateItems(event.orderId());
   }
 }

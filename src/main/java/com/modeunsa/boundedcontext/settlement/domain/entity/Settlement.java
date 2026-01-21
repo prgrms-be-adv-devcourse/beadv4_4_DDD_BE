@@ -57,7 +57,7 @@ public class Settlement extends GeneratedIdAndAuditedEntity {
       Long sellerMemberId,
       BigDecimal amount,
       SettlementEventType eventType,
-      LocalDateTime paymentAt) {
+      LocalDateTime purchaseConfirmedAt) {
     SettlementItem settlementItem =
         SettlementItem.builder()
             .settlement(this)
@@ -66,7 +66,7 @@ public class Settlement extends GeneratedIdAndAuditedEntity {
             .sellerMemberId(sellerMemberId)
             .amount(amount)
             .eventType(eventType)
-            .paymentAt(paymentAt)
+            .purchaseConfirmedAt(purchaseConfirmedAt)
             .build();
 
     items.add(settlementItem);
