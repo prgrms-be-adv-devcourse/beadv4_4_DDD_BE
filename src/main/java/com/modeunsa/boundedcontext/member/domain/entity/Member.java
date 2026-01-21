@@ -8,6 +8,7 @@ import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.boundedcontext.member.domain.types.MemberStatus;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
+import com.modeunsa.global.status.ErrorStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -152,5 +153,11 @@ public class Member extends GeneratedIdAndAuditedEntity {
 
   public MemberDeliveryAddress getDefaultDeliveryAddress() {
     return addresses.stream().filter(MemberDeliveryAddress::getIsDefault).findFirst().orElse(null);
+  }
+
+  public void validateCanRegisterDefaultAddress(boolean isDefault) {
+    if (isDefault && getDefaultDeliveryAddress() != null) {
+      throw new GeneralException(ErrorStatus.MEMBER_ALREADY_HAS_DEFAULT_ADDRESS);
+    }
   }
 }

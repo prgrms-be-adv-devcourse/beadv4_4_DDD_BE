@@ -4,8 +4,6 @@ import com.modeunsa.boundedcontext.member.app.support.MemberSupport;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.entity.MemberDeliveryAddress;
 import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
-import com.modeunsa.global.exception.GeneralException;
-import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressCreateRequest;
 import com.modeunsa.shared.member.event.MemberDeliveryAddressAddedEvent;
 import lombok.RequiredArgsConstructor;
@@ -25,10 +23,7 @@ public class MemberDeliveryAddressAddUseCase {
 
     boolean isDefaultRequest = Boolean.TRUE.equals(request.isDefault());
 
-    // 기본 배송지로 설정하려는 경우, 이미 기본 배송지가 있는지 확인
-    if (isDefaultRequest && member.getDefaultDeliveryAddress() != null) {
-      throw new GeneralException(ErrorStatus.MEMBER_ALREADY_HAS_DEFAULT_ADDRESS);
-    }
+    member.validateCanRegisterDefaultAddress(isDefaultRequest);
 
     MemberDeliveryAddress address =
         MemberDeliveryAddress.builder()
