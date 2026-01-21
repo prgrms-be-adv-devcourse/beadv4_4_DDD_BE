@@ -6,7 +6,7 @@ import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.security.jwt.JwtTokenProvider;
 import com.modeunsa.global.status.ErrorStatus;
-import com.modeunsa.shared.auth.dto.TokenResponse;
+import com.modeunsa.shared.auth.dto.JwtTokenResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +19,7 @@ public class AuthTokenReissueUseCase {
   private final AuthTokenIssueUseCase authTokenIssueUseCase;
 
   /** Refresh Token으로 Access Token 재발급 */
-  public TokenResponse execute(String refreshToken) {
+  public JwtTokenResponse execute(String refreshToken) {
     // TODO: Refresh Token Rotation 및 동시성(Race Condition) 방어 필요
     // - 동시 요청 시 둘 다 성공할 수 있는 문제
     // - Redisson 분산 락 또는 Redis Lua Script로 원자적 처리 고려
