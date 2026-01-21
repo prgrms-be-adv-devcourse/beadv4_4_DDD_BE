@@ -25,4 +25,8 @@ public abstract class ManualIdAndAuditedEntity {
   @LastModifiedDate private LocalDateTime updatedAt;
   @CreatedBy private Long createdBy; // member.id
   @LastModifiedBy private Long updatedBy; // member.id
+
+  protected void assignId(Long id) {
+    this.id = id;
+  }
 }

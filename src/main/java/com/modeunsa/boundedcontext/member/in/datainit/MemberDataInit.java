@@ -38,7 +38,7 @@ public class MemberDataInit {
   }
 
   @Bean
-  @Order(1)
+  @Order(0)
   public ApplicationRunner memberDataInitRunner() {
     return args -> {
       self.initBaseData();

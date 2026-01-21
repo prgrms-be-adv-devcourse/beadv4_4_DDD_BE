@@ -1,6 +1,5 @@
 package com.modeunsa.boundedcontext.product.in;
 
-import com.modeunsa.boundedcontext.product.domain.ProductMember;
 import com.modeunsa.boundedcontext.product.domain.ProductMemberSeller;
 import com.modeunsa.boundedcontext.product.out.ProductMemberRepository;
 import com.modeunsa.boundedcontext.product.out.ProductMemberSellerRepository;
@@ -40,20 +39,6 @@ public class ProductMemberDataInit {
     if (productMemberRepository.count() > 0 || productMemberSellerRepository.count() > 0) {
       return;
     }
-    ProductMember member1 =
-        ProductMember.builder()
-            .email("123@abc.com")
-            .phoneNumber("01020002000")
-            .realName("member1")
-            .build();
-    productMemberRepository.save(member1);
-    ProductMember member2 =
-        ProductMember.builder()
-            .email("345@abc.com")
-            .phoneNumber("01030002000")
-            .realName("member2")
-            .build();
-    productMemberRepository.save(member2);
     ProductMemberSeller seller1 =
         ProductMemberSeller.builder().businessName("나이키").representativeName("나이키대표").build();
     productMemberSellerRepository.save(seller1);

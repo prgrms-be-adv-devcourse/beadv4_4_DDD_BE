@@ -4,6 +4,7 @@ import static org.springframework.transaction.annotation.Propagation.REQUIRES_NE
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
 import com.modeunsa.boundedcontext.product.app.ProductFacade;
+import com.modeunsa.shared.auth.event.MemberSignupEvent;
 import com.modeunsa.shared.order.event.OrderCancelRequestEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -20,7 +21,14 @@ public class ProductEventListener {
 
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Transactional(propagation = REQUIRES_NEW)
-  public void handleOrderCreatedEvent(OrderCancelRequestEvent event) {
+  public void handleOrderCanceledEvent(OrderCancelRequestEvent event) {
     productFacade.restoreStock(event.getOrderDto());
+  }
+
+  @TransactionalEventListener(phase = AFTER_COMMIT)
+  @Transactional(propagation = REQUIRES_NEW)
+  public void handleMemberSignupEvent(MemberSignupEvent event) {
+    productFacade.createProductMember(
+        event.memberId(), event.email(), event.realName(), event.phoneNumber());
   }
 }
