@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.auth.app.usecase;
+package com.modeunsa.boundedcontext.auth.app;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -10,6 +10,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.modeunsa.boundedcontext.auth.app.usecase.AuthLogoutUseCase;
 import com.modeunsa.boundedcontext.auth.domain.entity.AuthAccessTokenBlacklist;
 import com.modeunsa.boundedcontext.auth.out.repository.AuthAccessTokenBlacklistRepository;
 import com.modeunsa.boundedcontext.auth.out.repository.AuthRefreshTokenRepository;
