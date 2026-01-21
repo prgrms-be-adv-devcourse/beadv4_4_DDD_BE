@@ -3,11 +3,14 @@ package com.modeunsa.boundedcontext.payment.app.mapper;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberResponse;
 import com.modeunsa.boundedcontext.payment.app.dto.order.PaymentOrderInfo;
+import com.modeunsa.boundedcontext.payment.app.dto.settlement.PaymentPayoutInfo;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
 import com.modeunsa.shared.auth.event.MemberSignupEvent;
 import com.modeunsa.shared.order.dto.OrderDto;
+import com.modeunsa.shared.settlement.dto.SettlementCompletedPayoutDto;
+import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -42,4 +45,6 @@ public interface PaymentMapper {
       case WITHDRAWN -> MemberStatus.WITHDRAWN;
     };
   }
+
+  List<PaymentPayoutInfo> toPaymentPayoutInfoList(List<SettlementCompletedPayoutDto> payouts);
 }
