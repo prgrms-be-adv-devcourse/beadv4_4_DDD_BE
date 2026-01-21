@@ -6,8 +6,10 @@ import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class PaymentMemberSupport {
 
@@ -17,5 +19,9 @@ public class PaymentMemberSupport {
     return paymentMemberRepository
         .findById(memberId)
         .orElseThrow(() -> new GeneralException(ErrorStatus.PAYMENT_MEMBER_NOT_FOUND));
+  }
+
+  public long countMember() {
+    return paymentMemberRepository.count();
   }
 }

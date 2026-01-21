@@ -8,8 +8,10 @@ import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class PaymentAccountSupport {
 
@@ -54,5 +56,9 @@ public class PaymentAccountSupport {
     return paymentAccountRepository
         .findByMemberIdWithLock(holderMemberId)
         .orElseThrow(() -> new GeneralException(ErrorStatus.PAYMENT_ACCOUNT_NOT_FOUND));
+  }
+
+  public long countMemberAccount() {
+    return paymentAccountRepository.count();
   }
 }
