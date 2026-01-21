@@ -13,19 +13,17 @@ import org.springframework.stereotype.Service;
 public class MemberSupport {
   private final MemberRepository memberRepository;
 
-  public Member getMember(Long memberId) {
-    return memberRepository
-        .findById(memberId)
-        .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
-  }
-
   public MemberProfile getMemberProfileOrThrow(Long memberId) {
-    Member member = getMember(memberId);
-    MemberProfile profile = member.getProfile();
+    // 1. Member 조회
+    Member member = memberRepository.findByIdWithProfile(memberId)
+        .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
+    // 2. Member는 있는데 Profile이 null인 경우 체크
+    MemberProfile profile = member.getProfile();
     if (profile == null) {
       throw new GeneralException(ErrorStatus.MEMBER_PROFILE_NOT_FOUND);
     }
+
     return profile;
   }
 }
