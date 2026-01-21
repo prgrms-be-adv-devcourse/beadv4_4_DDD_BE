@@ -48,12 +48,12 @@ public class MemberDeliveryAddressUpdateUseCase {
         new MemberDeliveryAddressUpdatedEvent(
             memberId,
             addressId,
-            request.getRecipientName(),
-            request.getRecipientPhone(),
-            request.getZipCode(),
-            request.getAddress(),
-            request.getAddressDetail(),
-            request.getAddressName(),
+            address.getRecipientName(),
+            address.getRecipientPhone(),
+            address.getZipCode(),
+            address.getAddress(),
+            address.getAddressDetail(),
+            address.getAddressName(),
             address.getIsDefault()));
   }
 }

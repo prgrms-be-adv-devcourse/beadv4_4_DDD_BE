@@ -15,7 +15,7 @@ spring:
     open-in-view: false
     show-sql: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
@@ -59,7 +59,7 @@ custom:
     permit-all: false
     permit-urls:
       - /h2-console/**
-      - /swagger-ui/**,
+      - /swagger-ui/**
       - /v3/api-docs/**
       - /api/v1/auths/**
       - /api/v1/products/**
