@@ -64,6 +64,7 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    needs: [build]
     env:
       ENCRYPTION_MASTER_KEY: ${{ secrets.ENCRYPTION_MASTER_KEY }}
 
@@ -96,7 +97,7 @@ jobs:
         run: ./gradlew test -Dspring.profiles.active=test --no-daemon
 
       - name: Upload Test Report
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-report
