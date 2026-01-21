@@ -2,11 +2,11 @@ package com.modeunsa.shared.file.in;
 
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.s3.S3UploadService;
+import com.modeunsa.global.s3.dto.DomainType;
+import com.modeunsa.global.s3.dto.PresignedUrlRequest;
+import com.modeunsa.global.s3.dto.PresignedUrlResponse;
+import com.modeunsa.global.s3.dto.PublicUrlRequest;
 import com.modeunsa.global.status.SuccessStatus;
-import com.modeunsa.shared.file.dto.DomainType;
-import com.modeunsa.shared.file.dto.PresignedUrlRequest;
-import com.modeunsa.shared.file.dto.PresignedUrlResponse;
-import com.modeunsa.shared.file.dto.PublicUrlRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;

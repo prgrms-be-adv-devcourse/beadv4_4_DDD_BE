@@ -1,4 +1,4 @@
-package com.modeunsa.shared.file.dto;
+package com.modeunsa.global.s3.dto;
 
 public enum DomainType {
   PRODUCT,
