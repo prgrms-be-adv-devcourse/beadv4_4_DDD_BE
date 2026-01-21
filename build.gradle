@@ -91,6 +91,15 @@ jar {
 
 tasks.named('test') {
     useJUnitPlatform()
+
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+        showStandardStreams = true
+    }
+
+    // 테스트 실패 시 빌드 실패 처리
+    ignoreFailures = false
     
     // Load .env file for tests
     def envFile = file('.env')
