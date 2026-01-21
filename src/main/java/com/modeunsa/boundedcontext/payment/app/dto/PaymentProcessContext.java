@@ -43,6 +43,7 @@ public record PaymentProcessContext(
     return PaymentProcessContext.builder()
         .buyerId(confirmPaymentRequest.memberId())
         .orderNo(orderNo)
+        .needsCharge(true)
         .chargeAmount(BigDecimal.valueOf(confirmPaymentRequest.amount()))
         .paymentKey(confirmPaymentRequest.paymentKey())
         .pgCustomerEmail(confirmPaymentRequest.pgCustomerEmail())
