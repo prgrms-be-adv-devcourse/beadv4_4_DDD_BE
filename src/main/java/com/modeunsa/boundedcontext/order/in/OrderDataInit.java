@@ -38,7 +38,7 @@ public class OrderDataInit {
   }
 
   @Bean
-  @org.springframework.core.annotation.Order(1)
+  @org.springframework.core.annotation.Order(3)
   public ApplicationRunner orderDataInitApplicationRunner() {
     return args -> {
       self.makeBaseMembers(); // 1. 회원 먼저 생성
