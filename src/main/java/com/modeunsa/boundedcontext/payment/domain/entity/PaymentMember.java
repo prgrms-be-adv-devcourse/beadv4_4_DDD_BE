@@ -1,8 +1,10 @@
 package com.modeunsa.boundedcontext.payment.domain.entity;
 
 import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
+import com.modeunsa.global.jpa.converter.EncryptedStringConverter;
 import com.modeunsa.global.jpa.entity.ManualIdAndAuditedEntity;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -24,9 +26,11 @@ public class PaymentMember extends ManualIdAndAuditedEntity {
 
   private static final String customerKeyPrefix = "CUSTOMER";
 
-  @Column(nullable = false, unique = true)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(nullable = false)
   private String email;
 
+  @Convert(converter = EncryptedStringConverter.class)
   @Column(nullable = false)
   private String name;
 

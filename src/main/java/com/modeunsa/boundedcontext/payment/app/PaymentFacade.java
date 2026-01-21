@@ -131,4 +131,12 @@ public class PaymentFacade {
 
     return ConfirmPaymentResponse.complete(context.orderNo());
   }
+
+  public long countMember() {
+    return paymentMemberSupport.countMember();
+  }
+
+  public long countMemberAccount() {
+    return paymentAccountSupport.countMemberAccount();
+  }
 }
