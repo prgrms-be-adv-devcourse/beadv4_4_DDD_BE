@@ -35,10 +35,6 @@ public class CartItem extends GeneratedIdAndAuditedEntity {
   private int quantity;
 
   @Builder.Default
-  @Column(name = "is_available", nullable = false)
-  private Boolean isAvailable = true;
-
-  @Builder.Default
   @Column(name = "is_deleted", nullable = false)
   private boolean isDeleted = false;
 

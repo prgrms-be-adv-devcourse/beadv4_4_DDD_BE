@@ -19,14 +19,15 @@ import org.mapstruct.Mapping;
 public interface OrderMapper {
   // 장바구니 상품
   // TODO: SecurityContext에서 memberId 추출해서 Auditing으로 createdBy필드 채우기
-  @Mapping(target = "isAvailable", ignore = true)
   CartItem toCartItemEntity(long memberId, CreateCartItemRequestDto createCartItemRequestDto);
 
   CreateCartItemResponseDto toCreateCartItemResponseDto(CartItem cartItem);
 
-  @Mapping(target = "salePrice", source = "product.salePrice") // ★ 상품의 가격(단가)을 DTO에 넣음
+  @Mapping(target = "productId", source = "product.productId")
+  @Mapping(target = "salePrice", source = "product.salePrice")
   @Mapping(target = "quantity", source = "cartItem.quantity")
-  CartItemDto toCartItemDto(CartItem cartItem, OrderProduct product);
+  @Mapping(target = "isAvailable", source = "isAvailable")
+  CartItemDto toCartItemDto(CartItem cartItem, ProductOrderResponse product, boolean isAvailable);
 
   // 주문 상품
   @Mapping(target = "productId", source = "product.productId")
