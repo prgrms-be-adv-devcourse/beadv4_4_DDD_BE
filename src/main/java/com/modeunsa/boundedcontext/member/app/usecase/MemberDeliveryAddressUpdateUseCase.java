@@ -4,12 +4,12 @@ import com.modeunsa.boundedcontext.member.app.support.MemberSupport;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.entity.MemberDeliveryAddress;
 import com.modeunsa.boundedcontext.member.out.repository.MemberDeliveryAddressRepository;
+import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressUpdateRequest;
 import com.modeunsa.shared.member.event.MemberDeliveryAddressUpdatedEvent;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,7 +18,7 @@ public class MemberDeliveryAddressUpdateUseCase {
 
   private final MemberSupport memberSupport;
   private final MemberDeliveryAddressRepository addressRepository;
-  private final ApplicationEventPublisher eventPublisher;
+  private final SpringDomainEventPublisher eventPublisher;
 
   public void execute(Long memberId, Long addressId, MemberDeliveryAddressUpdateRequest request) {
     Member member = memberSupport.getMember(memberId);
@@ -44,6 +44,16 @@ public class MemberDeliveryAddressUpdateUseCase {
         .updateAddressName(request.getAddressName());
 
     // 4. 이벤트 발행
-    eventPublisher.publishEvent(MemberDeliveryAddressUpdatedEvent.of(memberId, addressId));
+    eventPublisher.publish(
+        new MemberDeliveryAddressUpdatedEvent(
+            memberId,
+            addressId,
+            request.getRecipientName(),
+            request.getRecipientPhone(),
+            request.getZipCode(),
+            request.getAddress(),
+            request.getAddressDetail(),
+            request.getAddressName(),
+            address.getIsDefault()));
   }
 }

@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.auth.in.listener;
+package com.modeunsa.boundedcontext.member.in.listener;
 
 import com.modeunsa.shared.auth.event.MemberSignupEvent;
 import lombok.RequiredArgsConstructor;
@@ -14,10 +14,7 @@ public class MemberSignupEventListener {
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handleMemberSignup(MemberSignupEvent event) {
-    log.info(
-        "회원가입 이벤트 수신 - memberId: {}, email: {}, provider: {}",
-        event.memberId(),
-        event.email(),
-        event.provider());
+    // TODO: 회원가입 후 처리 로직 구현 예정
+    log.info("회원가입 이벤트 수신 - memberId: {}", event.memberId());
   }
 }
