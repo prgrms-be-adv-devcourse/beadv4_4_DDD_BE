@@ -20,3 +20,5 @@ settlement:
   scheduler:
     daily-03: "* * * * * *"
     monthly-25-04: "* * * * * *"
+  member:
+    system-member-id: 1
