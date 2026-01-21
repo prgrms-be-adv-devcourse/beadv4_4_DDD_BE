@@ -105,7 +105,7 @@ public class OrderCreateOrderUseCase {
 
     List<Long> failedProductIds =
         stockResult.stream()
-            .filter(result -> !result.isSucceed())
+            .filter(result -> !result.success())
             .map(ProductStockResponse::productId)
             .toList();
 

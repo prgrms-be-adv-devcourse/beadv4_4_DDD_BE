@@ -138,7 +138,7 @@ public class OrderCreateCartOrderUseCase {
     // 실패 건 필터링
     List<Long> failedProductIds =
         stockResults.stream()
-            .filter(result -> !result.isSucceed())
+            .filter(result -> !result.success())
             .map(ProductStockResponse::productId)
             .toList();
 
