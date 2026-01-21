@@ -5,6 +5,7 @@ import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMI
 
 import com.modeunsa.boundedcontext.product.app.ProductFacade;
 import com.modeunsa.shared.auth.event.MemberSignupEvent;
+import com.modeunsa.shared.member.event.SellerRegisteredEvent;
 import com.modeunsa.shared.order.event.OrderCancelRequestEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -30,5 +31,12 @@ public class ProductEventListener {
   public void handleMemberSignupEvent(MemberSignupEvent event) {
     productFacade.createProductMember(
         event.memberId(), event.email(), event.realName(), event.phoneNumber());
+  }
+
+  @TransactionalEventListener(phase = AFTER_COMMIT)
+  @Transactional(propagation = REQUIRES_NEW)
+  public void handleMemberSignupEvent(SellerRegisteredEvent event) {
+    productFacade.createProductMemberSeller(
+        event.memberSellerId(), event.businessName(), event.representativeName());
   }
 }
