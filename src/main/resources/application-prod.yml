@@ -54,7 +54,11 @@ custom:
   security:
     permit-all: false
     # TODO: swagger 관련 URL 제거 검토
-    permit-urls: /swagger-ui/**,/v3/api-docs/**,/api/v1/auths/oauth/**,/actuator/**
+    permit-urls:
+      - /swagger-ui/**
+      - /v3/api-docs/**
+      - /api/v1/auths/oauth/**
+      - /actuator/**
   cors:
     enabled: false
 
