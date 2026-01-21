@@ -27,6 +27,7 @@ public class ProductCreateProductUseCase {
     }
     ProductMemberSeller seller = productSupport.getProductMemberSeller(sellerId);
     // TODO: 파일 업로드 작업 이후에 이미지 추가 예정
+    Integer stock = productCreateRequest.getStock();
     Product product =
         Product.create(
             seller,
@@ -35,7 +36,7 @@ public class ProductCreateProductUseCase {
             productCreateRequest.getDescription(),
             productCreateRequest.getSalePrice(),
             productCreateRequest.getPrice(),
-            productCreateRequest.getStock());
+            stock != null ? stock : 0);
     product = productRepository.save(product);
     eventPublisher.publish(new ProductCreatedEvent(productMapper.toDto(product)));
     return product;
