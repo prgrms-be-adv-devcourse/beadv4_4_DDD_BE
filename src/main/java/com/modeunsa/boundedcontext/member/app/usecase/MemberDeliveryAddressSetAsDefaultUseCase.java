@@ -4,12 +4,12 @@ import com.modeunsa.boundedcontext.member.app.support.MemberSupport;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.entity.MemberDeliveryAddress;
 import com.modeunsa.boundedcontext.member.out.repository.MemberDeliveryAddressRepository;
+import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.member.event.MemberDeliveryAddressSetAsDefaultEvent;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +19,7 @@ public class MemberDeliveryAddressSetAsDefaultUseCase {
 
   private final MemberSupport memberSupport;
   private final MemberDeliveryAddressRepository addressRepository;
-  private final ApplicationEventPublisher eventPublisher;
+  private final SpringDomainEventPublisher eventPublisher;
 
   @Transactional
   public void execute(Long memberId, Long addressId) {
@@ -48,6 +48,16 @@ public class MemberDeliveryAddressSetAsDefaultUseCase {
     // 4. 기본 배송지 변경 (Member 엔티티 내부 로직에서 기존 기본값 해제 후 새 값 설정)
     member.setNewDefaultAddress(newDefaultAddress);
 
-    eventPublisher.publishEvent(MemberDeliveryAddressSetAsDefaultEvent.of(memberId, addressId));
+    eventPublisher.publish(
+        new MemberDeliveryAddressSetAsDefaultEvent(
+            memberId,
+            addressId,
+            newDefaultAddress.getRecipientName(),
+            newDefaultAddress.getRecipientPhone(),
+            newDefaultAddress.getZipCode(),
+            newDefaultAddress.getAddress(),
+            newDefaultAddress.getAddressDetail(),
+            newDefaultAddress.getAddressName(),
+            newDefaultAddress.getIsDefault()));
   }
 }

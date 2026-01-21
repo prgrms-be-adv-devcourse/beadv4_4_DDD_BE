@@ -4,12 +4,12 @@ import com.modeunsa.boundedcontext.member.app.support.MemberSupport;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.entity.MemberProfile;
 import com.modeunsa.boundedcontext.member.out.repository.MemberProfileRepository;
+import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.member.dto.request.MemberProfileCreateRequest;
 import com.modeunsa.shared.member.event.MemberProfileCreatedEvent;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,7 +18,7 @@ public class MemberProfileCreateUseCase {
 
   private final MemberSupport memberSupport;
   private final MemberProfileRepository memberProfileRepository;
-  private final ApplicationEventPublisher eventPublisher;
+  private final SpringDomainEventPublisher eventPublisher;
 
   public void execute(Long memberId, MemberProfileCreateRequest request) {
     Member member = memberSupport.getMember(memberId);
@@ -43,8 +43,14 @@ public class MemberProfileCreateUseCase {
     member.setProfile(profile);
     memberProfileRepository.save(profile);
 
-    eventPublisher.publishEvent(
-        MemberProfileCreatedEvent.of(
-            memberId, profile.getNickname(), profile.getProfileImageUrl()));
+    eventPublisher.publish(
+        new MemberProfileCreatedEvent(
+            memberId,
+            profile.getId(),
+            profile.getNickname(),
+            profile.getProfileImageUrl(),
+            profile.getHeightCm(),
+            profile.getWeightKg(),
+            profile.getSkinType()));
   }
 }

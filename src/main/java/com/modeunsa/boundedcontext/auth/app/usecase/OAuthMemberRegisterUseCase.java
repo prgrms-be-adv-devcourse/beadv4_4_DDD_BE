@@ -3,11 +3,11 @@ package com.modeunsa.boundedcontext.auth.app.usecase;
 import com.modeunsa.boundedcontext.auth.domain.entity.OAuthAccount;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
+import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
 import com.modeunsa.shared.auth.dto.OAuthUserInfo;
 import com.modeunsa.shared.auth.event.MemberSignupEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 public class OAuthMemberRegisterUseCase {
 
   private final MemberRepository memberRepository;
-  private final ApplicationEventPublisher eventPublisher;
+  private final SpringDomainEventPublisher eventPublisher;
 
   public OAuthAccount execute(OAuthUserInfo userInfo) {
     log.info("신규 회원 가입 - provider: {}, providerId: {}", userInfo.provider(), userInfo.providerId());
@@ -33,7 +33,7 @@ public class OAuthMemberRegisterUseCase {
     OAuthAccount socialAccount =
         OAuthAccount.builder()
             .oauthProvider(userInfo.provider())
-            .providerAccountId(userInfo.providerId())
+            .providerId(userInfo.providerId())
             .build();
 
     member.addOAuthAccount(socialAccount);
@@ -42,8 +42,14 @@ public class OAuthMemberRegisterUseCase {
     memberRepository.save(member);
 
     // 4. 회원가입 이벤트 발행
-    eventPublisher.publishEvent(
-        MemberSignupEvent.of(member.getId(), userInfo.email(), userInfo.provider()));
+    eventPublisher.publish(
+        new MemberSignupEvent(
+            member.getId(),
+            member.getRealName(),
+            member.getEmail(),
+            member.getPhoneNumber(),
+            member.getRole(),
+            member.getStatus()));
 
     return socialAccount;
   }

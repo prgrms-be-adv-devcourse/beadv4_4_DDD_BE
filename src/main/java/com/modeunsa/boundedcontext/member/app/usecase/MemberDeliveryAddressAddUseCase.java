@@ -3,12 +3,12 @@ package com.modeunsa.boundedcontext.member.app.usecase;
 import com.modeunsa.boundedcontext.member.app.support.MemberSupport;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.entity.MemberDeliveryAddress;
+import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressCreateRequest;
 import com.modeunsa.shared.member.event.MemberDeliveryAddressAddedEvent;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberDeliveryAddressAddUseCase {
 
   private final MemberSupport memberSupport;
-  private final ApplicationEventPublisher eventPublisher;
+  private final SpringDomainEventPublisher eventPublisher;
 
   @Transactional
   public void execute(Long memberId, MemberDeliveryAddressCreateRequest request) {
@@ -43,8 +43,16 @@ public class MemberDeliveryAddressAddUseCase {
 
     member.addAddress(address);
 
-    eventPublisher.publishEvent(
-        MemberDeliveryAddressAddedEvent.of(
-            memberId, address.getId(), address.getAddressName(), isDefaultRequest));
+    eventPublisher.publish(
+        new MemberDeliveryAddressAddedEvent(
+            memberId,
+            address.getId(),
+            address.getRecipientName(),
+            address.getRecipientPhone(),
+            address.getZipCode(),
+            address.getAddress(),
+            address.getAddressDetail(),
+            address.getAddressName(),
+            address.getIsDefault()));
   }
 }
