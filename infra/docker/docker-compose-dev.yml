@@ -1,16 +1,13 @@
 version: '3.8'
 
 services:
-  # 로컬에서 앱도 컨테이너로 띄우고 싶을 때 사용
   app:
-    build:
-      context: ../../..
-      dockerfile: Dockerfile
+    image: ${DOCKER_IMAGE}
     container_name: modeunsa-app
     ports:
       - "8080:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: local
+      SPRING_PROFILES_ACTIVE: dev
       # Database
       DB_HOST: modeunsa-mysql
       DB_PORT: 3306
