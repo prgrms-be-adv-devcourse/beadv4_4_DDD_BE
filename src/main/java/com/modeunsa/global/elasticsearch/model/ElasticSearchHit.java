@@ -1,4 +1,4 @@
-package com.modeunsa.global.elasticsearch.domain;
+package com.modeunsa.global.elasticsearch.model;
 
 public class ElasticSearchHit<T> {
 

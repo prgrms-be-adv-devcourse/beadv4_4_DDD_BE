@@ -2,7 +2,7 @@ package com.modeunsa.global.elasticsearch.app;
 
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import com.modeunsa.global.elasticsearch.ElasticSearchPageRequest;
-import com.modeunsa.global.elasticsearch.domain.ElasticSearchPage;
+import com.modeunsa.global.elasticsearch.model.ElasticSearchPage;
 import java.util.Map;
 
 public interface ElasticSearchExecutor {
