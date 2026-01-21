@@ -22,6 +22,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
@@ -68,6 +69,12 @@ public class Payment extends AuditedEntity {
 
   @Column(nullable = false, precision = 19, scale = 2)
   private BigDecimal totalAmount;
+
+  @Column(nullable = false, length = 20)
+  @Enumerated(EnumType.STRING)
+  private PaymentErrorCode failedErrorCode;
+
+  private LocalDateTime failedAt;
 
   @Column(precision = 19, scale = 2)
   private BigDecimal pgPaymentAmount;
@@ -154,6 +161,12 @@ public class Payment extends AuditedEntity {
     changeStatus(PaymentStatus.IN_PROGRESS);
   }
 
+  public void failedPayment(PaymentErrorCode errorCode, Long memberId, String orderNo) {
+    this.failedErrorCode = errorCode;
+    this.failedAt = LocalDateTime.now();
+    changeStatusByFailure(PaymentStatus.FAILED, errorCode.format(memberId, orderNo));
+  }
+
   public void approveTossPayment(TossPaymentsConfirmResponse tossRes) {
     this.pgOrderName = tossRes.orderName();
     this.pgMethod = tossRes.method();
@@ -165,6 +178,7 @@ public class Payment extends AuditedEntity {
   public void failedTossPayment(HttpStatus httpStatus, String message) {
     this.pgStatusCode = httpStatus.value();
     this.pgFailureReason = message;
+    this.failedAt = LocalDateTime.now();
     changeStatusByFailure(PaymentStatus.FAILED, message);
   }
 }

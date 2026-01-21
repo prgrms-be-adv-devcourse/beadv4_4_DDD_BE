@@ -16,6 +16,7 @@ import com.modeunsa.boundedcontext.payment.app.support.PaymentMemberSupport;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentConfirmTossPaymentUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreateAccountUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreditAccountUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.PaymentFailUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentInProgressUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentPayoutCompleteUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentProcessUseCase;
@@ -26,6 +27,7 @@ import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
 import com.modeunsa.shared.payment.dto.PaymentDto;
+import com.modeunsa.shared.payment.event.PaymentFailedEvent;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -36,14 +38,17 @@ import org.springframework.transaction.annotation.Transactional;
 public class PaymentFacade {
 
   private final PaymentSyncMemberUseCase paymentSyncMemberUseCase;
+
   private final PaymentCreateAccountUseCase paymentCreateAccountUseCase;
   private final PaymentCreditAccountUseCase paymentCreditAccountUseCase;
   private final PaymentRequestUseCase paymentRequestUseCase;
-  private final PaymentProcessUseCase paymentProcessUseCase;
-  private final PaymentPayoutCompleteUseCase paymentPayoutCompleteUseCase;
-  private final PaymentRefundUseCase paymentRefundUseCase;
-  private final PaymentConfirmTossPaymentUseCase paymentConfirmTossPaymentUseCase;
   private final PaymentInProgressUseCase paymentInProgressUseCase;
+  private final PaymentFailUseCase paymentFailUseCase;
+  private final PaymentProcessUseCase paymentProcessUseCase;
+  private final PaymentRefundUseCase paymentRefundUseCase;
+  private final PaymentPayoutCompleteUseCase paymentPayoutCompleteUseCase;
+  private final PaymentConfirmTossPaymentUseCase paymentConfirmTossPaymentUseCase;
+
   private final PaymentMemberSupport paymentMemberSupport;
   private final PaymentAccountSupport paymentAccountSupport;
   private final PaymentMapper paymentMapper;
@@ -64,19 +69,16 @@ public class PaymentFacade {
     paymentCreateAccountUseCase.createPaymentAccount(memberId);
   }
 
-  @Transactional
   public PaymentAccountDepositResponse creditAccount(
       PaymentAccountDepositRequest paymentAccountDepositRequest) {
     BigDecimal balance = paymentCreditAccountUseCase.execute(paymentAccountDepositRequest);
     return new PaymentAccountDepositResponse(balance);
   }
 
-  @Transactional
   public void completePayout(PaymentPayoutDto payout) {
     paymentPayoutCompleteUseCase.execute(payout);
   }
 
-  @Transactional
   public void refund(PaymentDto payment, RefundEventType refundEventType) {
     paymentRefundUseCase.execute(payment, refundEventType);
   }
@@ -128,6 +130,10 @@ public class PaymentFacade {
     paymentProcessUseCase.execute(context);
 
     return ConfirmPaymentResponse.complete(context.orderNo());
+  }
+
+  public void changeStatusToFailed(PaymentFailedEvent paymentFailedEvent) {
+    paymentFailUseCase.execute(paymentFailedEvent);
   }
 
   public long countMember() {
