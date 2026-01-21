@@ -20,7 +20,7 @@ public class ProductRestoreStockUseCase {
   private final ProductRepository productRepository;
 
   public void restoreStock(OrderDto orderDto) {
-    // 상품 ID 순으로 정렬
+    // 데드락 발생 방지를 위해 상품 ID 순으로 정렬
     List<OrderItemDto> sortedItems =
         orderDto.getOrderItems().stream()
             .sorted(Comparator.comparing(OrderItemDto::getProductId))
