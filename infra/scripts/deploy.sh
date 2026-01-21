@@ -5,7 +5,7 @@ DOCKER_IMAGE=$1
 APP_DIR="/home/ec2-user/app"
 COMPOSE_FILE="$APP_DIR/docker/docker-compose.yml"
 COMPOSE_PROD="$APP_DIR/docker/docker-compose.prod.yml"
-ENV_FILE="$APP_DIR/env/.env.prod"
+ENV_FILE="$APP_DIR/config/env/.env.prod"
 NGINX_DIR="$APP_DIR/nginx"
 LOCK_FILE="/tmp/deploy.lock"
 

@@ -100,9 +100,9 @@ tasks.named('test') {
 
     // 테스트 실패 시 빌드 실패 처리
     ignoreFailures = false
-    
-    // Load .env file for tests
-    def envFile = file('.env')
+
+    // Load .env.dev file for tests
+    def envFile = file('config/env/.env.dev')
     if (envFile.exists()) {
         envFile.readLines().each { line ->
             if (line && !line.startsWith('#') && line.contains('=')) {

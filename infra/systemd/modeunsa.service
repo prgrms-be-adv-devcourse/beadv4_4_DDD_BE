@@ -11,7 +11,7 @@ WorkingDirectory=/home/ec2-user/app
 Environment="PATH=/usr/local/bin:/usr/bin:/bin"
 
 # 환경변수 파일 로드
-EnvironmentFile=/home/ec2-user/app/env/.env.prod
+EnvironmentFile=/home/ec2-user/app/config/env/.env.prod
 
 # 시작: 인프라 먼저, 그 다음 앱
 ExecStart=/bin/bash -c '\
