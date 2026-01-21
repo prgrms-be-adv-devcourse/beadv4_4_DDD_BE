@@ -3,7 +3,7 @@ package com.modeunsa.boundedcontext.auth.out.client;
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
-import com.modeunsa.shared.auth.dto.OAuthTokenResponse;
+import com.modeunsa.shared.auth.dto.OAuthProviderTokenResponse;
 import com.modeunsa.shared.auth.dto.OAuthUserInfo;
 import java.time.Duration;
 import java.util.Map;
@@ -53,7 +53,7 @@ public class NaverOAuthClient implements OAuthClient {
 
   @SuppressWarnings("unchecked")
   @Override
-  public OAuthTokenResponse getToken(String code, String redirectUri) {
+  public OAuthProviderTokenResponse getToken(String code, String redirectUri) {
     OAuthClientProperties.Registration naverProps = properties.registration().get("naver");
     String finalRedirectUri = redirectUri != null ? redirectUri : naverProps.redirectUri();
 
@@ -71,7 +71,7 @@ public class NaverOAuthClient implements OAuthClient {
       Map<String, Object> response =
           restClient.get().uri(uri).retrieve().body(new ParameterizedTypeReference<>() {});
 
-      return OAuthTokenResponse.of(
+      return OAuthProviderTokenResponse.of(
           (String) response.get("access_token"),
           (String) response.get("refresh_token"),
           (String) response.get("token_type"),

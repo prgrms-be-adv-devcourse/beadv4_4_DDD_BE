@@ -8,7 +8,7 @@ import com.modeunsa.boundedcontext.member.out.repository.MemberSellerRepository;
 import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
-import com.modeunsa.shared.member.dto.SellerRegisterRequest;
+import com.modeunsa.shared.member.dto.request.SellerRegisterRequest;
 import com.modeunsa.shared.member.event.SellerRegisteredEvent;
 import java.time.LocalDateTime;
 import java.util.Optional;

@@ -3,7 +3,7 @@ package com.modeunsa.boundedcontext.member.in.controller;
 import com.modeunsa.boundedcontext.member.app.facade.MemberFacade;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.status.SuccessStatus;
-import com.modeunsa.shared.member.dto.SellerRegisterRequest;
+import com.modeunsa.shared.member.dto.request.SellerRegisterRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

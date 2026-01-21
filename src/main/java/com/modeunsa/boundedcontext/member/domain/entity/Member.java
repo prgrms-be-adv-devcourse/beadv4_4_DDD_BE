@@ -8,6 +8,7 @@ import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.boundedcontext.member.domain.types.MemberStatus;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
+import com.modeunsa.global.status.ErrorStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -45,7 +46,7 @@ public class Member extends GeneratedIdAndAuditedEntity {
   @Builder.Default
   private MemberStatus status = MemberStatus.ACTIVE;
 
-  @Column(unique = true, length = 255)
+  @Column(unique = true)
   private String email;
 
   @Column(length = 30)
@@ -127,11 +128,10 @@ public class Member extends GeneratedIdAndAuditedEntity {
     return this;
   }
 
-  public Member updateEmail(String email) {
+  public void updateEmail(String email) {
     if (email != null) {
       this.email = email;
     }
-    return this;
   }
 
   public void changeRole(MemberRole role) {
@@ -145,5 +145,19 @@ public class Member extends GeneratedIdAndAuditedEntity {
   public void addOAuthAccount(OAuthAccount oauth) {
     oauthAccount.add(oauth);
     oauth.assignMember(this);
+  }
+
+  public void deleteDeliveryAddress(MemberDeliveryAddress deleteAddress) {
+    addresses.removeIf(address -> address.getId().equals(deleteAddress.getId()));
+  }
+
+  public MemberDeliveryAddress getDefaultDeliveryAddress() {
+    return addresses.stream().filter(MemberDeliveryAddress::getIsDefault).findFirst().orElse(null);
+  }
+
+  public void validateCanRegisterDefaultAddress(boolean isDefault) {
+    if (isDefault && getDefaultDeliveryAddress() != null) {
+      throw new GeneralException(ErrorStatus.MEMBER_ALREADY_HAS_DEFAULT_ADDRESS);
+    }
   }
 }

@@ -1,4 +1,4 @@
-package com.modeunsa.shared.member.dto;
+package com.modeunsa.shared.member.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

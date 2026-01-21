@@ -43,5 +43,5 @@ public class SettlementItem extends GeneratedIdAndAuditedEntity {
   private SettlementEventType eventType;
 
   @Column(nullable = false)
-  private LocalDateTime paymentAt;
+  private LocalDateTime purchaseConfirmedAt;
 }
