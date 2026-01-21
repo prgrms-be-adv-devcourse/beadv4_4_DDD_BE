@@ -24,6 +24,6 @@ public class MemberBasicInfoUpdateUseCase {
 
     eventPublisher.publish(
         new MemberBasicInfoUpdatedEvent(
-            memberId, request.getRealName(), request.getPhoneNumber(), request.getEmail()));
+            memberId, member.getRealName(), member.getPhoneNumber(), member.getEmail()));
   }
 }
