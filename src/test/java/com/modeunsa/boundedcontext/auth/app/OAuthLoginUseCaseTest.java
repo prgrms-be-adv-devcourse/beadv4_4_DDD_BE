@@ -180,7 +180,7 @@ class OAuthLoginUseCaseTest {
 
   private OAuthAccount createSocialAccount(Member member) {
     OAuthAccount socialAccount =
-        OAuthAccount.builder().oauthProvider(provider).providerAccountId("kakao_12345").build();
+        OAuthAccount.builder().oauthProvider(provider).providerId("kakao_12345").build();
     socialAccount.assignMember(member);
     return socialAccount;
   }

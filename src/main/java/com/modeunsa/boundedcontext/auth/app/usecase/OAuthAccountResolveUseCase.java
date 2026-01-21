@@ -22,7 +22,7 @@ public class OAuthAccountResolveUseCase {
   // OAuth 계정 조회
   public OAuthAccount execute(OAuthProvider provider, OAuthUserInfo userInfo) {
     return socialAccountRepository
-        .findByOauthProviderAndProviderAccountId(provider, userInfo.providerId())
+        .findByOauthProviderAndProviderId(provider, userInfo.providerId())
         .orElseGet(() -> registerWithDuplicateHandling(provider, userInfo));
   }
 
@@ -36,7 +36,7 @@ public class OAuthAccountResolveUseCase {
           "동시 가입 요청 감지, 기존 계정 재조회 - provider: {}, providerId: {}", provider, userInfo.providerId());
 
       return socialAccountRepository
-          .findByOauthProviderAndProviderAccountId(provider, userInfo.providerId())
+          .findByOauthProviderAndProviderId(provider, userInfo.providerId())
           .orElseThrow(
               () -> {
                 log.error(
