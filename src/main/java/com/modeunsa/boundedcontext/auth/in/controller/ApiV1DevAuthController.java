@@ -25,15 +25,17 @@ public class ApiV1DevAuthController {
 
   @Operation(
       summary = "개발용 프리패스 로그인",
-      description = """
+      description =
+          """
           OAuth 인증 과정을 생략하고 Member ID만으로 즉시 Access/Refresh Token을 발급받습니다.<br>
           MemberDataInit으로 생성된 더미 데이터의 ID를 확인 후 사용하세요.<br>
-          """
-  )
+          """)
   @PostMapping("/login")
   public DevLoginResponse devLogin(@RequestParam Long memberId) {
-    Member member = memberRepository.findById(memberId)
-        .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
+    Member member =
+        memberRepository
+            .findById(memberId)
+            .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
     // 기존 로그인 로직에서 사용하는 토큰 생성 메서드를 호출
     String accessToken = jwtTokenProvider.createAccessToken(member.getId(), member.getRole());
@@ -43,5 +45,4 @@ public class ApiV1DevAuthController {
   }
 
   public record DevLoginResponse(String accessToken, String refreshToken) {}
-
 }
