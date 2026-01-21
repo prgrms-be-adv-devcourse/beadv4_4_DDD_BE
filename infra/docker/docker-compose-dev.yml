@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # 로컬에서 앱도 컨테이너로 띄우고 싶을 때 사용
+  app:
+    build:
+      context: ../../..
+      dockerfile: Dockerfile
+    container_name: modeunsa-app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      # Database
+      DB_HOST: modeunsa-mysql
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      # Redis
+      REDIS_HOST: modeunsa-redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      # JWT
+      JWT_SECRET: ${JWT_SECRET}
+      # OAuth
+      KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID}
+      KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET}
+      KAKAO_REDIRECT_URI: ${KAKAO_REDIRECT_URI}
+      NAVER_CLIENT_ID: ${NAVER_CLIENT_ID}
+      NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET}
+      NAVER_REDIRECT_URI: ${NAVER_REDIRECT_URI}
+      # AWS
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      AWS_SECRET_KEY: ${AWS_SECRET_KEY}
+      # Encryption
+      ENCRYPTION_MASTER_KEY: ${ENCRYPTION_MASTER_KEY}
+      # Toss
+      TOSS_PAYMENTS_SECRET_KEY: ${TOSS_PAYMENTS_SECRET_KEY}
+      # Elasticsearch
+      ES_HOST: modeunsa-elasticsearch
+      ES_PORT: 9200
+    networks:
+      - modeunsa-net
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    profiles:
+      - with-app
+
+networks:
+  modeunsa-net:
+    external: true
