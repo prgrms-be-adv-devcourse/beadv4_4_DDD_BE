@@ -25,6 +25,7 @@ public abstract class ProductMapper {
 
   @Mapping(source = "stock", target = "stock")
   @Mapping(source = "id", target = "productId")
+  @Mapping(target = "isAvailable", ignore = true)
   public abstract ProductOrderDto toProductOrderDto(Product product);
 
   public abstract ProductOrderResponse toProductOrderResponse(ProductOrderDto dto);
