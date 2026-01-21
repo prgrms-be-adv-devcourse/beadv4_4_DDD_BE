@@ -9,6 +9,7 @@ import com.modeunsa.shared.order.dto.OrderItemDto;
 import com.modeunsa.shared.order.dto.OrderItemResponseDto;
 import com.modeunsa.shared.order.dto.OrderListResponseDto;
 import com.modeunsa.shared.order.dto.OrderResponseDto;
+import com.modeunsa.shared.product.dto.ProductOrderResponse;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.mapstruct.Mapper;
@@ -18,27 +19,31 @@ import org.mapstruct.Mapping;
 public interface OrderMapper {
   // 장바구니 상품
   // TODO: SecurityContext에서 memberId 추출해서 Auditing으로 createdBy필드 채우기
-  @Mapping(target = "isAvailable", ignore = true)
   CartItem toCartItemEntity(long memberId, CreateCartItemRequestDto createCartItemRequestDto);
 
   CreateCartItemResponseDto toCreateCartItemResponseDto(CartItem cartItem);
 
-  @Mapping(target = "salePrice", source = "product.salePrice") // ★ 상품의 가격(단가)을 DTO에 넣음
+  @Mapping(target = "productId", source = "product.productId")
+  @Mapping(target = "salePrice", source = "product.salePrice")
   @Mapping(target = "quantity", source = "cartItem.quantity")
-  CartItemDto toCartItemDto(CartItem cartItem, OrderProduct product);
+  @Mapping(target = "isAvailable", source = "isAvailable")
+  CartItemDto toCartItemDto(CartItem cartItem, ProductOrderResponse product, boolean isAvailable);
 
   // 주문 상품
+  @Mapping(target = "productId", source = "product.productId")
   @Mapping(target = "productName", source = "product.name")
   @Mapping(target = "order", ignore = true)
-  OrderItem toOrderItemEntity(OrderProduct product, @Valid CreateOrderRequestDto requestDto);
+  @Mapping(target = "sellerId", source = "product.sellerId")
+  OrderItem toOrderItemEntity(
+      ProductOrderResponse product, @Valid CreateOrderRequestDto requestDto);
 
   OrderItemResponseDto toOrderItemResponseDto(OrderItem orderItem);
 
   @Mapping(target = "productId", source = "productId")
   OrderItemDto toItemDto(OrderItem orderItem);
 
-  @Mapping(target = "productName", source = "product.name")
-  OrderItem toOrderItemFromCart(OrderProduct product, CartItem cartItem);
+  @Mapping(target = "productName", source = "productInfo.name")
+  OrderItem toOrderItem(ProductOrderResponse productInfo, int quantity);
 
   // ---- 주문 ----
   @Mapping(target = "orderId", source = "id")

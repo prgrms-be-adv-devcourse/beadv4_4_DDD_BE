@@ -66,4 +66,10 @@ public class ApiResponse {
         new ApiResponse(false, error.getCode(), error.getMessage(message), null, null),
         error.getHttpStatus());
   }
+
+  public static ResponseEntity<ApiResponse> onFailure(ErrorStatus error, Object data) {
+    return new ResponseEntity<>(
+        new ApiResponse(false, error.getCode(), error.getMessage(), null, data),
+        error.getHttpStatus());
+  }
 }

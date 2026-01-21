@@ -61,6 +61,10 @@ public class ExceptionAdvice {
   public ResponseEntity<ApiResponse> handleGeneralException(GeneralException e) {
     storeException(e);
 
+    if (e.getData() != null) {
+      return ApiResponse.onFailure(e.getErrorStatus(), e.getData());
+    }
+
     return ApiResponse.onFailure(e.getErrorStatus(), e.getMessage());
   }
 
