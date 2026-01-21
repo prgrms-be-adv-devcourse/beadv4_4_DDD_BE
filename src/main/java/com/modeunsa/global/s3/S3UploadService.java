@@ -1,10 +1,12 @@
 package com.modeunsa.global.s3;
 
 import com.modeunsa.global.config.S3Properties;
+import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.s3.dto.DomainType;
 import com.modeunsa.global.s3.dto.PresignedUrlRequest;
 import com.modeunsa.global.s3.dto.PresignedUrlResponse;
 import com.modeunsa.global.s3.dto.PublicUrlRequest;
+import com.modeunsa.global.status.ErrorStatus;
 import java.io.IOException;
 import java.time.Duration;
 import org.springframework.stereotype.Component;
@@ -85,9 +87,9 @@ public class S3UploadService {
     // 1. 실제 업로드된 파일 확인
     HeadObjectResponse head = this.headObject(bucket, request.rawKey());
 
-    // 2. 검증 (최소 예시)
-    if (!head.contentType().startsWith("image/")) {
-      throw new IllegalStateException("이미지 파일이 아님");
+    // 2. 검증
+    if (!UploadPolicy.ALLOWED_CONTENT_TYPES.contains(head.contentType())) {
+      throw new GeneralException(ErrorStatus.IMAGE_FILE_EXTENSION_NOT_SUPPORTED);
     }
 
     String publicKey =
@@ -124,6 +126,7 @@ public class S3UploadService {
     this.deleteObject(objectKey);
   }
 
+  /** 헬퍼 메서드 */
   private PresignedPutObjectRequest presignPutObject(PutObjectPresignRequest request) {
     return s3UploadExecutor.execute(
         "PresignPutObject", () -> s3Presigner.presignPutObject(request));
