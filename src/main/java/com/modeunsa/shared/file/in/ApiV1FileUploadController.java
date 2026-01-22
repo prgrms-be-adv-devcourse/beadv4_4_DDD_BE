@@ -6,6 +6,7 @@ import com.modeunsa.global.s3.dto.DomainType;
 import com.modeunsa.global.s3.dto.PresignedUrlRequest;
 import com.modeunsa.global.s3.dto.PresignedUrlResponse;
 import com.modeunsa.global.s3.dto.PublicUrlRequest;
+import com.modeunsa.global.s3.dto.PublicUrlResponse;
 import com.modeunsa.global.status.SuccessStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -53,22 +54,24 @@ public class ApiV1FileUploadController {
       summary = "파일 업로드",
       description = "s3에 직접 파일을 업로드하고 public url을 반환합니다. 되도록이면 presigned url 방식을 사용해 주세요.")
   @PostMapping("/upload")
-  public String upload(
+  public ResponseEntity<ApiResponse> upload(
       @RequestPart MultipartFile file,
       @RequestParam DomainType domainType,
       @RequestParam Long domainId,
       @RequestParam String filename)
       throws IOException {
 
-    return s3UploadService.upload(file, domainType, domainId, filename);
+    PublicUrlResponse response = s3UploadService.upload(file, domainType, domainId, filename);
+    return ApiResponse.onSuccess(SuccessStatus.OK, response);
   }
 
   @Operation(
       summary = "public url 반환",
       description = "presigned url 로 업로드한 파일을 public url로 반환합니다. 상품 이미지, 프로필 이미지 등에 사용합니다.")
   @PostMapping("/public-url")
-  public String getPublicUrl(@RequestBody PublicUrlRequest request) {
-    return s3UploadService.getPublicUrl(request);
+  public ResponseEntity<ApiResponse> getPublicUrl(@RequestBody PublicUrlRequest request) {
+    PublicUrlResponse response = s3UploadService.getPublicUrl(request);
+    return ApiResponse.onSuccess(SuccessStatus.OK, response);
   }
 
   @Operation(summary = "파일 삭제", description = "s3에서 파일을 삭제합니다.")

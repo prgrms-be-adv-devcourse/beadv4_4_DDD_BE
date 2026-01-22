@@ -6,6 +6,7 @@ import com.modeunsa.global.s3.dto.DomainType;
 import com.modeunsa.global.s3.dto.PresignedUrlRequest;
 import com.modeunsa.global.s3.dto.PresignedUrlResponse;
 import com.modeunsa.global.s3.dto.PublicUrlRequest;
+import com.modeunsa.global.s3.dto.PublicUrlResponse;
 import com.modeunsa.global.s3.dto.UploadPathInfo;
 import com.modeunsa.global.status.ErrorStatus;
 import java.io.IOException;
@@ -89,7 +90,7 @@ public class S3UploadService {
   }
 
   /** 업로드 후 public-read 용 url을 생성합니다. */
-  public String getPublicUrl(PublicUrlRequest request) {
+  public PublicUrlResponse getPublicUrl(PublicUrlRequest request) {
     // 1. 실제 업로드된 파일 확인
     HeadObjectResponse head = this.headObject(bucket, request.rawKey());
 
@@ -107,11 +108,13 @@ public class S3UploadService {
     // 4. raw 객체 삭제
     this.deleteObject(request.rawKey());
 
-    return UploadPolicy.buildPublicUrl(bucket, region, publicKey);
+    String publicUrl = UploadPolicy.buildPublicUrl(bucket, region, publicKey);
+    return new PublicUrlResponse(publicUrl, publicKey);
   }
 
   /** s3에 직접 업로드 (되도록이면 presignedUrl 사용해주세요) */
-  public String upload(MultipartFile file, DomainType domainType, Long domainId, String filename)
+  public PublicUrlResponse upload(
+      MultipartFile file, DomainType domainType, Long domainId, String filename)
       throws IOException {
     String publicKey = UploadPolicy.buildPublicKey(profile, domainType, domainId, filename);
     PutObjectRequest request =
@@ -124,7 +127,8 @@ public class S3UploadService {
 
     this.putObject(request, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
 
-    return UploadPolicy.buildPublicUrl(bucket, region, publicKey);
+    String publicUrl = UploadPolicy.buildPublicUrl(bucket, region, publicKey);
+    return new PublicUrlResponse(publicUrl, publicKey);
   }
 
   /** s3 컨텐츠 삭제 */
