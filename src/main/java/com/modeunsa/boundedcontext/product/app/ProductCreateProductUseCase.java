@@ -38,7 +38,7 @@ public class ProductCreateProductUseCase {
             productCreateRequest.getDescription(),
             productCreateRequest.getSalePrice(),
             productCreateRequest.getPrice(),
-            productCreateRequest.getStock());
+            productCreateRequest.getStock() != null ? productCreateRequest.getStock() : 0);
 
     List<String> images = productCreateRequest.getImages();
     if (images != null && !images.isEmpty()) {

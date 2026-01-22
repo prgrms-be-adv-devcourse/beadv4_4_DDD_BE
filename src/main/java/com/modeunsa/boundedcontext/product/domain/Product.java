@@ -61,7 +61,7 @@ public class Product extends GeneratedIdAndAuditedEntity {
   // TODO: 이벤트/트랜잭션으로 증감 관리 (정합성 전략 필요)
   @Builder.Default private int favoriteCount = 0;
 
-  @Builder.Default private int stock = 0;
+  private Integer stock;
 
   @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
   @OrderBy("sortOrder ASC")
@@ -144,5 +144,13 @@ public class Product extends GeneratedIdAndAuditedEntity {
 
   public void clearImages() {
     this.images.clear();
+  }
+
+  public boolean isSoldOut() {
+    return this.stock != null && this.stock == 0;
+  }
+
+  public void setSoldOut() {
+    this.saleStatus = SaleStatus.SOLD_OUT;
   }
 }

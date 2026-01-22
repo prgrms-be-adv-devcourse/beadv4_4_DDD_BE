@@ -51,6 +51,10 @@ public class ProductDeductStockUseCase {
     } catch (InvalidStockException e) {
       success = false;
     }
+    // 재고 0인 경우 솔드아웃 처리
+    if (product.isSoldOut()) {
+      product.setSoldOut();
+    }
     productRepository.save(product);
     return new ProductStockDto(product.getId(), success, product.getStock());
   }
