@@ -35,7 +35,6 @@ public class MemberProfile extends GeneratedIdAndAuditedEntity {
   private Integer heightCm;
 
   // TODO: Integer에 대한 암호화 처리
-  @Convert(converter = EncryptedStringConverter.class)
   private Integer weightKg;
 
   // TODO: enum으로 변경 고려
