@@ -60,13 +60,11 @@ public class MemberDataInit {
 
     // 시스템 계정
     Member systemMember = createMember(null, "시스템", null, MemberRole.SYSTEM);
-    createProfile(systemMember, "SYSTEM", null, null, null, null);
     memberRepository.save(systemMember);
     publishSignupEvent(systemMember);
 
     // 홀더 계정
     Member holderMember = createMember(null, "홀더", null, MemberRole.HOLDER);
-    createProfile(holderMember, "HOLDER", null, null, null, null);
     memberRepository.save(holderMember);
     publishSignupEvent(holderMember);
 
