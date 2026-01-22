@@ -197,10 +197,11 @@ a {
 
 .product-card {
   background-color: #ffffff;
+  border: 1px solid #e5e5e5;
   border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
   display: flex;
   flex-direction: column;
   text-decoration: none;
@@ -210,6 +211,7 @@ a {
 .product-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-color: #d0d0d0;
 }
 
 .product-card .product-image {
