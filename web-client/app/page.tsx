@@ -66,12 +66,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured Products */}
+      {/* Products */}
       <section className="products-section">
         <div className="container">
-          <h2 className="section-title">추천 상품</h2>
           <div className="products-grid">
-            {[1, 2, 3, 4, 5, 6].map((item) => (
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((item) => (
               <Link key={item} href={`/products/${item}`} className="product-card">
                 <div className="product-image">
                   <div className="image-placeholder">이미지</div>
@@ -80,27 +79,6 @@ export default function Home() {
                   <div className="product-brand">브랜드명</div>
                   <div className="product-name">상품명 {item}</div>
                   <div className="product-price">₩{((item * 10000) + 9000).toLocaleString()}</div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Popular Products */}
-      <section className="products-section">
-        <div className="container">
-          <h2 className="section-title">인기 상품</h2>
-          <div className="products-grid">
-            {[1, 2, 3, 4, 5, 6].map((item) => (
-              <Link key={item} href={`/products/${item + 10}`} className="product-card">
-                <div className="product-image">
-                  <div className="image-placeholder">이미지</div>
-                </div>
-                <div className="product-info">
-                  <div className="product-brand">브랜드명</div>
-                  <div className="product-name">인기 상품 {item}</div>
-                  <div className="product-price">₩{((item * 15000) + 5000).toLocaleString()}</div>
                 </div>
               </Link>
             ))}
