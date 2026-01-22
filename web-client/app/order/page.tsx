@@ -141,7 +141,7 @@ export default function OrderPage() {
       if (!paymentRes.ok) {
         const errorText = await paymentRes.text()
         console.error('결제 요청 API 에러:', paymentRes.status, errorText)
-        router.push(`/failure?amount=${amount}`)
+        router.push(`/order/failure?amount=${amount}`)
         return
       }
 
@@ -149,7 +149,7 @@ export default function OrderPage() {
 
       if (!paymentApiResponse.isSuccess || !paymentApiResponse.result) {
         console.error('결제 요청 응답 실패:', paymentApiResponse.message)
-        router.push(`/failure?amount=${amount}`)
+        router.push(`/order/failure?amount=${amount}`)
         return
       }
 
@@ -158,7 +158,7 @@ export default function OrderPage() {
       // 2) needsCharge가 false이면 토스 결제 모듈 없이 바로 성공 페이지로 이동
       if (!payment.needsCharge) {
         router.push(
-          `/success?orderNo=${payment.orderNo}&amount=${payment.totalAmount}`
+          `/order/success?orderNo=${payment.orderNo}&amount=${payment.totalAmount}`
         )
         return
       }
@@ -182,18 +182,18 @@ export default function OrderPage() {
         customerName: memberInfo.customerName,
         customerKey: memberInfo.customerKey,
         customerEmail: memberInfo.customerEmail,
-        successUrl: `${window.location.origin}/success?orderNo=${payment.orderNo}&memberId=${memberId}&pgCustomerName=${encodeURIComponent(memberInfo.customerName)}&pgCustomerEmail=${encodeURIComponent(memberInfo.customerEmail)}`,
-        failUrl: `${window.location.origin}/failure?orderNo=${payment.orderNo}&amount=${payment.totalAmount}`,
+        successUrl: `${window.location.origin}/order/success?orderNo=${payment.orderNo}&memberId=${memberId}&pgCustomerName=${encodeURIComponent(memberInfo.customerName)}&pgCustomerEmail=${encodeURIComponent(memberInfo.customerEmail)}`,
+        failUrl: `${window.location.origin}/order/failure?orderNo=${payment.orderNo}&amount=${payment.totalAmount}`,
       })
     } catch (error) {
       console.error('결제 요청 실패:', error)
       if (payment) {
         router.push(
-          `/failure?orderNo=${payment.orderNo}&amount=${payment.totalAmount}`
+          `/order/failure?orderNo=${payment.orderNo}&amount=${payment.totalAmount}`
         )
       } else {
         const fallbackAmount = 19800
-        router.push(`/failure?amount=${fallbackAmount}`)
+        router.push(`/order/failure?amount=${fallbackAmount}`)
       }
     }
   }

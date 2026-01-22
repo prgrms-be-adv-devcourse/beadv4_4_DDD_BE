@@ -48,7 +48,7 @@ export default function SuccessPage() {
             orderNo,
             amount,
           })
-          router.push(`/failure?orderNo=${orderNo || ''}&amount=${amount || ''}`)
+          router.push(`/order/failure?orderNo=${orderNo || ''}&amount=${amount || ''}`)
           return
         }
 
@@ -73,7 +73,7 @@ export default function SuccessPage() {
           pgCustomerName,
           pgCustomerEmail,
         })
-        router.push(`/failure?orderNo=${orderNo || ''}&amount=${amount || ''}`)
+        router.push(`/order/failure?orderNo=${orderNo || ''}&amount=${amount || ''}`)
         return
       }
 
@@ -116,7 +116,7 @@ export default function SuccessPage() {
         if (!response.ok) {
           const errorText = await response.text()
           console.error('[결제 승인] API 에러', { status: response.status, errorText, orderNo, orderId, paymentKey })
-          router.push(`/failure?orderNo=${orderNo}&amount=${amount}`)
+          router.push(`/order/failure?orderNo=${orderNo}&amount=${amount}`)
           return
         }
 
@@ -130,12 +130,12 @@ export default function SuccessPage() {
           setConfirmError(null)
         } else {
           console.error('[결제 승인] 응답 실패', { orderNo, message: apiResponse.message })
-          router.push(`/failure?orderNo=${orderNo}&amount=${amount}`)
+          router.push(`/order/failure?orderNo=${orderNo}&amount=${amount}`)
           return
         }
       } catch (error) {
         console.error('[결제 승인] 예외 발생', { error, orderNo, orderId, paymentKey }, error)
-        router.push(`/failure?orderNo=${orderNo || ''}&amount=${amount || ''}`)
+        router.push(`/order/failure?orderNo=${orderNo || ''}&amount=${amount || ''}`)
       } finally {
         setIsConfirming(false)
       }
