@@ -28,6 +28,7 @@ services:
 
   app:
     image: sohee52/modeunsa:latest
+    restart: unless-stopped
     container_name: app
     ports:
       - "8080:8080"
