@@ -76,6 +76,7 @@ export default function ProductDetailPage() {
 
   const [quantity, setQuantity] = useState(1)
   const [isCreatingOrder, setIsCreatingOrder] = useState(false)
+  const [isAddingToCart, setIsAddingToCart] = useState(false)
 
   const handleOrder = async () => {
     if (!product) return
@@ -137,6 +138,62 @@ export default function ProductDetailPage() {
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('ko-KR').format(price)
+  }
+
+  const handleAddToCart = async () => {
+    if (!product) return
+    
+    if (product.stock <= 0) {
+      alert('품절된 상품입니다.')
+      return
+    }
+
+    if (quantity > product.stock) {
+      alert(`재고가 부족합니다. (재고: ${product.stock}개)`)
+      return
+    }
+
+    setIsAddingToCart(true)
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+      
+      // 장바구니 추가 API 호출
+      const response = await fetch(`${apiUrl}/api/v1/orders/cart/item`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productId: product.id,
+          quantity: quantity,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('장바구니 추가 API 에러:', response.status, errorText)
+        throw new Error(`장바구니 추가 실패 (${response.status})`)
+      }
+
+      const apiResponse = await response.json()
+
+      if (apiResponse.isSuccess) {
+        alert('장바구니에 상품이 추가되었습니다.')
+        // 장바구니 페이지로 이동할지 선택할 수 있도록
+        if (confirm('장바구니로 이동하시겠습니까?')) {
+          router.push('/cart')
+        }
+      } else {
+        throw new Error(apiResponse.message || '장바구니 추가에 실패했습니다.')
+      }
+    } catch (error) {
+      console.error('장바구니 추가 실패:', error)
+      const errorMessage = error instanceof Error ? error.message : '장바구니 추가 중 오류가 발생했습니다.'
+      alert(errorMessage)
+    } finally {
+      setIsAddingToCart(false)
+    }
   }
 
   if (isLoading) {
@@ -314,7 +371,13 @@ export default function ProductDetailPage() {
 
               {/* Action Buttons */}
               <div className="action-buttons">
-                <button className="cart-button">장바구니</button>
+                <button 
+                  className="cart-button" 
+                  onClick={handleAddToCart}
+                  disabled={isAddingToCart || product.stock <= 0}
+                >
+                  {isAddingToCart ? '추가 중...' : product.stock <= 0 ? '품절' : '장바구니'}
+                </button>
                 <button 
                   className="buy-button" 
                   onClick={handleOrder}
