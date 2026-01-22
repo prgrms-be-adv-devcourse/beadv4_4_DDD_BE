@@ -167,7 +167,7 @@ export default function SuccessPage() {
           </div>
         </header>
         <div className="order-page-container">
-          <div className="container" style={{ textAlign: 'center' }}>
+          <div className="container" style={{ textAlign: 'center', maxWidth: '600px' }}>
             <div className="success-icon">
               <div style={{ 
                 width: '64px', 
@@ -217,7 +217,7 @@ export default function SuccessPage() {
           </div>
         </header>
         <div className="order-page-container">
-          <div className="container" style={{ textAlign: 'center' }}>
+          <div className="container" style={{ textAlign: 'center', maxWidth: '600px' }}>
             <div className="success-icon">
               <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ margin: '0 auto' }}>
                 <circle cx="32" cy="32" r="32" fill="#f44336"/>
@@ -276,7 +276,7 @@ export default function SuccessPage() {
       </header>
 
       <div className="order-page-container">
-        <div className="container">
+        <div className="container" style={{ maxWidth: '600px' }}>
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <div className="success-icon" style={{ marginBottom: '24px' }}>
             <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ margin: '0 auto' }}>
