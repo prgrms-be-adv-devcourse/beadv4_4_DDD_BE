@@ -17,7 +17,7 @@ export default function Home() {
             <Link href="/sale">세일</Link>
           </nav>
           <div className="header-actions">
-            <button className="search-btn">검색</button>
+            <Link href="/search" className="search-btn">검색</Link>
             <button className="cart-btn">장바구니</button>
             <button className="user-btn">로그인</button>
           </div>
