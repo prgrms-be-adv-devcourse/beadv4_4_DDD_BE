@@ -29,4 +29,9 @@ public class OrderMember extends ManualIdAndAuditedEntity {
 
   @Column(name = "address_detail", length = 200)
   private String addressDetail;
+
+  public void updateInfo(String memberName, String memberPhone) {
+    this.memberName = memberName;
+    this.memberPhone = memberPhone;
+  }
 }

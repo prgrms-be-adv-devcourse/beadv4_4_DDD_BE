@@ -34,6 +34,7 @@ public class OrderFacade {
   private final OrderGetCartItemsUseCase orderGetCartItemsUseCase;
   private final OrderMapper orderMapper;
   private final OrderSyncMemberUseCase orderSyncMemberUseCase;
+  private final OrderUpdateMemberUseCase orderUpdateMemberUseCase;
 
   // 장바구니 아이템 생성
   @Transactional
@@ -128,5 +129,10 @@ public class OrderFacade {
   @Transactional
   public void syncMember(Long memberId, String memberName, String memberPhone) {
     orderSyncMemberUseCase.syncMember(memberId, memberName, memberPhone);
+  }
+
+  @Transactional
+  public void updateMember(Long memberId, String memberName, String memberPhone) {
+    orderUpdateMemberUseCase.updateMember(memberId, memberName, memberPhone);
   }
 }
