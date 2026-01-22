@@ -16,6 +16,8 @@ services:
   mysql:
     image: mysql:8.0
     container_name: mysql
+    ports:
+      - "3306:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
@@ -25,10 +27,10 @@ services:
       - mysql_data:/var/lib/mysql
 
   app:
-    image: ${DOCKER_IMAGE}
+    image: sohee52/modeunsa:latest
     container_name: app
     ports:
-      - "8081:8080"
+      - "8080:8080"
     environment:
       - REDIS_HOST=redis
       - REDIS_PASSWORD=${REDIS_PASSWORD}
@@ -40,6 +42,9 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - ES_HOST=elasticsearch
       - ES_PORT=9200
+      - SPRING_PROFILES_ACTIVE=prod
+      - ENCRYPTION_MASTER_KEY=${ENCRYPTION_MASTER_KEY}
+      - TOSS_PAYMENTS_SECRET_KEY=${TOSS_PAYMENTS_SECRET_KEY}
     networks:
       - modeunsa-net
 

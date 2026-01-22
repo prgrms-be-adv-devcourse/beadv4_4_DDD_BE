@@ -45,3 +45,6 @@ config/env/*
 # .gitignore 파일에 추가
 generated/
 src/main/generated/
+
+
+.env.prod
