@@ -52,7 +52,8 @@ class SettlementCollectItemsAndCalculatePayoutsStepConfigTest {
     int year = LocalDateTime.now().getYear();
     int month = LocalDateTime.now().getMonthValue();
 
-    Settlement settlement = Settlement.create(1L, year, month);
+    Settlement settlement =
+        Settlement.create(1L, year, month, SettlementEventType.SETTLEMENT_PRODUCT_SALES_AMOUNT);
     testItems =
         List.of(
             settlement.addItem(
