@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class OrderCreateDeliveryAddress {
+public class OrderCreateDeliveryAddressUseCase {
   private final OrderSupport orderSupport;
 
   public void createDeliveryAddress(
