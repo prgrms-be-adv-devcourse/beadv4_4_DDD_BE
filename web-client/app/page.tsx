@@ -71,7 +71,7 @@ export default function Home() {
         <div className="container">
           <h2 className="section-title">추천 상품</h2>
           <div className="products-grid">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
+            {[1, 2, 3, 4, 5, 6].map((item) => (
               <div key={item} className="product-card">
                 <div className="product-image">
                   <div className="image-placeholder">이미지</div>
@@ -92,7 +92,7 @@ export default function Home() {
         <div className="container">
           <h2 className="section-title">인기 상품</h2>
           <div className="products-grid">
-            {[1, 2, 3, 4].map((item) => (
+            {[1, 2, 3, 4, 5, 6].map((item) => (
               <div key={item} className="product-card">
                 <div className="product-image">
                   <div className="image-placeholder">이미지</div>
