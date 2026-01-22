@@ -60,6 +60,9 @@ custom:
     permit-urls:
       - /h2-console/**
       - /swagger-ui/**
+      - /favicon.ico
+      - /error
+      - /login/oauth2/code/**
       - /v3/api-docs/**
       - /api/v1/auths/**
       - /api/v1/products/**
