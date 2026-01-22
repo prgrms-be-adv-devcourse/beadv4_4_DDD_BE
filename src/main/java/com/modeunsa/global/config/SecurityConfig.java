@@ -38,10 +38,15 @@ public class SecurityConfig {
       String[] permittedUrls = securityProperties.getPermitUrls().toArray(new String[0]);
 
       http.authorizeHttpRequests(
-          auth -> auth.requestMatchers(permittedUrls).permitAll()
-                  .requestMatchers("/login/oauth2/code/kakao").permitAll()
-                  .requestMatchers("/login/oauth2/code/naver").permitAll()
-                  .anyRequest().authenticated());
+          auth ->
+              auth.requestMatchers(permittedUrls)
+                  .permitAll()
+                  .requestMatchers("/login/oauth2/code/kakao")
+                  .permitAll()
+                  .requestMatchers("/login/oauth2/code/naver")
+                  .permitAll()
+                  .anyRequest()
+                  .authenticated());
     }
 
     http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -52,7 +57,6 @@ public class SecurityConfig {
   @Bean
   public WebSecurityCustomizer webSecurityCustomizer() {
     // static resource, favicon 등은 보안 필터 자체를 생략
-    return (web) -> web.ignoring()
-            .requestMatchers("/favicon.ico", "/error");
+    return (web) -> web.ignoring().requestMatchers("/favicon.ico", "/error");
   }
 }
