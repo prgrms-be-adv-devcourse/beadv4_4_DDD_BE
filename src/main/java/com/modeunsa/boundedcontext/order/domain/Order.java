@@ -1,9 +1,11 @@
 package com.modeunsa.boundedcontext.order.domain;
 
+import com.modeunsa.global.jpa.converter.EncryptedStringConverter;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import io.hypersistence.tsid.TSID;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -55,19 +57,24 @@ public class Order extends GeneratedIdAndAuditedEntity {
   private BigDecimal totalAmount;
 
   // --- 배송 정보 ---
-  @Column(name = "recipient_name", nullable = false, length = 20)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(name = "recipient_name", nullable = false, length = 255)
   private String recipientName;
 
-  @Column(name = "recipient_phone", nullable = false, length = 20)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(name = "recipient_phone", nullable = false, length = 255)
   private String recipientPhone;
 
-  @Column(nullable = false, length = 10)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(nullable = false, length = 255)
   private String zipCode;
 
+  @Convert(converter = EncryptedStringConverter.class)
   @Column(name = "address", nullable = false, length = 255)
   private String address;
 
-  @Column(name = "address_detail", nullable = false, length = 200)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(name = "address_detail", nullable = false, length = 255)
   private String addressDetail;
 
   // --- 시간 정보 ---
