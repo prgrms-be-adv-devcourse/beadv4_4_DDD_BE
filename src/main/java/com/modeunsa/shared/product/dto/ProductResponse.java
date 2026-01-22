@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public record ProductResponse(
     Long id,
     Long sellerId,
+    String sellerBusinessName,
     String name,
     ProductCategory category,
     String description,

@@ -12,11 +12,10 @@ import lombok.Setter;
 public class ProductDto {
   private Long id;
   private Long sellerId;
+  private String sellerBusinessName;
   private String name;
-  private String description;
   private BigDecimal price;
   private BigDecimal salePrice;
-  private int stock;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
   private Long createdBy;

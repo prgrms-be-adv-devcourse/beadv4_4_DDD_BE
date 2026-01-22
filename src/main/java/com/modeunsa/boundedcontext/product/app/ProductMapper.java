@@ -14,13 +14,16 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public abstract class ProductMapper {
   @Mapping(source = "seller.id", target = "sellerId")
+  @Mapping(source = "seller.businessName", target = "sellerBusinessName")
   public abstract ProductResponse toResponse(Product product);
 
   @Mapping(source = "product.seller.id", target = "sellerId")
+  @Mapping(source = "product.seller.businessName", target = "sellerBusinessName")
   @Mapping(target = "isFavorite", source = "isFavorite")
   public abstract ProductDetailResponse toDetailResponse(Product product, boolean isFavorite);
 
   @Mapping(source = "seller.id", target = "sellerId")
+  @Mapping(source = "seller.businessName", target = "sellerBusinessName")
   public abstract ProductDto toDto(Product product);
 
   @Mapping(source = "stock", target = "stock")
