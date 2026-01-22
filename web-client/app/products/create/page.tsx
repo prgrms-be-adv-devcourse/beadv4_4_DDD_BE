@@ -44,29 +44,61 @@ export default function ProductCreatePage() {
     stock: 0,
     images: [],
   })
-  const [imageUrl, setImageUrl] = useState('')
+  const [imageFiles, setImageFiles] = useState<File[]>([])
+  const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleInputChange = (field: keyof ProductCreateRequest, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
-  const handleAddImage = () => {
-    if (imageUrl.trim()) {
-      if (formData.images.length < 10) {
-        setFormData(prev => ({ ...prev, images: [...prev.images, imageUrl.trim()] }))
-        setImageUrl('')
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files) return
+
+    const newFiles: File[] = []
+    const newPreviews: string[] = []
+
+    Array.from(files).forEach((file) => {
+      if (file.type.startsWith('image/')) {
+        if (imageFiles.length + newFiles.length < 10) {
+          newFiles.push(file)
+          const reader = new FileReader()
+          reader.onloadend = () => {
+            const result = reader.result as string
+            setImagePreviews(prev => [...prev, result])
+          }
+          reader.readAsDataURL(file)
+        } else {
+          alert('이미지는 최대 10개까지 추가할 수 있습니다.')
+        }
       } else {
-        alert('이미지는 최대 10개까지 추가할 수 있습니다.')
+        alert(`${file.name}은(는) 이미지 파일이 아닙니다.`)
       }
-    }
+    })
+
+    setImageFiles(prev => [...prev, ...newFiles])
   }
 
   const handleRemoveImage = (index: number) => {
+    setImageFiles(prev => prev.filter((_, i) => i !== index))
+    setImagePreviews(prev => prev.filter((_, i) => i !== index))
     setFormData(prev => ({
       ...prev,
       images: prev.images.filter((_, i) => i !== index),
     }))
+  }
+
+  const convertFileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        const result = reader.result as string
+        resolve(result)
+      }
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -97,6 +129,13 @@ export default function ProductCreatePage() {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
       
+      // 이미지 파일을 base64로 변환
+      const imageUrls: string[] = []
+      for (const file of imageFiles) {
+        const base64 = await convertFileToBase64(file)
+        imageUrls.push(base64)
+      }
+      
       const productRequest: ProductCreateRequest = {
         name: formData.name.trim(),
         category: formData.category,
@@ -104,7 +143,7 @@ export default function ProductCreatePage() {
         price: formData.price,
         salePrice: formData.salePrice,
         stock: formData.stock,
-        images: formData.images,
+        images: imageUrls.length > 0 ? imageUrls : formData.images,
       }
 
       const response = await fetch(`${apiUrl}/api/v1/products`, {
@@ -278,34 +317,31 @@ export default function ProductCreatePage() {
 
               {/* Images */}
               <div className="form-group">
-                <label className="form-label">상품 이미지</label>
-                <div className="image-input-wrapper">
+                <label className="form-label">상품 이미지 (최대 10개)</label>
+                <div className="image-upload-wrapper">
+                  <label htmlFor="image-upload" className="image-upload-label">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span>이미지 선택</span>
+                  </label>
                   <input
-                    type="text"
-                    className="image-url-input"
-                    placeholder="이미지 URL을 입력하세요"
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault()
-                        handleAddImage()
-                      }
-                    }}
+                    type="file"
+                    id="image-upload"
+                    className="image-upload-input"
+                    accept="image/*"
+                    multiple
+                    onChange={handleFileSelect}
+                    disabled={imageFiles.length >= 10}
                   />
-                  <button
-                    type="button"
-                    className="image-add-btn"
-                    onClick={handleAddImage}
-                    disabled={!imageUrl.trim() || formData.images.length >= 10}
-                  >
-                    추가
-                  </button>
+                  {imageFiles.length > 0 && (
+                    <span className="image-count">({imageFiles.length} / 10)</span>
+                  )}
                 </div>
                 <div className="images-preview">
-                  {formData.images.map((url, index) => (
+                  {imagePreviews.map((preview, index) => (
                     <div key={index} className="image-preview-item">
-                      <img src={url} alt={`상품 이미지 ${index + 1}`} className="preview-image" />
+                      <img src={preview} alt={`상품 이미지 ${index + 1}`} className="preview-image" />
                       <button
                         type="button"
                         className="image-remove-btn"
