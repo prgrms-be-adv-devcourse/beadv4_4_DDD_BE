@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
@@ -73,7 +74,6 @@ export default function OrderPage() {
         console.error('회원 정보 조회 실패:', error)
         const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.'
         setMemberError(errorMessage)
-        // 실패 페이지로 이동하지 않고 에러 메시지 표시
       } finally {
         setIsLoadingMember(false)
       }
@@ -101,7 +101,6 @@ export default function OrderPage() {
     }
     script.onerror = () => {
       console.error('토스페이먼츠 스크립트 로드 실패')
-      // 실패 페이지로 이동하지 않고 경고만 표시
     }
     document.body.appendChild(script)
 
@@ -132,7 +131,7 @@ export default function OrderPage() {
         },
         body: JSON.stringify({
           buyerId: memberId,
-          orderId: Date.now(), // 임시 orderId, 실제로는 백엔드 정책에 맞게 조정
+          orderId: Date.now(),
           orderNo: `ORD-${Date.now()}`,
           totalAmount: amount,
         }),
@@ -199,123 +198,129 @@ export default function OrderPage() {
   }
 
   return (
-    <main className="order-page">
-      {/* 주문서 섹션 */}
-      <section className="order-section card">
-        <h2 className="section-title">주문서</h2>
-        {memberError && (
-          <div style={{ 
-            padding: '12px', 
-            marginBottom: '12px', 
-            backgroundColor: '#fee', 
-            color: '#c33', 
-            borderRadius: '8px',
-            fontSize: '14px'
-          }}>
-            ⚠️ {memberError}
+    <div className="home-page">
+      {/* Header */}
+      <header className="header">
+        <div className="header-container">
+          <div className="logo">
+            <Link href="/">뭐든사</Link>
           </div>
-        )}
-        <div className="order-info">
-          <div className="name">{memberInfo?.customerName || (isLoadingMember ? '로딩 중...' : '회원 정보 없음')}</div>
-          <div className="delivery-tag">기본 배송지</div>
-          <div className="address">서울 강남구 자곡동 123-456</div>
-          <div className="phone">010-1234-5678</div>
+          <nav className="nav">
+            <Link href="/fashion">패션</Link>
+            <Link href="/beauty">뷰티</Link>
+            <Link href="/sale">세일</Link>
+          </nav>
+          <div className="header-actions">
+            <button className="search-btn">검색</button>
+            <button className="cart-btn">장바구니</button>
+            <button className="user-btn">로그인</button>
+          </div>
         </div>
-      </section>
+      </header>
 
-      {/* 결제 금액 섹션 */}
-      <section className="payment-section">
-        <h2 className="section-title">결제 금액</h2>
-        <div className="payment-details">
-          <div className="payment-row">
-            <span>상품 금액</span>
-            <span>19,800원</span>
-          </div>
-          <div className="payment-row">
-            <span>배송비</span>
-            <span>무료배송</span>
-          </div>
-          <div className="payment-divider"></div>
-          <div className="payment-row total">
-            <span>총 결제 금액</span>
-            <span>19,800원</span>
-          </div>
-        </div>
-      </section>
+      <div className="order-page-container">
+        <div className="container">
+          <h1 style={{ fontSize: '32px', fontWeight: '700', marginBottom: '32px', textAlign: 'center' }}>주문하기</h1>
 
-      {/* 주문 상품 섹션 */}
-      <section className="product-section">
-        <h2 className="section-title">주문 상품 1개</h2>
-        <div className="product-item">
-          <div className="product-image">
-            <svg className="bag-image" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-              {/* 가방 본체 */}
-              <rect x="20" y="30" width="60" height="50" rx="4" fill="#d4a574" stroke="#b8945f" strokeWidth="1.5"/>
-              {/* 가방 손잡이 */}
-              <path d="M 30 30 Q 30 20 40 20 L 60 20 Q 70 20 70 30" stroke="#b8945f" strokeWidth="2" fill="none" strokeLinecap="round"/>
-              <path d="M 30 30 Q 30 20 40 20 L 60 20 Q 70 20 70 30" stroke="#b8945f" strokeWidth="2" fill="none" strokeLinecap="round" transform="translate(0, 50)"/>
-              {/* 가방 지퍼/라인 */}
-              <line x1="30" y1="45" x2="70" y2="45" stroke="#b8945f" strokeWidth="1" opacity="0.6"/>
-              <line x1="30" y1="55" x2="70" y2="55" stroke="#b8945f" strokeWidth="1" opacity="0.6"/>
-              {/* 가방 장식 라인 */}
-              <rect x="25" y="35" width="50" height="40" rx="2" fill="none" stroke="#b8945f" strokeWidth="1" opacity="0.4"/>
-            </svg>
+        {/* 주문서 섹션 */}
+        <section className="order-card">
+          <h2 className="card-title">배송 정보</h2>
+          {memberError && (
+            <div className="error-alert">
+              ⚠️ {memberError}
+            </div>
+          )}
+          <div className="order-info">
+            <div className="info-name">{memberInfo?.customerName || (isLoadingMember ? '로딩 중...' : '회원 정보 없음')}</div>
+            <div className="info-tag">기본 배송지</div>
+            <div className="info-text">서울 강남구 자곡동 123-456</div>
+            <div className="info-text">010-1234-5678</div>
           </div>
-          <div className="product-info">
-            <div className="product-brand">지오다노</div>
-            <div className="product-name">베이직 레더 가방 130004</div>
-            <div className="product-price">19,800원</div>
-            <div className="product-delivery">01.14(수) 도착 예정</div>
+        </section>
+
+        {/* 주문 상품 섹션 */}
+        <section className="order-card">
+          <h2 className="card-title">주문 상품</h2>
+          <div className="order-product">
+            <div className="product-image-wrapper">
+              <div className="product-image-placeholder">이미지</div>
+            </div>
+            <div className="product-details">
+              <div className="product-brand">지오다노</div>
+              <div className="product-name">베이직 레더 가방 130004</div>
+              <div className="product-price">₩19,800</div>
+              <div className="product-delivery">01.14(수) 도착 예정</div>
+            </div>
+          </div>
+        </section>
+
+        {/* 결제 금액 섹션 */}
+        <section className="order-card">
+          <h2 className="card-title">결제 금액</h2>
+          <div className="payment-summary">
+            <div className="summary-row">
+              <span>상품 금액</span>
+              <span>₩19,800</span>
+            </div>
+            <div className="summary-row">
+              <span>배송비</span>
+              <span>무료배송</span>
+            </div>
+            <div className="summary-divider"></div>
+            <div className="summary-row total">
+              <span>총 결제 금액</span>
+              <span>₩19,800</span>
+            </div>
+          </div>
+        </section>
+
+        {/* 결제 수단 섹션 */}
+        <section className="order-card">
+          <h2 className="card-title">결제 수단</h2>
+          <div className="payment-method-option">
+            <input
+              type="radio"
+              id="modeunsa"
+              name="payment"
+              checked={selectedMethod === 'modeunsa'}
+              onChange={() => setSelectedMethod('modeunsa')}
+            />
+            <label htmlFor="modeunsa">
+              <div className="payment-logo">뭐든사</div>
+              <div className="payment-info">
+                <span>뭐든사페이</span>
+                <span className="payment-balance">
+                  (사용 가능 금액:{' '}
+                  {memberInfo
+                    ? `${new Intl.NumberFormat('ko-KR').format(Number(memberInfo.balance))}원`
+                    : isLoadingMember
+                    ? '로딩 중...'
+                    : '0원'}
+                  )
+                </span>
+              </div>
+            </label>
+          </div>
+        </section>
+
+        {/* 약관 안내 */}
+        <div className="terms-notice">
+          <div className="terms-item">
+            <span>주문 내용을 확인했으며 결제에 동의합니다.</span>
+            <a href="#" className="terms-link">자세히</a>
+          </div>
+          <div className="terms-item">
+            <span>회원님의 개인정보는 안전하게 관리됩니다.</span>
+            <a href="#" className="terms-link">자세히</a>
+          </div>
+          <div className="terms-item">
+            <span>뭐든사는 통신판매중개자로, 업체 배송 상품의 상품/상품정보/거래 등에 대한 책임은 뭐든사가 아닌 판매자에게 있습니다.</span>
           </div>
         </div>
-      </section>
 
-      {/* 결제 수단 섹션 */}
-      <section className="payment-method-section">
-        <h2 className="section-title">결제 수단</h2>
-        <div className="payment-method">
-          <input
-            type="radio"
-            id="modeunsa"
-            name="payment"
-            checked={selectedMethod === 'modeunsa'}
-            onChange={() => setSelectedMethod('modeunsa')}
-          />
-          <label htmlFor="modeunsa">
-            <div className="modeunsa-logo">뭐든사</div>
-            <span>뭐든사페이</span>
-            <span style={{ fontSize: '13px', color: '#666' }}>
-              (사용 가능 금액:{' '}
-              {memberInfo
-                ? `${new Intl.NumberFormat('ko-KR').format(Number(memberInfo.balance))}원`
-                : isLoadingMember
-                ? '로딩 중...'
-                : '0원'}
-              )
-            </span>
-          </label>
-        </div>
-      </section>
-
-      {/* 약관 안내 (카드 밖) */}
-      <div className="terms-outside">
-        <div className="terms-item-outside">
-          <span>주문 내용을 확인했으며 결제에 동의합니다.</span>
-          <a href="#" className="detail-link">자세히</a>
-        </div>
-        <div className="terms-item-outside">
-          <span>회원님의 개인정보는 안전하게 관리됩니다.</span>
-          <a href="#" className="detail-link">자세히</a>
-        </div>
-        <div className="terms-item-outside">
-          <span>뭐든사는 통신판매중개자로, 업체 배송 상품의 상품/상품정보/거래 등에 대한 책임은 뭐든사가 아닌 판매자에게 있습니다.</span>
-        </div>
-      </div>
-
-      {/* 결제 버튼 */}
-      <section className="terms-section">
+        {/* 결제 버튼 */}
         <button 
-          className="payment-button" 
+          className="order-payment-button" 
           onClick={handlePayment}
           disabled={isLoadingMember || !memberInfo}
         >
@@ -330,11 +335,37 @@ export default function OrderPage() {
                     ? `${new Intl.NumberFormat('ko-KR').format(shortage)}원 결제하기`
                     : '결제하기'
                 }
-                // 토스 선택 시에는 총 결제 금액 표시
                 return `${new Intl.NumberFormat('ko-KR').format(totalAmount)}원 결제하기`
               })()}
         </button>
-      </section>
-    </main>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="footer">
+        <div className="container">
+          <div className="footer-content">
+            <div className="footer-section">
+              <h3>고객센터</h3>
+              <p>1588-0000</p>
+              <p>평일 09:00 - 18:00</p>
+            </div>
+            <div className="footer-section">
+              <h3>회사정보</h3>
+              <p>주소: 서울시 강남구</p>
+              <p>사업자등록번호: 000-00-00000</p>
+            </div>
+            <div className="footer-section">
+              <h3>이용안내</h3>
+              <Link href="/terms">이용약관</Link>
+              <Link href="/privacy">개인정보처리방침</Link>
+            </div>
+          </div>
+          <div className="footer-bottom">
+            <p>&copy; 2024 뭐든사. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
   )
 }
