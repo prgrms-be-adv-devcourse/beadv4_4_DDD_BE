@@ -37,7 +37,10 @@ public class SecurityConfig {
       String[] permittedUrls = securityProperties.getPermitUrls().toArray(new String[0]);
 
       http.authorizeHttpRequests(
-          auth -> auth.requestMatchers(permittedUrls).permitAll().anyRequest().authenticated());
+          auth -> auth.requestMatchers(permittedUrls).permitAll()
+                  .requestMatchers("/login/oauth2/code/kakao").permitAll()
+                  .requestMatchers("/login/oauth2/code/naver").permitAll()
+                  .anyRequest().authenticated());
     }
 
     http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
