@@ -83,6 +83,8 @@ dependencies {
 
     // ElasticSearch
     implementation "org.springframework.boot:spring-boot-starter-data-elasticsearch"
+
+    implementation 'io.hypersistence:hypersistence-tsid:2.1.1'
 }
 
 jar {

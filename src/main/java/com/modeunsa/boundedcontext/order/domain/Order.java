@@ -1,6 +1,7 @@
 package com.modeunsa.boundedcontext.order.domain;
 
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
+import io.hypersistence.tsid.TSID;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -108,7 +109,7 @@ public class Order extends GeneratedIdAndAuditedEntity {
     Order order =
         Order.builder()
             .orderMember(member)
-            .orderNo(generateOrderNo(member.getId()))
+            .orderNo(generateOrderNo())
             .status(OrderStatus.PENDING_PAYMENT)
             .recipientName(recipientName)
             .recipientPhone(recipientPhone)
@@ -127,11 +128,11 @@ public class Order extends GeneratedIdAndAuditedEntity {
     return order;
   }
 
-  // 주문번호 생성 {날짜와 시간-유저 ID(yyyyMMddHHmmssSSS-%04d 포맷팅)}
-  public static String generateOrderNo(Long memberId) {
+  // 주문번호 생성 {날짜와 시간-TSID(yyyyMMddHHmmssSSS-TSID 포맷팅)}
+  public static String generateOrderNo() {
     return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"))
         + "-"
-        + String.format("%04d", memberId % 10000);
+        + TSID.fast().toString();
   }
 
   // 주문 총 가격 생성
