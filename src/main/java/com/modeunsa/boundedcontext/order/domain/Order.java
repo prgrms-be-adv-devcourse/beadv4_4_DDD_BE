@@ -58,23 +58,23 @@ public class Order extends GeneratedIdAndAuditedEntity {
 
   // --- 배송 정보 ---
   @Convert(converter = EncryptedStringConverter.class)
-  @Column(name = "recipient_name", nullable = false, length = 255)
+  @Column(name = "recipient_name", nullable = false, length = 500)
   private String recipientName;
 
   @Convert(converter = EncryptedStringConverter.class)
-  @Column(name = "recipient_phone", nullable = false, length = 255)
+  @Column(name = "recipient_phone", nullable = false, length = 500)
   private String recipientPhone;
 
   @Convert(converter = EncryptedStringConverter.class)
-  @Column(nullable = false, length = 255)
+  @Column(nullable = false, length = 500)
   private String zipCode;
 
   @Convert(converter = EncryptedStringConverter.class)
-  @Column(name = "address", nullable = false, length = 255)
+  @Column(name = "address", nullable = false, length = 500)
   private String address;
 
   @Convert(converter = EncryptedStringConverter.class)
-  @Column(name = "address_detail", nullable = false, length = 255)
+  @Column(name = "address_detail", nullable = false, length = 500)
   private String addressDetail;
 
   // --- 시간 정보 ---

@@ -24,19 +24,19 @@ public class OrderMember extends ManualIdAndAuditedEntity {
   private String memberName;
 
   @Convert(converter = EncryptedStringConverter.class)
-  @Column(name = "member_phone", nullable = false, length = 255)
+  @Column(name = "member_phone", nullable = false, length = 500)
   private String memberPhone;
 
   @Convert(converter = EncryptedStringConverter.class)
-  @Column(name = "zipcode", length = 255)
+  @Column(name = "zipcode", length = 500)
   private String zipCode;
 
   @Convert(converter = EncryptedStringConverter.class)
-  @Column(name = "address", length = 255)
+  @Column(name = "address", length = 500)
   private String address;
 
   @Convert(converter = EncryptedStringConverter.class)
-  @Column(name = "address_detail", length = 255)
+  @Column(name = "address_detail", length = 500)
   private String addressDetail;
 
   public void updateInfo(String memberName, String memberPhone) {
