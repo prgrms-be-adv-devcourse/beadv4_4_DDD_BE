@@ -7,8 +7,6 @@ import com.modeunsa.boundedcontext.product.out.ProductRepository;
 import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
-import com.modeunsa.shared.product.dto.ProductDto;
-import com.modeunsa.shared.product.event.ProductStatusUpdatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -32,11 +30,6 @@ public class ProductUpdateProductStatusUseCase {
     productPolicy.validateProductStatus(product.getProductStatus(), productStatus);
 
     product.updateProductStatus(productStatus);
-
-    ProductDto productDto = productMapper.toDto(productRepository.save(product));
-
-    // TODO: ProductStatus.COMPLETED 로 변경 시 상품 생성되도록
-    eventPublisher.publish(new ProductStatusUpdatedEvent(productDto));
 
     return product;
   }
