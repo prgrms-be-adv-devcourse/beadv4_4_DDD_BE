@@ -2,14 +2,151 @@
 
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+
+interface ProductDetailResponse {
+  id: number
+  sellerId: number
+  name: string
+  category: string
+  description: string
+  price: number
+  salePrice: number
+  currency: string
+  productStatus: string
+  saleStatus: string
+  stock: number
+  isFavorite: boolean
+  favoriteCount: number
+  createdAt: string
+  updatedAt: string
+  createdBy: number
+  updatedBy: number
+}
+
+interface ApiResponse {
+  isSuccess: boolean
+  code: string
+  message: string
+  result: ProductDetailResponse
+}
 
 export default function ProductDetailPage() {
   const params = useParams()
   const router = useRouter()
   const productId = params.id as string
+  
+  const [product, setProduct] = useState<ProductDetailResponse | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+        const response = await fetch(`${apiUrl}/api/v1/products/${productId}`)
+        
+        if (!response.ok) {
+          const errorText = await response.text()
+          console.error('API 응답 에러:', response.status, errorText)
+          throw new Error(`상품 정보를 불러올 수 없습니다 (${response.status})`)
+        }
+        
+        const apiResponse: ApiResponse = await response.json()
+        
+        if (apiResponse.isSuccess && apiResponse.result) {
+          setProduct(apiResponse.result)
+          setError(null)
+        } else {
+          throw new Error(apiResponse.message || '상품 정보를 가져올 수 없습니다.')
+        }
+      } catch (error) {
+        console.error('상품 정보 조회 실패:', error)
+        const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.'
+        setError(errorMessage)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    if (productId) {
+      fetchProduct()
+    }
+  }, [productId])
 
   const handleOrder = () => {
     router.push('/order')
+  }
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('ko-KR').format(price)
+  }
+
+  if (isLoading) {
+    return (
+      <div className="home-page">
+        <header className="header">
+          <div className="header-container">
+            <div className="logo">
+              <Link href="/">뭐든사</Link>
+            </div>
+            <nav className="nav">
+              <Link href="/fashion">패션</Link>
+              <Link href="/beauty">뷰티</Link>
+              <Link href="/sale">세일</Link>
+              <Link href="/magazine">매거진</Link>
+            </nav>
+            <div className="header-actions">
+              <Link href="/search" className="search-btn">검색</Link>
+              <Link href="/cart" className="cart-btn">장바구니</Link>
+              <Link href="/login" className="user-btn">로그인</Link>
+            </div>
+          </div>
+        </header>
+        <div className="product-detail-container">
+          <div className="container">
+            <div style={{ textAlign: 'center', padding: '80px 20px' }}>
+              <p>상품 정보를 불러오는 중...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !product) {
+    return (
+      <div className="home-page">
+        <header className="header">
+          <div className="header-container">
+            <div className="logo">
+              <Link href="/">뭐든사</Link>
+            </div>
+            <nav className="nav">
+              <Link href="/fashion">패션</Link>
+              <Link href="/beauty">뷰티</Link>
+              <Link href="/sale">세일</Link>
+              <Link href="/magazine">매거진</Link>
+            </nav>
+            <div className="header-actions">
+              <Link href="/search" className="search-btn">검색</Link>
+              <Link href="/cart" className="cart-btn">장바구니</Link>
+              <Link href="/login" className="user-btn">로그인</Link>
+            </div>
+          </div>
+        </header>
+        <div className="product-detail-container">
+          <div className="container">
+            <div style={{ textAlign: 'center', padding: '80px 20px' }}>
+              <p style={{ color: '#f44336', marginBottom: '20px' }}>{error || '상품을 찾을 수 없습니다.'}</p>
+              <Link href="/" style={{ color: '#667eea', textDecoration: 'underline' }}>
+                홈으로 돌아가기
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -54,11 +191,27 @@ export default function ProductDetailPage() {
 
             {/* Product Info */}
             <div className="product-info-section">
-              <div className="product-brand-name">브랜드명</div>
-              <h1 className="product-title">상품명 {productId}</h1>
+              <div className="product-brand-name">{product.category}</div>
+              <h1 className="product-title">{product.name}</h1>
               <div className="product-price-section">
-                <span className="product-price">₩{((parseInt(productId) * 15000) + 10000).toLocaleString()}</span>
+                {product.salePrice < product.price ? (
+                  <>
+                    <span className="product-price original-price">₩{formatPrice(product.price)}</span>
+                    <span className="product-price sale-price">₩{formatPrice(product.salePrice)}</span>
+                  </>
+                ) : (
+                  <span className="product-price">₩{formatPrice(product.salePrice)}</span>
+                )}
               </div>
+              {product.stock > 0 ? (
+                <div style={{ fontSize: '14px', color: '#666', marginTop: '8px' }}>
+                  재고: {product.stock}개
+                </div>
+              ) : (
+                <div style={{ fontSize: '14px', color: '#f44336', marginTop: '8px' }}>
+                  품절
+                </div>
+              )}
               
               <div className="product-divider"></div>
 
@@ -110,8 +263,7 @@ export default function ProductDetailPage() {
           <div className="product-description-section">
             <h2 className="description-title">상품 상세 정보</h2>
             <div className="description-content">
-              <p>상품 상세 설명이 들어갑니다.</p>
-              <p>트렌디한 디자인과 고품질 소재로 제작된 상품입니다.</p>
+              <p>{product.description || '상품 상세 설명이 없습니다.'}</p>
             </div>
           </div>
         </div>

@@ -837,6 +837,20 @@ a {
   color: #000;
 }
 
+.product-price.original-price {
+  font-size: 24px;
+  font-weight: 400;
+  color: #999;
+  text-decoration: line-through;
+  margin-right: 12px;
+}
+
+.product-price.sale-price {
+  font-size: 36px;
+  font-weight: 700;
+  color: #f44336;
+}
+
 .product-divider {
   height: 1px;
   background-color: #e5e5e5;
