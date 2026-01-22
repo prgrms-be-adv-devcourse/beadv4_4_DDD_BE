@@ -99,7 +99,7 @@ public class S3UploadService {
 
     String publicKey =
         UploadPolicy.buildPublicKey(
-            request.domainType(), request.domainId(), uploadPathInfo.filename());
+            profile, request.domainType(), request.domainId(), uploadPathInfo.filename());
 
     // 3. CopyObject
     this.copyObject(request.rawKey(), publicKey, request.contentType());
@@ -107,13 +107,13 @@ public class S3UploadService {
     // 4. raw 객체 삭제
     this.deleteObject(request.rawKey());
 
-    return UploadPolicy.buildPublicUrl(bucket, region, publicKey, profile);
+    return UploadPolicy.buildPublicUrl(bucket, region, publicKey);
   }
 
   /** s3에 직접 업로드 (되도록이면 presignedUrl 사용해주세요) */
   public String upload(MultipartFile file, DomainType domainType, Long domainId, String filename)
       throws IOException {
-    String publicKey = UploadPolicy.buildPublicKey(domainType, domainId, filename);
+    String publicKey = UploadPolicy.buildPublicKey(profile, domainType, domainId, filename);
     PutObjectRequest request =
         PutObjectRequest.builder()
             .bucket(bucket)
@@ -124,7 +124,7 @@ public class S3UploadService {
 
     this.putObject(request, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
 
-    return UploadPolicy.buildPublicUrl(bucket, region, publicKey, profile);
+    return UploadPolicy.buildPublicUrl(bucket, region, publicKey);
   }
 
   /** s3 컨텐츠 삭제 */

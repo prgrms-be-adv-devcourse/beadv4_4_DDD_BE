@@ -23,14 +23,14 @@ public class UploadPolicy {
         profile, TEMP, domainType.toString().toLowerCase(), domainId, UUID.randomUUID(), ext);
   }
 
-  public static String buildPublicKey(DomainType domainType, Long domainId, String filename) {
-    return String.format("%s/%s/%s", domainType.toString().toLowerCase(), domainId, filename);
+  public static String buildPublicKey(
+      String profile, DomainType domainType, Long domainId, String filename) {
+    return String.format(
+        "%s/%s/%s/%s", profile, domainType.toString().toLowerCase(), domainId, filename);
   }
 
-  public static String buildPublicUrl(
-      String bucket, String region, String publicKey, String profile) {
-    return String.format(
-        "https://%s.s3.%s.amazonaws.com/%s/%s", bucket, region, profile, publicKey);
+  public static String buildPublicUrl(String bucket, String region, String publicKey) {
+    return String.format("https://%s.s3.%s.amazonaws.com/%s", bucket, region, publicKey);
   }
 
   public static UploadPathInfo parse(String rawKey) {
