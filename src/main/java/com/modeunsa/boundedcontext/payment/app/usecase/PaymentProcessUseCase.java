@@ -39,20 +39,20 @@ public class PaymentProcessUseCase {
 
     // 3. 결제 처리
     if (paymentProcessContext.needsCharge()) {
-      executeWithCharge(holderAccount, buyerAccount, paymentProcessContext);
+      processWithCharge(holderAccount, buyerAccount, paymentProcessContext);
     } else {
-      executeWithoutCharge(holderAccount, buyerAccount, paymentProcessContext);
+      processWithoutCharge(holderAccount, buyerAccount, paymentProcessContext);
     }
   }
 
-  private void executeWithoutCharge(
+  private void processWithoutCharge(
       PaymentAccount holderAccount,
       PaymentAccount buyerAccount,
       PaymentProcessContext paymentProcessContext) {
     processPayment(holderAccount, buyerAccount, paymentProcessContext);
   }
 
-  private void executeWithCharge(
+  private void processWithCharge(
       PaymentAccount holderAccount,
       PaymentAccount buyerAccount,
       PaymentProcessContext paymentProcessContext) {
