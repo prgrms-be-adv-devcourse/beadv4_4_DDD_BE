@@ -6,6 +6,7 @@ import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMI
 import com.modeunsa.boundedcontext.order.app.OrderFacade;
 import com.modeunsa.shared.auth.event.MemberSignupEvent;
 import com.modeunsa.shared.member.event.MemberBasicInfoUpdatedEvent;
+import com.modeunsa.shared.member.event.MemberDeliveryAddressSetAsDefaultEvent;
 import com.modeunsa.shared.payment.event.PaymentFailedEvent;
 import com.modeunsa.shared.payment.event.PaymentSuccessEvent;
 import com.modeunsa.shared.product.event.ProductCreatedEvent;
@@ -30,6 +31,13 @@ public class OrderEventListener {
   @Transactional(propagation = REQUIRES_NEW)
   public void handle(MemberBasicInfoUpdatedEvent event) {
     orderFacade.updateMember(event.memberId(), event.realName(), event.phoneNumber());
+  }
+
+  @TransactionalEventListener(phase = AFTER_COMMIT)
+  @Transactional(propagation = REQUIRES_NEW)
+  public void handle(MemberDeliveryAddressSetAsDefaultEvent event) {
+    orderFacade.createDeliveryAddress(
+        event.memberId(), event.zipCode(), event.address(), event.addressDetail());
   }
 
   @TransactionalEventListener(phase = AFTER_COMMIT)

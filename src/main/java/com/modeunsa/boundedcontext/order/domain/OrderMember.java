@@ -25,7 +25,10 @@ public class OrderMember extends ManualIdAndAuditedEntity {
   private String memberPhone;
 
   @Column(name = "zipcode", length = 10)
-  private String zipcode;
+  private String zipCode;
+
+  @Column(name = "address", length = 200)
+  private String address;
 
   @Column(name = "address_detail", length = 200)
   private String addressDetail;
@@ -33,5 +36,11 @@ public class OrderMember extends ManualIdAndAuditedEntity {
   public void updateInfo(String memberName, String memberPhone) {
     this.memberName = memberName;
     this.memberPhone = memberPhone;
+  }
+
+  public void createDeliveryAddress(String zipCode, String address, String addressDetail) {
+    this.zipCode = zipCode;
+    this.address = address;
+    this.addressDetail = addressDetail;
   }
 }

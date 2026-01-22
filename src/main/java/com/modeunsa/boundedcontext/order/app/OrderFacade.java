@@ -35,6 +35,7 @@ public class OrderFacade {
   private final OrderMapper orderMapper;
   private final OrderSyncMemberUseCase orderSyncMemberUseCase;
   private final OrderUpdateMemberUseCase orderUpdateMemberUseCase;
+  private final OrderCreateDeliveryAddress orderCreateDeliveryAddress;
 
   // 장바구니 아이템 생성
   @Transactional
@@ -134,5 +135,11 @@ public class OrderFacade {
   @Transactional
   public void updateMember(Long memberId, String memberName, String memberPhone) {
     orderUpdateMemberUseCase.updateMember(memberId, memberName, memberPhone);
+  }
+
+  @Transactional
+  public void createDeliveryAddress(
+      Long memberId, String zipCode, String address, String addressDetail) {
+    orderCreateDeliveryAddress.createDeliveryAddress(memberId, zipCode, address, addressDetail);
   }
 }
