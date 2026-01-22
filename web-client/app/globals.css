@@ -2769,6 +2769,25 @@ a {
   margin-bottom: 32px;
 }
 
+.delete-selected-btn {
+  padding: 10px 20px;
+  background-color: #ffffff;
+  border: 2px solid #f44336;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #f44336;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.delete-selected-btn:hover {
+  background-color: #f44336;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(244, 67, 54, 0.2);
+}
+
 .select-all {
   display: flex;
   align-items: center;

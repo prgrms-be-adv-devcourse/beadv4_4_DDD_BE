@@ -146,6 +146,38 @@ export default function CartPage() {
     })
   }
 
+  const handleDeleteSelected = () => {
+    if (selectedItems.size === 0) {
+      alert('삭제할 상품을 선택해주세요.')
+      return
+    }
+
+    if (!confirm(`선택한 ${selectedItems.size}개의 상품을 삭제하시겠습니까?`)) {
+      return
+    }
+
+    // TODO: 선택된 아이템들 삭제 API 연동 필요
+    if (!cartData) return
+    
+    const updatedItems = cartData.cartItems.filter(item => !selectedItems.has(item.productId))
+    setSelectedItems(new Set())
+    
+    const totalQuantity = updatedItems
+      .filter(item => item.isAvailable)
+      .reduce((sum, item) => sum + item.quantity, 0)
+    
+    const totalAmount = updatedItems
+      .filter(item => item.isAvailable)
+      .reduce((sum, item) => sum + (item.salePrice * item.quantity), 0)
+    
+    setCartData({
+      ...cartData,
+      cartItems: updatedItems,
+      totalQuantity,
+      totalAmount,
+    })
+  }
+
   const selectedCartItems = items.filter(item => selectedItems.has(item.productId))
   const totalPrice = selectedCartItems.reduce((sum, item) => sum + (item.salePrice * item.quantity), 0)
   const deliveryFee = 0
@@ -207,6 +239,14 @@ export default function CartPage() {
                     />
                     <label htmlFor="select-all">전체 선택</label>
                   </div>
+                  {someSelected && (
+                    <button 
+                      className="delete-selected-btn"
+                      onClick={handleDeleteSelected}
+                    >
+                      선택 삭제 ({selectedItems.size})
+                    </button>
+                  )}
                 </div>
 
                 <div className="cart-items-list">
