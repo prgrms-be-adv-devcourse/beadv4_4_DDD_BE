@@ -57,8 +57,12 @@ class SettlementSupportTest {
 
     SettlementPolicy.FEE_RATE = new BigDecimal("0.1");
 
-    sellerSettlement = Settlement.create(SELLER_ID, YEAR, MONTH);
-    feeSettlement = Settlement.create(systemMemberId, YEAR, MONTH);
+    sellerSettlement =
+        Settlement.create(
+            SELLER_ID, YEAR, MONTH, SettlementEventType.SETTLEMENT_PRODUCT_SALES_AMOUNT);
+    feeSettlement =
+        Settlement.create(
+            systemMemberId, YEAR, MONTH, SettlementEventType.SETTLEMENT_PRODUCT_SALES_FEE);
 
     // 판매자 정산 아이템 추가 (판매대금)
     sellerSettlement.addItem(

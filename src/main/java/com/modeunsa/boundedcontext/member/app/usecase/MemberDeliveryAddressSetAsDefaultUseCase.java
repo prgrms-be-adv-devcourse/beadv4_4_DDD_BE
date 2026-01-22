@@ -36,7 +36,7 @@ public class MemberDeliveryAddressSetAsDefaultUseCase {
       throw new GeneralException(ErrorStatus.ADDRESS_ACCESS_DENIED);
     }
 
-    // 3. [추가] 이미 기본 배송지로 설정되어 있는지 검증
+    // 3. 이미 기본 배송지로 설정되어 있는지 검증
     MemberDeliveryAddress currentDefault =
         member.getDefaultDeliveryAddress(); // Member 엔티티에 해당 메서드가 있다고 가정
 
