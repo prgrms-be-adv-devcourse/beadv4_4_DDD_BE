@@ -51,7 +51,7 @@ public class SettlementDataInit {
   }
 
   @Bean
-  @Order(5)
+  @Order(4)
   public ApplicationRunner settlementDataInitApplicationRunner() {
     return args -> {
       self.initMembers();
@@ -79,7 +79,7 @@ public class SettlementDataInit {
     }
 
     if (settlementMemberRepository.findById(BUYER_MEMBER_ID).isEmpty()) {
-      SettlementMember buyerMember = SettlementMember.create(BUYER_MEMBER_ID, "BUYER");
+      SettlementMember buyerMember = SettlementMember.create(BUYER_MEMBER_ID, "MEMBER");
       settlementMemberRepository.save(buyerMember);
       log.info("구매자 멤버 생성: {}", buyerMember.getId());
     }
@@ -91,6 +91,7 @@ public class SettlementDataInit {
 
     if (settlementCandidateItemRepository.count() > 0) {
       log.info("정산 후보 항목이 이미 존재합니다. 초기화를 건너뜁니다.");
+      // TODO: 나중에 OrderDataInit에 구매확정이 추가되면 event 오는 것 확인 필요
       return;
     }
 

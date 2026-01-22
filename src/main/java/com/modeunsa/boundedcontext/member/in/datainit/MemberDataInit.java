@@ -10,7 +10,7 @@ import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
 import com.modeunsa.boundedcontext.member.out.repository.MemberSellerRepository;
 import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
-import com.modeunsa.shared.auth.event.MemberSignupEvent;
+import com.modeunsa.shared.member.event.MemberSignupEvent;
 import com.modeunsa.shared.member.event.SellerRegisteredEvent;
 import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
