@@ -6,9 +6,11 @@ import com.modeunsa.global.s3.dto.DomainType;
 import com.modeunsa.global.s3.dto.PresignedUrlRequest;
 import com.modeunsa.global.s3.dto.PresignedUrlResponse;
 import com.modeunsa.global.s3.dto.PublicUrlRequest;
+import com.modeunsa.global.s3.dto.UploadPathInfo;
 import com.modeunsa.global.status.ErrorStatus;
 import java.io.IOException;
 import java.time.Duration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -28,6 +30,9 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 
 @Component
 public class S3UploadService {
+
+  @Value("${spring.config.activate.on-profile}")
+  private String profile;
 
   private final String bucket;
   private final String region;
@@ -50,7 +55,8 @@ public class S3UploadService {
 
   /** 업로드용 presignedUrl 발급 */
   public PresignedUrlResponse issuePresignedUrl(PresignedUrlRequest request) {
-    String rawKey = UploadPolicy.buildRawKey(request.domainType(), request.ext());
+    String rawKey =
+        UploadPolicy.buildRawKey(request.domainType(), request.domainId(), request.ext(), profile);
 
     PutObjectRequest putObjectRequest =
         PutObjectRequest.builder()
@@ -88,12 +94,12 @@ public class S3UploadService {
     HeadObjectResponse head = this.headObject(bucket, request.rawKey());
 
     // 2. 검증
-    if (!UploadPolicy.ALLOWED_CONTENT_TYPES.contains(head.contentType())) {
-      throw new GeneralException(ErrorStatus.IMAGE_FILE_EXTENSION_NOT_SUPPORTED);
-    }
+    UploadPathInfo uploadPathInfo = UploadPolicy.parse(request.rawKey());
+    this.validateRequest(request, head, uploadPathInfo);
 
     String publicKey =
-        UploadPolicy.buildPublicKey(request.domainType(), request.domainId(), request.filename());
+        UploadPolicy.buildPublicKey(
+            request.domainType(), request.domainId(), uploadPathInfo.filename());
 
     // 3. CopyObject
     this.copyObject(request.rawKey(), publicKey, request.contentType());
@@ -101,7 +107,7 @@ public class S3UploadService {
     // 4. raw 객체 삭제
     this.deleteObject(request.rawKey());
 
-    return UploadPolicy.buildPublicUrl(bucket, region, publicKey);
+    return UploadPolicy.buildPublicUrl(bucket, region, publicKey, profile);
   }
 
   /** s3에 직접 업로드 (되도록이면 presignedUrl 사용해주세요) */
@@ -118,7 +124,7 @@ public class S3UploadService {
 
     this.putObject(request, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
 
-    return UploadPolicy.buildPublicUrl(bucket, region, publicKey);
+    return UploadPolicy.buildPublicUrl(bucket, region, publicKey, profile);
   }
 
   /** s3 컨텐츠 삭제 */
@@ -168,5 +174,18 @@ public class S3UploadService {
         () ->
             s3Client.deleteObject(
                 DeleteObjectRequest.builder().bucket(bucket).key(objectKey).build()));
+  }
+
+  private void validateRequest(
+      PublicUrlRequest request, HeadObjectResponse head, UploadPathInfo uploadPathInfo) {
+
+    if (!UploadPolicy.ALLOWED_CONTENT_TYPES.contains(head.contentType())) {
+      throw new GeneralException(ErrorStatus.IMAGE_FILE_EXTENSION_NOT_SUPPORTED);
+    }
+    if (!uploadPathInfo.profile().equals(profile)
+        || !uploadPathInfo.domainType().equals(request.domainType())
+        || !uploadPathInfo.domainId().equals(request.domainId())) {
+      throw new GeneralException(ErrorStatus.IMAGE_RAW_KEY_INVALID);
+    }
   }
 }

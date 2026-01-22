@@ -152,6 +152,7 @@ public enum ErrorStatus {
   IMAGE_FILE_EXTENSION_NOT_SUPPORTED(HttpStatus.BAD_REQUEST, "IMAGE_400_003", "지원하지 않는 파일 형식입니다."),
   S3_FILE_NOT_FOUND(HttpStatus.BAD_REQUEST, "IMAGE_400_004", "S3 파일을 찾을 수 없습니다."),
   S3_OPERATION_FAILED(HttpStatus.BAD_REQUEST, "IMAGE_400_005", "S3 실행에 실패했습니다."),
+  IMAGE_RAW_KEY_INVALID(HttpStatus.BAD_REQUEST, "IMAGE_400_006", "key 형식이 잘못되었습니다"),
   // S3 Image 500
   IMAGE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "IMAGE_500_001", "이미지 업로드에 실패했습니다."),
 
