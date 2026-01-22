@@ -4,7 +4,7 @@ import static org.springframework.transaction.annotation.Propagation.REQUIRES_NE
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
 import com.modeunsa.boundedcontext.product.app.ProductFacade;
-import com.modeunsa.shared.auth.event.MemberSignupEvent;
+import com.modeunsa.shared.member.event.MemberSignupEvent;
 import com.modeunsa.shared.member.event.SellerRegisteredEvent;
 import com.modeunsa.shared.order.event.OrderCancelRequestEvent;
 import lombok.RequiredArgsConstructor;

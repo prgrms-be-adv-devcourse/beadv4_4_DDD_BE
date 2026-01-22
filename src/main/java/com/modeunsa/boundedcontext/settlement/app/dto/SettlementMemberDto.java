@@ -7,5 +7,5 @@ import lombok.Getter;
 @Builder
 public class SettlementMemberDto {
   private final Long memberId;
-  private final String name;
+  private final String role;
 }

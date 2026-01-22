@@ -5,7 +5,7 @@ import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMI
 
 import com.modeunsa.boundedcontext.settlement.app.SettlementFacade;
 import com.modeunsa.boundedcontext.settlement.app.event.SettlementItemCollectedEvent;
-import com.modeunsa.boundedcontext.settlement.app.event.SettlementMemberEvent;
+import com.modeunsa.shared.member.event.MemberSignupEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,8 +18,8 @@ public class SettlementEventListener {
 
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Transactional(propagation = REQUIRES_NEW)
-  public void handle(SettlementMemberEvent event) {
-    settlementFacade.syncMember(event.memberId(), event.memberRole());
+  public void handle(MemberSignupEvent event) {
+    settlementFacade.syncMember(event.memberId(), event.role().name());
   }
 
   @TransactionalEventListener(phase = AFTER_COMMIT)

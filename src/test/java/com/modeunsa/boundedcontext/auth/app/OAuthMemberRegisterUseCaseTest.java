@@ -15,7 +15,7 @@ import com.modeunsa.boundedcontext.member.domain.types.MemberStatus;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
 import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
 import com.modeunsa.shared.auth.dto.OAuthUserInfo;
-import com.modeunsa.shared.auth.event.MemberSignupEvent;
+import com.modeunsa.shared.member.event.MemberSignupEvent;
 import java.lang.reflect.Field;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
