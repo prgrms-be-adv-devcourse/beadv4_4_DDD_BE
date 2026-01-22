@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface ContentImageRequest {
   imageUrl: string
@@ -16,11 +16,20 @@ interface ContentRequest {
   images: ContentImageRequest[]
 }
 
+interface ContentResponse {
+  contentId: number
+  authorMemberId: number
+  text: string
+  tags: string[]
+  images: any[]
+  [key: string]: any
+}
+
 interface ApiResponse {
   isSuccess: boolean
   code: string
   message: string
-  result: any
+  result: ContentResponse
 }
 
 export default function MagazineWritePage() {
@@ -28,7 +37,8 @@ export default function MagazineWritePage() {
   const [text, setText] = useState('')
   const [tags, setTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState('')
-  const [images, setImages] = useState<string[]>([])
+  const [imageFiles, setImageFiles] = useState<File[]>([])
+  const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleAddTag = () => {
@@ -51,19 +61,49 @@ export default function MagazineWritePage() {
     }
   }
 
-  const handleImageAdd = () => {
-    if (images.length < 5) {
-      const imageUrl = prompt('이미지 URL을 입력하세요:')
-      if (imageUrl && imageUrl.trim()) {
-        setImages([...images, imageUrl.trim()])
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files) return
+
+    const newFiles: File[] = []
+    const newPreviews: string[] = []
+
+    Array.from(files).forEach((file) => {
+      if (file.type.startsWith('image/')) {
+        if (imageFiles.length + newFiles.length < 5) {
+          newFiles.push(file)
+          const reader = new FileReader()
+          reader.onloadend = () => {
+            const result = reader.result as string
+            setImagePreviews(prev => [...prev, result])
+          }
+          reader.readAsDataURL(file)
+        } else {
+          alert('이미지는 최대 5개까지 추가할 수 있습니다.')
+        }
+      } else {
+        alert(`${file.name}은(는) 이미지 파일이 아닙니다.`)
       }
-    } else {
-      alert('이미지는 최대 5개까지 추가할 수 있습니다.')
-    }
+    })
+
+    setImageFiles(prev => [...prev, ...newFiles])
   }
 
   const handleImageRemove = (index: number) => {
-    setImages(images.filter((_, i) => i !== index))
+    setImageFiles(prev => prev.filter((_, i) => i !== index))
+    setImagePreviews(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const convertFileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        const result = reader.result as string
+        resolve(result)
+      }
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -84,7 +124,7 @@ export default function MagazineWritePage() {
       return
     }
 
-    if (images.length === 0) {
+    if (imageFiles.length === 0) {
       alert('이미지를 최소 1개 이상 추가해주세요.')
       return
     }
@@ -94,15 +134,24 @@ export default function MagazineWritePage() {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
       
+      // 이미지 파일을 base64로 변환
+      const imageUrls: string[] = []
+      for (const file of imageFiles) {
+        const base64 = await convertFileToBase64(file)
+        imageUrls.push(base64)
+      }
+      
       const contentRequest: ContentRequest = {
         text: text.trim(),
         tags: tags,
-        images: images.map((url, index) => ({
+        images: imageUrls.map((url, index) => ({
           imageUrl: url,
           isPrimary: index === 0,
           sortOrder: index,
         })),
       }
+
+      console.log('콘텐츠 생성 요청:', contentRequest)
 
       const response = await fetch(`${apiUrl}/api/v1/contents`, {
         method: 'POST',
@@ -115,14 +164,29 @@ export default function MagazineWritePage() {
       if (!response.ok) {
         const errorText = await response.text()
         console.error('API 응답 에러:', response.status, errorText)
-        throw new Error(`콘텐츠 생성 실패 (${response.status})`)
+        let errorMessage = `콘텐츠 생성 실패 (${response.status})`
+        try {
+          const errorResponse = JSON.parse(errorText)
+          if (errorResponse.message) {
+            errorMessage = errorResponse.message
+          }
+        } catch (e) {
+          // JSON 파싱 실패 시 기본 메시지 사용
+        }
+        throw new Error(errorMessage)
       }
 
       const apiResponse: ApiResponse = await response.json()
+      console.log('콘텐츠 생성 응답:', apiResponse)
 
-      if (apiResponse.isSuccess) {
+      if (apiResponse.isSuccess && apiResponse.result) {
         alert('글이 성공적으로 작성되었습니다.')
-        router.push('/magazine')
+        const contentId = apiResponse.result.contentId || apiResponse.result.id
+        if (contentId) {
+          router.push(`/magazine/${contentId}`)
+        } else {
+          router.push('/magazine')
+        }
       } else {
         throw new Error(apiResponse.message || '콘텐츠 생성에 실패했습니다.')
       }
@@ -227,18 +291,30 @@ export default function MagazineWritePage() {
               {/* Images */}
               <div className="form-group">
                 <label className="form-label">이미지 (최대 5개)</label>
-                <button
-                  type="button"
-                  className="image-add-btn"
-                  onClick={handleImageAdd}
-                  disabled={images.length >= 5}
-                >
-                  + 이미지 추가
-                </button>
+                <div className="image-upload-wrapper">
+                  <label htmlFor="magazine-image-upload" className="image-upload-label">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span>이미지 선택</span>
+                  </label>
+                  <input
+                    type="file"
+                    id="magazine-image-upload"
+                    className="image-upload-input"
+                    accept="image/*"
+                    multiple
+                    onChange={handleFileSelect}
+                    disabled={imageFiles.length >= 5}
+                  />
+                  {imageFiles.length > 0 && (
+                    <span className="image-count">({imageFiles.length} / 5)</span>
+                  )}
+                </div>
                 <div className="images-list">
-                  {images.map((url, index) => (
+                  {imagePreviews.map((preview, index) => (
                     <div key={index} className="image-item">
-                      <img src={url} alt={`이미지 ${index + 1}`} className="preview-image" />
+                      <img src={preview} alt={`이미지 ${index + 1}`} className="preview-image" />
                       <button
                         type="button"
                         className="image-remove-btn"
@@ -256,7 +332,7 @@ export default function MagazineWritePage() {
                 <button
                   type="submit"
                   className="write-submit-btn"
-                  disabled={isSubmitting || !text.trim() || tags.length === 0 || images.length === 0}
+                  disabled={isSubmitting || !text.trim() || tags.length === 0 || imageFiles.length === 0}
                 >
                   {isSubmitting ? '작성 중...' : '작성하기'}
                 </button>
