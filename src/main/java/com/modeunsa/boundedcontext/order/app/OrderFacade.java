@@ -33,6 +33,7 @@ public class OrderFacade {
   private final OrderRefundOrderUseCase orderRefundOrderUseCase;
   private final OrderGetCartItemsUseCase orderGetCartItemsUseCase;
   private final OrderMapper orderMapper;
+  private final OrderSyncMemberUseCase orderSyncMemberUseCase;
 
   // 장바구니 아이템 생성
   @Transactional
@@ -122,5 +123,10 @@ public class OrderFacade {
   public void rejectOrder(PaymentDto payment) {
     Order order = orderSupport.findByOrderId(payment.orderId());
     order.reject();
+  }
+
+  @Transactional
+  public void syncMember(Long memberId, String memberName, String memberPhone) {
+    orderSyncMemberUseCase.syncMember(memberId, memberName, memberPhone);
   }
 }

@@ -67,13 +67,15 @@ public interface OrderMapper {
   @Mapping(target = "orderedAt", source = "createdAt")
   OrderListResponseDto toOrderListResponseDto(Order order);
 
-  /*
-  상품
-   */
+  // --- 상품 ---
   @Mapping(target = "id", source = "id")
   OrderProduct toOrderProduct(ProductDto productDto);
 
   void updateFromProductDto(ProductDto productDto, @MappingTarget OrderProduct orderProduct);
+
+  // --- 회원 ---
+  @Mapping(target = "id", source = "memberId")
+  OrderMember toOrderMember(Long memberId, String memberName, String memberPhone);
 
   // --- 메서드 ---
 

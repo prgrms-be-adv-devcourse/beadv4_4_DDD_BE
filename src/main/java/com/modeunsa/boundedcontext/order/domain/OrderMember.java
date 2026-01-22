@@ -1,22 +1,22 @@
 package com.modeunsa.boundedcontext.order.domain;
 
-import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
+import com.modeunsa.global.jpa.entity.ManualIdAndAuditedEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
-@Builder
+@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "order_member")
-public class OrderMember extends GeneratedIdAndAuditedEntity {
+public class OrderMember extends ManualIdAndAuditedEntity {
 
   @Column(name = "member_name", nullable = false, length = 20)
   private String memberName;

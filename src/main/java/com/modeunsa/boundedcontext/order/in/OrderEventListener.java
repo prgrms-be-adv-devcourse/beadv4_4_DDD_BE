@@ -4,6 +4,7 @@ import static org.springframework.transaction.annotation.Propagation.REQUIRES_NE
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
 import com.modeunsa.boundedcontext.order.app.OrderFacade;
+import com.modeunsa.shared.auth.event.MemberSignupEvent;
 import com.modeunsa.shared.payment.event.PaymentFailedEvent;
 import com.modeunsa.shared.payment.event.PaymentSuccessEvent;
 import com.modeunsa.shared.product.event.ProductCreatedEvent;
@@ -17,6 +18,12 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @RequiredArgsConstructor
 public class OrderEventListener {
   private final OrderFacade orderFacade;
+
+  @TransactionalEventListener(phase = AFTER_COMMIT)
+  @Transactional(propagation = REQUIRES_NEW)
+  public void handle(MemberSignupEvent event) {
+    orderFacade.syncMember(event.memberId(), event.realName(), event.phoneNumber());
+  }
 
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Transactional(propagation = REQUIRES_NEW)
