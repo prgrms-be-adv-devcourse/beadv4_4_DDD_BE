@@ -53,7 +53,6 @@ public class ProductDataInit {
       return;
     }
     ProductMemberSeller seller1 = productMemberSellerRepository.findById(1L).get();
-    ProductMemberSeller seller2 = productMemberSellerRepository.findById(2L).get();
 
     Product product1 =
         productCreateProductUseCase.createProduct(
@@ -105,7 +104,7 @@ public class ProductDataInit {
 
     Product product5 =
         productCreateProductUseCase.createProduct(
-            seller2.getId(),
+            seller1.getId(),
             new ProductCreateRequest(
                 "모자",
                 ProductCategory.CAP,
@@ -117,7 +116,7 @@ public class ProductDataInit {
 
     Product product6 =
         productCreateProductUseCase.createProduct(
-            seller2.getId(),
+            seller1.getId(),
             new ProductCreateRequest(
                 "신발",
                 ProductCategory.SHOES,
