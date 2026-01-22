@@ -44,6 +44,9 @@ public class OrderDataInit {
   // 장바구니 담기
   @Transactional
   public void makeBaseCartItems() {
+    if (orderSupport.countCartItem() > 0) {
+      return;
+    }
 
     OrderMember user1 = orderFacade.findByMemberId(4L);
     OrderMember user2 = orderFacade.findByMemberId(5L);
@@ -62,15 +65,12 @@ public class OrderDataInit {
   // 4. 단건 주문 생성
   @Transactional
   public void makeBaseOrders() {
-    if (orderFacade.countOrder() > 0) {
-      return;
-    }
 
-    OrderMember buyer1 = orderFacade.findByMemberId(4L); // user1이 구매
-    OrderProduct product1 = orderFacade.findByProductId(5L); // 셔츠 구매
+    OrderMember buyer1 = orderFacade.findByMemberId(4L);
+    OrderProduct product1 = orderFacade.findByProductId(2L);
 
-    OrderMember buyer2 = orderFacade.findByMemberId(5L); // user1이 구매
-    OrderProduct product2 = orderFacade.findByProductId(6L); // 바지 구매
+    OrderMember buyer2 = orderFacade.findByMemberId(5L);
+    OrderProduct product2 = orderFacade.findByProductId(4L);
 
     // 단건 주문 생성
     orderFacade.createOrder(
