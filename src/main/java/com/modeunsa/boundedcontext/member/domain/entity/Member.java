@@ -48,8 +48,7 @@ public class Member extends GeneratedIdAndAuditedEntity {
   @Builder.Default
   private MemberStatus status = MemberStatus.ACTIVE;
 
-  // TODO: unique 제약조건이 있어 암호화 여부 고민
-  @Column(unique = true)
+  @Convert(converter = EncryptedStringConverter.class)
   private String email;
 
   @Convert(converter = EncryptedStringConverter.class)
