@@ -4,29 +4,32 @@ import com.modeunsa.boundedcontext.payment.app.dto.ConfirmPaymentRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.ConfirmPaymentResponse;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositResponse;
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentPayoutDto;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentResponse;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberResponse;
+import com.modeunsa.boundedcontext.payment.app.dto.order.PaymentOrderInfo;
+import com.modeunsa.boundedcontext.payment.app.dto.settlement.PaymentPayoutInfo;
+import com.modeunsa.boundedcontext.payment.app.event.PaymentFailedEvent;
 import com.modeunsa.boundedcontext.payment.app.mapper.PaymentMapper;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentMemberSupport;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentConfirmTossPaymentUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreateAccountUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreditAccountUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.PaymentFailUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentInProgressUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.PaymentInitializeUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentPayoutCompleteUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentProcessUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentRefundUseCase;
-import com.modeunsa.boundedcontext.payment.app.usecase.PaymentRequestUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentSyncMemberUseCase;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
-import com.modeunsa.shared.payment.dto.PaymentDto;
 import java.math.BigDecimal;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,19 +39,21 @@ import org.springframework.transaction.annotation.Transactional;
 public class PaymentFacade {
 
   private final PaymentSyncMemberUseCase paymentSyncMemberUseCase;
+
   private final PaymentCreateAccountUseCase paymentCreateAccountUseCase;
   private final PaymentCreditAccountUseCase paymentCreditAccountUseCase;
-  private final PaymentRequestUseCase paymentRequestUseCase;
-  private final PaymentProcessUseCase paymentProcessUseCase;
-  private final PaymentPayoutCompleteUseCase paymentPayoutCompleteUseCase;
-  private final PaymentRefundUseCase paymentRefundUseCase;
-  private final PaymentConfirmTossPaymentUseCase paymentConfirmTossPaymentUseCase;
+  private final PaymentInitializeUseCase paymentInitializeUseCase;
   private final PaymentInProgressUseCase paymentInProgressUseCase;
+  private final PaymentFailUseCase paymentFailUseCase;
+  private final PaymentProcessUseCase paymentProcessUseCase;
+  private final PaymentRefundUseCase paymentRefundUseCase;
+  private final PaymentPayoutCompleteUseCase paymentPayoutCompleteUseCase;
+  private final PaymentConfirmTossPaymentUseCase paymentConfirmTossPaymentUseCase;
+
   private final PaymentMemberSupport paymentMemberSupport;
   private final PaymentAccountSupport paymentAccountSupport;
   private final PaymentMapper paymentMapper;
 
-  @Transactional
   public void createPaymentMember(PaymentMemberDto paymentMemberDto) {
     paymentSyncMemberUseCase.createPaymentMember(paymentMemberDto);
   }
@@ -61,31 +66,28 @@ public class PaymentFacade {
     return paymentMapper.toPaymentMemberResponse(paymentMember, paymentAccount);
   }
 
-  @Transactional
   public void createPaymentAccount(Long memberId) {
     paymentCreateAccountUseCase.createPaymentAccount(memberId);
   }
 
-  @Transactional
   public PaymentAccountDepositResponse creditAccount(
       PaymentAccountDepositRequest paymentAccountDepositRequest) {
     BigDecimal balance = paymentCreditAccountUseCase.execute(paymentAccountDepositRequest);
     return new PaymentAccountDepositResponse(balance);
   }
 
-  @Transactional
-  public void completePayout(PaymentPayoutDto payout) {
-    paymentPayoutCompleteUseCase.execute(payout);
+  public void completePayout(List<PaymentPayoutInfo> payouts) {
+    paymentPayoutCompleteUseCase.execute(payouts);
   }
 
-  @Transactional
-  public void refund(PaymentDto payment, RefundEventType refundEventType) {
-    paymentRefundUseCase.execute(payment, refundEventType);
+  public void refund(PaymentOrderInfo orderInfo, RefundEventType refundEventType) {
+    paymentRefundUseCase.execute(orderInfo, refundEventType);
   }
 
   /*
    * 결제 요청에서는 크게 2가지 단계로 나누어 순차적으로 실행합니다.
-   * 1. 결제 요청 생성 및 검증
+   * 1. 결제 정보 생성 및 재시도 가능 시 초기화
+   * 2. 유효한 결제인지 검증하고, 부족 금액이 있는지 확인
    * 2. 결제 완료로 계좌에서 입출금 처리
    *
    * 트랜잭션 처리
@@ -95,20 +97,23 @@ public class PaymentFacade {
    */
   public PaymentResponse requestPayment(PaymentRequest paymentRequest) {
 
-    // 1. 결제 요청 생성 및 검증
-    PaymentProcessContext context = paymentRequestUseCase.execute(paymentRequest);
+    // 1. 결제 요청
+    PaymentProcessContext context = paymentInitializeUseCase.execute(paymentRequest);
+
+    // 2. 결제 진행 상태로 변경 및 검증
+    context = paymentInProgressUseCase.execute(context);
     if (context.needsCharge()) {
-      // 2-1. 충전 필요 시 결제 요청까지만 처리하고 반환
+      // 3-1. 충전 필요 시 결제 요청까지만 처리하고 반환
       return PaymentResponse.needCharge(context);
     }
-    // 2-2. 결제 완료로 계좌에서 입출금 처리
+    // 3-2. 결제 완료로 계좌에서 입출금 처리
     paymentProcessUseCase.execute(context);
     return PaymentResponse.complete(context);
   }
 
   /*
    * 토스페이먼츠 결제 승인 프로세스는 3단계로 구성됩니다.
-   * 1. 결제 상태를 IN_PROGRESS로 변경 (PG 정보 저장)
+   * 1. 결제 상태를 IN_PROGRESS로 변경 (PG 정보 저장 및 검증)
    * 2. 토스페이먼츠 API를 통한 결제 승인 요청 및 결과 저장
    * 3. 결제 완료 처리 (계좌 입출금, 이벤트 발행)
    *
@@ -119,12 +124,14 @@ public class PaymentFacade {
   public ConfirmPaymentResponse confirmTossPayment(
       String orderNo, ConfirmPaymentRequest confirmPaymentRequest) {
 
-    // 1. 결제 상태를 IN_PROGRESS로 변경
-    paymentInProgressUseCase.execute(orderNo, confirmPaymentRequest);
+    PaymentProcessContext context =
+        PaymentProcessContext.fromConfirmPaymentRequest(orderNo, confirmPaymentRequest);
+
+    // 1. 결제 진행 상태로 변경 및 검증
+    paymentInProgressUseCase.execute(context);
 
     // 2. 토스페이먼츠 결제 승인 요청 및 결과 저장
-    PaymentProcessContext context =
-        paymentConfirmTossPaymentUseCase.execute(orderNo, confirmPaymentRequest);
+    context = paymentConfirmTossPaymentUseCase.execute(orderNo, confirmPaymentRequest);
 
     // 3. 결제 완료 처리 (계좌 입출금, 이벤트 발행)
     paymentProcessUseCase.execute(context);
@@ -132,11 +139,11 @@ public class PaymentFacade {
     return ConfirmPaymentResponse.complete(context.orderNo());
   }
 
-  public long countMember() {
-    return paymentMemberSupport.countMember();
+  public void handlePaymentFailed(PaymentFailedEvent paymentFailedEvent) {
+    paymentFailUseCase.execute(paymentFailedEvent);
   }
 
-  public long countMemberAccount() {
-    return paymentAccountSupport.countMemberAccount();
+  public long countAccountLog() {
+    return paymentAccountSupport.countAccountLog();
   }
 }

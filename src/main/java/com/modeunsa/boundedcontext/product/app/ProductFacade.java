@@ -1,5 +1,6 @@
 package com.modeunsa.boundedcontext.product.app;
 
+import com.modeunsa.boundedcontext.product.ProductCreateMemberUseCase;
 import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
 import com.modeunsa.boundedcontext.product.domain.ProductMember;
@@ -32,6 +33,8 @@ public class ProductFacade {
   private final ProductValidateOrderUseCase productValidateOrderUseCase;
   private final ProductDeductStockUseCase productDeductStockUseCase;
   private final ProductRestoreStockUseCase productRestoreStockUseCase;
+  private final ProductCreateMemberUseCase productCreateMemberUseCase;
+  private final ProductCreateSellerUseCase productCreateSellerUseCase;
   private final ProductSupport productSupport;
   private final ProductMapper productMapper;
 
@@ -96,5 +99,13 @@ public class ProductFacade {
 
   public void restoreStock(OrderDto orderDto) {
     productRestoreStockUseCase.restoreStock(orderDto);
+  }
+
+  public void syncMember(Long memberId, String email, String name, String phoneNumber) {
+    productCreateMemberUseCase.createMember(memberId, email, name, phoneNumber);
+  }
+
+  public void syncSeller(Long sellerId, String businessName, String representativeName) {
+    productCreateSellerUseCase.createMemberSeller(sellerId, businessName, representativeName);
   }
 }

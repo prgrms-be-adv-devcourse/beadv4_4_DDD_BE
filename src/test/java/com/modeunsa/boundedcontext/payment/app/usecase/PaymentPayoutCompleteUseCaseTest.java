@@ -1,23 +1,24 @@
 package com.modeunsa.boundedcontext.payment.app.usecase;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentPayoutDto;
+import com.modeunsa.boundedcontext.payment.app.dto.settlement.PaymentPayoutInfo;
+import com.modeunsa.boundedcontext.payment.app.lock.PaymentAccountLockManager;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.boundedcontext.payment.domain.types.PayoutEventType;
+import com.modeunsa.global.config.PaymentAccountConfig;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -26,8 +27,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class PaymentPayoutCompleteUseCaseTest {
 
   @Mock private PaymentAccountSupport paymentAccountSupport;
+  @Mock private PaymentAccountConfig paymentAccountConfig;
 
-  @InjectMocks private PaymentPayoutCompleteUseCase paymentPayoutCompleteUseCase;
+  private PaymentPayoutCompleteUseCase paymentPayoutCompleteUseCase;
 
   private PaymentMember holderMember;
   private PaymentMember payeeMember;
@@ -47,6 +49,14 @@ class PaymentPayoutCompleteUseCaseTest {
 
     payeeAccount = PaymentAccount.create(payeeMember);
     systemAccount = PaymentAccount.create(systemMember);
+
+    // 실제 유즈케이스는 PaymentAccountLockManager와 PaymentAccountConfig를 의존성으로 사용하므로
+    // PaymentAccountSupport를 주입한 실제 LockManager 인스턴스를 구성한다.
+    PaymentAccountLockManager lockManager = new PaymentAccountLockManager(paymentAccountSupport);
+    paymentPayoutCompleteUseCase =
+        new PaymentPayoutCompleteUseCase(lockManager, paymentAccountConfig);
+
+    when(paymentAccountConfig.getHolderMemberId()).thenReturn(holderMember.getId());
   }
 
   @Test
@@ -54,26 +64,27 @@ class PaymentPayoutCompleteUseCaseTest {
   void executeSuccessFeeType() {
     // given
     BigDecimal payoutAmount = BigDecimal.valueOf(5000);
-    PaymentPayoutDto payout =
-        new PaymentPayoutDto(1L, 2L, LocalDateTime.now(), payoutAmount, PayoutEventType.FEE);
+    PaymentPayoutInfo payoutInfo =
+        new PaymentPayoutInfo(
+            1L, systemMember.getId(), payoutAmount, PayoutEventType.FEE, LocalDateTime.now());
 
-    when(paymentAccountSupport.getHolderAccount()).thenReturn(holderAccount);
-    when(paymentAccountSupport.getPayeeAccount(payout)).thenReturn(systemAccount);
+    // 락 매니저 내부에서 호출되는 support 메서드 mock
+    when(paymentAccountSupport.getPaymentAccountByMemberIdForUpdate(holderMember.getId()))
+        .thenReturn(holderAccount);
+    when(paymentAccountSupport.getPaymentAccountByMemberIdForUpdate(systemMember.getId()))
+        .thenReturn(systemAccount);
 
     BigDecimal holderBalanceBefore = holderAccount.getBalance();
     BigDecimal systemBalanceBefore = systemAccount.getBalance();
 
     // when
-    paymentPayoutCompleteUseCase.execute(payout);
+    paymentPayoutCompleteUseCase.execute(List.of(payoutInfo));
 
     // then
     assertThat(holderAccount.getBalance())
         .isEqualByComparingTo(holderBalanceBefore.subtract(payoutAmount));
     assertThat(systemAccount.getBalance())
         .isEqualByComparingTo(systemBalanceBefore.add(payoutAmount));
-
-    verify(paymentAccountSupport).getHolderAccount();
-    verify(paymentAccountSupport).getPayeeAccount(payout);
   }
 
   @Test
@@ -81,41 +92,47 @@ class PaymentPayoutCompleteUseCaseTest {
   void executeSuccessAmountType() {
     // given
     BigDecimal payoutAmount = BigDecimal.valueOf(10000);
-    PaymentPayoutDto payout =
-        new PaymentPayoutDto(1L, 2L, LocalDateTime.now(), payoutAmount, PayoutEventType.AMOUNT);
+    PaymentPayoutInfo payoutInfo =
+        new PaymentPayoutInfo(
+            1L, payeeMember.getId(), payoutAmount, PayoutEventType.AMOUNT, LocalDateTime.now());
 
-    when(paymentAccountSupport.getHolderAccount()).thenReturn(holderAccount);
-    when(paymentAccountSupport.getPayeeAccount(payout)).thenReturn(payeeAccount);
+    when(paymentAccountSupport.getPaymentAccountByMemberIdForUpdate(holderMember.getId()))
+        .thenReturn(holderAccount);
+    when(paymentAccountSupport.getPaymentAccountByMemberIdForUpdate(payeeMember.getId()))
+        .thenReturn(payeeAccount);
 
     BigDecimal holderBalanceBefore = holderAccount.getBalance();
     BigDecimal payeeBalanceBefore = payeeAccount.getBalance();
 
     // when
-    paymentPayoutCompleteUseCase.execute(payout);
+    paymentPayoutCompleteUseCase.execute(List.of(payoutInfo));
 
     // then
     assertThat(holderAccount.getBalance())
         .isEqualByComparingTo(holderBalanceBefore.subtract(payoutAmount));
     assertThat(payeeAccount.getBalance())
         .isEqualByComparingTo(payeeBalanceBefore.add(payoutAmount));
-
-    verify(paymentAccountSupport).getHolderAccount();
-    verify(paymentAccountSupport).getPayeeAccount(payout);
   }
 
   @Test
   @DisplayName("정산 처리 - AMOUNT 타입일 때 올바른 PaymentEventType으로 변환되는지 확인")
   void executeVerifyEventTypeConversionAmount() {
     // given
-    PaymentPayoutDto payout =
-        new PaymentPayoutDto(
-            1L, 2L, LocalDateTime.now(), BigDecimal.valueOf(10000), PayoutEventType.AMOUNT);
+    PaymentPayoutInfo payoutInfo =
+        new PaymentPayoutInfo(
+            1L,
+            payeeMember.getId(),
+            BigDecimal.valueOf(10000),
+            PayoutEventType.AMOUNT,
+            LocalDateTime.now());
 
-    when(paymentAccountSupport.getHolderAccount()).thenReturn(holderAccount);
-    when(paymentAccountSupport.getPayeeAccount(payout)).thenReturn(payeeAccount);
+    when(paymentAccountSupport.getPaymentAccountByMemberIdForUpdate(holderMember.getId()))
+        .thenReturn(holderAccount);
+    when(paymentAccountSupport.getPaymentAccountByMemberIdForUpdate(payeeMember.getId()))
+        .thenReturn(payeeAccount);
 
     // when
-    paymentPayoutCompleteUseCase.execute(payout);
+    paymentPayoutCompleteUseCase.execute(List.of(payoutInfo));
 
     // then
     assertThat(holderAccount.getPaymentAccountLogs())
@@ -130,15 +147,21 @@ class PaymentPayoutCompleteUseCaseTest {
   @DisplayName("정산 처리 - FEE 타입일 때 올바른 PaymentEventType으로 변환되는지 확인")
   void executeVerifyEventTypeConversionFee() {
     // given
-    PaymentPayoutDto payout =
-        new PaymentPayoutDto(
-            1L, 2L, LocalDateTime.now(), BigDecimal.valueOf(2000), PayoutEventType.FEE);
+    PaymentPayoutInfo payoutInfo =
+        new PaymentPayoutInfo(
+            1L,
+            payeeMember.getId(),
+            BigDecimal.valueOf(2000),
+            PayoutEventType.FEE,
+            LocalDateTime.now());
 
-    when(paymentAccountSupport.getHolderAccount()).thenReturn(holderAccount);
-    when(paymentAccountSupport.getPayeeAccount(payout)).thenReturn(payeeAccount);
+    when(paymentAccountSupport.getPaymentAccountByMemberIdForUpdate(holderMember.getId()))
+        .thenReturn(holderAccount);
+    when(paymentAccountSupport.getPaymentAccountByMemberIdForUpdate(payeeMember.getId()))
+        .thenReturn(payeeAccount);
 
     // when
-    paymentPayoutCompleteUseCase.execute(payout);
+    paymentPayoutCompleteUseCase.execute(List.of(payoutInfo));
 
     // then
     assertThat(holderAccount.getPaymentAccountLogs())

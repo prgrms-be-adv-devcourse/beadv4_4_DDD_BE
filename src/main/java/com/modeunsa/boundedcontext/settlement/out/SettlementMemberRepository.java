@@ -5,5 +5,5 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface SettlementMemberRepository extends JpaRepository<SettlementMember, Long> {
-  Optional<SettlementMember> findByName(String name);
+  Optional<SettlementMember> findByRole(String role);
 }

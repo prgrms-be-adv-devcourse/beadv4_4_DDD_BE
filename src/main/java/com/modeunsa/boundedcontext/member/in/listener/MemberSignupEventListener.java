@@ -1,6 +1,6 @@
 package com.modeunsa.boundedcontext.member.in.listener;
 
-import com.modeunsa.shared.auth.event.MemberSignupEvent;
+import com.modeunsa.shared.member.event.MemberSignupEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

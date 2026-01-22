@@ -17,14 +17,10 @@ public class PaymentSyncMemberUseCase {
   private final PaymentMemberRepository paymentMemberRepository;
   private final SpringDomainEventPublisher eventPublisher;
 
-  public void createPaymentMember(PaymentMemberDto paymentMemberDto) {
+  public void createPaymentMember(PaymentMemberDto member) {
 
     PaymentMember paymentMember =
-        PaymentMember.create(
-            paymentMemberDto.id(),
-            paymentMemberDto.email(),
-            paymentMemberDto.name(),
-            paymentMemberDto.status());
+        PaymentMember.create(member.id(), member.email(), member.name(), member.status());
 
     PaymentMember savedMember = paymentMemberRepository.save(paymentMember);
 

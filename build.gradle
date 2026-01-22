@@ -84,6 +84,7 @@ dependencies {
     // ElasticSearch
     implementation "org.springframework.boot:spring-boot-starter-data-elasticsearch"
 
+    implementation 'io.hypersistence:hypersistence-tsid:2.1.1'
 }
 
 jar {
@@ -94,9 +95,24 @@ tasks.named('test') {
     useJUnitPlatform()
 
     testLogging {
-        events "passed", "skipped", "failed"
+        events "skipped", "failed"
         exceptionFormat "full"
-        showStandardStreams = true
+        showExceptions true
+        showCauses true
+        showStackTraces true
+        showStandardStreams = false
+
+        afterSuite { desc, result ->
+            if (!desc.parent) { // 전체 실행(Root Suite) 결과인 경우만 출력
+                println "\n---------------------------------------------------------"
+                println "Test Result: ${result.resultType}"
+                println "Summary: ${result.testCount} tests, " +
+                        "${result.successfulTestCount} succeeded, " +
+                        "${result.failedTestCount} failed, " +
+                        "${result.skippedTestCount} skipped"
+                println "---------------------------------------------------------\n"
+            }
+        }
     }
 
     // 테스트 실패 시 빌드 실패 처리

@@ -71,6 +71,10 @@ public class OrderSupport {
     return products;
   }
 
+  public void saveProduct(OrderProduct product) {
+    orderProductRepository.save(product);
+  }
+
   // 장바구니 비우기
   public void clearCart(Long memberId) {
     orderCartItemRepository.deleteByMemberId(memberId);
@@ -84,6 +88,12 @@ public class OrderSupport {
   public Order findByOrderId(Long id) {
     return orderRepository
         .findById(id)
+        .orElseThrow(() -> new GeneralException(ErrorStatus.ORDER_NOT_FOUND));
+  }
+
+  public Order findTopByOrderMemberIdByOrderByIdDesc(Long memberId) {
+    return orderRepository
+        .findTopByOrderMemberIdOrderByIdDesc(memberId)
         .orElseThrow(() -> new GeneralException(ErrorStatus.ORDER_NOT_FOUND));
   }
 

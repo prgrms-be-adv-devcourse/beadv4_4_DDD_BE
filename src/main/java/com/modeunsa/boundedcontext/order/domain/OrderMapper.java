@@ -9,11 +9,13 @@ import com.modeunsa.shared.order.dto.OrderItemDto;
 import com.modeunsa.shared.order.dto.OrderItemResponseDto;
 import com.modeunsa.shared.order.dto.OrderListResponseDto;
 import com.modeunsa.shared.order.dto.OrderResponseDto;
+import com.modeunsa.shared.product.dto.ProductDto;
 import com.modeunsa.shared.product.dto.ProductOrderResponse;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface OrderMapper {
@@ -64,6 +66,16 @@ public interface OrderMapper {
   @Mapping(target = "status", source = "status")
   @Mapping(target = "orderedAt", source = "createdAt")
   OrderListResponseDto toOrderListResponseDto(Order order);
+
+  // --- 상품 ---
+  @Mapping(target = "id", source = "id")
+  OrderProduct toOrderProduct(ProductDto productDto);
+
+  void updateFromProductDto(ProductDto productDto, @MappingTarget OrderProduct orderProduct);
+
+  // --- 회원 ---
+  @Mapping(target = "id", source = "memberId")
+  OrderMember toOrderMember(Long memberId, String memberName, String memberPhone);
 
   // --- 메서드 ---
 
