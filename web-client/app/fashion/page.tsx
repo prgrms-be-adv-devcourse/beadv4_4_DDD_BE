@@ -49,7 +49,7 @@ export default function FashionPage() {
           </div>
           <div className="products-grid">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((item) => (
-              <div key={item} className="product-card">
+              <Link key={item} href={`/products/${item}`} className="product-card">
                 <div className="product-image">
                   <div className="image-placeholder">이미지</div>
                 </div>
@@ -58,7 +58,7 @@ export default function FashionPage() {
                   <div className="product-name">패션 상품 {item}</div>
                   <div className="product-price">₩{((item * 15000) + 10000).toLocaleString()}</div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

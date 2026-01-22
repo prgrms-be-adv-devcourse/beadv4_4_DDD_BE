@@ -72,7 +72,7 @@ export default function Home() {
           <h2 className="section-title">추천 상품</h2>
           <div className="products-grid">
             {[1, 2, 3, 4, 5, 6].map((item) => (
-              <div key={item} className="product-card">
+              <Link key={item} href={`/products/${item}`} className="product-card">
                 <div className="product-image">
                   <div className="image-placeholder">이미지</div>
                 </div>
@@ -81,7 +81,7 @@ export default function Home() {
                   <div className="product-name">상품명 {item}</div>
                   <div className="product-price">₩{((item * 10000) + 9000).toLocaleString()}</div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -93,7 +93,7 @@ export default function Home() {
           <h2 className="section-title">인기 상품</h2>
           <div className="products-grid">
             {[1, 2, 3, 4, 5, 6].map((item) => (
-              <div key={item} className="product-card">
+              <Link key={item} href={`/products/${item + 10}`} className="product-card">
                 <div className="product-image">
                   <div className="image-placeholder">이미지</div>
                 </div>
@@ -102,7 +102,7 @@ export default function Home() {
                   <div className="product-name">인기 상품 {item}</div>
                   <div className="product-price">₩{((item * 15000) + 5000).toLocaleString()}</div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
