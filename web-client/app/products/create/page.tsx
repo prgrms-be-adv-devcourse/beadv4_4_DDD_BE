@@ -16,11 +16,19 @@ interface ProductCreateRequest {
   images: string[]
 }
 
+interface ProductResponse {
+  id?: number
+  productId?: number
+  name: string
+  category: string
+  [key: string]: any
+}
+
 interface ApiResponse {
   isSuccess: boolean
   code: string
   message: string
-  result: any
+  result: ProductResponse
 }
 
 const categoryOptions: { value: ProductCategory; label: string }[] = [
@@ -131,9 +139,11 @@ export default function ProductCreatePage() {
       
       // 이미지 파일을 base64로 변환
       const imageUrls: string[] = []
-      for (const file of imageFiles) {
-        const base64 = await convertFileToBase64(file)
-        imageUrls.push(base64)
+      if (imageFiles.length > 0) {
+        for (const file of imageFiles) {
+          const base64 = await convertFileToBase64(file)
+          imageUrls.push(base64)
+        }
       }
       
       const productRequest: ProductCreateRequest = {
@@ -143,8 +153,10 @@ export default function ProductCreatePage() {
         price: formData.price,
         salePrice: formData.salePrice,
         stock: formData.stock,
-        images: imageUrls.length > 0 ? imageUrls : formData.images,
+        images: imageUrls.length > 0 ? imageUrls : [],
       }
+
+      console.log('상품 등록 요청:', productRequest)
 
       const response = await fetch(`${apiUrl}/api/v1/products`, {
         method: 'POST',
@@ -157,14 +169,29 @@ export default function ProductCreatePage() {
       if (!response.ok) {
         const errorText = await response.text()
         console.error('API 응답 에러:', response.status, errorText)
-        throw new Error(`상품 등록 실패 (${response.status})`)
+        let errorMessage = `상품 등록 실패 (${response.status})`
+        try {
+          const errorResponse = JSON.parse(errorText)
+          if (errorResponse.message) {
+            errorMessage = errorResponse.message
+          }
+        } catch (e) {
+          // JSON 파싱 실패 시 기본 메시지 사용
+        }
+        throw new Error(errorMessage)
       }
 
       const apiResponse: ApiResponse = await response.json()
+      console.log('상품 등록 응답:', apiResponse)
 
-      if (apiResponse.isSuccess) {
+      if (apiResponse.isSuccess && apiResponse.result) {
         alert('상품이 성공적으로 등록되었습니다.')
-        router.push(`/products/${apiResponse.result?.id || ''}`)
+        const productId = apiResponse.result.id || apiResponse.result.productId
+        if (productId) {
+          router.push(`/products/${productId}`)
+        } else {
+          router.push('/')
+        }
       } else {
         throw new Error(apiResponse.message || '상품 등록에 실패했습니다.')
       }
@@ -359,7 +386,7 @@ export default function ProductCreatePage() {
                 <button
                   type="submit"
                   className="create-submit-btn"
-                  disabled={isSubmitting || !formData.name.trim()}
+                  disabled={isSubmitting || !formData.name.trim() || formData.price <= 0 || formData.salePrice <= 0}
                 >
                   {isSubmitting ? '등록 중...' : '상품 등록'}
                 </button>
