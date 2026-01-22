@@ -102,7 +102,7 @@ public class OrderDataInit {
     log.info("Test Single Order Created: user2 bought '맨투맨' (qty: 7)");
 
     // 결제 성공 처리
-    Order order1 = orderSupport.findTopByOrderByIdDesc(buyer1.getId());
+    Order order1 = orderSupport.findTopByOrderMemberIdByOrderByIdDesc(buyer1.getId());
 
     // PaymentDto 생성 (성공용)
     PaymentDto paymentSuccess =
@@ -116,7 +116,7 @@ public class OrderDataInit {
     log.info("주문[{}] 결제 완료 처리됨", order1.getId());
 
     // 결제 실패 처리
-    Order order2 = orderSupport.findTopByOrderByIdDesc(buyer2.getId());
+    Order order2 = orderSupport.findTopByOrderMemberIdByOrderByIdDesc(buyer2.getId());
 
     // PaymentDto 생성 (실패용)
     PaymentDto paymentFail =

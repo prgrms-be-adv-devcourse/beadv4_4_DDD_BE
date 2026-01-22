@@ -91,7 +91,7 @@ public class OrderSupport {
         .orElseThrow(() -> new GeneralException(ErrorStatus.ORDER_NOT_FOUND));
   }
 
-  public Order findTopByOrderByIdDesc(Long memberId) {
+  public Order findTopByOrderMemberIdByOrderByIdDesc(Long memberId) {
     return orderRepository
         .findTopByOrderMemberIdOrderByIdDesc(memberId)
         .orElseThrow(() -> new GeneralException(ErrorStatus.ORDER_NOT_FOUND));
