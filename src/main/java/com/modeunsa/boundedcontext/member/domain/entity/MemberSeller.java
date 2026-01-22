@@ -3,9 +3,11 @@ package com.modeunsa.boundedcontext.member.domain.entity;
 import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.boundedcontext.member.domain.types.SellerStatus;
 import com.modeunsa.global.exception.GeneralException;
+import com.modeunsa.global.jpa.converter.EncryptedStringConverter;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import com.modeunsa.global.status.ErrorStatus;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -33,18 +35,23 @@ public class MemberSeller extends GeneratedIdAndAuditedEntity {
   @JoinColumn(name = "member_id", nullable = false, unique = true)
   private Member member;
 
-  @Column(name = "business_name", nullable = false, length = 200)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(name = "business_name", nullable = false, length = 500)
   private String businessName;
 
-  @Column(name = "representative_name", nullable = false, length = 100)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(name = "representative_name", nullable = false, length = 500)
   private String representativeName;
 
-  @Column(name = "settlement_bank_name", nullable = false, length = 50)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(name = "settlement_bank_name", nullable = false, length = 500)
   private String settlementBankName;
 
-  @Column(name = "settlement_bank_account", nullable = false, length = 20)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(name = "settlement_bank_account", nullable = false, length = 500)
   private String settlementBankAccount;
 
+  @Convert(converter = EncryptedStringConverter.class)
   @Column(name = "business_license_url", nullable = false, length = 1000)
   private String businessLicenseUrl;
 

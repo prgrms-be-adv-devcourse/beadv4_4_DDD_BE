@@ -42,15 +42,15 @@ class PaymentProcessUseCaseTest {
   @InjectMocks private PaymentProcessUseCase paymentProcessUseCase;
 
   private static final Long HOLDER_ID = 2L;
-  private PaymentMember buyerMember;
-  private PaymentMember holderMember;
   private PaymentAccount holderAccount;
   private PaymentAccount buyerAccount;
 
   @BeforeEach
   void setUp() {
-    holderMember = PaymentMember.create(HOLDER_ID, "holder@example.com", "홀더", MemberStatus.ACTIVE);
-    buyerMember = PaymentMember.create(1000L, "user1@example.com", "구매자", MemberStatus.ACTIVE);
+    PaymentMember holderMember =
+        PaymentMember.create(HOLDER_ID, "holder@example.com", "홀더", MemberStatus.ACTIVE);
+    PaymentMember buyerMember =
+        PaymentMember.create(1000L, "user1@example.com", "구매자", MemberStatus.ACTIVE);
 
     holderAccount = PaymentAccount.create(holderMember);
 
@@ -66,8 +66,14 @@ class PaymentProcessUseCaseTest {
     // given
     Long buyerId = 1000L; // holderId(2)보다 큼
     final PaymentProcessContext paymentProcessContext =
-        new PaymentProcessContext(
-            buyerId, "ORDER12345", 1L, false, BigDecimal.ZERO, BigDecimal.valueOf(20000));
+        PaymentProcessContext.builder()
+            .buyerId(buyerId)
+            .orderNo("ORDER12345")
+            .orderId(1L)
+            .needsCharge(false)
+            .chargeAmount(BigDecimal.ZERO)
+            .totalAmount(BigDecimal.valueOf(20000))
+            .build();
 
     // LockedPaymentAccounts 생성 (작은 ID부터 순서대로)
     Map<Long, PaymentAccount> accountsMap = new LinkedHashMap<>();
@@ -113,7 +119,14 @@ class PaymentProcessUseCaseTest {
     BigDecimal totalAmount = BigDecimal.valueOf(50000);
 
     final PaymentProcessContext paymentProcessContext =
-        new PaymentProcessContext(buyerId, "ORDER12345", 1L, true, chargeAmount, totalAmount);
+        PaymentProcessContext.builder()
+            .buyerId(buyerId)
+            .orderNo("ORDER12345")
+            .orderId(1L)
+            .needsCharge(true)
+            .chargeAmount(chargeAmount)
+            .totalAmount(totalAmount)
+            .build();
 
     // LockedPaymentAccounts 생성 (작은 ID부터 순서대로)
     Map<Long, PaymentAccount> accountsMap = new LinkedHashMap<>();
@@ -163,7 +176,14 @@ class PaymentProcessUseCaseTest {
     BigDecimal totalAmount = BigDecimal.valueOf(20000);
 
     final PaymentProcessContext paymentProcessContext =
-        new PaymentProcessContext(buyerId, orderNo, orderId, false, BigDecimal.ZERO, totalAmount);
+        PaymentProcessContext.builder()
+            .buyerId(buyerId)
+            .orderNo(orderNo)
+            .orderId(orderId)
+            .needsCharge(false)
+            .chargeAmount(BigDecimal.ZERO)
+            .totalAmount(totalAmount)
+            .build();
 
     // LockedPaymentAccounts 생성
     Map<Long, PaymentAccount> accountsMap = new LinkedHashMap<>();
