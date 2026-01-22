@@ -5,10 +5,23 @@ import { useState } from 'react'
 
 export default function CartPage() {
   const [items, setItems] = useState([
-    { id: 1, name: '베이직 레더 가방 130004', brand: '지오다노', price: 19800, quantity: 1, image: '이미지' },
-    { id: 2, name: '패션 상품 2', brand: '브랜드명', price: 35000, quantity: 2, image: '이미지' },
-    { id: 3, name: '뷰티 상품 1', brand: '브랜드명', price: 45000, quantity: 1, image: '이미지' },
+    { id: 1, name: '베이직 레더 가방 130004', brand: '지오다노', price: 19800, quantity: 1, image: '이미지', selected: true },
+    { id: 2, name: '패션 상품 2', brand: '브랜드명', price: 35000, quantity: 2, image: '이미지', selected: true },
+    { id: 3, name: '뷰티 상품 1', brand: '브랜드명', price: 45000, quantity: 1, image: '이미지', selected: true },
   ])
+
+  const allSelected = items.length > 0 && items.every(item => item.selected)
+  const someSelected = items.some(item => item.selected)
+
+  const handleSelectAll = (checked: boolean) => {
+    setItems(items.map(item => ({ ...item, selected: checked })))
+  }
+
+  const handleSelectItem = (id: number, checked: boolean) => {
+    setItems(items.map(item => 
+      item.id === id ? { ...item, selected: checked } : item
+    ))
+  }
 
   const updateQuantity = (id: number, delta: number) => {
     setItems(items.map(item => 
@@ -22,8 +35,10 @@ export default function CartPage() {
     setItems(items.filter(item => item.id !== id))
   }
 
-  const totalPrice = items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-  const deliveryFee = totalPrice >= 50000 ? 0 : 3000
+
+  const selectedItems = items.filter(item => item.selected)
+  const totalPrice = selectedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+  const deliveryFee = 0
   const finalTotal = totalPrice + deliveryFee
 
   return (
@@ -58,17 +73,26 @@ export default function CartPage() {
               <div className="cart-items-section">
                 <div className="cart-items-header">
                   <div className="select-all">
-                    <input type="checkbox" id="select-all" defaultChecked />
+                    <input 
+                      type="checkbox" 
+                      id="select-all" 
+                      checked={allSelected}
+                      onChange={(e) => handleSelectAll(e.target.checked)}
+                    />
                     <label htmlFor="select-all">전체 선택</label>
                   </div>
-                  <button className="delete-selected">선택 삭제</button>
                 </div>
 
                 <div className="cart-items-list">
                   {items.map((item) => (
                     <div key={item.id} className="cart-item">
                       <div className="cart-item-checkbox">
-                        <input type="checkbox" id={`item-${item.id}`} defaultChecked />
+                        <input 
+                          type="checkbox" 
+                          id={`item-${item.id}`} 
+                          checked={item.selected}
+                          onChange={(e) => handleSelectItem(item.id, e.target.checked)}
+                        />
                       </div>
                       <div className="cart-item-image">
                         <div className="image-placeholder-small">{item.image}</div>
@@ -128,19 +152,8 @@ export default function CartPage() {
                       </div>
                       <div className="summary-row">
                         <span>배송비</span>
-                        <span>
-                          {deliveryFee === 0 ? (
-                            <span style={{ color: '#667eea' }}>무료배송</span>
-                          ) : (
-                            `₩${deliveryFee.toLocaleString()}`
-                          )}
-                        </span>
+                        <span style={{ color: '#667eea' }}>무료배송</span>
                       </div>
-                      {totalPrice < 50000 && (
-                        <div className="summary-notice">
-                          ₩{(50000 - totalPrice).toLocaleString()}원 더 구매하면 무료배송!
-                        </div>
-                      )}
                       <div className="summary-divider"></div>
                       <div className="summary-row total">
                         <span>총 결제 금액</span>

@@ -264,7 +264,7 @@ export default function OrderPage() {
             </div>
             <div className="summary-row">
               <span>배송비</span>
-              <span>무료배송</span>
+              <span style={{ color: '#667eea' }}>무료배송</span>
             </div>
             <div className="summary-divider"></div>
             <div className="summary-row total">

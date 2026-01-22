@@ -1834,11 +1834,47 @@ a {
   gap: 12px;
 }
 
+.select-all {
+  position: relative;
+}
+
 .select-all input[type="checkbox"] {
   width: 22px;
   height: 22px;
   cursor: pointer;
-  accent-color: #667eea;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: 2px solid #d0d0d0;
+  border-radius: 5px;
+  background-color: #ffffff;
+  position: relative;
+  transition: all 0.2s;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.select-all input[type="checkbox"]:checked {
+  background-color: #667eea;
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+.select-all input[type="checkbox"]:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.select-all input[type="checkbox"]:hover {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .select-all label {
@@ -1846,6 +1882,7 @@ a {
   font-weight: 600;
   color: #333;
   cursor: pointer;
+  user-select: none;
 }
 
 .delete-selected {
@@ -1860,10 +1897,15 @@ a {
   font-weight: 500;
 }
 
-.delete-selected:hover {
+.delete-selected:hover:not(:disabled) {
   background-color: #fee;
   border-color: #f44336;
   color: #f44336;
+}
+
+.delete-selected:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .cart-items-list {
@@ -1894,11 +1936,47 @@ a {
   align-items: center;
 }
 
+.cart-item-checkbox {
+  position: relative;
+}
+
 .cart-item-checkbox input[type="checkbox"] {
   width: 22px;
   height: 22px;
   cursor: pointer;
-  accent-color: #667eea;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: 2px solid #d0d0d0;
+  border-radius: 5px;
+  background-color: #ffffff;
+  position: relative;
+  transition: all 0.2s;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.cart-item-checkbox input[type="checkbox"]:checked {
+  background-color: #667eea;
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+.cart-item-checkbox input[type="checkbox"]:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.cart-item-checkbox input[type="checkbox"]:hover {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .cart-item-image {
