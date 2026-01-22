@@ -74,8 +74,65 @@ export default function ProductDetailPage() {
     }
   }, [productId])
 
-  const handleOrder = () => {
-    router.push('/order')
+  const [quantity, setQuantity] = useState(1)
+  const [isCreatingOrder, setIsCreatingOrder] = useState(false)
+
+  const handleOrder = async () => {
+    if (!product) return
+    
+    if (product.stock <= 0) {
+      alert('품절된 상품입니다.')
+      return
+    }
+
+    if (quantity > product.stock) {
+      alert(`재고가 부족합니다. (재고: ${product.stock}개)`)
+      return
+    }
+
+    setIsCreatingOrder(true)
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+      
+      // 주문 생성 API 호출
+      const response = await fetch(`${apiUrl}/api/v1/orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productId: product.id,
+          quantity: quantity,
+          recipientName: '홍길동', // TODO: 실제 사용자 정보로 변경
+          recipientPhone: '010-1234-5678', // TODO: 실제 사용자 정보로 변경
+          zipCode: '12345', // TODO: 실제 사용자 정보로 변경
+          address: '서울시 강남구', // TODO: 실제 사용자 정보로 변경
+          addressDetail: '테헤란로 123', // TODO: 실제 사용자 정보로 변경
+        }),
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('주문 생성 API 에러:', response.status, errorText)
+        throw new Error(`주문 생성 실패 (${response.status})`)
+      }
+
+      const apiResponse = await response.json()
+
+      if (apiResponse.isSuccess && apiResponse.result) {
+        // 주문 성공 시 주문 페이지로 이동
+        router.push('/order')
+      } else {
+        throw new Error(apiResponse.message || '주문 생성에 실패했습니다.')
+      }
+    } catch (error) {
+      console.error('주문 생성 실패:', error)
+      const errorMessage = error instanceof Error ? error.message : '주문 생성 중 오류가 발생했습니다.'
+      alert(errorMessage)
+    } finally {
+      setIsCreatingOrder(false)
+    }
   }
 
   const formatPrice = (price: number) => {
@@ -218,19 +275,23 @@ export default function ProductDetailPage() {
               {/* Product Options */}
               <div className="product-options">
                 <div className="option-group">
-                  <label className="option-label">색상</label>
-                  <div className="option-buttons">
-                    {['블랙', '화이트', '베이지'].map((color) => (
-                      <button key={color} className="option-button">{color}</button>
-                    ))}
-                  </div>
-                </div>
-                <div className="option-group">
-                  <label className="option-label">사이즈</label>
-                  <div className="option-buttons">
-                    {['S', 'M', 'L', 'XL'].map((size) => (
-                      <button key={size} className="option-button">{size}</button>
-                    ))}
+                  <label className="option-label">수량</label>
+                  <div className="quantity-selector">
+                    <button 
+                      className="quantity-btn minus"
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      disabled={quantity <= 1}
+                    >
+                      -
+                    </button>
+                    <span className="quantity-value">{quantity}</span>
+                    <button 
+                      className="quantity-btn plus"
+                      onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                      disabled={quantity >= product.stock}
+                    >
+                      +
+                    </button>
                   </div>
                 </div>
               </div>
@@ -254,7 +315,13 @@ export default function ProductDetailPage() {
               {/* Action Buttons */}
               <div className="action-buttons">
                 <button className="cart-button">장바구니</button>
-                <button className="buy-button" onClick={handleOrder}>구매하기</button>
+                <button 
+                  className="buy-button" 
+                  onClick={handleOrder}
+                  disabled={isCreatingOrder || product.stock <= 0}
+                >
+                  {isCreatingOrder ? '주문 처리 중...' : product.stock <= 0 ? '품절' : '구매하기'}
+                </button>
               </div>
             </div>
           </div>
