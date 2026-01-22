@@ -1795,6 +1795,286 @@ a {
   }
 }
 
+/* Magazine Page - Instagram Style */
+.magazine-search-container {
+  background-color: #ffffff;
+  padding: 40px 0 32px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.magazine-controls {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.magazine-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  background-color: #f5f5f5;
+  border-radius: 30px;
+  border: 2px solid #e5e5e5;
+  transition: all 0.3s;
+}
+
+.magazine-search-bar:focus-within {
+  background-color: #ffffff;
+  border-color: #667eea;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+  transform: translateY(-2px);
+}
+
+.search-icon-svg {
+  color: #999;
+  flex-shrink: 0;
+  transition: color 0.3s;
+}
+
+.magazine-search-bar:focus-within .search-icon-svg {
+  color: #667eea;
+}
+
+.magazine-search-input {
+  flex: 1;
+  border: none;
+  background: none;
+  outline: none;
+  font-size: 16px;
+  color: #333;
+}
+
+.magazine-search-input::placeholder {
+  color: #999;
+}
+
+.search-clear-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: none;
+  color: #999;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.2s;
+  line-height: 1;
+  border-radius: 50%;
+}
+
+.search-clear-btn:hover {
+  color: #667eea;
+  background-color: #f0f4ff;
+}
+
+.magazine-filters-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.category-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.category-filter-btn {
+  padding: 10px 24px;
+  background-color: #ffffff;
+  border: 2px solid #e5e5e5;
+  border-radius: 25px;
+  font-size: 14px;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.category-filter-btn:hover {
+  border-color: #667eea;
+  background-color: #f0f4ff;
+  color: #667eea;
+}
+
+.category-filter-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #667eea;
+  color: white;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+.sort-controls {
+  display: flex;
+  gap: 8px;
+  background-color: #f5f5f5;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.sort-btn {
+  padding: 8px 20px;
+  background-color: transparent;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.sort-btn:hover {
+  color: #667eea;
+  background-color: #ffffff;
+}
+
+.sort-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+.magazine-section {
+  padding: 60px 0 80px;
+  background-color: #fafafa;
+}
+
+.magazine-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  max-width: 100%;
+  margin: 0;
+  background-color: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
+}
+
+.magazine-post {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  background-color: #f5f5f5;
+}
+
+.post-image {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: transform 0.3s;
+}
+
+.post-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.magazine-post:hover .post-overlay {
+  opacity: 1;
+}
+
+.magazine-post:hover .post-image {
+  transform: scale(1.05);
+}
+
+.post-stats {
+  display: flex;
+  gap: 24px;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.magazine-no-results {
+  text-align: center;
+  padding: 120px 20px;
+  color: #666;
+}
+
+.magazine-no-results p {
+  font-size: 16px;
+}
+
+/* Responsive for Magazine Page */
+@media (max-width: 768px) {
+  .magazine-search-container {
+    padding: 30px 0 24px;
+  }
+
+  .magazine-controls {
+    max-width: 100%;
+  }
+
+  .magazine-search-bar {
+    padding: 14px 20px;
+  }
+
+  .magazine-filters-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .category-filters {
+    justify-content: center;
+  }
+
+  .category-filter-btn {
+    padding: 8px 20px;
+    font-size: 13px;
+  }
+
+  .sort-controls {
+    justify-content: center;
+  }
+
+  .magazine-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .magazine-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .post-stats {
+    font-size: 14px;
+    gap: 16px;
+  }
+}
+
 /* Cart Page */
 .cart-page-container {
   background-color: #fafafa;
