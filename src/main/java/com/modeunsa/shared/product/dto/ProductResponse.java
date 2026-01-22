@@ -6,6 +6,7 @@ import com.modeunsa.boundedcontext.product.domain.ProductStatus;
 import com.modeunsa.boundedcontext.product.domain.SaleStatus;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record ProductResponse(
     Long id,
@@ -21,6 +22,7 @@ public record ProductResponse(
     SaleStatus saleStatus,
     int stock,
     int favoriteCount,
+    List<ProductImageDto> images,
     LocalDateTime createdAt,
     LocalDateTime updatedAt,
     Long createdBy,

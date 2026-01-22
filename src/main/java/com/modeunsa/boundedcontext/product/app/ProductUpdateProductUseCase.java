@@ -1,6 +1,7 @@
 package com.modeunsa.boundedcontext.product.app;
 
 import com.modeunsa.boundedcontext.product.domain.Product;
+import com.modeunsa.boundedcontext.product.domain.ProductImage;
 import com.modeunsa.boundedcontext.product.domain.ProductPolicy;
 import com.modeunsa.boundedcontext.product.out.ProductRepository;
 import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
@@ -9,6 +10,7 @@ import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.product.dto.ProductDto;
 import com.modeunsa.shared.product.dto.ProductUpdateRequest;
 import com.modeunsa.shared.product.event.ProductUpdatedEvent;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +34,15 @@ public class ProductUpdateProductUseCase {
 
     // 정책 검증
     productPolicy.validate(product.getProductStatus(), request);
+
+    List<String> images = request.getImages();
+    if (images != null && !images.isEmpty()) {
+      product.clearImages();
+      for (int i = 0; i < images.size(); i++) {
+        ProductImage image = ProductImage.create(product, images.get(i), i == 0, i + 1);
+        product.addImage(image);
+      }
+    }
 
     product.update(
         request.getName(),
