@@ -59,6 +59,10 @@ services:
       - DOCKER_IMAGE=${DOCKER_IMAGE}
     networks:
       - modeunsa-net
+    depends_on:
+      - mysql
+      - redis
+      - elasticsearch
 
   redis:
     image: redis:7-alpine
