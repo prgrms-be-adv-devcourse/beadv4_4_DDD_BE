@@ -1,7 +1,9 @@
 package com.modeunsa.boundedcontext.member.domain.entity;
 
+import com.modeunsa.global.jpa.converter.EncryptedStringConverter;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -23,26 +25,32 @@ public class MemberDeliveryAddress extends GeneratedIdAndAuditedEntity {
   @JoinColumn(name = "member_id", nullable = false)
   private Member member;
 
-  @Column(nullable = false, length = 30)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(nullable = false, length = 500)
   private String recipientName;
 
-  @Column(nullable = false, length = 20)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(nullable = false, length = 500)
   private String recipientPhone;
 
-  @Column(nullable = false, length = 10)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(nullable = false, length = 500)
   private String zipCode;
 
-  @Column(nullable = false, length = 255)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(nullable = false, length = 500)
   private String address; // 기본 주소
 
-  @Column(nullable = false, length = 255)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(nullable = false, length = 500)
   private String addressDetail; // 상세 주소
 
   @Column(nullable = false)
   @Builder.Default
   private Boolean isDefault = false;
 
-  @Column(length = 30)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(length = 500)
   private String addressName; // 주소 별칭
 
   void setMember(Member member) {

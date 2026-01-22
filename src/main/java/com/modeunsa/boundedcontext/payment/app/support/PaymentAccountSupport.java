@@ -2,6 +2,8 @@ package com.modeunsa.boundedcontext.payment.app.support;
 
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentPayoutDto;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
+import com.modeunsa.boundedcontext.payment.domain.types.ReferenceType;
+import com.modeunsa.boundedcontext.payment.out.PaymentAccountLogRepository;
 import com.modeunsa.boundedcontext.payment.out.PaymentAccountRepository;
 import com.modeunsa.global.config.PaymentAccountConfig;
 import com.modeunsa.global.exception.GeneralException;
@@ -15,6 +17,7 @@ public class PaymentAccountSupport {
 
   private final PaymentAccountConfig paymentAccountConfig;
   private final PaymentAccountRepository paymentAccountRepository;
+  private final PaymentAccountLogRepository paymentAccountLogRepository;
 
   public PaymentAccount getPaymentAccountByMemberId(Long memberId) {
     return paymentAccountRepository
@@ -56,7 +59,7 @@ public class PaymentAccountSupport {
         .orElseThrow(() -> new GeneralException(ErrorStatus.PAYMENT_ACCOUNT_NOT_FOUND));
   }
 
-  public long countMemberAccount() {
-    return paymentAccountRepository.count();
+  public long countAccountLog() {
+    return paymentAccountLogRepository.countByReferenceType(ReferenceType.PAYMENT_MEMBER);
   }
 }
