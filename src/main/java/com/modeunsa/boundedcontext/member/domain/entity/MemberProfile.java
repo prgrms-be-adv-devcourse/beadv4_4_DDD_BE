@@ -1,7 +1,9 @@
 package com.modeunsa.boundedcontext.member.domain.entity;
 
+import com.modeunsa.global.jpa.converter.EncryptedStringConverter;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -29,12 +31,15 @@ public class MemberProfile extends GeneratedIdAndAuditedEntity {
   @Column(length = 1000)
   private String profileImageUrl;
 
+  // TODO: Integer에 대한 암호화 처리
   private Integer heightCm;
 
+  // TODO: Integer에 대한 암호화 처리
   private Integer weightKg;
 
   // TODO: enum으로 변경 고려
-  @Column(length = 30)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(length = 500)
   private String skinType;
 
   void setMember(Member member) {
