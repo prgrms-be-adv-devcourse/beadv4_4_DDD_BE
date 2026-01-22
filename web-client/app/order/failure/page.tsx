@@ -37,7 +37,7 @@ export default function FailurePage() {
           </nav>
           <div className="header-actions">
             <Link href="/search" className="search-btn">검색</Link>
-            <button className="cart-btn">장바구니</button>
+            <Link href="/cart" className="cart-btn">장바구니</Link>
             <button className="user-btn">로그인</button>
           </div>
         </div>
