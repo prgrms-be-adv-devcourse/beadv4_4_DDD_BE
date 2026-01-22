@@ -90,3 +90,8 @@ custom:
 encryption:
   enabled: true
   master-key: ${ENCRYPTION_MASTER_KEY}
+
+
+app:
+  simulation:
+    enabled: true
