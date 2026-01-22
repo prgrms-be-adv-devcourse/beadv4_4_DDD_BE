@@ -91,8 +91,7 @@ public class SettlementDataInit {
 
     if (settlementCandidateItemRepository.count() > 0) {
       log.info("정산 후보 항목이 이미 존재합니다. 초기화를 건너뜁니다.");
-      /// 저번달 정산 처리에 관한 내용이 없다면 진행하긴해야될듯하다.
-
+      // TODO: 나중에 OrderDataInit에 구매확정이 추가되면 event 오는 것 확인 필요
       return;
     }
 
