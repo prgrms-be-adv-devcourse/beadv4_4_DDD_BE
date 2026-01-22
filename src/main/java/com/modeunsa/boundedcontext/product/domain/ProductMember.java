@@ -33,4 +33,10 @@ public class ProductMember extends ManualIdAndAuditedEntity {
     member.assignId(memberId);
     return member;
   }
+
+  public void update(String email, String realName, String phoneNumber) {
+    this.email = email;
+    this.realName = realName;
+    this.phoneNumber = phoneNumber;
+  }
 }
