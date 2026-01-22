@@ -58,7 +58,7 @@ export default function CartPage() {
           <div className="header-actions">
             <Link href="/search" className="search-btn">검색</Link>
             <Link href="/cart" className="cart-btn">장바구니</Link>
-            <button className="user-btn">로그인</button>
+            <Link href="/login" className="user-btn">로그인</Link>
           </div>
         </div>
       </header>
