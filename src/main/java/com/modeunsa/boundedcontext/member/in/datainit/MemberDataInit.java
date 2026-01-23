@@ -173,6 +173,7 @@ public class MemberDataInit {
   private void publishSellerRegisteredEvent(MemberSeller seller) {
     eventPublisher.publish(
         new SellerRegisteredEvent(
+            seller.getMember().getId(),
             seller.getId(),
             seller.getBusinessName(),
             seller.getRepresentativeName(),
