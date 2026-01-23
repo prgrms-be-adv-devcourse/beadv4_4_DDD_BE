@@ -22,9 +22,10 @@ public abstract class ProductMapper {
   @Mapping(target = "isFavorite", source = "isFavorite")
   public abstract ProductDetailResponse toDetailResponse(Product product, boolean isFavorite);
 
-  @Mapping(source = "seller.id", target = "sellerId")
-  @Mapping(source = "seller.businessName", target = "sellerBusinessName")
-  public abstract ProductDto toDto(Product product);
+  @Mapping(source = "product.seller.id", target = "sellerId")
+  @Mapping(source = "product.seller.businessName", target = "sellerBusinessName")
+  @Mapping(source = "primaryImageUrl", target = "primaryImageUrl")
+  public abstract ProductDto toDto(Product product, String primaryImageUrl);
 
   @Mapping(source = "stock", target = "stock")
   @Mapping(source = "id", target = "productId")

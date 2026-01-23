@@ -16,6 +16,7 @@ public class ProductDto {
   private String name;
   private BigDecimal price;
   private BigDecimal salePrice;
+  private String primaryImageUrl;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
   private Long createdBy;

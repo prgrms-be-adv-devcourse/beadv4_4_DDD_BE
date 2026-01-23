@@ -36,11 +36,15 @@ public class ProductUpdateProductUseCase {
     productPolicy.validate(product.getProductStatus(), request);
 
     List<String> images = request.getImages();
+    product.clearImages();
+    ProductImage primaryImage = null;
     if (images != null && !images.isEmpty()) {
-      product.clearImages();
       for (int i = 0; i < images.size(); i++) {
         ProductImage image = ProductImage.create(product, images.get(i), i == 0, i + 1);
         product.addImage(image);
+        if (i == 0) {
+          primaryImage = image;
+        }
       }
     }
 
@@ -53,8 +57,10 @@ public class ProductUpdateProductUseCase {
         request.getSalePrice(),
         request.getStock());
 
-    ProductDto productDto = productMapper.toDto(productRepository.save(product));
-
+    ProductDto productDto =
+        productMapper.toDto(
+            productRepository.save(product),
+            primaryImage != null ? primaryImage.getImageUrl() : null);
     eventPublisher.publish(new ProductUpdatedEvent(productDto));
 
     return product;
