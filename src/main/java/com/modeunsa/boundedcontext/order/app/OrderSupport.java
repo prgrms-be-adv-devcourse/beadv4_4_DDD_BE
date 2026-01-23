@@ -11,7 +11,6 @@ import com.modeunsa.boundedcontext.order.out.OrderRepository;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -51,26 +50,6 @@ public class OrderSupport {
         .orElseThrow(() -> new GeneralException(ErrorStatus.ORDER_PRODUCT_NOT_FOUND));
   }
 
-  // 상품 목록 조회
-  public List<OrderProduct> findAllOrderProductByProductId(List<Long> productIds) {
-    return orderProductRepository.findAllById(productIds);
-  }
-
-  // 장바구니에 담겨있는 실제 상품 목록 조회(장바구니에 담긴 상품 ID들을 뽑아서 실제 상품 정보 가져옴)
-  public List<OrderProduct> getProductsByCartItems(List<CartItem> cartItems) {
-    List<Long> productIds =
-        cartItems.stream().map(CartItem::getProductId).collect(Collectors.toList());
-
-    List<OrderProduct> products = findAllOrderProductByProductId(productIds);
-
-    // 장바구니엔 있는데 상품이 삭제된 경우 검증
-    if (products.size() != productIds.size()) {
-      throw new GeneralException(ErrorStatus.PRODUCT_NOT_FOUND);
-    }
-
-    return products;
-  }
-
   public void saveProduct(OrderProduct product) {
     orderProductRepository.save(product);
   }
@@ -105,5 +84,9 @@ public class OrderSupport {
     }
 
     return cartItems;
+  }
+
+  public long countCartItem() {
+    return orderCartItemRepository.count();
   }
 }

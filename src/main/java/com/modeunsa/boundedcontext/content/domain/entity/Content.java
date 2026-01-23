@@ -28,7 +28,7 @@ import lombok.NoArgsConstructor;
 public class Content extends GeneratedIdAndAuditedEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "content_author_id")
+  @JoinColumn(name = "content_author_id", nullable = false)
   private ContentMember author;
 
   @Column(nullable = false, length = 500)
@@ -50,6 +50,11 @@ public class Content extends GeneratedIdAndAuditedEntity {
   public void updateText(String text) {
     this.text = text;
   }
+
+  @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OrderBy("createdAt ASC")
+  @Builder.Default
+  private List<ContentComment> comments = new ArrayList<>();
 
   // 태그 추가, 내부 연관관계 일관되게 유지
   public void addTag(ContentTag tag) {
@@ -85,5 +90,15 @@ public class Content extends GeneratedIdAndAuditedEntity {
 
   public boolean isDeleted() {
     return this.deletedAt != null;
+  }
+
+  public void addComment(ContentComment comment) {
+    comments.add(comment);
+    comment.setContent(this);
+  }
+
+  public void removeComment(ContentComment comment) {
+    comments.remove(comment);
+    comment.setContent(null);
   }
 }

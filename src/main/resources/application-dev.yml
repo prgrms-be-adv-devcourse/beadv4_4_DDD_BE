@@ -3,10 +3,10 @@ spring:
     activate:
       on-profile: dev
   datasource:
-    url: jdbc:h2:./db_dev;MODE=MySQL
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
+    url: jdbc:mysql://localhost:3306/modeunsa
+    username: root
+    password: ${MYSQL_ROOT_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
   h2:
     console:
       enabled: true
@@ -21,6 +21,11 @@ spring:
         format_sql: true
         highlight_sql: true
         use_sql_comments: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ""
   security:
     oauth2:
       client:
@@ -70,6 +75,7 @@ custom:
       - /api/v1/payments/**
       - /api/v1/contents/**
       - /api/v1/settlements/**
+      - /api/v1/file-uploads/**
     oauth2:
       allowed-redirect-domains:
         - localhost

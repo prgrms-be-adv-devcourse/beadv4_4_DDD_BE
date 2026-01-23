@@ -131,7 +131,13 @@ public class ApiV1OrderController {
     return ApiResponse.onSuccess(SuccessStatus.OK, dto);
   }
 
-  @Operation(summary = "주문 조회 기능", description = "정산 모듈에서 사용하는 주문 조회 API입니다.")
+  @Operation(summary = "내부 주문 조회 기능", description = "정산 모듈에서 사용하는 주문 조회 API입니다.")
+  @GetMapping("/internal/{id}")
+  public OrderDto getInternalOrder(@PathVariable Long id) {
+    return orderFacade.getInternalOrder(id);
+  }
+
+  @Operation(summary = "주문 조회 기능", description = "클라이언트에서 결제 요청을 하기 위한 주문 상세 조회 API입니다.")
   @GetMapping("/{id}")
   public OrderDto getOrder(@PathVariable Long id) {
     return orderFacade.getOrder(id);
