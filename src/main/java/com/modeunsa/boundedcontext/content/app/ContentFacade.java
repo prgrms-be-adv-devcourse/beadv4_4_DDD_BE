@@ -1,7 +1,10 @@
 package com.modeunsa.boundedcontext.content.app;
 
+import com.modeunsa.boundedcontext.content.app.dto.ContentCommentRequest;
+import com.modeunsa.boundedcontext.content.app.dto.ContentCommentResponse;
 import com.modeunsa.boundedcontext.content.app.dto.ContentRequest;
 import com.modeunsa.boundedcontext.content.app.dto.ContentResponse;
+import com.modeunsa.boundedcontext.content.app.usecase.ContentCreateCommentUseCase;
 import com.modeunsa.boundedcontext.content.app.usecase.ContentCreateContentUseCase;
 import com.modeunsa.boundedcontext.content.app.usecase.ContentDeleteContentUseCase;
 import com.modeunsa.boundedcontext.content.app.usecase.ContentGetContentsUseCase;
@@ -20,6 +23,7 @@ public class ContentFacade {
   private final ContentUpdateContentUseCase contentUpdateContentUseCase;
   private final ContentDeleteContentUseCase contentDeleteContentUseCase;
   private final ContentGetContentsUseCase contentGetContentsUseCase;
+  private final ContentCreateCommentUseCase contentCreateCommentUseCase;
 
   @Transactional
   public ContentResponse createContent(ContentRequest contentRequest, ContentMember author) {
@@ -40,5 +44,12 @@ public class ContentFacade {
   @Transactional(readOnly = true)
   public Page<ContentResponse> getContents(int page) {
     return contentGetContentsUseCase.getContents(page);
+  }
+
+  @Transactional
+  public ContentCommentResponse createContentComment(
+      Long contentId, ContentCommentRequest contentCommentRequest, ContentMember author) {
+    return contentCreateCommentUseCase.createContentComment(
+        contentId, contentCommentRequest, author);
   }
 }
