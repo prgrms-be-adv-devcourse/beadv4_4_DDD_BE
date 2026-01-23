@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: '주문 페이지',
-  description: '상품 주문 및 결제 페이지',
+  title: 'modeunsa',
+  description: 'modeunsa',
 }
 
 export default function RootLayout({
