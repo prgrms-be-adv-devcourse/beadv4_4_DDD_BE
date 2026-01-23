@@ -53,20 +53,24 @@ export default function ProductCreatePage() {
     images: [],
   })
   const [imageFiles, setImageFiles] = useState<File[]>([])
-  const [imagePreviews, setImagePreviews] = useState<string[]>([])
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]) // 로컬 미리보기용 (base64)
+  const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>([]) // 업로드된 public URL들
+  const [uploadingImageIndex, setUploadingImageIndex] = useState<Set<number>>(new Set()) // 업로드 중인 이미지 인덱스
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleInputChange = (field: keyof ProductCreateRequest, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (!files) return
 
     const newFiles: File[] = []
     const newPreviews: string[] = []
+    const startIndex = imageFiles.length
 
+    // 파일 검증 및 미리보기 생성
     Array.from(files).forEach((file) => {
       if (file.type.startsWith('image/')) {
         if (imageFiles.length + newFiles.length < 10) {
@@ -85,28 +89,131 @@ export default function ProductCreatePage() {
       }
     })
 
+    // 파일 추가
     setImageFiles(prev => [...prev, ...newFiles])
+
+    // 각 파일을 즉시 업로드
+    newFiles.forEach(async (file, relativeIndex) => {
+      const absoluteIndex = startIndex + relativeIndex
+      setUploadingImageIndex(prev => new Set(prev).add(absoluteIndex))
+
+      try {
+        console.log(`이미지 ${absoluteIndex + 1} 업로드 시작:`, file.name)
+        const publicUrl = await uploadImageToS3(file, 0)
+        
+        // 업로드된 public URL 저장
+        setUploadedImageUrls(prev => {
+          const newUrls = [...prev]
+          newUrls[absoluteIndex] = publicUrl
+          return newUrls
+        })
+        
+        console.log(`이미지 ${absoluteIndex + 1} 업로드 완료:`, publicUrl)
+      } catch (error) {
+        console.error(`이미지 ${absoluteIndex + 1} 업로드 실패:`, error)
+        alert(`이미지 "${file.name}" 업로드에 실패했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`)
+        // 업로드 실패 시 해당 이미지 제거
+        handleRemoveImage(absoluteIndex)
+      } finally {
+        setUploadingImageIndex(prev => {
+          const newSet = new Set(prev)
+          newSet.delete(absoluteIndex)
+          return newSet
+        })
+      }
+    })
   }
 
   const handleRemoveImage = (index: number) => {
     setImageFiles(prev => prev.filter((_, i) => i !== index))
     setImagePreviews(prev => prev.filter((_, i) => i !== index))
+    setUploadedImageUrls(prev => prev.filter((_, i) => i !== index))
     setFormData(prev => ({
       ...prev,
       images: prev.images.filter((_, i) => i !== index),
     }))
   }
 
-  const convertFileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        const result = reader.result as string
-        resolve(result)
-      }
-      reader.onerror = reject
-      reader.readAsDataURL(file)
+  // 파일 확장자 추출
+  const getFileExtension = (filename: string): string => {
+    const parts = filename.split('.')
+    return parts.length > 1 ? parts[parts.length - 1].toLowerCase() : 'jpg'
+  }
+
+  // Presigned URL 요청 및 S3 업로드
+  const uploadImageToS3 = async (file: File, domainId: number = 0): Promise<string> => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+    const ext = getFileExtension(file.name)
+    const contentType = file.type || `image/${ext === 'jpg' ? 'jpeg' : ext}`
+
+    // 1. Presigned URL 요청
+    const presignedUrlResponse = await fetch(`${apiUrl}/api/v1/file-uploads/presigned-url`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        domainId: domainId,
+        domainType: 'PRODUCT',
+        ext: ext,
+        contentType: contentType,
+      }),
     })
+
+    if (!presignedUrlResponse.ok) {
+      const errorText = await presignedUrlResponse.text()
+      console.error('Presigned URL 요청 실패:', presignedUrlResponse.status, errorText)
+      throw new Error('이미지 업로드 URL을 가져오는데 실패했습니다.')
+    }
+
+    const presignedUrlApiResponse = await presignedUrlResponse.json()
+    if (!presignedUrlApiResponse.isSuccess || !presignedUrlApiResponse.result) {
+      throw new Error(presignedUrlApiResponse.message || '이미지 업로드 URL을 가져오는데 실패했습니다.')
+    }
+
+    const { presignedUrl, key: rawKey } = presignedUrlApiResponse.result
+
+    // 2. S3에 직접 업로드
+    const uploadResponse = await fetch(presignedUrl, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': contentType,
+      },
+      body: file,
+    })
+
+    if (!uploadResponse.ok) {
+      console.error('S3 업로드 실패:', uploadResponse.status, uploadResponse.statusText)
+      throw new Error('이미지 업로드에 실패했습니다.')
+    }
+
+    // 3. Public URL 변환
+    const publicUrlResponse = await fetch(`${apiUrl}/api/v1/file-uploads/public-url`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        rawKey: rawKey,
+        domainType: 'PRODUCT',
+        domainId: domainId,
+        contentType: contentType,
+      }),
+    })
+
+    if (!publicUrlResponse.ok) {
+      const errorText = await publicUrlResponse.text()
+      console.error('Public URL 변환 실패:', publicUrlResponse.status, errorText)
+      throw new Error('이미지 URL 변환에 실패했습니다.')
+    }
+
+    const publicUrlApiResponse = await publicUrlResponse.json()
+    if (!publicUrlApiResponse.isSuccess || !publicUrlApiResponse.result) {
+      throw new Error(publicUrlApiResponse.message || '이미지 URL 변환에 실패했습니다.')
+    }
+
+    // PublicUrlResponse의 필드명은 imageUrl입니다
+    return publicUrlApiResponse.result.imageUrl || publicUrlApiResponse.result.publicUrl
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -132,19 +239,27 @@ export default function ProductCreatePage() {
       return
     }
 
+    // 업로드 중인 이미지가 있는지 확인
+    if (uploadingImageIndex.size > 0) {
+      alert('이미지 업로드가 진행 중입니다. 잠시만 기다려주세요.')
+      return
+    }
+
+    // 업로드되지 않은 이미지가 있는지 확인
+    const missingUrls = imageFiles.length > uploadedImageUrls.filter(url => url).length
+    if (missingUrls) {
+      alert('일부 이미지가 아직 업로드되지 않았습니다. 잠시만 기다려주세요.')
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
       
-      // 이미지 파일을 base64로 변환
-      const imageUrls: string[] = []
-      if (imageFiles.length > 0) {
-        for (const file of imageFiles) {
-          const base64 = await convertFileToBase64(file)
-          imageUrls.push(base64)
-        }
-      }
+      // 이미 업로드된 public URL들 사용
+      const imageUrls = uploadedImageUrls.filter(url => url)
+      console.log('상품 등록에 사용할 이미지 URLs:', imageUrls)
       
       const productRequest: ProductCreateRequest = {
         name: formData.name.trim(),
@@ -153,7 +268,7 @@ export default function ProductCreatePage() {
         price: formData.price,
         salePrice: formData.salePrice,
         stock: formData.stock,
-        images: imageUrls.length > 0 ? imageUrls : [],
+        images: imageUrls,
       }
 
       console.log('상품 등록 요청:', productRequest)
@@ -366,18 +481,47 @@ export default function ProductCreatePage() {
                   )}
                 </div>
                 <div className="images-preview">
-                  {imagePreviews.map((preview, index) => (
-                    <div key={index} className="image-preview-item">
-                      <img src={preview} alt={`상품 이미지 ${index + 1}`} className="preview-image" />
-                      <button
-                        type="button"
-                        className="image-remove-btn"
-                        onClick={() => handleRemoveImage(index)}
-                      >
-                        삭제
-                      </button>
-                    </div>
-                  ))}
+                  {imagePreviews.map((preview, index) => {
+                    // 업로드된 public URL이 있으면 그것을 사용, 없으면 로컬 미리보기 사용
+                    const imageUrl = uploadedImageUrls[index] || preview
+                    const isUploading = uploadingImageIndex.has(index)
+                    const isUploaded = !!uploadedImageUrls[index]
+                    
+                    return (
+                      <div key={index} className="image-preview-item">
+                        <img src={imageUrl} alt={`상품 이미지 ${index + 1}`} className="preview-image" />
+                        {isUploading && (
+                          <div style={{ 
+                            fontSize: '12px', 
+                            color: '#667eea', 
+                            marginTop: '4px',
+                            textAlign: 'center',
+                            fontWeight: '600'
+                          }}>
+                            업로드 중...
+                          </div>
+                        )}
+                        {isUploaded && !isUploading && (
+                          <div style={{ 
+                            fontSize: '12px', 
+                            color: '#4CAF50', 
+                            marginTop: '4px',
+                            textAlign: 'center'
+                          }}>
+                            ✓ 업로드 완료
+                          </div>
+                        )}
+                        <button
+                          type="button"
+                          className="image-remove-btn"
+                          onClick={() => handleRemoveImage(index)}
+                          disabled={isUploading}
+                        >
+                          삭제
+                        </button>
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
 
@@ -386,9 +530,9 @@ export default function ProductCreatePage() {
                 <button
                   type="submit"
                   className="create-submit-btn"
-                  disabled={isSubmitting || !formData.name.trim() || formData.price <= 0 || formData.salePrice <= 0}
+                  disabled={isSubmitting || uploadingImageIndex.size > 0 || !formData.name.trim() || formData.price <= 0 || formData.salePrice <= 0}
                 >
-                  {isSubmitting ? '등록 중...' : '상품 등록'}
+                  {uploadingImageIndex.size > 0 ? `이미지 업로드 중... (${uploadingImageIndex.size})` : isSubmitting ? '등록 중...' : '상품 등록'}
                 </button>
               </div>
             </form>
