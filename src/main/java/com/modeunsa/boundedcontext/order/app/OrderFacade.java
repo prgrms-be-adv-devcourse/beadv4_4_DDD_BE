@@ -39,6 +39,7 @@ public class OrderFacade {
   private final OrderSyncMemberUseCase orderSyncMemberUseCase;
   private final OrderUpdateMemberUseCase orderUpdateMemberUseCase;
   private final OrderCreateDeliveryAddressUseCase orderCreateDeliveryAddressUseCase;
+  private final OrderGetOrderUseCase orderGetOrderUseCase;
 
   // 장바구니 아이템 생성
   @Transactional
@@ -108,9 +109,15 @@ public class OrderFacade {
     return orderGetCartItemsUseCase.getCartItems(memberId);
   }
 
-  public OrderDto getOrder(Long id) {
+  // 정산 모듈에서 주문 조회
+  public OrderDto getInternalOrder(Long id) {
     Order order = orderSupport.findByOrderId(id);
     return orderMapper.toOrderDto(order);
+  }
+
+  // 클라이언트 주문 조회
+  public OrderDto getOrder(Long orderId) {
+    return orderGetOrderUseCase.getOrder(orderId);
   }
 
   // ---- sync ----
