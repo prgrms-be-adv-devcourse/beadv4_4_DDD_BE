@@ -106,8 +106,10 @@ public class ProductFacade {
     productCreateMemberUseCase.createMember(memberId, email, name, phoneNumber);
   }
 
-  public void syncSeller(Long sellerId, String businessName, String representativeName) {
-    productCreateSellerUseCase.createMemberSeller(sellerId, businessName, representativeName);
+  public void syncSeller(
+      Long sellerId, Long memberId, String businessName, String representativeName) {
+    productCreateSellerUseCase.createMemberSeller(
+        sellerId, memberId, businessName, representativeName);
   }
 
   public void updateMember(Long memberId, String realName, String email, String phoneNumber) {
