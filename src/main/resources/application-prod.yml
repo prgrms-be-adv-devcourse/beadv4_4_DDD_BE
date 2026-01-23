@@ -15,7 +15,7 @@ spring:
   jpa:
     show-sql: false
     hibernate:
-      ddl-auto: update # TODO: validate 로 변경 검토
+      ddl-auto: validate
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
@@ -59,6 +59,10 @@ custom:
       - /v3/api-docs/**
       - /api/v1/auths/oauth/**
       - /actuator/**
+    oauth2:
+      allowed-redirect-domains:
+        - localhost
+        - 52.79.155.221
   cors:
     enabled: false
 
