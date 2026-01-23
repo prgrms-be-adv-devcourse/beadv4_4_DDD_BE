@@ -12,8 +12,8 @@ public class OrderSyncMemberUseCase {
   private final OrderMemberRepository orderMemberRepository;
   private final OrderMapper orderMapper;
 
-  public void syncMember(Long memberId, String memberName, String memberPhone) {
-    OrderMember member = orderMapper.toOrderMember(memberId, memberName, memberPhone);
+  public void syncMember(Long memberId, String realName, String phoneNumber) {
+    OrderMember member = orderMapper.toOrderMember(memberId, realName, phoneNumber);
 
     orderMemberRepository.save(member);
   }

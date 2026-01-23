@@ -10,9 +10,16 @@ public class OrderCreateDeliveryAddressUseCase {
   private final OrderSupport orderSupport;
 
   public void createDeliveryAddress(
-      Long memberId, String zipCode, String address, String addressDetail) {
+      Long memberId,
+      String recipientName,
+      String recipientPhone,
+      String zipCode,
+      String address,
+      String addressDetail,
+      String addressName) {
     OrderMember member = orderSupport.findByMemberId(memberId);
 
-    member.createDeliveryAddress(zipCode, address, addressDetail);
+    member.createDeliveryAddress(
+        recipientName, recipientPhone, zipCode, address, addressDetail, addressName);
   }
 }

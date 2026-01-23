@@ -75,7 +75,7 @@ public interface OrderMapper {
 
   // --- 회원 ---
   @Mapping(target = "id", source = "memberId")
-  OrderMember toOrderMember(Long memberId, String memberName, String memberPhone);
+  OrderMember toOrderMember(Long memberId, String realName, String phoneNumber);
 
   // --- 메서드 ---
 
