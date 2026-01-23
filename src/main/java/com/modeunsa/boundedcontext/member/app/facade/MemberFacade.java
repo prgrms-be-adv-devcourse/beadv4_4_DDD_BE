@@ -141,13 +141,17 @@ public class MemberFacade {
 
   @Transactional
   public void registerSeller(Long memberId, SellerRegisterRequest request) {
-    if (!StringUtils.hasText(request.licenseImage()) || !StringUtils.hasText(request.licenseContentType())) {
+    if (!StringUtils.hasText(request.licenseImageRawKey())
+        || !StringUtils.hasText(request.licenseContentType())) {
       throw new GeneralException(ErrorStatus.IMAGE_FILE_REQUIRED);
     }
 
     PublicUrlRequest publicUrlRequest =
         new PublicUrlRequest(
-            request.licenseImage(), DomainType.SELLER, memberId, request.licenseContentType());
+            request.licenseImageRawKey(),
+            DomainType.SELLER,
+            memberId,
+            request.licenseContentType());
 
     PublicUrlResponse s3Response = s3UploadService.getPublicUrl(publicUrlRequest);
 
