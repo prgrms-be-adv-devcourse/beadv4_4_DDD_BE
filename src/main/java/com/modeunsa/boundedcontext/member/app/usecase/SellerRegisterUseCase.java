@@ -25,8 +25,10 @@ public class SellerRegisterUseCase {
 
   public void execute(Long memberId, SellerRegisterRequest request, String finalLicenseUrl) {
     // 1. 회원 조회
-    Member member = memberRepository.findById(memberId)
-        .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
+    Member member =
+        memberRepository
+            .findById(memberId)
+            .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
     // 2. 중복 신청 검증
     Optional<MemberSeller> existingSellerOp = memberSellerRepository.findByMemberId(memberId);
@@ -53,21 +55,21 @@ public class SellerRegisterUseCase {
           request.representativeName(),
           request.settlementBankName(),
           request.settlementBankAccount(),
-          finalLicenseUrl
-      );
+          finalLicenseUrl);
     } else { // 신규 신청 (새 엔티티 생성)
       MemberSeller.validateBankAccount(request.settlementBankAccount());
 
-      seller = MemberSeller.builder()
-          .member(member)
-          .businessName(request.businessName())
-          .representativeName(request.representativeName())
-          .settlementBankName(request.settlementBankName())
-          .settlementBankAccount(request.settlementBankAccount())
-          .businessLicenseUrl(finalLicenseUrl)
-          .status(SellerStatus.ACTIVE) // TODO: PENDING으로 변경
-          .requestedAt(LocalDateTime.now())
-          .build();
+      seller =
+          MemberSeller.builder()
+              .member(member)
+              .businessName(request.businessName())
+              .representativeName(request.representativeName())
+              .settlementBankName(request.settlementBankName())
+              .settlementBankAccount(request.settlementBankAccount())
+              .businessLicenseUrl(finalLicenseUrl)
+              .status(SellerStatus.ACTIVE) // TODO: PENDING으로 변경
+              .requestedAt(LocalDateTime.now())
+              .build();
 
       memberSellerRepository.save(seller);
     }

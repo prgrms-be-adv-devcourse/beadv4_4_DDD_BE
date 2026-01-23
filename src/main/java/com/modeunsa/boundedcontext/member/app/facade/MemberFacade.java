@@ -110,18 +110,13 @@ public class MemberFacade {
     memberDeliveryAddressDeleteUseCase.execute(memberId, addressId);
   }
 
-  /** 판매자 관련 */
+  /** 관리자 관련 */
   @Transactional
   public void approveSeller(Long sellerId) {
     adminApproveSellerUseCase.execute(sellerId);
   }
 
-  @Transactional
-  public void registerSeller(Long memberId, SellerRegisterRequest request, String licenseImage) {
-    sellerRegisterUseCase.execute(memberId, request, licenseImage);
-  }
-
-  /** 프로필 이미지 업로드 관련 */
+  /** 회원 프로필 이미지 업로드 관련 */
   @Transactional(readOnly = true)
   public PresignedUrlResponse issueProfilePresignedUrl(PresignedUrlRequest request) {
     return s3UploadService.issuePresignedUrl(request);
@@ -143,12 +138,9 @@ public class MemberFacade {
 
   @Transactional
   public void registerSeller(Long memberId, SellerRegisterRequest request) {
-    PublicUrlRequest publicUrlRequest = new PublicUrlRequest(
-        request.licenseImage(),
-        DomainType.SELLER,
-        memberId,
-        request.licenseContentType()
-    );
+    PublicUrlRequest publicUrlRequest =
+        new PublicUrlRequest(
+            request.licenseImage(), DomainType.SELLER, memberId, request.licenseContentType());
 
     PublicUrlResponse s3Response = s3UploadService.getPublicUrl(publicUrlRequest);
 

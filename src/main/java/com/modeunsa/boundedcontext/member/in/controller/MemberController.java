@@ -142,15 +142,10 @@ public class MemberController {
   @Operation(summary = "사업자등록증 업로드 URL 발급", description = "S3 업로드를 위한 Presigned URL을 요청합니다.")
   @PostMapping("/sellers/license/presigned-url")
   public ResponseEntity<ApiResponse> getLicensePresignedUrl(
-      @AuthenticationPrincipal Long memberId,
-      @RequestBody @Valid PresignedUrlRequest request) {
+      @AuthenticationPrincipal Long memberId, @RequestBody @Valid PresignedUrlRequest request) {
 
-    PresignedUrlRequest secureRequest = new PresignedUrlRequest(
-        memberId,
-        DomainType.SELLER,
-        request.ext(),
-        request.contentType()
-    );
+    PresignedUrlRequest secureRequest =
+        new PresignedUrlRequest(memberId, DomainType.SELLER, request.ext(), request.contentType());
 
     PresignedUrlResponse response = memberFacade.issueSellerLicensePresignedUrl(secureRequest);
     return ApiResponse.onSuccess(SuccessStatus.FILE_UPLOAD_URL_GET_SUCCESS, response);
@@ -159,8 +154,7 @@ public class MemberController {
   @Operation(summary = "판매자 등록 요청", description = "업로드된 사업자등록증 키(rawKey)를 포함하여 판매자 등록을 요청합니다.")
   @PostMapping("/sellers/register")
   public ResponseEntity<ApiResponse> registerSeller(
-      @AuthenticationPrincipal Long memberId,
-      @RequestBody @Valid SellerRegisterRequest request) {
+      @AuthenticationPrincipal Long memberId, @RequestBody @Valid SellerRegisterRequest request) {
 
     memberFacade.registerSeller(memberId, request);
 
@@ -174,12 +168,8 @@ public class MemberController {
       @Parameter(hidden = true) @AuthenticationPrincipal Long memberId,
       @RequestBody @Valid PresignedUrlRequest request) {
 
-    PresignedUrlRequest secureRequest = new PresignedUrlRequest(
-        memberId,
-        DomainType.MEMBER,
-        request.ext(),
-        request.contentType()
-    );
+    PresignedUrlRequest secureRequest =
+        new PresignedUrlRequest(memberId, DomainType.MEMBER, request.ext(), request.contentType());
 
     PresignedUrlResponse response = memberFacade.issueProfilePresignedUrl(secureRequest);
     return ApiResponse.onSuccess(SuccessStatus.FILE_UPLOAD_URL_GET_SUCCESS, response);
@@ -191,12 +181,8 @@ public class MemberController {
       @Parameter(hidden = true) @AuthenticationPrincipal Long memberId,
       @RequestBody @Valid PublicUrlRequest request) {
 
-    PublicUrlRequest secureRequest = new PublicUrlRequest(
-        request.rawKey(),
-        DomainType.MEMBER,
-        memberId,
-        request.contentType()
-    );
+    PublicUrlRequest secureRequest =
+        new PublicUrlRequest(request.rawKey(), DomainType.MEMBER, memberId, request.contentType());
 
     PublicUrlResponse response = memberFacade.updateProfileImage(memberId, secureRequest);
     return ApiResponse.onSuccess(SuccessStatus.MEMBER_PROFILE_UPDATE_SUCCESS, response);

@@ -15,11 +15,14 @@ public class MemberProfileUpdateImageUseCase {
 
   /**
    * 비즈니스 행위: 회원의 프로필 이미지 URL을 변경한다.
+   *
    * @return 변경되기 전의 기존 이미지 URL (S3 삭제 처리를 위함)
    */
   public String execute(Long memberId, String newImageUrl) {
-    Member member = memberRepository.findById(memberId)
-        .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
+    Member member =
+        memberRepository
+            .findById(memberId)
+            .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
     MemberProfile profile = member.getProfile();
 
@@ -35,5 +38,4 @@ public class MemberProfileUpdateImageUseCase {
 
     return oldImageUrl;
   }
-
 }
