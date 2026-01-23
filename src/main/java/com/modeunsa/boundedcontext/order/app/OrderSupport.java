@@ -106,4 +106,8 @@ public class OrderSupport {
 
     return cartItems;
   }
+
+  public long countCartItem() {
+    return orderCartItemRepository.count();
+  }
 }

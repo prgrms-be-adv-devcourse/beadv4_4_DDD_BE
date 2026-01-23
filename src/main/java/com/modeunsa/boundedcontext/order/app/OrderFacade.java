@@ -139,19 +139,25 @@ public class OrderFacade {
   }
 
   @Transactional
-  public void syncMember(Long memberId, String memberName, String memberPhone) {
-    orderSyncMemberUseCase.syncMember(memberId, memberName, memberPhone);
+  public void syncMember(Long memberId, String realName, String phoneNumber) {
+    orderSyncMemberUseCase.syncMember(memberId, realName, phoneNumber);
   }
 
   @Transactional
-  public void updateMember(Long memberId, String memberName, String memberPhone) {
-    orderUpdateMemberUseCase.updateMember(memberId, memberName, memberPhone);
+  public void updateMember(Long memberId, String realName, String phoneNumber) {
+    orderUpdateMemberUseCase.updateMember(memberId, realName, phoneNumber);
   }
 
   @Transactional
   public void createDeliveryAddress(
-      Long memberId, String zipCode, String address, String addressDetail) {
+      Long memberId,
+      String recipientName,
+      String recipientPhone,
+      String zipCode,
+      String address,
+      String addressDetail,
+      String addressName) {
     orderCreateDeliveryAddressUseCase.createDeliveryAddress(
-        memberId, zipCode, address, addressDetail);
+        memberId, recipientName, recipientPhone, zipCode, address, addressDetail, addressName);
   }
 }

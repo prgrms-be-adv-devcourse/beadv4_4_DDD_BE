@@ -12,12 +12,12 @@ import org.springframework.stereotype.Service;
 public class OrderUpdateMemberUseCase {
   private final OrderMemberRepository orderMemberRepository;
 
-  public void updateMember(Long memberId, String memberName, String memberPhone) {
+  public void updateMember(Long memberId, String realName, String phoneNumber) {
     OrderMember member =
         orderMemberRepository
             .findById(memberId)
             .orElseThrow(() -> new GeneralException(ErrorStatus.ORDER_MEMBER_NOT_FOUND));
 
-    member.updateInfo(memberName, memberPhone);
+    member.updateInfo(realName, phoneNumber);
   }
 }
