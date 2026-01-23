@@ -341,9 +341,34 @@ a {
   justify-content: center;
 }
 
-.product-image-placeholder {
-  color: #999;
-  font-size: 14px;
+.product-image-bag {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f5f3ff 0%, #e0e7ff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-image-bag-body {
+  width: 52px;
+  height: 40px;
+  border-radius: 8px;
+  background: #4c51bf;
+  box-shadow: 0 4px 10px rgba(76, 81, 191, 0.45);
+}
+
+.product-image-bag-handle {
+  position: absolute;
+  top: 14px;
+  width: 34px;
+  height: 18px;
+  border-radius: 50px 50px 0 0;
+  border: 4px solid #4c51bf;
+  border-bottom: none;
+  background: transparent;
 }
 
 .product-details {

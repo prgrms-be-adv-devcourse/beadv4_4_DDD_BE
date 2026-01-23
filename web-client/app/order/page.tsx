@@ -244,7 +244,10 @@ export default function OrderPage() {
           <h2 className="card-title">주문 상품</h2>
           <div className="order-product">
             <div className="product-image-wrapper">
-              <div className="product-image-placeholder">이미지</div>
+              <div className="product-image-bag">
+                <div className="product-image-bag-handle" />
+                <div className="product-image-bag-body" />
+              </div>
             </div>
             <div className="product-details">
               <div className="product-brand">지오다노</div>
