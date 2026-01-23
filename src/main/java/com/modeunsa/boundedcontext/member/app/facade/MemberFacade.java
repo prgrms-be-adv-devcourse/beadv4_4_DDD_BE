@@ -14,6 +14,7 @@ import com.modeunsa.boundedcontext.member.app.usecase.SellerRegisterUseCase;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.entity.MemberProfile;
 import com.modeunsa.global.s3.S3UploadService;
+import com.modeunsa.global.s3.dto.DomainType;
 import com.modeunsa.global.s3.dto.PresignedUrlRequest;
 import com.modeunsa.global.s3.dto.PresignedUrlResponse;
 import com.modeunsa.global.s3.dto.PublicUrlRequest;
@@ -120,7 +121,7 @@ public class MemberFacade {
     sellerRegisterUseCase.execute(memberId, request, licenseImage);
   }
 
-  /** 프로필 이미지 업로드 */
+  /** 프로필 이미지 업로드 관련 */
   @Transactional(readOnly = true)
   public PresignedUrlResponse issueProfilePresignedUrl(PresignedUrlRequest request) {
     return s3UploadService.issuePresignedUrl(request);
@@ -132,5 +133,25 @@ public class MemberFacade {
     memberProfileUpdateImageUseCase.execute(memberId, s3Response.imageUrl());
     // TODO: 새 이미지와 다르고, 기존 이미지가 존재할 경우 삭제하여 비용 절감
     return s3Response;
+  }
+
+  /** 판매자 사업자등록증 업로드 관련 */
+  @Transactional(readOnly = true)
+  public PresignedUrlResponse issueSellerLicensePresignedUrl(PresignedUrlRequest request) {
+    return s3UploadService.issuePresignedUrl(request);
+  }
+
+  @Transactional
+  public void registerSeller(Long memberId, SellerRegisterRequest request) {
+    PublicUrlRequest publicUrlRequest = new PublicUrlRequest(
+        request.licenseImage(),
+        DomainType.SELLER,
+        memberId,
+        request.licenseContentType()
+    );
+
+    PublicUrlResponse s3Response = s3UploadService.getPublicUrl(publicUrlRequest);
+
+    sellerRegisterUseCase.execute(memberId, request, s3Response.imageUrl());
   }
 }

@@ -17,24 +17,21 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class RegisterSellerUseCase {
+public class SellerRegisterUseCase {
 
   private final MemberRepository memberRepository;
   private final MemberSellerRepository memberSellerRepository;
   private final SpringDomainEventPublisher eventPublisher;
 
-  public void execute(Long memberId, SellerRegisterRequest request, String licenseImage) {
+  public void execute(Long memberId, SellerRegisterRequest request, String finalLicenseUrl) {
     // 1. 회원 조회
-    Member member =
-        memberRepository
-            .findById(memberId)
-            .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
+    Member member = memberRepository.findById(memberId)
+        .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
-    // 2. 판매자 신청 내역 조회
+    // 2. 중복 신청 검증
     Optional<MemberSeller> existingSellerOp = memberSellerRepository.findByMemberId(memberId);
     MemberSeller seller = null;
 
-    // 재신청 또는 중복 신청 검증 로직
     if (existingSellerOp.isPresent()) {
       seller = existingSellerOp.get();
       if (seller.getStatus() == SellerStatus.PENDING) {
@@ -44,39 +41,33 @@ public class RegisterSellerUseCase {
       }
     }
 
-    // 3. 검증 통과 후 이미지 업로드 수행
-    String uploadedLicenseUrl;
-    if (licenseImage != null && !licenseImage.isEmpty()) {
-      // TODO: S3 업로드 로직 적용 예정
-      uploadedLicenseUrl = licenseImage;
-      //      uploadedLicenseUrl = s3Uploader.upload(licenseImage, "sellers");
-    } else {
+    // 3. 이미지 URL 검증
+    if (finalLicenseUrl == null || finalLicenseUrl.isBlank()) {
       throw new GeneralException(ErrorStatus.IMAGE_FILE_REQUIRED);
     }
 
-    // 4. 엔티티 반영
-    if (seller != null) { // 재신청
+    // 4. 엔티티 반영 (TODO 제거 및 로직 완성)
+    if (seller != null) { // 재신청 (기존 엔티티 업데이트)
       seller.reapply(
           request.businessName(),
           request.representativeName(),
           request.settlementBankName(),
           request.settlementBankAccount(),
-          uploadedLicenseUrl);
-    } else { // 신규 신청
+          finalLicenseUrl
+      );
+    } else { // 신규 신청 (새 엔티티 생성)
       MemberSeller.validateBankAccount(request.settlementBankAccount());
 
-      seller =
-          MemberSeller.builder()
-              .member(member)
-              .businessName(request.businessName())
-              .representativeName(request.representativeName())
-              .settlementBankName(request.settlementBankName())
-              .settlementBankAccount(request.settlementBankAccount())
-              .businessLicenseUrl(uploadedLicenseUrl)
-              // TODO: 기본 상태를 PENDING으로 변경 예정
-              .status(SellerStatus.ACTIVE)
-              .requestedAt(LocalDateTime.now())
-              .build();
+      seller = MemberSeller.builder()
+          .member(member)
+          .businessName(request.businessName())
+          .representativeName(request.representativeName())
+          .settlementBankName(request.settlementBankName())
+          .settlementBankAccount(request.settlementBankAccount())
+          .businessLicenseUrl(finalLicenseUrl)
+          .status(SellerStatus.ACTIVE) // TODO: PENDING으로 변경
+          .requestedAt(LocalDateTime.now())
+          .build();
 
       memberSellerRepository.save(seller);
     }
