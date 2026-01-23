@@ -1,5 +1,6 @@
 package com.modeunsa.boundedcontext.product.domain;
 
+import com.modeunsa.boundedcontext.product.domain.exception.InvalidStockException;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,9 +31,8 @@ import lombok.Setter;
 public class Product extends GeneratedIdAndAuditedEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "seller_id")
+  @JoinColumn(name = "seller_id", nullable = false)
   @Setter
-  // TODO: 판매자 생성 이후 nullable = false 추가
   private ProductMemberSeller seller;
 
   @Column(length = 100, nullable = false)
@@ -60,12 +60,83 @@ public class Product extends GeneratedIdAndAuditedEntity {
   // TODO: 이벤트/트랜잭션으로 증감 관리 (정합성 전략 필요)
   @Builder.Default private int favoriteCount = 0;
 
-  @Builder.Default private int quantity = 0;
+  @Builder.Default private int stock = 0;
 
   @OneToMany(mappedBy = "product")
   @OrderBy("sortOrder ASC")
   @Builder.Default
   private List<ProductImage> images = new ArrayList<>();
+
+  public static Product create(
+      ProductMemberSeller seller,
+      String name,
+      ProductCategory category,
+      String description,
+      BigDecimal salePrice,
+      BigDecimal price,
+      int stock) {
+    return Product.builder()
+        .seller(seller)
+        .name(name)
+        .category(category)
+        .description(description)
+        .salePrice(salePrice)
+        .price(price)
+        .currency(ProductCurrency.KRW)
+        .saleStatus(SaleStatus.NOT_SALE)
+        .productStatus(ProductStatus.DRAFT)
+        .favoriteCount(0)
+        .stock(stock)
+        .build();
+  }
+
+  public void update(
+      String name,
+      ProductCategory category,
+      String description,
+      SaleStatus saleStatus,
+      BigDecimal price,
+      BigDecimal salePrice,
+      Integer stock) {
+
+    if (name != null) {
+      this.name = name;
+    }
+    if (category != null) {
+      this.category = category;
+    }
+    if (description != null) {
+      this.description = description;
+    }
+    if (saleStatus != null) {
+      this.saleStatus = saleStatus;
+    }
+    if (price != null) {
+      this.price = price;
+    }
+    if (salePrice != null) {
+      this.salePrice = salePrice;
+    }
+    if (stock != null) {
+      this.stock = stock;
+    }
+    // TODO: image 수정 추가
+  }
+
+  public void updateProductStatus(ProductStatus productStatus) {
+    this.productStatus = productStatus;
+  }
+
+  public void decreaseStock(int requestedQty) {
+    if (this.stock < requestedQty) {
+      throw new InvalidStockException(this.stock, requestedQty);
+    }
+    this.stock = this.stock - requestedQty;
+  }
+
+  public void increaseStock(int requestedQty) {
+    this.stock = this.stock + requestedQty;
+  }
 
   public void addImage(ProductImage image) {
     images.add(image);
@@ -75,9 +146,5 @@ public class Product extends GeneratedIdAndAuditedEntity {
   public void removeImage(ProductImage image) {
     images.remove(image);
     image.setProduct(null);
-  }
-
-  public void updateSaleStatus(SaleStatus saleStatus) {
-    this.saleStatus = saleStatus;
   }
 }

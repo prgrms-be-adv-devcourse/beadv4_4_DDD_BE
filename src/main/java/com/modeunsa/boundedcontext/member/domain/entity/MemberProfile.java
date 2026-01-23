@@ -1,7 +1,9 @@
 package com.modeunsa.boundedcontext.member.domain.entity;
 
+import com.modeunsa.global.jpa.converter.EncryptedStringConverter;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -29,38 +31,54 @@ public class MemberProfile extends GeneratedIdAndAuditedEntity {
   @Column(length = 1000)
   private String profileImageUrl;
 
+  // TODO: Integer에 대한 암호화 처리
   private Integer heightCm;
 
+  // TODO: Integer에 대한 암호화 처리
   private Integer weightKg;
 
-  @Column(length = 30)
+  // TODO: enum으로 변경 고려
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(length = 500)
   private String skinType;
 
-  // 연관관계 편의 메서드
   void setMember(Member member) {
     this.member = member;
   }
 
-  public void updateProfile(
-      String nickname,
-      String profileImageUrl,
-      Integer heightCm,
-      Integer weightKg,
-      String skinType) {
+  public MemberProfile updateNickname(String nickname) {
     if (nickname != null) {
       this.nickname = nickname;
     }
+    return this;
+  }
+
+  // TODO: S3 연동 후 수정 필요
+  public MemberProfile updateProfileImageUrl(String profileImageUrl) {
     if (profileImageUrl != null) {
       this.profileImageUrl = profileImageUrl;
     }
+    return this;
+  }
+
+  public MemberProfile updateHeightCm(Integer heightCm) {
     if (heightCm != null) {
       this.heightCm = heightCm;
     }
+    return this;
+  }
+
+  public MemberProfile updateWeightKg(Integer weightKg) {
     if (weightKg != null) {
       this.weightKg = weightKg;
     }
+    return this;
+  }
+
+  public MemberProfile updateSkinType(String skinType) {
     if (skinType != null) {
       this.skinType = skinType;
     }
+    return this;
   }
 }

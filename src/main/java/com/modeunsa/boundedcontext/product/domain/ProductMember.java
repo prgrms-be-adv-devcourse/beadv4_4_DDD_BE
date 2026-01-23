@@ -25,4 +25,18 @@ public class ProductMember extends ManualIdAndAuditedEntity {
 
   @Column(length = 20)
   private String phoneNumber;
+
+  public static ProductMember create(
+      Long memberId, String email, String realName, String phoneNumber) {
+    ProductMember member =
+        ProductMember.builder().email(email).realName(realName).phoneNumber(phoneNumber).build();
+    member.assignId(memberId);
+    return member;
+  }
+
+  public void update(String email, String realName, String phoneNumber) {
+    this.email = email;
+    this.realName = realName;
+    this.phoneNumber = phoneNumber;
+  }
 }

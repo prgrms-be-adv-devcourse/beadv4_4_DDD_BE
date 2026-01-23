@@ -20,4 +20,15 @@ public class ProductMemberSeller extends ManualIdAndAuditedEntity {
 
   @Column(nullable = false, length = 100)
   private String representativeName;
+
+  public static ProductMemberSeller create(
+      Long sellerId, String businessName, String representativeName) {
+    ProductMemberSeller seller =
+        ProductMemberSeller.builder()
+            .businessName(businessName)
+            .representativeName(representativeName)
+            .build();
+    seller.assignId(sellerId);
+    return seller;
+  }
 }

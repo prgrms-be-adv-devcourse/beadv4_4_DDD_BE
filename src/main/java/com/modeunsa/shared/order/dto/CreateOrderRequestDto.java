@@ -14,8 +14,9 @@ public class CreateOrderRequestDto {
 
   @Positive private int quantity;
 
-  @NotNull private String receiverName;
-  @NotNull private String receiverPhone;
-  @NotNull private String zipcode;
+  @NotNull private String recipientName;
+  @NotNull private String recipientPhone;
+  @NotNull private String zipCode;
+  @NotNull private String address;
   @NotNull private String addressDetail;
 }

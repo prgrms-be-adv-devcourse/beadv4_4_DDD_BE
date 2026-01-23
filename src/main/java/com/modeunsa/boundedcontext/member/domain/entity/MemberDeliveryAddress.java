@@ -1,7 +1,9 @@
 package com.modeunsa.boundedcontext.member.domain.entity;
 
+import com.modeunsa.global.jpa.converter.EncryptedStringConverter;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -23,53 +25,87 @@ public class MemberDeliveryAddress extends GeneratedIdAndAuditedEntity {
   @JoinColumn(name = "member_id", nullable = false)
   private Member member;
 
-  @Column(nullable = false, length = 30)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(nullable = false, length = 500)
   private String recipientName;
 
-  @Column(nullable = false, length = 20)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(nullable = false, length = 500)
   private String recipientPhone;
 
-  @Column(nullable = false, length = 10)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(nullable = false, length = 500)
   private String zipCode;
 
-  @Column(nullable = false, length = 255)
-  private String address;
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(nullable = false, length = 500)
+  private String address; // 기본 주소
 
-  @Column(nullable = false, length = 255)
-  private String addressDetail;
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(nullable = false, length = 500)
+  private String addressDetail; // 상세 주소
 
   @Column(nullable = false)
   @Builder.Default
   private Boolean isDefault = false;
 
-  @Column(length = 30)
-  private String addressName;
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(length = 500)
+  private String addressName; // 주소 별칭
 
-  // 연관관계 편의 메서드
   void setMember(Member member) {
     this.member = member;
   }
 
-  public void updateAddress(
-      String recipientName,
-      String recipientPhone,
-      String zipCode,
-      String address,
-      String addressDetail,
-      String addressName) {
-    this.recipientName = recipientName;
-    this.recipientPhone = recipientPhone;
-    this.zipCode = zipCode;
-    this.address = address;
-    this.addressDetail = addressDetail;
-    this.addressName = addressName;
+  public MemberDeliveryAddress updateRecipientName(String recipientName) {
+    if (recipientName != null) {
+      this.recipientName = recipientName;
+    }
+    return this;
   }
 
-  public void setAsDefault() {
+  public MemberDeliveryAddress updateRecipientPhone(String recipientPhone) {
+    if (recipientPhone != null) {
+      this.recipientPhone = recipientPhone;
+    }
+    return this;
+  }
+
+  public MemberDeliveryAddress updateZipCode(String zipCode) {
+    if (zipCode != null) {
+      this.zipCode = zipCode;
+    }
+    return this;
+  }
+
+  public MemberDeliveryAddress updateAddress(String address) {
+    if (address != null) {
+      this.address = address;
+    }
+    return this;
+  }
+
+  public MemberDeliveryAddress updateAddressDetail(String addressDetail) {
+    if (addressDetail != null) {
+      this.addressDetail = addressDetail;
+    }
+    return this;
+  }
+
+  public MemberDeliveryAddress updateAddressName(String addressName) {
+    if (addressName != null) {
+      this.addressName = addressName;
+    }
+    return this;
+  }
+
+  public MemberDeliveryAddress setAsDefault() {
     this.isDefault = true;
+    return this;
   }
 
-  public void unsetDefault() {
+  public MemberDeliveryAddress unsetAsDefault() {
     this.isDefault = false;
+    return this;
   }
 }

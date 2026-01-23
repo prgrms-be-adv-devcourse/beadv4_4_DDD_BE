@@ -1,11 +1,11 @@
 package com.modeunsa.shared.order.event;
 
 import com.modeunsa.shared.order.dto.OrderDto;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class OrderCreatedEvent {
   public final OrderDto orderDto;
 }

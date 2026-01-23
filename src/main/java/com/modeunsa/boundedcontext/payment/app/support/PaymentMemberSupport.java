@@ -18,4 +18,8 @@ public class PaymentMemberSupport {
         .findById(memberId)
         .orElseThrow(() -> new GeneralException(ErrorStatus.PAYMENT_MEMBER_NOT_FOUND));
   }
+
+  public long countMember() {
+    return paymentMemberRepository.count();
+  }
 }

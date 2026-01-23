@@ -1,24 +1,22 @@
 package com.modeunsa.boundedcontext.auth.out.client;
 
-import java.util.HashMap;
 import java.util.Map;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.Set;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
 
-@Getter
-@Setter
-@Configuration
 @ConfigurationProperties(prefix = "spring.security.oauth2.client")
-public class OAuthClientProperties {
+public record OAuthClientProperties(Map<String, Registration> registration) {
+  public record Registration(
+      String clientId,
+      String clientSecret,
+      String clientAuthenticationMethod,
+      String authorizationGrantType,
+      String clientName,
+      Set<String> scope,
+      String redirectUri) {
 
-  private Map<String, Registration> registration = new HashMap<>();
-
-  @Getter
-  @Setter
-  public static class Registration {
-    private String clientId;
-    private String redirectUri;
+    public static Registration ofTest(String clientId, String redirectUri) {
+      return new Registration(clientId, null, null, null, null, null, redirectUri);
+    }
   }
 }

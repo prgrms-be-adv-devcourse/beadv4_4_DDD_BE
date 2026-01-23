@@ -13,16 +13,12 @@ spring:
     open-in-view: false
     show-sql: false
   batch:
-    job:
-      enabled: false
     jdbc:
-      initialize-schema: always
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:org/springframework/batch/core/schema-h2.sql
-
+      initialize-schema: embedded
 # 테스트용 스케줄러 - 매 1초마다 실행
 settlement:
   scheduler:
-    cron-am3: "* * * * * *"
+    daily-03: "* * * * * *"
+    monthly-25-04: "* * * * * *"
+  member:
+    system-member-id: 1

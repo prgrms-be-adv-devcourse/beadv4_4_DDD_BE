@@ -4,12 +4,17 @@ import static org.springframework.transaction.annotation.Propagation.REQUIRES_NE
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentPayoutDto;
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequest;
+import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
+import com.modeunsa.boundedcontext.payment.app.dto.order.PaymentOrderInfo;
+import com.modeunsa.boundedcontext.payment.app.dto.settlement.PaymentPayoutInfo;
+import com.modeunsa.boundedcontext.payment.app.event.PaymentFailedEvent;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentMemberCreatedEvent;
-import com.modeunsa.boundedcontext.payment.app.event.PaymentPayoutCompletedEvent;
-import com.modeunsa.boundedcontext.payment.app.event.PaymentRequestEvent;
 import com.modeunsa.boundedcontext.payment.app.mapper.PaymentMapper;
+import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
+import com.modeunsa.shared.member.event.MemberSignupEvent;
+import com.modeunsa.shared.order.event.RefundRequestedEvent;
+import com.modeunsa.shared.settlement.event.SettlementCompletedPayoutEvent;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -26,66 +31,36 @@ public class PaymentEventListener {
 
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Transactional(propagation = REQUIRES_NEW)
-  public void handleMemberCreateEvent(PaymentMemberCreatedEvent paymentMemberCreatedEvent) {
-    Long memberId = paymentMemberCreatedEvent.getMemberId();
-    log.info("PaymentMemberCreatedEvent 수신 - memberId: {}", memberId);
-
-    try {
-      paymentFacade.createPaymentAccount(memberId);
-      log.info("PaymentAccount 생성 완료 - memberId: {}", memberId);
-    } catch (Exception e) {
-      log.error("PaymentAccount 생성 실패 - memberId: {}", memberId, e);
-      throw e;
-    }
+  public void handleMemberCreateEvent(MemberSignupEvent memberSignupEvent) {
+    PaymentMemberDto member = paymentMapper.toPaymentMemberDto(memberSignupEvent);
+    paymentFacade.createPaymentMember(member);
   }
 
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Transactional(propagation = REQUIRES_NEW)
-  public void handlePaymentRequestEvent(PaymentRequestEvent paymentRequestEvent) {
-    log.info(
-        "PaymentRequestEvent 수신 - buyerId: {}, orderNo: {}",
-        paymentRequestEvent.getBuyerId(),
-        paymentRequestEvent.getOrderNo());
-
-    try {
-      PaymentRequest request = paymentMapper.toPaymentRequestDto(paymentRequestEvent);
-      paymentFacade.paymentRequest(request);
-      log.info(
-          "PaymentRequestEvent 생성 완료 - buyerId: {}, orderNo: {}",
-          paymentRequestEvent.getBuyerId(),
-          paymentRequestEvent.getOrderNo());
-    } catch (Exception e) {
-      log.error(
-          "PaymentRequestEvent 처리 실패 - buyerId: {}, orderNo: {}",
-          paymentRequestEvent.getBuyerId(),
-          paymentRequestEvent.getOrderNo(),
-          e);
-      throw e;
-    }
+  public void handleMemberAccountCreateEvent(PaymentMemberCreatedEvent paymentMemberCreatedEvent) {
+    paymentFacade.createPaymentAccount(paymentMemberCreatedEvent.memberId());
   }
 
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Transactional(propagation = REQUIRES_NEW)
-  public void handlePayoutCompletedEvent(PaymentPayoutCompletedEvent paymentPayoutCompletedEvent) {
-    log.info(
-        "PayoutCompletedEvent 수신 - payoutId: {}, payeeId : {}",
-        paymentPayoutCompletedEvent.getPayout().getId(),
-        paymentPayoutCompletedEvent.getPayout().getPayeeId());
+  public void handlePaymentFailedEvent(PaymentFailedEvent paymentFailedEvent) {
+    paymentFacade.handlePaymentFailed(paymentFailedEvent);
+  }
 
-    try {
-      PaymentPayoutDto payout = paymentPayoutCompletedEvent.getPayout();
-      paymentFacade.completePayout(payout);
-      log.info(
-          "PayoutCompletedEvent 처리 완료 - payoutId: {}, payeeId : {}",
-          paymentPayoutCompletedEvent.getPayout().getId(),
-          paymentPayoutCompletedEvent.getPayout().getPayeeId());
-    } catch (Exception e) {
-      log.error(
-          "PayoutCompletedEvent 처리 실패 - payoutId: {}, payeeId : {}",
-          paymentPayoutCompletedEvent.getPayout().getId(),
-          paymentPayoutCompletedEvent.getPayout().getPayeeId(),
-          e);
-      throw e;
-    }
+  @TransactionalEventListener(phase = AFTER_COMMIT)
+  @Transactional(propagation = REQUIRES_NEW)
+  public void handleRefundRequestEvent(RefundRequestedEvent refundRequestedEvent) {
+    PaymentOrderInfo orderInfo = paymentMapper.toPaymentOrderInfo(refundRequestedEvent.orderDto());
+    paymentFacade.refund(orderInfo, RefundEventType.ORDER_CANCELLED);
+  }
+
+  @TransactionalEventListener(phase = AFTER_COMMIT)
+  @Transactional(propagation = REQUIRES_NEW)
+  public void handlePayoutCompletedEvent(
+      SettlementCompletedPayoutEvent settlementCompletedPayoutEvent) {
+    List<PaymentPayoutInfo> payouts =
+        paymentMapper.toPaymentPayoutInfoList(settlementCompletedPayoutEvent.payouts());
+    paymentFacade.completePayout(payouts);
   }
 }

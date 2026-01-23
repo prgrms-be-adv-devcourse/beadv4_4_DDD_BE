@@ -16,6 +16,7 @@ public enum OrderStatus {
   // 주문 취소 (배송 전)
   CANCELLED_BY_USER("사용자 취소"),
   CANCELLED_BY_SELLER("판매자 취소"),
+  CANCEL_REQUESTED("사용자 취소 요청됨"), // PG사 환불 대기 중인 상태
 
   // 환불 (배송 후)
   REFUND_REQUESTED("환불 요청됨"),

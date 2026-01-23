@@ -1,8 +1,76 @@
-security:
-  permit-all: false
-  permit-urls: /api/v1/auths/oauth/**
 spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:your_db_name}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
   jpa:
     show-sql: false
     hibernate:
       ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_CLIENT_SECRET}
+            redirect-uri: ${KAKAO_REDIRECT_URI}
+            authorization-grant-type: authorization_code
+            client-authentication-method: client_secret_post
+            client-name: KAKAO
+          naver:
+            client-id: ${NAVER_CLIENT_ID}
+            client-secret: ${NAVER_CLIENT_SECRET}
+            redirect-uri: ${NAVER_REDIRECT_URI}
+            authorization-grant-type: authorization_code
+            client-name: NAVER
+            scope:
+              - name
+              - email
+              - mobile
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: never
+
+  elasticsearch:
+    uris:
+      - http://elasticsearch:9200
+
+custom:
+  security:
+    permit-all: false
+    # TODO: swagger 관련 URL 제거 검토
+    permit-urls:
+      - /swagger-ui/**
+      - /v3/api-docs/**
+      - /api/v1/auths/oauth/**
+      - /actuator/**
+    oauth2:
+      allowed-redirect-domains:
+        - localhost
+        - 52.79.155.221
+  cors:
+    enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never

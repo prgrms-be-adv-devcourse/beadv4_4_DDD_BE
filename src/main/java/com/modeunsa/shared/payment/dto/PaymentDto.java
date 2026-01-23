@@ -1,12 +1,7 @@
 package com.modeunsa.shared.payment.dto;
 
 import java.math.BigDecimal;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.Builder;
 
-@Getter
-@RequiredArgsConstructor
-public class PaymentDto {
-  private final Long orderId;
-  private final BigDecimal pgPaymentAmount;
-}
+@Builder
+public record PaymentDto(Long orderId, String orderNo, Long memberId, BigDecimal totalAmount) {}
