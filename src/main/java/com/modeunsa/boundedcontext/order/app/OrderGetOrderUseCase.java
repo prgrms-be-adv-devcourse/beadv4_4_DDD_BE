@@ -15,11 +15,15 @@ public class OrderGetOrderUseCase {
   private final OrderRepository orderRepository;
   private final OrderMapper orderMapper;
 
-  public OrderDto getOrder(Long orderId) {
+  public OrderDto getOrder(Long memberId, Long orderId) {
     Order order =
         orderRepository
-            .findById(orderId)
+            .findByIdWithFetch(orderId)
             .orElseThrow(() -> new GeneralException(ErrorStatus.ORDER_NOT_FOUND));
+
+    if (!order.getOrderMember().getId().equals(memberId)) {
+      throw new GeneralException(ErrorStatus.ORDER_ACCESS_DENIED);
+    }
 
     return orderMapper.toOrderDto(order);
   }

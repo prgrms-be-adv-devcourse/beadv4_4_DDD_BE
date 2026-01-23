@@ -20,8 +20,9 @@ import lombok.experimental.SuperBuilder;
 public class OrderProduct extends ManualIdAndAuditedEntity {
 
   private Long sellerId;
+  private String sellerBusinessName;
   private String name;
-  private String description;
+  private String primaryImageUrl;
   @Builder.Default private BigDecimal salePrice = BigDecimal.ZERO;
   @Builder.Default private BigDecimal price = BigDecimal.ZERO;
 }
