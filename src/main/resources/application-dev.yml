@@ -15,7 +15,7 @@ spring:
     open-in-view: false
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         format_sql: true
@@ -63,19 +63,24 @@ custom:
   security:
     permit-all: false
     permit-urls:
+      # ========== 개발 도구 ==========
       - /h2-console/**
       - /swagger-ui/**
-      - /favicon.ico
-      - /error
-      - /login/oauth2/code/**
       - /v3/api-docs/**
-      - /api/v1/auths/**
-      - /api/v1/products/**
-      - /api/v1/orders/**
-      - /api/v1/payments/**
+
+      # ========== 인증 API ==========
+      - /api/v1/auths/oauth/*/url
+      - /api/v1/auths/login/**
+      - /api/v1/auths/reissue
+      - /api/v1/auths/dev/**
+      - /api/v1/test/role/**
+
+      # ========== 콘텐츠 ==========
       - /api/v1/contents/**
-      - /api/v1/settlements/**
-      - /api/v1/file-uploads/**
+
+      # ========== 결제 콜백 ==========
+      - /api/v1/payments/*/payment/confirm/by/tossPayments
+      - /api/v1/payments/**
     oauth2:
       allowed-redirect-domains:
         - localhost

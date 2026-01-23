@@ -53,12 +53,31 @@ spring:
 custom:
   security:
     permit-all: false
-    # TODO: swagger 관련 URL 제거 검토
     permit-urls:
+      # Swagger (운영에서 제거 고려)
       - /swagger-ui/**
       - /v3/api-docs/**
-      - /api/v1/auths/oauth/**
-      - /actuator/**
+
+      # 내부 통신용 API
+      - /api/v1/orders/internal/**
+      - /api/v1/products/validate-order
+      - /api/v1/products/stock
+
+      # 인증 API
+      - /api/v1/auths/oauth/*/url
+      - /api/v1/auths/login/**
+      - /api/v1/auths/reissue
+      - /api/v1/test/role/**
+
+      # 헬스체크
+      - /actuator/health
+
+      # 콘텐츠
+      - /api/v1/contents/**
+
+      # 결제 콜백
+      - /api/v1/payments/*/payment/confirm/by/tossPayments
+      - /api/v1/payments/**
     oauth2:
       allowed-redirect-domains:
         - localhost
