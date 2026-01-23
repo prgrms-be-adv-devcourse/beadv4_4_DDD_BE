@@ -3,13 +3,16 @@ package com.modeunsa.boundedcontext.member.domain.entity;
 import static com.modeunsa.global.status.ErrorStatus.MEMBER_ADDRESS_LIMIT_EXCEEDED;
 import static com.modeunsa.global.status.ErrorStatus.MEMBER_DEFAULT_ADDRESS_REQUIRED;
 
-import com.modeunsa.boundedcontext.auth.domain.entity.AuthSocialAccount;
+import com.modeunsa.boundedcontext.auth.domain.entity.OAuthAccount;
 import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.boundedcontext.member.domain.types.MemberStatus;
 import com.modeunsa.global.exception.GeneralException;
+import com.modeunsa.global.jpa.converter.EncryptedStringConverter;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
+import com.modeunsa.global.status.ErrorStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -45,19 +48,21 @@ public class Member extends GeneratedIdAndAuditedEntity {
   @Builder.Default
   private MemberStatus status = MemberStatus.ACTIVE;
 
-  @Column(unique = true, length = 255)
+  @Convert(converter = EncryptedStringConverter.class)
   private String email;
 
-  @Column(length = 30)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(length = 500)
   private String realName;
 
-  @Column(length = 20)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(length = 500)
   private String phoneNumber;
 
   @Getter(AccessLevel.NONE)
   @Builder.Default
   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<AuthSocialAccount> oauthSocialAccounts = new ArrayList<>();
+  private List<OAuthAccount> oauthAccount = new ArrayList<>();
 
   @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private MemberProfile profile;
@@ -69,8 +74,8 @@ public class Member extends GeneratedIdAndAuditedEntity {
 
   @Column private LocalDateTime withdrawalRequestedAt;
 
-  public List<AuthSocialAccount> getOauthSocialAccounts() {
-    return Collections.unmodifiableList(oauthSocialAccounts);
+  public List<OAuthAccount> getOauthAccount() {
+    return Collections.unmodifiableList(oauthAccount);
   }
 
   public List<MemberDeliveryAddress> getAddresses() {
@@ -127,11 +132,10 @@ public class Member extends GeneratedIdAndAuditedEntity {
     return this;
   }
 
-  public Member updateEmail(String email) {
+  public void updateEmail(String email) {
     if (email != null) {
       this.email = email;
     }
-    return this;
   }
 
   public void changeRole(MemberRole role) {
@@ -142,8 +146,22 @@ public class Member extends GeneratedIdAndAuditedEntity {
     this.status = status;
   }
 
-  public void addOAuthAccount(AuthSocialAccount oauth) {
-    oauthSocialAccounts.add(oauth);
+  public void addOAuthAccount(OAuthAccount oauth) {
+    oauthAccount.add(oauth);
     oauth.assignMember(this);
+  }
+
+  public void deleteDeliveryAddress(MemberDeliveryAddress deleteAddress) {
+    addresses.removeIf(address -> address.getId().equals(deleteAddress.getId()));
+  }
+
+  public MemberDeliveryAddress getDefaultDeliveryAddress() {
+    return addresses.stream().filter(MemberDeliveryAddress::getIsDefault).findFirst().orElse(null);
+  }
+
+  public void validateCanRegisterDefaultAddress(boolean isDefault) {
+    if (isDefault && getDefaultDeliveryAddress() != null) {
+      throw new GeneralException(ErrorStatus.MEMBER_ALREADY_HAS_DEFAULT_ADDRESS);
+    }
   }
 }

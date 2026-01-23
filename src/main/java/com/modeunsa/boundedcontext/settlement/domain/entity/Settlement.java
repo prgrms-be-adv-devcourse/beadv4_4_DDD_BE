@@ -9,6 +9,8 @@ import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
@@ -34,6 +36,10 @@ public class Settlement extends GeneratedIdAndAuditedEntity {
   @Column(nullable = false)
   private Long sellerMemberId;
 
+  @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
+  private SettlementEventType type;
+
   @OneToMany(mappedBy = "settlement", cascade = CascadeType.PERSIST, fetch = LAZY)
   @Builder.Default
   private List<SettlementItem> items = new ArrayList<>();
@@ -43,11 +49,13 @@ public class Settlement extends GeneratedIdAndAuditedEntity {
 
   private LocalDateTime payoutAt;
 
-  public static Settlement create(Long sellerMemberId, int year, int month) {
+  public static Settlement create(
+      Long sellerMemberId, int year, int month, SettlementEventType type) {
     return Settlement.builder()
         .sellerMemberId(sellerMemberId)
         .settlementYear(year)
         .settlementMonth(month)
+        .type(type)
         .build();
   }
 
@@ -57,7 +65,7 @@ public class Settlement extends GeneratedIdAndAuditedEntity {
       Long sellerMemberId,
       BigDecimal amount,
       SettlementEventType eventType,
-      LocalDateTime paymentAt) {
+      LocalDateTime purchaseConfirmedAt) {
     SettlementItem settlementItem =
         SettlementItem.builder()
             .settlement(this)
@@ -66,7 +74,7 @@ public class Settlement extends GeneratedIdAndAuditedEntity {
             .sellerMemberId(sellerMemberId)
             .amount(amount)
             .eventType(eventType)
-            .paymentAt(paymentAt)
+            .purchaseConfirmedAt(purchaseConfirmedAt)
             .build();
 
     items.add(settlementItem);
@@ -85,9 +93,5 @@ public class Settlement extends GeneratedIdAndAuditedEntity {
 
   public void completePayout() {
     this.payoutAt = LocalDateTime.now();
-  }
-
-  public boolean isCompletedPayout() {
-    return this.payoutAt != null;
   }
 }

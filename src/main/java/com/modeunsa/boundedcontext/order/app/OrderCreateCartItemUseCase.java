@@ -18,7 +18,7 @@ public class OrderCreateCartItemUseCase {
   private final OrderSupport orderSupport;
 
   public CreateCartItemResponseDto createCartItem(
-      long memberId, CreateCartItemRequestDto createCartItemRequestDto) {
+      Long memberId, CreateCartItemRequestDto createCartItemRequestDto) {
     // 회원 확인
     OrderMember member = orderSupport.findByMemberId(memberId);
 

@@ -1,9 +1,10 @@
 package com.modeunsa.boundedcontext.settlement.in.batch;
 
 import com.modeunsa.boundedcontext.settlement.app.SettlementFacade;
-import com.modeunsa.boundedcontext.settlement.app.dto.SettlementOrderItemDto;
+import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementCandidateItem;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementItem;
-import com.modeunsa.boundedcontext.settlement.in.OrderApiClient;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,8 @@ import org.springframework.batch.infrastructure.item.ItemReader;
 import org.springframework.batch.infrastructure.item.ItemWriter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
@@ -25,12 +28,11 @@ public class SettlementCollectItemsAndCalculatePayoutsStepConfig {
   private final JobRepository jobRepository;
   private final PlatformTransactionManager transactionManager;
   private final SettlementFacade settlementFacade;
-  private final OrderApiClient orderApiClient;
 
   @Bean
   public Step collectItemsAndCalculatePayoutsStep() {
     return new StepBuilder("collectItemsAndCalculatePayoutsStep", jobRepository)
-        .<SettlementOrderItemDto, List<SettlementItem>>chunk(CHUNK_SIZE)
+        .<SettlementCandidateItem, List<SettlementItem>>chunk(CHUNK_SIZE)
         .transactionManager(transactionManager)
         .reader(collectItemsReader())
         .processor(addItemsAndCalculatePayoutsProcessor())
@@ -39,18 +41,26 @@ public class SettlementCollectItemsAndCalculatePayoutsStepConfig {
   }
 
   @Bean
-  public ItemReader<SettlementOrderItemDto> collectItemsReader() {
+  public ItemReader<SettlementCandidateItem> collectItemsReader() {
     return new ItemReader<>() {
       private int page = 0;
-      private List<SettlementOrderItemDto> currentPage;
+      private List<SettlementCandidateItem> currentPage;
       private int index = 0;
 
-      @Override
-      public SettlementOrderItemDto read() {
-        if (currentPage == null || index >= currentPage.size()) {
-          currentPage = orderApiClient.getSettlementTargetOrders(page++, CHUNK_SIZE);
+      // 어제 00:00:00 ~ 오늘 00:00:00 (어제 결제 건)
+      private final LocalDateTime startInclusive = LocalDate.now().minusDays(1).atStartOfDay();
+      private final LocalDateTime endExclusive = LocalDate.now().atStartOfDay();
 
+      @Override
+      public SettlementCandidateItem read() {
+        if (currentPage == null || index >= currentPage.size()) {
+          Page<SettlementCandidateItem> pageResult =
+              settlementFacade.getSettlementCandidateItems(
+                  startInclusive, endExclusive, PageRequest.of(page++, CHUNK_SIZE));
+
+          currentPage = pageResult.getContent();
           index = 0;
+
           if (currentPage.isEmpty()) {
             return null;
           }
@@ -61,9 +71,13 @@ public class SettlementCollectItemsAndCalculatePayoutsStepConfig {
   }
 
   @Bean
-  public ItemProcessor<SettlementOrderItemDto, List<SettlementItem>>
+  public ItemProcessor<SettlementCandidateItem, List<SettlementItem>>
       addItemsAndCalculatePayoutsProcessor() {
-    return settlementFacade::addItemsAndCalculatePayouts;
+    return candidateItem -> {
+      List<SettlementItem> items = settlementFacade.addItemsAndCalculatePayouts(candidateItem);
+      candidateItem.markCollected();
+      return items;
+    };
   }
 
   @Bean

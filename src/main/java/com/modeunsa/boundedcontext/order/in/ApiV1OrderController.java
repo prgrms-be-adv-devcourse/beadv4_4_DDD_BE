@@ -3,10 +3,12 @@ package com.modeunsa.boundedcontext.order.in;
 import com.modeunsa.boundedcontext.order.app.OrderFacade;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.status.SuccessStatus;
+import com.modeunsa.shared.order.dto.CartItemsResponseDto;
 import com.modeunsa.shared.order.dto.CreateCartItemRequestDto;
 import com.modeunsa.shared.order.dto.CreateCartItemResponseDto;
 import com.modeunsa.shared.order.dto.CreateCartOrderRequestDto;
 import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
+import com.modeunsa.shared.order.dto.OrderDto;
 import com.modeunsa.shared.order.dto.OrderListResponseDto;
 import com.modeunsa.shared.order.dto.OrderResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -99,5 +101,39 @@ public class ApiV1OrderController {
     OrderResponseDto dto = orderFacade.cancelOrder(memberId, orderId);
 
     return ApiResponse.onSuccess(SuccessStatus.OK, dto);
+  }
+
+  @Operation(summary = "회원 주문 환불 요청 기능", description = "배송 완료된 주문을 환불 요청할 수 있는 기능입니다.")
+  @PostMapping("/{orderId}/refund")
+  public ResponseEntity<ApiResponse> refundOrder(
+      // @AuthenticationPrincipal Long memberId // 나중에 시큐리티 적용 시
+      @PathVariable Long orderId) {
+    // [TODO] 실제 로그인한 유저 ID를 가져오는 로직 추가
+    long memberId = 1;
+
+    OrderResponseDto dto = orderFacade.refundOrder(memberId, orderId);
+
+    return ApiResponse.onSuccess(SuccessStatus.OK, dto);
+  }
+
+  @Operation(summary = "장바구니 상품 목록 조회 기능", description = "장바구니 상품 목록을 확인할 수 있는 기능입니다.")
+  @GetMapping("/cart-items")
+  public ResponseEntity<ApiResponse> getCartItem(
+      // @AuthenticationPrincipal Long memberId // 나중에 시큐리티 적용 시
+      @ParameterObject
+          @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+          Pageable pageable) {
+    // [TODO] 실제 로그인한 유저 ID를 가져오는 로직 추가
+    long memberId = 1;
+
+    CartItemsResponseDto dto = orderFacade.getCartItems(memberId);
+
+    return ApiResponse.onSuccess(SuccessStatus.OK, dto);
+  }
+
+  @Operation(summary = "주문 조회 기능", description = "정산 모듈에서 사용하는 주문 조회 API입니다.")
+  @GetMapping("/{id}")
+  public OrderDto getOrder(@PathVariable Long id) {
+    return orderFacade.getOrder(id);
   }
 }

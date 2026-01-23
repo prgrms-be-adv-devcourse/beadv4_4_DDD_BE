@@ -64,6 +64,20 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    needs: [build]
+    env:
+      ENCRYPTION_MASTER_KEY: ${{ secrets.ENCRYPTION_MASTER_KEY }}
+
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - name: Checkout code
@@ -83,7 +97,7 @@ jobs:
         run: ./gradlew test -Dspring.profiles.active=test --no-daemon
 
       - name: Upload Test Report
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-report

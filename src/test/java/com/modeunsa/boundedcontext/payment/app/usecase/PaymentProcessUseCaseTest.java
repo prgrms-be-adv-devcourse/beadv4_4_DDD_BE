@@ -5,7 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequestResult;
+import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
 import com.modeunsa.boundedcontext.payment.app.lock.LockedPaymentAccounts;
 import com.modeunsa.boundedcontext.payment.app.lock.PaymentAccountLockManager;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentSupport;
@@ -42,15 +42,15 @@ class PaymentProcessUseCaseTest {
   @InjectMocks private PaymentProcessUseCase paymentProcessUseCase;
 
   private static final Long HOLDER_ID = 2L;
-  private PaymentMember buyerMember;
-  private PaymentMember holderMember;
   private PaymentAccount holderAccount;
   private PaymentAccount buyerAccount;
 
   @BeforeEach
   void setUp() {
-    holderMember = PaymentMember.create(HOLDER_ID, "holder@example.com", "홀더", MemberStatus.ACTIVE);
-    buyerMember = PaymentMember.create(1000L, "user1@example.com", "구매자", MemberStatus.ACTIVE);
+    PaymentMember holderMember =
+        PaymentMember.create(HOLDER_ID, "holder@example.com", "홀더", MemberStatus.ACTIVE);
+    PaymentMember buyerMember =
+        PaymentMember.create(1000L, "user1@example.com", "구매자", MemberStatus.ACTIVE);
 
     holderAccount = PaymentAccount.create(holderMember);
 
@@ -65,9 +65,15 @@ class PaymentProcessUseCaseTest {
   void executeWithoutCharge_whenBuyerIdGreaterThanHolderId() {
     // given
     Long buyerId = 1000L; // holderId(2)보다 큼
-    final PaymentRequestResult paymentRequestResult =
-        new PaymentRequestResult(
-            buyerId, "ORDER12345", 1L, false, BigDecimal.ZERO, BigDecimal.valueOf(20000));
+    final PaymentProcessContext paymentProcessContext =
+        PaymentProcessContext.builder()
+            .buyerId(buyerId)
+            .orderNo("ORDER12345")
+            .orderId(1L)
+            .needsCharge(false)
+            .chargeAmount(BigDecimal.ZERO)
+            .totalAmount(BigDecimal.valueOf(20000))
+            .build();
 
     // LockedPaymentAccounts 생성 (작은 ID부터 순서대로)
     Map<Long, PaymentAccount> accountsMap = new LinkedHashMap<>();
@@ -84,7 +90,7 @@ class PaymentProcessUseCaseTest {
     final BigDecimal buyerBalanceBefore = buyerAccount.getBalance();
 
     // when
-    paymentProcessUseCase.execute(paymentRequestResult);
+    paymentProcessUseCase.execute(paymentProcessContext);
 
     // then
     // PaymentAccountLockManager가 올바른 순서로 호출되었는지 확인
@@ -92,13 +98,13 @@ class PaymentProcessUseCaseTest {
 
     // 잔액 변경 확인
     assertThat(buyerAccount.getBalance())
-        .isEqualByComparingTo(buyerBalanceBefore.subtract(paymentRequestResult.getTotalAmount()));
+        .isEqualByComparingTo(buyerBalanceBefore.subtract(paymentProcessContext.totalAmount()));
     assertThat(holderAccount.getBalance())
-        .isEqualByComparingTo(holderBalanceBefore.add(paymentRequestResult.getTotalAmount()));
+        .isEqualByComparingTo(holderBalanceBefore.add(paymentProcessContext.totalAmount()));
 
     // PaymentStatus 변경 확인
     verify(paymentSupport)
-        .changePaymentStatus(buyerId, paymentRequestResult.getOrderNo(), PaymentStatus.COMPLETED);
+        .changePaymentStatus(buyerId, paymentProcessContext.orderNo(), PaymentStatus.COMPLETED);
 
     // 이벤트 발행 확인
     verify(eventPublisher).publish(any(PaymentSuccessEvent.class));
@@ -112,8 +118,15 @@ class PaymentProcessUseCaseTest {
     BigDecimal chargeAmount = BigDecimal.valueOf(30000);
     BigDecimal totalAmount = BigDecimal.valueOf(50000);
 
-    final PaymentRequestResult paymentRequestResult =
-        new PaymentRequestResult(buyerId, "ORDER12345", 1L, true, chargeAmount, totalAmount);
+    final PaymentProcessContext paymentProcessContext =
+        PaymentProcessContext.builder()
+            .buyerId(buyerId)
+            .orderNo("ORDER12345")
+            .orderId(1L)
+            .needsCharge(true)
+            .chargeAmount(chargeAmount)
+            .totalAmount(totalAmount)
+            .build();
 
     // LockedPaymentAccounts 생성 (작은 ID부터 순서대로)
     Map<Long, PaymentAccount> accountsMap = new LinkedHashMap<>();
@@ -130,7 +143,7 @@ class PaymentProcessUseCaseTest {
     final BigDecimal buyerBalanceBefore = buyerAccount.getBalance();
 
     // when
-    paymentProcessUseCase.execute(paymentRequestResult);
+    paymentProcessUseCase.execute(paymentProcessContext);
 
     // then
     // PaymentAccountLockManager가 올바른 순서로 호출되었는지 확인
@@ -147,7 +160,7 @@ class PaymentProcessUseCaseTest {
 
     // PaymentStatus 변경 확인
     verify(paymentSupport)
-        .changePaymentStatus(buyerId, paymentRequestResult.getOrderNo(), PaymentStatus.COMPLETED);
+        .changePaymentStatus(buyerId, paymentProcessContext.orderNo(), PaymentStatus.COMPLETED);
 
     // 이벤트 발행 확인
     verify(eventPublisher).publish(any(PaymentSuccessEvent.class));
@@ -162,8 +175,15 @@ class PaymentProcessUseCaseTest {
     Long orderId = 1L;
     BigDecimal totalAmount = BigDecimal.valueOf(20000);
 
-    final PaymentRequestResult paymentRequestResult =
-        new PaymentRequestResult(buyerId, orderNo, orderId, false, BigDecimal.ZERO, totalAmount);
+    final PaymentProcessContext paymentProcessContext =
+        PaymentProcessContext.builder()
+            .buyerId(buyerId)
+            .orderNo(orderNo)
+            .orderId(orderId)
+            .needsCharge(false)
+            .chargeAmount(BigDecimal.ZERO)
+            .totalAmount(totalAmount)
+            .build();
 
     // LockedPaymentAccounts 생성
     Map<Long, PaymentAccount> accountsMap = new LinkedHashMap<>();
@@ -176,7 +196,7 @@ class PaymentProcessUseCaseTest {
         .thenReturn(lockedAccounts);
 
     // when
-    paymentProcessUseCase.execute(paymentRequestResult);
+    paymentProcessUseCase.execute(paymentProcessContext);
 
     // then
     ArgumentCaptor<PaymentSuccessEvent> eventCaptor =
@@ -184,9 +204,9 @@ class PaymentProcessUseCaseTest {
     verify(eventPublisher).publish(eventCaptor.capture());
 
     PaymentDto publishedPayment = eventCaptor.getValue().payment();
-    assertThat(publishedPayment.getOrderId()).isEqualTo(orderId);
-    assertThat(publishedPayment.getOrderNo()).isEqualTo(orderNo);
-    assertThat(publishedPayment.getBuyerId()).isEqualTo(buyerId);
-    assertThat(publishedPayment.getTotalAmount()).isEqualByComparingTo(totalAmount);
+    assertThat(publishedPayment.orderId()).isEqualTo(orderId);
+    assertThat(publishedPayment.orderNo()).isEqualTo(orderNo);
+    assertThat(publishedPayment.memberId()).isEqualTo(buyerId);
+    assertThat(publishedPayment.totalAmount()).isEqualByComparingTo(totalAmount);
   }
 }

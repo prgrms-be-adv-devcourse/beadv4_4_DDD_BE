@@ -1,6 +1,8 @@
 package com.modeunsa.boundedcontext.payment.in;
 
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
+import com.modeunsa.boundedcontext.payment.app.dto.ConfirmPaymentRequest;
+import com.modeunsa.boundedcontext.payment.app.dto.ConfirmPaymentResponse;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentResponse;
 import com.modeunsa.global.response.ApiResponse;
@@ -10,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +31,16 @@ public class ApiV1PaymentController {
   public ResponseEntity<ApiResponse> requestPayment(
       @Valid @RequestBody PaymentRequest paymentRequest) {
     PaymentResponse response = paymentFacade.requestPayment(paymentRequest);
+    return ApiResponse.onSuccess(SuccessStatus.OK, response);
+  }
+
+  @Operation(summary = "결제 승인 요청", description = "토스페이먼츠로부터 결제 승인을 요청하는 기능입니다.")
+  @PostMapping("/{orderNo}/payment/confirm/by/tossPayments")
+  public ResponseEntity<ApiResponse> confirmPaymentByTossPayments(
+      @PathVariable String orderNo,
+      @Valid @RequestBody ConfirmPaymentRequest confirmPaymentRequest) {
+    ConfirmPaymentResponse response =
+        paymentFacade.confirmTossPayment(orderNo, confirmPaymentRequest);
     return ApiResponse.onSuccess(SuccessStatus.OK, response);
   }
 }

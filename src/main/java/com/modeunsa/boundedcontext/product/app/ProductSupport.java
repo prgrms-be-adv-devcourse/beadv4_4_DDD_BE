@@ -5,11 +5,13 @@ import com.modeunsa.boundedcontext.product.domain.ProductCategory;
 import com.modeunsa.boundedcontext.product.domain.ProductMember;
 import com.modeunsa.boundedcontext.product.domain.ProductMemberSeller;
 import com.modeunsa.boundedcontext.product.domain.ProductPolicy;
+import com.modeunsa.boundedcontext.product.out.ProductFavoriteRepository;
 import com.modeunsa.boundedcontext.product.out.ProductMemberRepository;
 import com.modeunsa.boundedcontext.product.out.ProductMemberSellerRepository;
 import com.modeunsa.boundedcontext.product.out.ProductRepository;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,13 +24,10 @@ public class ProductSupport {
   private final ProductMemberSellerRepository productMemberSellerRepository;
   private final ProductMemberRepository productMemberRepository;
   private final ProductRepository productRepository;
+  private final ProductFavoriteRepository productFavoriteRepository;
 
   public boolean existsBySellerId(Long sellerId) {
     return productMemberSellerRepository.existsById(sellerId);
-  }
-
-  public boolean existsByMemberId(Long memberId) {
-    return productMemberRepository.existsById(memberId);
   }
 
   public Product getProduct(Long productId) {
@@ -46,6 +45,10 @@ public class ProductSupport {
         pageable);
   }
 
+  public List<Product> getProducts(List<Long> productIds) {
+    return productRepository.findAllById(productIds);
+  }
+
   public ProductMemberSeller getProductMemberSeller(Long sellerId) {
     return productMemberSellerRepository
         .findById(sellerId)
@@ -53,9 +56,6 @@ public class ProductSupport {
   }
 
   public ProductMember getProductMember(Long memberId) {
-    if (memberId == null) {
-      throw new GeneralException(ErrorStatus.PRODUCT_MEMBER_NOT_FOUND);
-    }
     return productMemberRepository
         .findById(memberId)
         .orElseThrow(() -> new GeneralException(ErrorStatus.PRODUCT_MEMBER_NOT_FOUND));
@@ -63,5 +63,25 @@ public class ProductSupport {
 
   public int increaseFavoriteCount(Long productId) {
     return productRepository.increaseFavoriteCount(productId);
+  }
+
+  public int decreaseFavoriteCount(Long productId) {
+    return productRepository.decreaseFavoriteCount(productId);
+  }
+
+  public boolean existsProductFavorite(Long memberId, Long productId) {
+    return productFavoriteRepository.existsByMemberIdAndProductId(memberId, productId);
+  }
+
+  public Product getProductForUpdate(Long productId) {
+    return productRepository.findByIdForUpdate(productId);
+  }
+
+  public void validateProducts(List<Long> productIds) {
+    for (Long productId : productIds) {
+      if (productId == null) {
+        throw new GeneralException(ErrorStatus.PRODUCT_NOT_FOUND);
+      }
+    }
   }
 }

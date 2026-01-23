@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
+import com.modeunsa.boundedcontext.payment.app.dto.order.PaymentOrderInfo;
 import com.modeunsa.boundedcontext.payment.app.lock.LockedPaymentAccounts;
 import com.modeunsa.boundedcontext.payment.app.lock.PaymentAccountLockManager;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
@@ -14,7 +15,6 @@ import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
 import com.modeunsa.global.config.PaymentAccountConfig;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
-import com.modeunsa.shared.payment.dto.PaymentDto;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -58,11 +58,11 @@ class PaymentRefundUseCaseTest {
   @DisplayName("결제 취소 환불 처리 성공")
   void executeRefundPaymentFailed() {
     // given
-    final PaymentDto request =
-        PaymentDto.builder()
+    final PaymentOrderInfo request =
+        PaymentOrderInfo.builder()
             .orderId(1L)
             .orderNo("ORDER12345")
-            .buyerId(buyerMember.getId())
+            .memberId(buyerMember.getId())
             .totalAmount(BigDecimal.valueOf(5000))
             .build();
 
@@ -84,20 +84,20 @@ class PaymentRefundUseCaseTest {
 
     // then
     assertThat(holderAccount.getBalance())
-        .isEqualByComparingTo(holderBalanceBefore.subtract(request.getTotalAmount()));
+        .isEqualByComparingTo(holderBalanceBefore.subtract(request.totalAmount()));
     assertThat(buyerAccount.getBalance())
-        .isEqualByComparingTo(buyerBalanceBefore.add(request.getTotalAmount()));
+        .isEqualByComparingTo(buyerBalanceBefore.add(request.totalAmount()));
   }
 
   @Test
   @DisplayName("주문 취소 환불 처리 성공")
   void executeRefundOrderCanceled() {
     // given
-    final PaymentDto request =
-        PaymentDto.builder()
+    final PaymentOrderInfo request =
+        PaymentOrderInfo.builder()
             .orderId(1L)
             .orderNo("ORDER12345")
-            .buyerId(buyerMember.getId())
+            .memberId(buyerMember.getId())
             .totalAmount(BigDecimal.valueOf(5000))
             .build();
 
@@ -119,9 +119,9 @@ class PaymentRefundUseCaseTest {
 
     // then
     assertThat(holderAccount.getBalance())
-        .isEqualByComparingTo(holderBalanceBefore.subtract(request.getTotalAmount()));
+        .isEqualByComparingTo(holderBalanceBefore.subtract(request.totalAmount()));
     assertThat(buyerAccount.getBalance())
-        .isEqualByComparingTo(buyerBalanceBefore.add(request.getTotalAmount()));
+        .isEqualByComparingTo(buyerBalanceBefore.add(request.totalAmount()));
   }
 
   @Test
@@ -132,11 +132,11 @@ class PaymentRefundUseCaseTest {
     insufficientHolderAccount.credit(
         BigDecimal.valueOf(3000), PaymentEventType.CHARGE_BANK_TRANSFER);
 
-    final PaymentDto request =
-        PaymentDto.builder()
+    final PaymentOrderInfo request =
+        PaymentOrderInfo.builder()
             .orderId(1L)
             .orderNo("ORDER12345")
-            .buyerId(buyerMember.getId())
+            .memberId(buyerMember.getId())
             .totalAmount(BigDecimal.valueOf(5000))
             .build();
 

@@ -3,9 +3,11 @@ package com.modeunsa.boundedcontext.member.domain.entity;
 import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.boundedcontext.member.domain.types.SellerStatus;
 import com.modeunsa.global.exception.GeneralException;
+import com.modeunsa.global.jpa.converter.EncryptedStringConverter;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import com.modeunsa.global.status.ErrorStatus;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -33,18 +35,23 @@ public class MemberSeller extends GeneratedIdAndAuditedEntity {
   @JoinColumn(name = "member_id", nullable = false, unique = true)
   private Member member;
 
-  @Column(name = "business_name", nullable = false, length = 200)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(name = "business_name", nullable = false, length = 500)
   private String businessName;
 
-  @Column(name = "representative_name", nullable = false, length = 100)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(name = "representative_name", nullable = false, length = 500)
   private String representativeName;
 
-  @Column(name = "settlement_bank_name", nullable = false, length = 50)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(name = "settlement_bank_name", nullable = false, length = 500)
   private String settlementBankName;
 
-  @Column(name = "settlement_bank_account", nullable = false, length = 20)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(name = "settlement_bank_account", nullable = false, length = 500)
   private String settlementBankAccount;
 
+  @Convert(converter = EncryptedStringConverter.class)
   @Column(name = "business_license_url", nullable = false, length = 1000)
   private String businessLicenseUrl;
 
@@ -59,42 +66,6 @@ public class MemberSeller extends GeneratedIdAndAuditedEntity {
   @Column(name = "activated_at")
   private LocalDateTime activatedAt;
 
-  public MemberSeller updateBusinessName(String businessName) {
-    if (businessName != null) {
-      this.businessName = businessName;
-    }
-    return this;
-  }
-
-  public MemberSeller updateRepresentativeName(String representativeName) {
-    if (representativeName != null) {
-      this.representativeName = representativeName;
-    }
-    return this;
-  }
-
-  public MemberSeller updateSettlementBankName(String settlementBankName) {
-    if (settlementBankName != null) {
-      this.settlementBankName = settlementBankName;
-    }
-    return this;
-  }
-
-  public MemberSeller updateSettlementBankAccount(String settlementBankAccount) {
-    if (settlementBankAccount != null) {
-      validateBankAccount(settlementBankAccount);
-      this.settlementBankAccount = settlementBankAccount;
-    }
-    return this;
-  }
-
-  public MemberSeller updateBusinessLicenseUrl(String businessLicenseUrl) {
-    if (businessLicenseUrl != null) {
-      this.businessLicenseUrl = businessLicenseUrl;
-    }
-    return this;
-  }
-
   public void approve() {
     if (this.status != SellerStatus.PENDING) {
       throw new GeneralException(ErrorStatus.SELLER_CANNOT_APPROVE);
@@ -104,23 +75,37 @@ public class MemberSeller extends GeneratedIdAndAuditedEntity {
     this.member.changeRole(MemberRole.SELLER);
   }
 
-  public void reject() {
-    if (this.status != SellerStatus.PENDING) {
-      throw new GeneralException(ErrorStatus.SELLER_CANNOT_REJECT);
-    }
-    this.status = SellerStatus.REJECTED;
-  }
-
-  public void suspend() {
-    if (this.status != SellerStatus.ACTIVE) {
-      throw new GeneralException(ErrorStatus.SELLER_CANNOT_SUSPEND);
-    }
-    this.status = SellerStatus.SUSPENDED;
-  }
-
-  private void validateBankAccount(String account) {
+  public static void validateBankAccount(String account) {
     if (!account.matches(BANK_ACCOUNT_PATTERN)) {
       throw new GeneralException(ErrorStatus.SELLER_INVALID_BANK_ACCOUNT);
     }
+  }
+
+  public void reapply(
+      String businessName,
+      String representativeName,
+      String settlementBankName,
+      String settlementBankAccount,
+      String businessLicenseUrl) {
+
+    // 거절된 상태가 아니면 재신청 불가
+    // TODO: 심사 로직 구현 후 원복 예정
+    //    if (this.status != SellerStatus.REJECTED) {
+    //      throw new GeneralException(ErrorStatus.SELLER_ALREADY_REQUESTED);
+    //    }
+
+    this.businessName = businessName;
+    this.representativeName = representativeName;
+    this.settlementBankName = settlementBankName;
+    // 계좌번호 검증 로직 재사용
+    validateBankAccount(settlementBankAccount);
+    this.settlementBankAccount = settlementBankAccount;
+
+    this.businessLicenseUrl = businessLicenseUrl;
+
+    // 상태 초기화
+    // TODO: 기본 상태를 PENDING으로 변경 예정
+    this.status = SellerStatus.ACTIVE;
+    this.requestedAt = LocalDateTime.now();
   }
 }

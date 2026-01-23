@@ -2,6 +2,7 @@ package com.modeunsa.boundedcontext.settlement.in.batch;
 
 import com.modeunsa.boundedcontext.settlement.domain.entity.Settlement;
 import com.modeunsa.boundedcontext.settlement.out.SettlementRepository;
+import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
 import com.modeunsa.shared.settlement.dto.SettlementCompletedPayoutDto;
 import com.modeunsa.shared.settlement.event.SettlementCompletedPayoutEvent;
 import java.time.LocalDate;
@@ -14,7 +15,6 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.infrastructure.item.ItemProcessor;
 import org.springframework.batch.infrastructure.item.ItemReader;
 import org.springframework.batch.infrastructure.item.ItemWriter;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Page;
@@ -29,7 +29,7 @@ public class SettlementMonthSettlementStepConfig {
   private final JobRepository jobRepository;
   private final PlatformTransactionManager transactionManager;
   private final SettlementRepository settlementRepository;
-  private final ApplicationEventPublisher eventPublisher;
+  private final SpringDomainEventPublisher eventPublisher;
 
   @Bean
   public Step monthlySettlementStep() {
@@ -81,6 +81,7 @@ public class SettlementMonthSettlementStepConfig {
           settlement.getId(),
           settlement.getSellerMemberId(),
           settlement.getAmount(),
+          settlement.getType().getCompleteType(),
           settlement.getPayoutAt());
     };
   }
@@ -90,7 +91,7 @@ public class SettlementMonthSettlementStepConfig {
     return chunk -> {
       List<SettlementCompletedPayoutDto> payouts = new ArrayList<>(chunk.getItems());
 
-      eventPublisher.publishEvent(new SettlementCompletedPayoutEvent(payouts));
+      eventPublisher.publish(new SettlementCompletedPayoutEvent(payouts));
     };
   }
 }

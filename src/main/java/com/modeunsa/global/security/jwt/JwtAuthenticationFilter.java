@@ -1,5 +1,6 @@
 package com.modeunsa.global.security.jwt;
 
+import com.modeunsa.boundedcontext.auth.out.repository.AuthAccessTokenBlacklistRepository;
 import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
@@ -9,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,14 +27,18 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private final JwtTokenProvider jwtTokenProvider;
+  private final AuthAccessTokenBlacklistRepository blacklistRepository;
 
   private static final String AUTHORIZATION_HEADER = "Authorization";
   private static final String BEARER_PREFIX = "Bearer ";
   private static final String ROLE_PREFIX = "ROLE_";
+  private static final String EXCEPTION_ATTRIBUTE = "exception";
 
   @Override
   protected void doFilterInternal(
-      HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+      @NonNull HttpServletRequest request,
+      @NonNull HttpServletResponse response,
+      @NonNull FilterChain filterChain)
       throws ServletException, IOException {
 
     String token = resolveToken(request);
@@ -43,6 +49,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (!jwtTokenProvider.isAccessToken(token)) {
           throw new GeneralException(ErrorStatus.AUTH_INVALID_ACCESS_TOKEN);
+        }
+
+        // TODO: 성능 최적화 고려사항
+        // - 매 요청마다 Redis 조회 발생하여 고부하 시 성능 이슈 가능
+        // - 현재는 트래픽이 적어 수용 가능하며, 부하 증가 시 캐시 도입 예정
+        // 블랙리스트 체크
+        if (blacklistRepository.existsById(token)) {
+          throw new GeneralException(ErrorStatus.AUTH_BLACKLISTED_TOKEN);
         }
 
         Long memberId = jwtTokenProvider.getMemberIdFromToken(token);
@@ -57,8 +71,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         log.debug("인증 정보 저장 완료 - memberId: {}, role: {}", memberId, role);
       } catch (GeneralException e) {
-        request.setAttribute("exception", e);
         log.warn("토큰 검증 실패: {}", e.getMessage());
+        request.setAttribute(EXCEPTION_ATTRIBUTE, e);
       }
     }
 
