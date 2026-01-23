@@ -15,9 +15,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
-/**
- * 인증은 되었지만 권한이 없는 경우 (403 Forbidden)
- */
+/** 인증은 되었지만 권한이 없는 경우 (403 Forbidden) */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -29,7 +27,8 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
   public void handle(
       HttpServletRequest request,
       HttpServletResponse response,
-      AccessDeniedException accessDeniedException) throws IOException, ServletException {
+      AccessDeniedException accessDeniedException)
+      throws IOException, ServletException {
 
     log.warn("Access Denied: {} - {}", request.getRequestURI(), accessDeniedException.getMessage());
 
@@ -37,9 +36,7 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     response.setCharacterEncoding("UTF-8");
 
-    ResponseEntity<ApiResponse> apiResponse = ApiResponse.onFailure(
-        ErrorStatus.AUTH_ACCESS_DENIED
-    );
+    ResponseEntity<ApiResponse> apiResponse = ApiResponse.onFailure(ErrorStatus.AUTH_ACCESS_DENIED);
 
     response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
   }

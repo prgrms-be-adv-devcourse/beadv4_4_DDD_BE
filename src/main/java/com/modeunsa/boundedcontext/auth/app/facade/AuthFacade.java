@@ -31,8 +31,8 @@ public class AuthFacade {
     return oauthUrlUseCase.generateOAuthUrl(provider, redirectUri);
   }
 
-  @Transactional
   /** OAuth 로그인/회원가입 처리 */
+  @Transactional
   public JwtTokenResponse oauthLogin(
       OAuthProvider provider, String code, String redirectUri, String state) {
     return oauthLoginUseCase.execute(provider, code, redirectUri, state);

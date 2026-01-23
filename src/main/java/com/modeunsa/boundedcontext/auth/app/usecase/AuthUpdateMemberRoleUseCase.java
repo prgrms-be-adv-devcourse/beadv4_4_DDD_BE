@@ -20,8 +20,10 @@ public class AuthUpdateMemberRoleUseCase {
   @Transactional
   public MemberRoleUpdateResponse execute(Long memberId, MemberRole newRole) {
     // 1. 회원 조회
-    Member member = memberRepository.findById(memberId)
-        .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
+    Member member =
+        memberRepository
+            .findById(memberId)
+            .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
     // 2. 권한 변경
     member.changeRole(newRole);

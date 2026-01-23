@@ -35,74 +35,90 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.csrf(csrf -> csrf.disable())
-        .sessionManagement(session ->
-            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .headers(headers ->
-            headers.frameOptions(FrameOptionsConfig::sameOrigin))
-        .exceptionHandling(exception ->
-            exception.authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                .accessDeniedHandler(jwtAccessDeniedHandler)
-        );
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .headers(headers -> headers.frameOptions(FrameOptionsConfig::sameOrigin))
+        .exceptionHandling(
+            exception ->
+                exception
+                    .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                    .accessDeniedHandler(jwtAccessDeniedHandler));
 
     if (securityProperties.isPermitAll()) {
       http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
     } else {
       String[] permitUrls = securityProperties.getPermitUrls().toArray(new String[0]);
 
-      http.authorizeHttpRequests(auth -> auth
-          // ========================================
-          // 1. 공개 URL (yml에서 관리)
-          // ========================================
-          .requestMatchers(permitUrls).permitAll()
+      http.authorizeHttpRequests(
+          auth ->
+              auth
+                  // ========================================
+                  // 1. 공개 URL (yml에서 관리)
+                  // ========================================
+                  .requestMatchers(permitUrls)
+                  .permitAll()
 
+                  // ========================================
+                  // 2. 상품 API - GET만 공개
+                  // ========================================
+                  .requestMatchers(HttpMethod.GET, "/api/v1/products")
+                  .permitAll()
+                  .requestMatchers(HttpMethod.GET, "/api/v1/products/{id}")
+                  .permitAll()
 
-          // ========================================
-          // 2. 상품 API - GET만 공개
-          // ========================================
-          .requestMatchers(HttpMethod.GET, "/api/v1/products").permitAll()
-          .requestMatchers(HttpMethod.GET, "/api/v1/products/{id}").permitAll()
+                  // ========================================
+                  // 3. 관리자 전용
+                  // ========================================
+                  .requestMatchers("/api/v1/admin/**")
+                  .hasRole("ADMIN")
 
-          // ========================================
-          // 3. 관리자 전용
-          // ========================================
-          .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                  // ========================================
+                  // 4. 판매자 전용
+                  // ========================================
+                  // 상품 CUD
+                  .requestMatchers(HttpMethod.POST, "/api/v1/products")
+                  .hasRole("SELLER")
+                  .requestMatchers(HttpMethod.PATCH, "/api/v1/products/**")
+                  .hasRole("SELLER")
 
-          // ========================================
-          // 4. 판매자 전용
-          // ========================================
-          // 상품 CUD
-          .requestMatchers(HttpMethod.POST, "/api/v1/products").hasRole("SELLER")
-          .requestMatchers(HttpMethod.PATCH, "/api/v1/products/**").hasRole("SELLER")
+                  // 정산
+                  .requestMatchers("/api/v1/settlements/**")
+                  .hasRole("SELLER")
 
-          // 정산
-          .requestMatchers("/api/v1/settlements/**").hasRole("SELLER")
+                  // ========================================
+                  // 5. 회원 전용
+                  // ========================================
+                  // 마이페이지
+                  .requestMatchers("/api/members/me/**")
+                  .hasRole("MEMBER")
 
-          // ========================================
-          // 5. 회원 전용
-          // ========================================
-          // 마이페이지
-          .requestMatchers("/api/members/me/**").hasRole("MEMBER")
+                  // 판매자 등록 신청
+                  .requestMatchers(HttpMethod.POST, "/api/v1/sellers/register")
+                  .hasRole("MEMBER")
 
-          // 판매자 등록 신청
-          .requestMatchers(HttpMethod.POST, "/api/v1/sellers/register").hasRole("MEMBER")
+                  // 관심상품
+                  .requestMatchers(HttpMethod.POST, "/api/v1/products/*/favorite")
+                  .hasRole("MEMBER")
+                  .requestMatchers(HttpMethod.DELETE, "/api/v1/products/*/favorite")
+                  .hasRole("MEMBER")
 
-          // 관심상품
-          .requestMatchers(HttpMethod.POST, "/api/v1/products/*/favorite").hasRole("MEMBER")
-          .requestMatchers(HttpMethod.DELETE, "/api/v1/products/*/favorite").hasRole("MEMBER")
+                  // 주문
+                  .requestMatchers("/api/v1/orders/**")
+                  .hasRole("MEMBER")
 
-          // 주문
-          .requestMatchers("/api/v1/orders/**").hasRole("MEMBER")
+                  // 결제
+                  .requestMatchers(HttpMethod.POST, "/api/v1/payments")
+                  .hasRole("MEMBER")
+                  .requestMatchers("/api/v1/payments/accounts/**")
+                  .hasRole("MEMBER")
+                  .requestMatchers("/api/v1/payments/members/**")
+                  .hasRole("MEMBER")
 
-          // 결제
-          .requestMatchers(HttpMethod.POST, "/api/v1/payments").hasRole("MEMBER")
-          .requestMatchers("/api/v1/payments/accounts/**").hasRole("MEMBER")
-          .requestMatchers("/api/v1/payments/members/**").hasRole("MEMBER")
-
-          // ========================================
-          // 6. 나머지는 인증 필요
-          // ========================================
-          .anyRequest().authenticated()
-      );
+                  // ========================================
+                  // 6. 나머지는 인증 필요
+                  // ========================================
+                  .anyRequest()
+                  .authenticated());
     }
 
     http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -110,30 +126,28 @@ public class SecurityConfig {
   }
 
   /**
-   * Role 계층 구조 업데이트:
-   * - SYSTEM > ADMIN
-   * - HOLDER > ADMIN
-   * - ADMIN > SELLER > MEMBER
-   * 결과적으로 SYSTEM과 HOLDER는 모든 권한(ADMIN, SELLER, MEMBER)을 포함합니다.
+   * Role 계층 구조 업데이트: - SYSTEM > ADMIN - HOLDER > ADMIN - ADMIN > SELLER > MEMBER 결과적으로 SYSTEM과
+   * HOLDER는 모든 권한(ADMIN, SELLER, MEMBER)을 포함합니다.
    */
   @Bean
   public RoleHierarchy roleHierarchy() {
     return RoleHierarchyImpl.withDefaultRolePrefix()
-        .role("SYSTEM").implies("ADMIN")  // SYSTEM은 ADMIN의 모든 권한을 가짐
-        .role("HOLDER").implies("ADMIN")  // HOLDER는 ADMIN의 모든 권한을 가짐
-        .role("ADMIN").implies("SELLER")  // 기존 계층 유지
-        .role("SELLER").implies("MEMBER")
+        .role("SYSTEM")
+        .implies("ADMIN") // SYSTEM은 ADMIN의 모든 권한을 가짐
+        .role("HOLDER")
+        .implies("ADMIN") // HOLDER는 ADMIN의 모든 권한을 가짐
+        .role("ADMIN")
+        .implies("SELLER") // 기존 계층 유지
+        .role("SELLER")
+        .implies("MEMBER")
         .build();
   }
 
-  /**
-   * Method Security에도 Role 계층 적용
-   */
+  /** Method Security에도 Role 계층 적용 */
   @Bean
   public MethodSecurityExpressionHandler methodSecurityExpressionHandler(
       RoleHierarchy roleHierarchy) {
-    DefaultMethodSecurityExpressionHandler handler =
-        new DefaultMethodSecurityExpressionHandler();
+    DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
     handler.setRoleHierarchy(roleHierarchy);
     return handler;
   }

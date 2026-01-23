@@ -28,10 +28,10 @@ public class RoleTestController {
   @PatchMapping("change")
   public ResponseEntity<MemberRoleUpdateResponse> changeMyRole(
       @AuthenticationPrincipal CustomUserDetails user,
-      @RequestBody MemberRoleUpdateRequest request
-  ) {
+      @RequestBody MemberRoleUpdateRequest request) {
     // Facade를 통해 로직 처리 및 토큰 생성 결과 수신
-    MemberRoleUpdateResponse response = authFacade.updateMemberRole(user.getMemberId(), request.role());
+    MemberRoleUpdateResponse response =
+        authFacade.updateMemberRole(user.getMemberId(), request.role());
 
     return ResponseEntity.ok(response);
   }
@@ -48,14 +48,18 @@ public class RoleTestController {
     return Map.of("message", "Authenticated API 접근 성공 - 로그인 필요한 API");
   }
 
-  @Operation(summary = "회원 전용 API", description = "MEMBER 이상의 권한(SELLER, ADMIN, SYSTEM, HOLDER 포함)이 필요합니다.")
+  @Operation(
+      summary = "회원 전용 API",
+      description = "MEMBER 이상의 권한(SELLER, ADMIN, SYSTEM, HOLDER 포함)이 필요합니다.")
   @GetMapping("/member")
   @PreAuthorize("hasRole('MEMBER')")
   public Map<String, String> memberApi() {
     return Map.of("message", "Member API 접근 성공 - MEMBER 권한 필요한 API");
   }
 
-  @Operation(summary = "판매자 전용 API", description = "SELLER 이상의 권한(ADMIN, SYSTEM, HOLDER 포함)이 필요합니다.")
+  @Operation(
+      summary = "판매자 전용 API",
+      description = "SELLER 이상의 권한(ADMIN, SYSTEM, HOLDER 포함)이 필요합니다.")
   @GetMapping("/seller")
   @PreAuthorize("hasRole('SELLER')")
   public Map<String, String> sellerApi() {
@@ -85,8 +89,7 @@ public class RoleTestController {
 
   @Operation(
       summary = "내 상세 권한 정보 조회",
-      description = "현재 로그인된 사용자의 ID, 주요 Role, 그리고 Role Hierarchy가 적용된 모든 권한 목록을 확인합니다."
-  )
+      description = "현재 로그인된 사용자의 ID, 주요 Role, 그리고 Role Hierarchy가 적용된 모든 권한 목록을 확인합니다.")
   @GetMapping("/me")
   public Map<String, Object> myInfo(@AuthenticationPrincipal CustomUserDetails user) {
     if (user == null) {
@@ -96,6 +99,6 @@ public class RoleTestController {
         "memberId", user.getMemberId(),
         "role", user.getRole().name(),
         "authorities", user.getAuthorities().toString() // 계층 구조가 적용된 권한 목록 확인 가능
-    );
+        );
   }
 }
