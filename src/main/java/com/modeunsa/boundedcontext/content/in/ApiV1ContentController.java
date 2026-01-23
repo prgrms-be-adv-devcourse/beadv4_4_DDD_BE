@@ -1,6 +1,8 @@
 package com.modeunsa.boundedcontext.content.in;
 
 import com.modeunsa.boundedcontext.content.app.ContentFacade;
+import com.modeunsa.boundedcontext.content.app.dto.ContentCommentRequest;
+import com.modeunsa.boundedcontext.content.app.dto.ContentCommentResponse;
 import com.modeunsa.boundedcontext.content.app.dto.ContentRequest;
 import com.modeunsa.boundedcontext.content.app.dto.ContentResponse;
 import com.modeunsa.boundedcontext.content.domain.entity.ContentMember;
@@ -55,7 +57,7 @@ public class ApiV1ContentController {
   }
 
   @Operation(summary = "콘텐츠 삭제", description = "콘텐츠를 삭제합니다.")
-  @DeleteMapping("/{contentId}")
+  @DeleteMapping
   public ResponseEntity<ApiResponse> deleteContent(
       @PathVariable Long contentId, ContentMember author) {
     contentFacade.deleteContent(contentId, author);
@@ -71,7 +73,7 @@ public class ApiV1ContentController {
   }
 
   @Operation(summary = "콘텐츠 검색 기능", description = "컨텐츠 내에서 글, 태그 검색 조회를 합니다.")
-  @GetMapping("/search")
+  @GetMapping("/{contentId}/search")
   public ElasticSearchPage<ContentSearchDocument> searchContent(
       @RequestParam String keyword,
       @RequestParam(defaultValue = "0") int page,
@@ -79,5 +81,16 @@ public class ApiV1ContentController {
     ContentSearchCondition condition = new ContentSearchCondition(keyword, page, size);
 
     return contentSearchUseCase.search(condition);
+  }
+
+  @Operation(summary = "댓글 생성", description = "한 콘텐츠 내 댓글을 생성합니다.")
+  @PostMapping("/{contentId}/comments")
+  public ResponseEntity<ApiResponse> createContentComment(
+      @PathVariable Long contentId,
+      @Valid @RequestBody ContentCommentRequest contentCommentRequest,
+      ContentMember author) {
+    ContentCommentResponse contentCommentResponse =
+        contentFacade.createContentComment(contentId, contentCommentRequest, author);
+    return ApiResponse.onSuccess(SuccessStatus.CREATED, contentCommentResponse);
   }
 }

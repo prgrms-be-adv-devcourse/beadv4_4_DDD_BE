@@ -1,6 +1,8 @@
 package com.modeunsa.global.exception;
 
 import com.modeunsa.global.response.ApiResponse;
+import com.modeunsa.global.s3.exception.S3FileNotFoundException;
+import com.modeunsa.global.s3.exception.S3OperationException;
 import com.modeunsa.global.status.ErrorStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -61,6 +63,10 @@ public class ExceptionAdvice {
   public ResponseEntity<ApiResponse> handleGeneralException(GeneralException e) {
     storeException(e);
 
+    if (e.getData() != null) {
+      return ApiResponse.onFailure(e.getErrorStatus(), e.getData());
+    }
+
     return ApiResponse.onFailure(e.getErrorStatus(), e.getMessage());
   }
 
@@ -69,6 +75,20 @@ public class ExceptionAdvice {
     storeException(e);
 
     return ApiResponse.onFailure((ErrorStatus.BAD_REQUEST));
+  }
+
+  @ExceptionHandler(S3OperationException.class)
+  public ResponseEntity<ApiResponse> handleS3OperationException(Exception e) {
+    storeException(e);
+
+    return ApiResponse.onFailure(ErrorStatus.S3_OPERATION_FAILED, e.getMessage());
+  }
+
+  @ExceptionHandler(S3FileNotFoundException.class)
+  public ResponseEntity<ApiResponse> handleS3FileNotFoundException(Exception e) {
+    storeException(e);
+
+    return ApiResponse.onFailure(ErrorStatus.S3_FILE_NOT_FOUND, e.getMessage());
   }
 
   private void storeException(Exception e) {

@@ -1,12 +1,16 @@
 package com.modeunsa.boundedcontext.order.domain;
 
+import com.modeunsa.global.jpa.converter.EncryptedStringConverter;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
+import io.hypersistence.tsid.TSID;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -28,7 +32,9 @@ import lombok.NoArgsConstructor;
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "order_order")
+@Table(
+    name = "order_order",
+    indexes = @Index(name = "idx_status_paid_at", columnList = "status, paidAt"))
 public class Order extends GeneratedIdAndAuditedEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -51,19 +57,24 @@ public class Order extends GeneratedIdAndAuditedEntity {
   private BigDecimal totalAmount;
 
   // --- 배송 정보 ---
-  @Column(name = "recipient_name", nullable = false, length = 20)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(name = "recipient_name", nullable = false, length = 500)
   private String recipientName;
 
-  @Column(name = "recipient_phone", nullable = false, length = 20)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(name = "recipient_phone", nullable = false, length = 500)
   private String recipientPhone;
 
-  @Column(nullable = false, length = 10)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(nullable = false, length = 500)
   private String zipCode;
 
-  @Column(name = "address", nullable = false, length = 255)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(name = "address", nullable = false, length = 500)
   private String address;
 
-  @Column(name = "address_detail", nullable = false, length = 200)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(name = "address_detail", nullable = false, length = 500)
   private String addressDetail;
 
   // --- 시간 정보 ---
@@ -71,6 +82,8 @@ public class Order extends GeneratedIdAndAuditedEntity {
   private LocalDateTime paymentDeadlineAt;
 
   private LocalDateTime deliveredAt;
+
+  private LocalDateTime paidAt;
 
   /** 도메인 메서드 */
   @PrePersist
@@ -103,7 +116,7 @@ public class Order extends GeneratedIdAndAuditedEntity {
     Order order =
         Order.builder()
             .orderMember(member)
-            .orderNo(generateOrderNo(member.getId()))
+            .orderNo(generateOrderNo())
             .status(OrderStatus.PENDING_PAYMENT)
             .recipientName(recipientName)
             .recipientPhone(recipientPhone)
@@ -122,11 +135,11 @@ public class Order extends GeneratedIdAndAuditedEntity {
     return order;
   }
 
-  // 주문번호 생성 {날짜와 시간-유저 ID(yyyyMMddHHmmssSSS-%04d 포맷팅)}
-  public static String generateOrderNo(Long memberId) {
+  // 주문번호 생성 {날짜와 시간-TSID(yyyyMMddHHmmssSSS-TSID 포맷팅)}
+  public static String generateOrderNo() {
     return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"))
         + "-"
-        + String.format("%04d", memberId % 10000);
+        + TSID.fast().toString();
   }
 
   // 주문 총 가격 생성
@@ -139,5 +152,24 @@ public class Order extends GeneratedIdAndAuditedEntity {
 
   public void requestRefund() {
     this.status = OrderStatus.REFUND_REQUESTED;
+  }
+
+  // 결제 완료
+  public void approve() {
+    this.status = OrderStatus.PAID;
+    this.paidAt = LocalDateTime.now();
+  }
+
+  public void reject() {
+    this.status = OrderStatus.PAYMENT_FAILED;
+  }
+
+  public void deliveryComplete() {
+    this.status = OrderStatus.DELIVERED;
+    this.deliveredAt = LocalDateTime.now();
+  }
+
+  public void confirm() {
+    this.status = OrderStatus.PURCHASE_CONFIRMED;
   }
 }

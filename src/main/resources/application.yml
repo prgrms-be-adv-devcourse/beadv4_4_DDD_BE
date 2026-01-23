@@ -10,6 +10,8 @@ spring:
     redis:
       host: localhost
       port: 6379
+      password: ${REDIS_PASSWORD}
+      username: default
   jpa:
     open-in-view: false
     hibernate:
@@ -54,6 +56,8 @@ settlement:
     monthly-25-04: "0 0 4 25 * *"
   policy:
     fee-rate: 0.1
+  member:
+    system-member-id: 1
 
 jwt:
   secret: ${JWT_SECRET:local-test-jwt-secret-key-which-is-long-enough-32bytes}
@@ -88,3 +92,8 @@ custom:
 encryption:
   enabled: true
   master-key: ${ENCRYPTION_MASTER_KEY}
+
+
+app:
+  simulation:
+    enabled: true

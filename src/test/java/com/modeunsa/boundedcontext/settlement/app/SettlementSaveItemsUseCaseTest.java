@@ -15,8 +15,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.ActiveProfiles;
 
 @ExtendWith(MockitoExtension.class)
+@ActiveProfiles("test")
 @DisplayName("SettlementSaveItemsUseCase 테스트")
 class SettlementSaveItemsUseCaseTest {
 
@@ -31,7 +33,8 @@ class SettlementSaveItemsUseCaseTest {
     int year = LocalDateTime.now().getYear();
     int month = LocalDateTime.now().getMonthValue();
 
-    Settlement settlement = Settlement.create(1L, year, month);
+    Settlement settlement =
+        Settlement.create(1L, year, month, SettlementEventType.SETTLEMENT_PRODUCT_SALES_AMOUNT);
     SettlementItem item1 =
         settlement.addItem(
             100L,

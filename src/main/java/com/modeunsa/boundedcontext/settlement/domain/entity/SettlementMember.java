@@ -1,6 +1,5 @@
 package com.modeunsa.boundedcontext.settlement.domain.entity;
 
-import com.modeunsa.boundedcontext.settlement.app.dto.SettlementMemberDto;
 import com.modeunsa.global.jpa.entity.ManualIdAndAuditedEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,14 +17,10 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class SettlementMember extends ManualIdAndAuditedEntity {
-  @Column(nullable = false, length = 50)
-  private String name;
+  @Column(nullable = false, length = 10)
+  private String role;
 
-  public static SettlementMember create(Long memberId, String name) {
-    return SettlementMember.builder().id(memberId).name(name).build();
-  }
-
-  public SettlementMemberDto toDto() {
-    return SettlementMemberDto.builder().memberId(getId()).name(getName()).build();
+  public static SettlementMember create(Long memberId, String role) {
+    return SettlementMember.builder().id(memberId).role(role).build();
   }
 }

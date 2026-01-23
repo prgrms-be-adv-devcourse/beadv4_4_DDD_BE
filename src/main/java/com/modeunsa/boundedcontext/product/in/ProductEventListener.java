@@ -4,6 +4,8 @@ import static org.springframework.transaction.annotation.Propagation.REQUIRES_NE
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
 import com.modeunsa.boundedcontext.product.app.ProductFacade;
+import com.modeunsa.shared.member.event.MemberSignupEvent;
+import com.modeunsa.shared.member.event.SellerRegisteredEvent;
 import com.modeunsa.shared.order.event.OrderCancelRequestEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -16,11 +18,23 @@ public class ProductEventListener {
 
   private final ProductFacade productFacade;
 
-  // TODO: seller, member 생성 및 수정 시 event 핸들링
+  @TransactionalEventListener(phase = AFTER_COMMIT)
+  @Transactional(propagation = REQUIRES_NEW)
+  public void handleOrderCanceledEvent(OrderCancelRequestEvent event) {
+    productFacade.restoreStock(event.getOrderDto());
+  }
 
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Transactional(propagation = REQUIRES_NEW)
-  public void handleOrderCreatedEvent(OrderCancelRequestEvent event) {
-    productFacade.restoreStock(event.getOrderDto());
+  public void handleMemberSignupEvent(MemberSignupEvent event) {
+    productFacade.syncMember(
+        event.memberId(), event.email(), event.realName(), event.phoneNumber());
+  }
+
+  @TransactionalEventListener(phase = AFTER_COMMIT)
+  @Transactional(propagation = REQUIRES_NEW)
+  public void handleSellerRegisteredEvent(SellerRegisteredEvent event) {
+    productFacade.syncSeller(
+        event.memberSellerId(), event.businessName(), event.representativeName());
   }
 }

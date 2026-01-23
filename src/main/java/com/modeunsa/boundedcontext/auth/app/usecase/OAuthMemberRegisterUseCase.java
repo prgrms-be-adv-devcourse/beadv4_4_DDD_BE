@@ -5,10 +5,11 @@ import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
 import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
 import com.modeunsa.shared.auth.dto.OAuthUserInfo;
-import com.modeunsa.shared.auth.event.MemberSignupEvent;
+import com.modeunsa.shared.member.event.MemberSignupEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -18,6 +19,7 @@ public class OAuthMemberRegisterUseCase {
   private final MemberRepository memberRepository;
   private final SpringDomainEventPublisher eventPublisher;
 
+  @Transactional
   public OAuthAccount execute(OAuthUserInfo userInfo) {
     log.info("신규 회원 가입 - provider: {}, providerId: {}", userInfo.provider(), userInfo.providerId());
 

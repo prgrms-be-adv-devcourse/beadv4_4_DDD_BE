@@ -18,6 +18,7 @@ public class OrderDto {
   private OrderStatus status;
   private BigDecimal totalAmount;
   private LocalDateTime paymentDeadlineAt;
+  private LocalDateTime paidAt;
 
   private List<OrderItemDto> orderItems;
 }
