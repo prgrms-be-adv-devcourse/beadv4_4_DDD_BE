@@ -2,12 +2,17 @@ package com.modeunsa.boundedcontext.member.in.controller;
 
 import com.modeunsa.boundedcontext.member.app.facade.MemberFacade;
 import com.modeunsa.global.response.ApiResponse;
+import com.modeunsa.global.s3.S3UploadService;
+import com.modeunsa.global.s3.dto.DomainType;
+import com.modeunsa.global.s3.dto.PublicUrlRequest;
+import com.modeunsa.global.s3.dto.PublicUrlResponse;
 import com.modeunsa.global.status.SuccessStatus;
 import com.modeunsa.shared.member.dto.request.MemberBasicInfoUpdateRequest;
 import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressCreateRequest;
 import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressUpdateRequest;
 import com.modeunsa.shared.member.dto.request.MemberProfileCreateRequest;
 import com.modeunsa.shared.member.dto.request.MemberProfileUpdateRequest;
+import com.modeunsa.shared.member.dto.request.SellerRegisterRequest;
 import com.modeunsa.shared.member.dto.response.MemberBasicInfoResponse;
 import com.modeunsa.shared.member.dto.response.MemberDeliveryAddressResponse;
 import com.modeunsa.shared.member.dto.response.MemberProfileResponse;
@@ -36,6 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController {
 
   private final MemberFacade memberFacade;
+  private final S3UploadService s3UploadService;
 
   /** 생성 (Create) */
   @Operation(summary = "배송지 추가", description = "새로운 배송지를 추가합니다. 최대 10개까지 등록 가능합니다.")
@@ -130,5 +136,31 @@ public class MemberController {
       @PathVariable Long addressId) {
     memberFacade.deleteDeliveryAddress(memberId, addressId);
     return ApiResponse.onSuccess(SuccessStatus.MEMBER_ADDRESS_DELETE_SUCCESS);
+  }
+
+  /** 판매자 등록 요청 */
+  @Operation(summary = "판매자 등록 요청", description = "업로드된 사업자등록증 키(rawKey)를 포함하여 판매자 등록을 요청합니다.")
+  @PostMapping("/sellers/register")
+  public ResponseEntity<ApiResponse> registerSeller(
+      @Parameter(hidden = true) @AuthenticationPrincipal Long memberId,
+      @RequestBody @Valid SellerRegisterRequest request) {
+
+    memberFacade.registerSeller(memberId, request);
+
+    return ApiResponse.onSuccess(SuccessStatus.SELLER_REGISTER_SUCCESS);
+  }
+
+  /** 프로필 이미지 */
+  @Operation(summary = "프로필 이미지 적용", description = "S3 업로드 완료 후, 해당 이미지를 실제 프로필로 적용합니다.")
+  @PatchMapping("/profile/image")
+  public ResponseEntity<ApiResponse> updateProfileImage(
+      @Parameter(hidden = true) @AuthenticationPrincipal Long memberId,
+      @RequestBody @Valid PublicUrlRequest request) {
+
+    PublicUrlRequest secureRequest =
+        new PublicUrlRequest(request.rawKey(), DomainType.MEMBER, memberId, request.contentType());
+
+    PublicUrlResponse response = memberFacade.updateProfileImage(memberId, secureRequest);
+    return ApiResponse.onSuccess(SuccessStatus.MEMBER_PROFILE_UPDATE_SUCCESS, response);
   }
 }

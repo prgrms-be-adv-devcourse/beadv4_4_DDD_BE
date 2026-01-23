@@ -6,8 +6,6 @@ import jakarta.validation.constraints.NotBlank;
 
 public record MemberProfileUpdateRequest(
     @NotBlank(message = "닉네임은 필수입니다.") String nickname,
-
-    // TODO: MultipartFile로 변경 예정
     String profileImageUrl,
     @Min(value = 50, message = "키는 50cm 이상이어야 합니다.")
         @Max(value = 300, message = "키는 300cm 이하여야 합니다.")

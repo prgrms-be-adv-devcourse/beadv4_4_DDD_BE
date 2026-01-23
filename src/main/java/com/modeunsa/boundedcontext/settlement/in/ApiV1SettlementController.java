@@ -10,6 +10,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,12 +26,11 @@ public class ApiV1SettlementController {
   @Operation(summary = "월별 정산서 조회", description = "원하는 월의 정산서를 조회합니다.")
   @GetMapping("/{year}/{month}")
   public ResponseEntity<ApiResponse> getSettlement(
-      @PathVariable int year, @PathVariable @Min(1) @Max(12) int month) {
-    // TODO: security 추가시 sellerId 변경
-    Long sellerId = 7L;
-
+      @AuthenticationPrincipal Long memberId,
+      @PathVariable int year,
+      @PathVariable @Min(1) @Max(12) int month) {
     SettlementResponseDto settlementResponseDto =
-        settlementFacade.getSettlement(sellerId, year, month);
+        settlementFacade.getSettlement(memberId, year, month);
 
     return ApiResponse.onSuccess(SuccessStatus.CREATED, settlementResponseDto);
   }

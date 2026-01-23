@@ -18,13 +18,11 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.transaction.annotation.Transactional;
 
 @Configuration
 @Slf4j
-@Profile("!prod")
 public class MemberDataInit {
 
   private final MemberDataInit self;
@@ -62,13 +60,11 @@ public class MemberDataInit {
 
     // 시스템 계정
     Member systemMember = createMember(null, "시스템", null, MemberRole.SYSTEM);
-    createProfile(systemMember, "SYSTEM", null, null, null, null);
     memberRepository.save(systemMember);
     publishSignupEvent(systemMember);
 
     // 홀더 계정
     Member holderMember = createMember(null, "홀더", null, MemberRole.HOLDER);
-    createProfile(holderMember, "HOLDER", null, null, null, null);
     memberRepository.save(holderMember);
     publishSignupEvent(holderMember);
 
@@ -177,6 +173,7 @@ public class MemberDataInit {
   private void publishSellerRegisteredEvent(MemberSeller seller) {
     eventPublisher.publish(
         new SellerRegisteredEvent(
+            seller.getMember().getId(),
             seller.getId(),
             seller.getBusinessName(),
             seller.getRepresentativeName(),

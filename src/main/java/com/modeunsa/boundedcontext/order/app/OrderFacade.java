@@ -39,20 +39,13 @@ public class OrderFacade {
   private final OrderSyncMemberUseCase orderSyncMemberUseCase;
   private final OrderUpdateMemberUseCase orderUpdateMemberUseCase;
   private final OrderCreateDeliveryAddressUseCase orderCreateDeliveryAddressUseCase;
+  private final OrderGetOrderUseCase orderGetOrderUseCase;
 
   // 장바구니 아이템 생성
   @Transactional
   public CreateCartItemResponseDto createCartItem(
       Long memberId, CreateCartItemRequestDto requestDto) {
     return orderCreateCartItemUseCase.createCartItem(memberId, requestDto);
-  }
-
-  public long countProduct() {
-    return orderSupport.countProduct();
-  }
-
-  public long countMember() {
-    return orderSupport.countMember();
   }
 
   public OrderMember findByMemberId(Long memberId) {
@@ -83,10 +76,6 @@ public class OrderFacade {
     return orderCreateCartOrderUseCase.createCartOrder(memberId, requestDto);
   }
 
-  public long countOrder() {
-    return orderSupport.countOrder();
-  }
-
   public Page<OrderListResponseDto> getOrders(Long memberId, Pageable pageable) {
     return orderGetOrdersUseCase.getOrders(memberId, pageable);
   }
@@ -108,9 +97,15 @@ public class OrderFacade {
     return orderGetCartItemsUseCase.getCartItems(memberId);
   }
 
-  public OrderDto getOrder(Long id) {
+  // 정산 모듈에서 주문 조회
+  public OrderDto getInternalOrder(Long id) {
     Order order = orderSupport.findByOrderId(id);
     return orderMapper.toOrderDto(order);
+  }
+
+  // 클라이언트 주문 조회
+  public OrderDto getOrder(Long memberId, Long orderId) {
+    return orderGetOrderUseCase.getOrder(memberId, orderId);
   }
 
   // ---- sync ----
@@ -139,19 +134,25 @@ public class OrderFacade {
   }
 
   @Transactional
-  public void syncMember(Long memberId, String memberName, String memberPhone) {
-    orderSyncMemberUseCase.syncMember(memberId, memberName, memberPhone);
+  public void syncMember(Long memberId, String realName, String phoneNumber) {
+    orderSyncMemberUseCase.syncMember(memberId, realName, phoneNumber);
   }
 
   @Transactional
-  public void updateMember(Long memberId, String memberName, String memberPhone) {
-    orderUpdateMemberUseCase.updateMember(memberId, memberName, memberPhone);
+  public void updateMember(Long memberId, String realName, String phoneNumber) {
+    orderUpdateMemberUseCase.updateMember(memberId, realName, phoneNumber);
   }
 
   @Transactional
   public void createDeliveryAddress(
-      Long memberId, String zipCode, String address, String addressDetail) {
+      Long memberId,
+      String recipientName,
+      String recipientPhone,
+      String zipCode,
+      String address,
+      String addressDetail,
+      String addressName) {
     orderCreateDeliveryAddressUseCase.createDeliveryAddress(
-        memberId, zipCode, address, addressDetail);
+        memberId, recipientName, recipientPhone, zipCode, address, addressDetail, addressName);
   }
 }
