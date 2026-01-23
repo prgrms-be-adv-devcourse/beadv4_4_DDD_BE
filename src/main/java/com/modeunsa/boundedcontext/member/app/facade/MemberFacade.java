@@ -16,8 +16,6 @@ import com.modeunsa.boundedcontext.member.domain.entity.MemberProfile;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.s3.S3UploadService;
 import com.modeunsa.global.s3.dto.DomainType;
-import com.modeunsa.global.s3.dto.PresignedUrlRequest;
-import com.modeunsa.global.s3.dto.PresignedUrlResponse;
 import com.modeunsa.global.s3.dto.PublicUrlRequest;
 import com.modeunsa.global.s3.dto.PublicUrlResponse;
 import com.modeunsa.global.status.ErrorStatus;
@@ -119,12 +117,7 @@ public class MemberFacade {
     adminApproveSellerUseCase.execute(sellerId);
   }
 
-  /** 회원 프로필 이미지 업로드 관련 */
-  @Transactional(readOnly = true)
-  public PresignedUrlResponse issueProfilePresignedUrl(PresignedUrlRequest request) {
-    return s3UploadService.issuePresignedUrl(request);
-  }
-
+  /** 회원 프로필 이미지 관련 */
   @Transactional
   public PublicUrlResponse updateProfileImage(Long memberId, PublicUrlRequest request) {
     PublicUrlResponse s3Response = s3UploadService.getPublicUrl(request);
@@ -133,12 +126,7 @@ public class MemberFacade {
     return s3Response;
   }
 
-  /** 판매자 사업자등록증 업로드 관련 */
-  @Transactional(readOnly = true)
-  public PresignedUrlResponse issueSellerLicensePresignedUrl(PresignedUrlRequest request) {
-    return s3UploadService.issuePresignedUrl(request);
-  }
-
+  /** 판매자 사업자등록증 관련 */
   @Transactional
   public void registerSeller(Long memberId, SellerRegisterRequest request) {
     if (!StringUtils.hasText(request.licenseImageRawKey())

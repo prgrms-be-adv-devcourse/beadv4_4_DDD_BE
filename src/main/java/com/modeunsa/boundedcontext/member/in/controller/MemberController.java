@@ -2,9 +2,8 @@ package com.modeunsa.boundedcontext.member.in.controller;
 
 import com.modeunsa.boundedcontext.member.app.facade.MemberFacade;
 import com.modeunsa.global.response.ApiResponse;
+import com.modeunsa.global.s3.S3UploadService;
 import com.modeunsa.global.s3.dto.DomainType;
-import com.modeunsa.global.s3.dto.PresignedUrlRequest;
-import com.modeunsa.global.s3.dto.PresignedUrlResponse;
 import com.modeunsa.global.s3.dto.PublicUrlRequest;
 import com.modeunsa.global.s3.dto.PublicUrlResponse;
 import com.modeunsa.global.status.SuccessStatus;
@@ -42,6 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController {
 
   private final MemberFacade memberFacade;
+  private final S3UploadService s3UploadService;
 
   /** 생성 (Create) */
   @Operation(summary = "배송지 추가", description = "새로운 배송지를 추가합니다. 최대 10개까지 등록 가능합니다.")
@@ -139,19 +139,6 @@ public class MemberController {
   }
 
   /** 판매자 등록 요청 */
-  @Operation(summary = "사업자등록증 업로드 URL 발급", description = "S3 업로드를 위한 Presigned URL을 요청합니다.")
-  @PostMapping("/sellers/license/presigned-url")
-  public ResponseEntity<ApiResponse> getLicensePresignedUrl(
-      @Parameter(hidden = true) @AuthenticationPrincipal Long memberId,
-      @RequestBody @Valid PresignedUrlRequest request) {
-
-    PresignedUrlRequest secureRequest =
-        new PresignedUrlRequest(memberId, DomainType.SELLER, request.ext(), request.contentType());
-
-    PresignedUrlResponse response = memberFacade.issueSellerLicensePresignedUrl(secureRequest);
-    return ApiResponse.onSuccess(SuccessStatus.FILE_UPLOAD_URL_GET_SUCCESS, response);
-  }
-
   @Operation(summary = "판매자 등록 요청", description = "업로드된 사업자등록증 키(rawKey)를 포함하여 판매자 등록을 요청합니다.")
   @PostMapping("/sellers/register")
   public ResponseEntity<ApiResponse> registerSeller(
@@ -163,20 +150,7 @@ public class MemberController {
     return ApiResponse.onSuccess(SuccessStatus.SELLER_REGISTER_SUCCESS);
   }
 
-  /** 프로필 이미지 업로드 */
-  @Operation(summary = "프로필 이미지 업로드 URL 발급", description = "S3 업로드를 위한 Presigned URL을 요청합니다.")
-  @PostMapping("/profile/presigned-url")
-  public ResponseEntity<ApiResponse> getPresignedUrl(
-      @Parameter(hidden = true) @AuthenticationPrincipal Long memberId,
-      @RequestBody @Valid PresignedUrlRequest request) {
-
-    PresignedUrlRequest secureRequest =
-        new PresignedUrlRequest(memberId, DomainType.MEMBER, request.ext(), request.contentType());
-
-    PresignedUrlResponse response = memberFacade.issueProfilePresignedUrl(secureRequest);
-    return ApiResponse.onSuccess(SuccessStatus.FILE_UPLOAD_URL_GET_SUCCESS, response);
-  }
-
+  /** 프로필 이미지 */
   @Operation(summary = "프로필 이미지 적용", description = "S3 업로드 완료 후, 해당 이미지를 실제 프로필로 적용합니다.")
   @PatchMapping("/profile/image")
   public ResponseEntity<ApiResponse> updateProfileImage(
