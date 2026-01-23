@@ -36,12 +36,11 @@ public class ContentDeleteCommentUseCase {
       throw new GeneralException(CONTENT_COMMENT_NOT_FOUND);
     }
 
-    // (선택) 작성자 본인만 삭제 가능하게 하고 싶다면
+    // 작성자 본인만 삭제 가능
     if (!comment.getAuthor().equals(author)) {
       throw new GeneralException(CONTENT_COMMENT_NOT_FOUND);
     }
 
-    content.removeComment(comment);
     commentRepository.delete(comment);
   }
 }
