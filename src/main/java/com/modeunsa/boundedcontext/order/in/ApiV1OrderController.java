@@ -119,8 +119,8 @@ public class ApiV1OrderController {
   }
 
   @Operation(summary = "주문 조회 기능", description = "클라이언트에서 결제 요청을 하기 위한 주문 상세 조회 API입니다.")
-  @GetMapping("/{id}")
-  public OrderDto getOrder(@PathVariable Long id) {
-    return orderFacade.getOrder(id);
+  @GetMapping("/{orderId}")
+  public OrderDto getOrder(@AuthenticationPrincipal Long memberId, @PathVariable Long orderId) {
+    return orderFacade.getOrder(memberId, orderId);
   }
 }
