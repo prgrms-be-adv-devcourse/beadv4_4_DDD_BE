@@ -35,7 +35,8 @@ public enum SuccessStatus {
   MEMBER_PROFILE_CREATE_SUCCESS(HttpStatus.CREATED, "MEMBER_201_003", "프로필 생성에 성공했습니다."),
 
   // Content 200
-  CONTENT_LIST_GET_SUCCESS(HttpStatus.OK, "CONTENT_200_001", "콘텐츠 전체 조회에 성공했습니다.");
+  CONTENT_LIST_GET_SUCCESS(HttpStatus.OK, "CONTENT_200_001", "콘텐츠 전체 조회에 성공했습니다."),
+  CONTENT_NO_DATA(HttpStatus.OK, "CONTENT_200_002", "Delete 요청이 성공적으로 처리되어 응답 데이터가 없습니다.");
 
   private final HttpStatus httpStatus;
   private final String code;

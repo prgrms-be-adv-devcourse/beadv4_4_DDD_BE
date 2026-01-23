@@ -13,9 +13,10 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-// @Configuration
+@Component
 @Profile({"local", "dev"})
 @Slf4j
 public class OrderDataInit {
