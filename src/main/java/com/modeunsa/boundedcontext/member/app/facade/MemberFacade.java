@@ -13,12 +13,14 @@ import com.modeunsa.boundedcontext.member.app.usecase.MemberProfileUpdateUseCase
 import com.modeunsa.boundedcontext.member.app.usecase.SellerRegisterUseCase;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.entity.MemberProfile;
+import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.s3.S3UploadService;
 import com.modeunsa.global.s3.dto.DomainType;
 import com.modeunsa.global.s3.dto.PresignedUrlRequest;
 import com.modeunsa.global.s3.dto.PresignedUrlResponse;
 import com.modeunsa.global.s3.dto.PublicUrlRequest;
 import com.modeunsa.global.s3.dto.PublicUrlResponse;
+import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.member.dto.request.MemberBasicInfoUpdateRequest;
 import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressCreateRequest;
 import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressUpdateRequest;
@@ -33,6 +35,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -138,6 +141,10 @@ public class MemberFacade {
 
   @Transactional
   public void registerSeller(Long memberId, SellerRegisterRequest request) {
+    if (!StringUtils.hasText(request.licenseImage()) || !StringUtils.hasText(request.licenseContentType())) {
+      throw new GeneralException(ErrorStatus.IMAGE_FILE_REQUIRED);
+    }
+
     PublicUrlRequest publicUrlRequest =
         new PublicUrlRequest(
             request.licenseImage(), DomainType.SELLER, memberId, request.licenseContentType());
