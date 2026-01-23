@@ -1,13 +1,13 @@
 package com.modeunsa.boundedcontext.content.in;
 
 import com.modeunsa.boundedcontext.content.app.ContentFacade;
-import com.modeunsa.boundedcontext.content.app.dto.ContentCommentRequest;
-import com.modeunsa.boundedcontext.content.app.dto.ContentCommentResponse;
 import com.modeunsa.boundedcontext.content.app.dto.ContentRequest;
 import com.modeunsa.boundedcontext.content.app.dto.ContentResponse;
 import com.modeunsa.boundedcontext.content.domain.entity.ContentMember;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.status.SuccessStatus;
+import com.modeunsa.shared.content.ContentCommentRequest;
+import com.modeunsa.shared.content.ContentCommentResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -41,7 +41,7 @@ public class ApiV1ContentController {
   }
 
   @Operation(summary = "콘텐츠 수정", description = "콘텐츠를 수정합니다.")
-  @PatchMapping("/{content_Id}")
+  @PatchMapping("/{contentId}")
   public ResponseEntity<ApiResponse> updateContent(
       @PathVariable Long contentId,
       @Valid @RequestBody ContentRequest contentRequest,
@@ -52,11 +52,11 @@ public class ApiV1ContentController {
   }
 
   @Operation(summary = "콘텐츠 삭제", description = "콘텐츠를 삭제합니다.")
-  @DeleteMapping
+  @DeleteMapping("/{contentId}")
   public ResponseEntity<ApiResponse> deleteContent(
       @PathVariable Long contentId, ContentMember author) {
     contentFacade.deleteContent(contentId, author);
-    return ApiResponse.onSuccess(SuccessStatus.OK);
+    return ApiResponse.onSuccess(SuccessStatus.CONTENT_NO_DATA);
   }
 
   @Operation(summary = "콘텐츠 전체 조회", description = "콘텐츠 전체 목록을 최신순으로 조회합니다.")
@@ -68,7 +68,7 @@ public class ApiV1ContentController {
   }
 
   @Operation(summary = "댓글 생성", description = "한 콘텐츠 내 댓글을 생성합니다.")
-  @PostMapping("/{content_Id}/comments")
+  @PostMapping("/{contentId}/comments")
   public ResponseEntity<ApiResponse> createContentComment(
       @PathVariable Long contentId,
       @Valid @RequestBody ContentCommentRequest contentCommentRequest,
@@ -76,5 +76,14 @@ public class ApiV1ContentController {
     ContentCommentResponse contentCommentResponse =
         contentFacade.createContentComment(contentId, contentCommentRequest, author);
     return ApiResponse.onSuccess(SuccessStatus.CREATED, contentCommentResponse);
+  }
+
+  @Operation(summary = "댓글 삭제", description = "한 콘텐츠 내 댓글을 삭제합니다.")
+  @DeleteMapping("/{contentId}/comments/{commentId}")
+  public ResponseEntity<ApiResponse> deleteComment(
+      @PathVariable Long contentId, @PathVariable Long commentId, ContentMember author) {
+    contentFacade.deleteContentComment(contentId, commentId, author);
+
+    return ApiResponse.onSuccess(SuccessStatus.CONTENT_NO_DATA, null);
   }
 }
