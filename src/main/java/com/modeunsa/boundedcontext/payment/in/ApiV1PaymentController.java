@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,8 +30,8 @@ public class ApiV1PaymentController {
   @Operation(summary = "결제 요청 기능", description = "결제를 요청하는 기능입니다.")
   @PostMapping
   public ResponseEntity<ApiResponse> requestPayment(
-      @Valid @RequestBody PaymentRequest paymentRequest) {
-    PaymentResponse response = paymentFacade.requestPayment(paymentRequest);
+      @AuthenticationPrincipal Long memberId, @Valid @RequestBody PaymentRequest paymentRequest) {
+    PaymentResponse response = paymentFacade.requestPayment(memberId, paymentRequest);
     return ApiResponse.onSuccess(SuccessStatus.OK, response);
   }
 

@@ -1,6 +1,7 @@
 package com.modeunsa.boundedcontext.payment.in;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -39,12 +40,7 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
     BigDecimal totalAmount = BigDecimal.valueOf(50000);
 
     PaymentRequest request =
-        PaymentRequest.builder()
-            .orderId(orderId)
-            .orderNo(orderNo)
-            .buyerId(buyerId)
-            .totalAmount(totalAmount)
-            .build();
+        PaymentRequest.builder().orderId(orderId).orderNo(orderNo).totalAmount(totalAmount).build();
 
     PaymentResponse response =
         PaymentResponse.builder()
@@ -56,7 +52,10 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
             .chargeAmount(BigDecimal.ZERO)
             .build();
 
-    when(paymentFacade.requestPayment(any(PaymentRequest.class))).thenReturn(response);
+    // 컨트롤러에서는 @AuthenticationPrincipal Long memberId 를 사용하지만,
+    // 테스트에서는 SecurityContext 를 구성하지 않으므로 null 이 전달된다.
+    // memberId 값에 의존하지 않도록 any() 매처를 사용해 성공 응답을 스텁한다.
+    when(paymentFacade.requestPayment(any(), any(PaymentRequest.class))).thenReturn(response);
 
     // when, then
     mockMvc
@@ -80,7 +79,6 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
         PaymentRequest.builder()
             .orderId(null)
             .orderNo("ORDER12345")
-            .buyerId(1000L)
             .totalAmount(BigDecimal.valueOf(50000))
             .build();
 
@@ -104,7 +102,6 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
         PaymentRequest.builder()
             .orderId(1L)
             .orderNo("")
-            .buyerId(1000L)
             .totalAmount(BigDecimal.valueOf(50000))
             .build();
 
@@ -128,9 +125,13 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
         PaymentRequest.builder()
             .orderId(1L)
             .orderNo("ORDER12345")
-            .buyerId(null)
             .totalAmount(BigDecimal.valueOf(50000))
             .build();
+
+    // 실제 구현에서는 인증 정보가 없으면 회원을 찾을 수 없다는 도메인 예외가 발생한다고 가정하고,
+    // memberId 가 null 인 경우에 대한 예외 매핑을 검증한다.
+    when(paymentFacade.requestPayment(isNull(), any(PaymentRequest.class)))
+        .thenThrow(new GeneralException(ErrorStatus.PAYMENT_MEMBER_NOT_FOUND));
 
     // when, then
     mockMvc
@@ -138,7 +139,7 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
             post("/api/v1/payments")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isBadRequest())
+        .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.isSuccess").value(false))
         .andExpect(jsonPath("$.code").exists())
         .andExpect(jsonPath("$.message").exists());
@@ -152,7 +153,6 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
         PaymentRequest.builder()
             .orderId(1L)
             .orderNo("ORDER12345")
-            .buyerId(1000L)
             .totalAmount(BigDecimal.ZERO)
             .build();
 
@@ -176,11 +176,11 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
         PaymentRequest.builder()
             .orderId(1L)
             .orderNo("ORDER12345")
-            .buyerId(1000L)
             .totalAmount(BigDecimal.valueOf(50000))
             .build();
 
-    when(paymentFacade.requestPayment(any(PaymentRequest.class)))
+    // memberId 값과 무관하게, 결제가 중복되었다는 도메인 예외가 발생한다고 가정한다.
+    when(paymentFacade.requestPayment(any(), any(PaymentRequest.class)))
         .thenThrow(new GeneralException(ErrorStatus.PAYMENT_DUPLICATE));
 
     // when, then
@@ -203,11 +203,11 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
         PaymentRequest.builder()
             .orderId(1L)
             .orderNo("ORDER12345")
-            .buyerId(999L)
             .totalAmount(BigDecimal.valueOf(50000))
             .build();
 
-    when(paymentFacade.requestPayment(any(PaymentRequest.class)))
+    // memberId 값과 무관하게, 계좌를 찾을 수 없다는 도메인 예외가 발생한다고 가정한다.
+    when(paymentFacade.requestPayment(any(), any(PaymentRequest.class)))
         .thenThrow(new GeneralException(ErrorStatus.PAYMENT_ACCOUNT_NOT_FOUND));
 
     // when, then
@@ -230,11 +230,11 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
         PaymentRequest.builder()
             .orderId(1L)
             .orderNo("ORDER12345")
-            .buyerId(1000L)
             .totalAmount(BigDecimal.valueOf(50000))
             .build();
 
-    when(paymentFacade.requestPayment(any(PaymentRequest.class)))
+    // memberId 값과 무관하게, 회원 상태 비활성 예외가 발생한다고 가정한다.
+    when(paymentFacade.requestPayment(any(), any(PaymentRequest.class)))
         .thenThrow(new GeneralException(ErrorStatus.PAYMENT_MEMBER_IN_ACTIVE));
 
     // when, then
