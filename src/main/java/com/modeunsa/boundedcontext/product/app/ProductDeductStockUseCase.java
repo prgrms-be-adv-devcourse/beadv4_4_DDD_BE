@@ -1,6 +1,7 @@
 package com.modeunsa.boundedcontext.product.app;
 
 import com.modeunsa.boundedcontext.product.domain.Product;
+import com.modeunsa.boundedcontext.product.domain.SaleStatus;
 import com.modeunsa.boundedcontext.product.domain.exception.InvalidStockException;
 import com.modeunsa.boundedcontext.product.out.ProductRepository;
 import com.modeunsa.shared.product.dto.ProductStockDto;
@@ -53,7 +54,7 @@ public class ProductDeductStockUseCase {
     }
     // 재고 0인 경우 솔드아웃 처리
     if (product.isSoldOut()) {
-      product.setSoldOut();
+      product.changeSaleStatus(SaleStatus.SOLD_OUT);
     }
     productRepository.save(product);
     return new ProductStockDto(product.getId(), success, product.getStock());

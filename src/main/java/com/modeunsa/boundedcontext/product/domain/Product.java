@@ -150,7 +150,7 @@ public class Product extends GeneratedIdAndAuditedEntity {
     return this.stock != null && this.stock == 0;
   }
 
-  public void setSoldOut() {
-    this.saleStatus = SaleStatus.SOLD_OUT;
+  public void changeSaleStatus(SaleStatus saleStatus) {
+    this.saleStatus = saleStatus;
   }
 }
