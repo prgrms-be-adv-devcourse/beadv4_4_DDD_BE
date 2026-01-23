@@ -14,6 +14,6 @@ public class OrderApiClient {
   }
 
   public OrderDto getOrder(Long id) {
-    return restClient.get().uri("/{id}", id).retrieve().body(OrderDto.class);
+    return restClient.get().uri("/internal/{id}", id).retrieve().body(OrderDto.class);
   }
 }
