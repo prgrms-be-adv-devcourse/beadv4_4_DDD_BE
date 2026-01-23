@@ -104,8 +104,8 @@ public class OrderFacade {
   }
 
   // 클라이언트 주문 조회
-  public OrderDto getOrder(Long orderId) {
-    return orderGetOrderUseCase.getOrder(orderId);
+  public OrderDto getOrder(Long memberId, Long orderId) {
+    return orderGetOrderUseCase.getOrder(memberId, orderId);
   }
 
   // ---- sync ----
