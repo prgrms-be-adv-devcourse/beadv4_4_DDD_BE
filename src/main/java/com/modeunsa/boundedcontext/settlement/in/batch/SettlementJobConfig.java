@@ -14,11 +14,16 @@ public class SettlementJobConfig {
   private final JobRepository jobRepository;
 
   @Bean
-  public Job settlementCollectItemsAndCalculatePayoutsJob(
-      Step collectItemsStep, Step calculatePayoutsStep) {
-    return new JobBuilder("settlementCollectItemsAndCalculatePayoutsJob", jobRepository)
-        .start(collectItemsStep) // Step 1: 정산 상품 수집
-        .next(calculatePayoutsStep) // Step 2: 판매자별 정산 계산
+  public Job collectItemsAndCalculatePayoutsJob(Step collectItemsAndCalculatePayoutsStep) {
+    return new JobBuilder("collectItemsAndCalculatePayoutsJob", jobRepository)
+        .start(collectItemsAndCalculatePayoutsStep)
+        .build();
+  }
+
+  @Bean
+  public Job monthlySettlementJob(Step monthlySettlementStep) {
+    return new JobBuilder("monthlySettlementJob", jobRepository)
+        .start(monthlySettlementStep)
         .build();
   }
 }

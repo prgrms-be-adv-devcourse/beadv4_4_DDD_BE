@@ -1,13 +1,12 @@
-security:
-  permit-all: false
-  permit-urls: /h2-console/**,/swagger-ui/**,/v3/api-docs/**,/api/v1/auths/oauth/**
-
 spring:
+  config:
+    activate:
+      on-profile: dev
   datasource:
-    url: jdbc:h2:./db_dev;MODE=MySQL
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
+    url: jdbc:mysql://localhost:3306/modeunsa
+    username: root
+    password: ${MYSQL_ROOT_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
   h2:
     console:
       enabled: true
@@ -16,18 +15,19 @@ spring:
     open-in-view: false
     show-sql: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
         highlight_sql: true
         use_sql_comments: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ""
   security:
     oauth2:
-      allowed-redirect-domains:
-        - http://localhost:3000
-        - http://localhost:8080
-        - http://127.0.0.1:8080
       client:
         registration:
           kakao:
@@ -47,3 +47,41 @@ spring:
               - name
               - email
               - mobile
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: never
+
+  elasticsearch:
+    uris:
+      - http://localhost:9200
+
+custom:
+  global:
+    internalBackUrl: http://localhost:${server.port:8080}
+  security:
+    permit-all: false
+    permit-urls:
+      - /h2-console/**
+      - /swagger-ui/**
+      - /favicon.ico
+      - /error
+      - /login/oauth2/code/**
+      - /v3/api-docs/**
+      - /api/v1/auths/**
+      - /api/v1/products/**
+      - /api/v1/orders/**
+      - /api/v1/payments/**
+      - /api/v1/contents/**
+      - /api/v1/settlements/**
+      - /api/v1/file-uploads/**
+    oauth2:
+      allowed-redirect-domains:
+        - localhost
+        - 127.0.0.1
+  cors:
+    enabled: true
+    allowed-origins:
+      - http://localhost:3000
+      - http://127.0.0.1:3000

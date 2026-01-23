@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 @RequiredArgsConstructor
 @JsonPropertyOrder({"isSuccess", "code", "message", "pageInfo", "result"})
 public class ApiResponse {
+
   private final Boolean isSuccess;
   private final String code;
   private final String message;
@@ -63,6 +64,12 @@ public class ApiResponse {
   public static ResponseEntity<ApiResponse> onFailure(ErrorStatus error, String message) {
     return new ResponseEntity<>(
         new ApiResponse(false, error.getCode(), error.getMessage(message), null, null),
+        error.getHttpStatus());
+  }
+
+  public static ResponseEntity<ApiResponse> onFailure(ErrorStatus error, Object data) {
+    return new ResponseEntity<>(
+        new ApiResponse(false, error.getCode(), error.getMessage(), null, data),
         error.getHttpStatus());
   }
 }

@@ -1,30 +1,55 @@
 package com.modeunsa.boundedcontext.settlement.app;
 
-import com.modeunsa.boundedcontext.settlement.domain.entity.Settlement;
+import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementCandidateItem;
+import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementItem;
+import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementMember;
+import com.modeunsa.shared.settlement.dto.SettlementResponseDto;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class SettlementFacade {
-  // TODO: 판매자 가입시에 정산서 생성 이벤트
-  private final SettlementCreateSettlementUseCase settlementCreateSettlementUseCase;
-  private final SettlementCollectSettlementItemsUseCase settlementAddSettlementItemsUseCase;
-  private final SettlementCalculatePayoutsUseCase settlementCalculatePayoutsUseCase;
+  private final SettlementAddItemsAndCalculatePayoutsUseCase settlementProcessOrderUseCase;
+  private final SettlementSaveItemsUseCase settlementSaveItemsUseCase;
+  private final SettlementSyncMemberUseCase settlementSyncMemberUseCase;
+  private final SettlementCollectCandidateItemsUseCase settlementCollectCandidateItemsUseCase;
+  private final SettlementSupport settlementSupport;
 
   @Transactional
-  public Settlement createSettlement(Long sellerMemberId) {
-    return settlementCreateSettlementUseCase.createSettlement(sellerMemberId);
+  public SettlementMember syncMember(Long memberId, String memberRole) {
+    return settlementSyncMemberUseCase.syncMember(memberId, memberRole);
   }
 
   @Transactional
-  public void collectSettlementItems() {
-    settlementAddSettlementItemsUseCase.collectSettlementItems();
+  public List<SettlementItem> addItemsAndCalculatePayouts(
+      SettlementCandidateItem settlementCandidateItem) {
+    return settlementProcessOrderUseCase.addItemsAndCalculatePayouts(settlementCandidateItem);
   }
 
   @Transactional
-  public void calculatePayouts() {
-    settlementCalculatePayoutsUseCase.calculatePayouts();
+  public void saveItems(List<SettlementItem> items) {
+    settlementSaveItemsUseCase.saveItems(items);
+  }
+
+  @Transactional
+  public SettlementResponseDto getSettlement(Long memberId, int year, int month) {
+    return settlementSupport.getSettlement(memberId, year, month);
+  }
+
+  @Transactional
+  public void collectCandidateItems(Long orderId) {
+    settlementCollectCandidateItemsUseCase.collectCandidateItems(orderId);
+  }
+
+  @Transactional(readOnly = true)
+  public Page<SettlementCandidateItem> getSettlementCandidateItems(
+      LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+    return settlementSupport.getSettlementCandidateItems(startDate, endDate, pageable);
   }
 }

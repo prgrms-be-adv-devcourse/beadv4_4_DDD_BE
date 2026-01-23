@@ -1,12 +1,16 @@
 package com.modeunsa.boundedcontext.order.domain;
 
+import com.modeunsa.global.jpa.converter.EncryptedStringConverter;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
+import io.hypersistence.tsid.TSID;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -14,6 +18,7 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
@@ -27,7 +32,9 @@ import lombok.NoArgsConstructor;
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "order_order")
+@Table(
+    name = "order_order",
+    indexes = @Index(name = "idx_status_paid_at", columnList = "status, paidAt"))
 public class Order extends GeneratedIdAndAuditedEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -50,22 +57,35 @@ public class Order extends GeneratedIdAndAuditedEntity {
   private BigDecimal totalAmount;
 
   // --- 배송 정보 ---
-  @Column(name = "receiver_name", nullable = false, length = 20)
-  private String receiverName;
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(name = "recipient_name", nullable = false, length = 500)
+  private String recipientName;
 
-  @Column(name = "receiver_phone", nullable = false, length = 20)
-  private String receiverPhone;
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(name = "recipient_phone", nullable = false, length = 500)
+  private String recipientPhone;
 
-  @Column(name = "zipcode", nullable = false, length = 10)
-  private String zipcode;
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(nullable = false, length = 500)
+  private String zipCode;
 
-  @Column(name = "address_detail", nullable = false, length = 200)
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(name = "address", nullable = false, length = 500)
+  private String address;
+
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(name = "address_detail", nullable = false, length = 500)
   private String addressDetail;
 
   // --- 시간 정보 ---
   @Column(name = "payment_deadline_at", nullable = false)
   private LocalDateTime paymentDeadlineAt;
 
+  private LocalDateTime deliveredAt;
+
+  private LocalDateTime paidAt;
+
+  /** 도메인 메서드 */
   @PrePersist
   public void calculatePaymentDeadline() {
     if (this.paymentDeadlineAt == null) {
@@ -76,5 +96,80 @@ public class Order extends GeneratedIdAndAuditedEntity {
   public void addOrderItem(OrderItem item) {
     this.orderItems.add(item);
     item.setOrder(this);
+  }
+
+  public void requestCancel() {
+    this.status = OrderStatus.CANCEL_REQUESTED;
+  }
+
+  // 정적 메서드
+  public static Order createOrder(
+      OrderMember member,
+      List<OrderItem> orderItems,
+      String recipientName,
+      String recipientPhone,
+      String zipCode,
+      String address,
+      String addressDetail) {
+
+    // 주문 껍데기 생성
+    Order order =
+        Order.builder()
+            .orderMember(member)
+            .orderNo(generateOrderNo())
+            .status(OrderStatus.PENDING_PAYMENT)
+            .recipientName(recipientName)
+            .recipientPhone(recipientPhone)
+            .zipCode(zipCode)
+            .address(address)
+            .addressDetail(addressDetail)
+            .build();
+
+    for (OrderItem item : orderItems) {
+      order.addOrderItem(item);
+    }
+
+    // 총 가격 계산
+    order.calculateTotalPrice();
+
+    return order;
+  }
+
+  // 주문번호 생성 {날짜와 시간-TSID(yyyyMMddHHmmssSSS-TSID 포맷팅)}
+  public static String generateOrderNo() {
+    return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"))
+        + "-"
+        + TSID.fast().toString();
+  }
+
+  // 주문 총 가격 생성
+  public void calculateTotalPrice() {
+    this.totalAmount =
+        this.orderItems.stream()
+            .map(OrderItem::calculateSubTotal)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+  }
+
+  public void requestRefund() {
+    this.status = OrderStatus.REFUND_REQUESTED;
+  }
+
+  // 결제 완료
+  public void approve() {
+    this.status = OrderStatus.PAID;
+    this.paidAt = LocalDateTime.now();
+  }
+
+  public void reject() {
+    this.status = OrderStatus.PAYMENT_FAILED;
+  }
+
+  public void deliveryComplete() {
+    this.status = OrderStatus.DELIVERED;
+    this.deliveredAt = LocalDateTime.now();
+  }
+
+  public void confirm() {
+    this.status = OrderStatus.PURCHASE_CONFIRMED;
   }
 }

@@ -6,27 +6,24 @@ import com.modeunsa.boundedcontext.product.domain.ProductStatus;
 import com.modeunsa.boundedcontext.product.domain.SaleStatus;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import java.util.List;
 
-@Getter
-@Setter
-@RequiredArgsConstructor
-public class ProductResponse {
-  private long id;
-  private long sellerId;
-  private String name;
-  private ProductCategory category;
-  private String description;
-  private BigDecimal price;
-  private BigDecimal salePrice;
-  private ProductCurrency currency;
-  private ProductStatus productStatus;
-  private SaleStatus saleStatus;
-  private int quantity;
-  private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
-  private Long createdBy;
-  private Long updatedBy;
-}
+public record ProductResponse(
+    Long id,
+    Long sellerId,
+    String sellerBusinessName,
+    String name,
+    ProductCategory category,
+    String description,
+    BigDecimal price,
+    BigDecimal salePrice,
+    ProductCurrency currency,
+    ProductStatus productStatus,
+    SaleStatus saleStatus,
+    int stock,
+    int favoriteCount,
+    List<ProductImageDto> images,
+    LocalDateTime createdAt,
+    LocalDateTime updatedAt,
+    Long createdBy,
+    Long updatedBy) {}

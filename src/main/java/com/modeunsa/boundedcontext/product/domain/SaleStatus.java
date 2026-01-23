@@ -10,5 +10,5 @@ public enum SaleStatus {
   NOT_SALE("판매중지"),
   SOLD_OUT("품절");
 
-  private final String value;
+  private final String description;
 }

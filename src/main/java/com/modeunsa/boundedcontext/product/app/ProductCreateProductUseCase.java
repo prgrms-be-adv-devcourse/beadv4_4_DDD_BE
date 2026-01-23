@@ -1,15 +1,17 @@
 package com.modeunsa.boundedcontext.product.app;
 
 import com.modeunsa.boundedcontext.product.domain.Product;
-import com.modeunsa.boundedcontext.product.domain.ProductStatus;
+import com.modeunsa.boundedcontext.product.domain.ProductImage;
+import com.modeunsa.boundedcontext.product.domain.ProductMemberSeller;
 import com.modeunsa.boundedcontext.product.out.ProductRepository;
 import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
 import com.modeunsa.global.exception.GeneralException;
+import com.modeunsa.global.filter.RequestLoggingInterceptor;
 import com.modeunsa.global.status.ErrorStatus;
-import com.modeunsa.shared.product.ProductCreatedEvent;
-import com.modeunsa.shared.product.dto.ProductRequest;
-import com.modeunsa.shared.product.dto.ProductResponse;
-import java.math.BigDecimal;
+import com.modeunsa.shared.product.dto.ProductCreateRequest;
+import com.modeunsa.shared.product.dto.ProductDto;
+import com.modeunsa.shared.product.event.ProductCreatedEvent;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,44 +23,39 @@ public class ProductCreateProductUseCase {
   private final ProductRepository productRepository;
   private final ProductMapper productMapper;
   private final SpringDomainEventPublisher eventPublisher;
+  private final RequestLoggingInterceptor requestLoggingInterceptor;
 
-  public ProductResponse createProduct(ProductRequest productRequest) {
-    this.validateProduct(productRequest);
-    // TODO: 파일 업로드 작업 이후에 이미지 추가 예정
-    Product product = productMapper.toEntity(productRequest);
+  public Product createProduct(Long sellerId, ProductCreateRequest productCreateRequest) {
+    // 판매자 검증
+    if (sellerId == null || !productSupport.existsBySellerId(sellerId)) {
+      throw new GeneralException(ErrorStatus.PRODUCT_SELLER_NOT_FOUND);
+    }
+    ProductMemberSeller seller = productSupport.getProductMemberSeller(sellerId);
+    Product product =
+        Product.create(
+            seller,
+            productCreateRequest.getName(),
+            productCreateRequest.getCategory(),
+            productCreateRequest.getDescription(),
+            productCreateRequest.getSalePrice(),
+            productCreateRequest.getPrice(),
+            productCreateRequest.getStock() != null ? productCreateRequest.getStock() : 0);
+
+    List<String> images = productCreateRequest.getImages();
+    ProductImage primaryImage = null;
+    if (images != null && !images.isEmpty()) {
+      for (int i = 0; i < images.size(); i++) {
+        ProductImage image = ProductImage.create(product, images.get(i), i == 0, i + 1);
+        product.addImage(image);
+        if (i == 0) {
+          primaryImage = image;
+        }
+      }
+    }
     product = productRepository.save(product);
-
-    ProductResponse response = productMapper.toResponse(product);
-
-    eventPublisher.publish(new ProductCreatedEvent(response));
-
-    return response;
-  }
-
-  private void validateProduct(ProductRequest productRequest) {
-    // 판매자 id 없는 경우 예외 처리
-    if (!productSupport.existsBySellerId(productRequest.getSellerId())) {
-      throw new GeneralException(ErrorStatus.SELLER_NOT_FOUND);
-    }
-
-    if (ProductStatus.COMPLETED.equals(productRequest.getProductStatus())) {
-      if (productRequest.getDescription().isBlank()) {
-        throw new GeneralException(ErrorStatus.PRODUCT_DESCRIPTION_REQUIRED);
-      }
-      if (productRequest.getCategory() == null) {
-        throw new GeneralException(ErrorStatus.PRODUCT_CATEGORY_REQUIRED);
-      }
-      if (productRequest.getSalePrice() == null
-          || productRequest.getSalePrice().compareTo(BigDecimal.ZERO) <= 0) {
-        throw new GeneralException(ErrorStatus.PRODUCT_SALE_PRICE_REQUIRED);
-      }
-      if (productRequest.getPrice() == null
-          || productRequest.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
-        throw new GeneralException(ErrorStatus.PRODUCT_PRICE_REQUIRED);
-      }
-      if (productRequest.getQuantity() <= 0) {
-        throw new GeneralException(ErrorStatus.PRODUCT_QTY_REQUIRED);
-      }
-    }
+    ProductDto productDto =
+        productMapper.toDto(product, primaryImage != null ? primaryImage.getImageUrl() : null);
+    eventPublisher.publish(new ProductCreatedEvent(productDto));
+    return product;
   }
 }

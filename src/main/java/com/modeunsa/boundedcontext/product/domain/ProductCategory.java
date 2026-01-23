@@ -14,5 +14,5 @@ public enum ProductCategory {
   BAG("가방"),
   BEAUTY("뷰티");
 
-  private final String value;
+  private final String description;
 }
