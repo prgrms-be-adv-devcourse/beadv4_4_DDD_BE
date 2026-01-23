@@ -16,6 +16,8 @@ import com.modeunsa.boundedcontext.member.domain.entity.MemberProfile;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.s3.S3UploadService;
 import com.modeunsa.global.s3.dto.DomainType;
+import com.modeunsa.global.s3.dto.PresignedUrlRequest;
+import com.modeunsa.global.s3.dto.PresignedUrlResponse;
 import com.modeunsa.global.s3.dto.PublicUrlRequest;
 import com.modeunsa.global.s3.dto.PublicUrlResponse;
 import com.modeunsa.global.status.ErrorStatus;
@@ -134,15 +136,15 @@ public class MemberFacade {
       throw new GeneralException(ErrorStatus.IMAGE_FILE_REQUIRED);
     }
 
-    PublicUrlRequest publicUrlRequest =
-        new PublicUrlRequest(
-            request.licenseImageRawKey(),
-            DomainType.SELLER,
+    PresignedUrlRequest presignedUrlRequest =
+        new PresignedUrlRequest(
             memberId,
+            DomainType.SELLER,
+            request.licenseImageRawKey(),
             request.licenseContentType());
 
-    PublicUrlResponse s3Response = s3UploadService.getPublicUrl(publicUrlRequest);
+    PresignedUrlResponse s3Response = s3UploadService.getPresignedUrl(request.licenseImageRawKey());
 
-    sellerRegisterUseCase.execute(memberId, request, s3Response.imageUrl());
+    sellerRegisterUseCase.execute(memberId, request, s3Response.presignedUrl());
   }
 }
