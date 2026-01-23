@@ -70,6 +70,7 @@ custom:
       - /api/v1/payments/**
       - /api/v1/contents/**
       - /api/v1/settlements/**
+      - /api/v1/file-uploads/**
     oauth2:
       allowed-redirect-domains:
         - localhost
