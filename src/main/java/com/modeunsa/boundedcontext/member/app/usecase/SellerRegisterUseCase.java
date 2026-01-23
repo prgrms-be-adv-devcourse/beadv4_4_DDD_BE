@@ -77,6 +77,7 @@ public class SellerRegisterUseCase {
     // 5. 이벤트 발행
     eventPublisher.publish(
         new SellerRegisteredEvent(
+            seller.getMember().getId(),
             seller.getId(),
             seller.getBusinessName(),
             seller.getRepresentativeName(),
