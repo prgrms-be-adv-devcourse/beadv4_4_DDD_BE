@@ -23,7 +23,6 @@ public class OrderEventListener {
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Transactional(propagation = REQUIRES_NEW)
   public void handle(MemberSignupEvent event) {
-    System.out.println("===========================================================");
     orderFacade.syncMember(event.memberId(), event.realName(), event.phoneNumber());
   }
 

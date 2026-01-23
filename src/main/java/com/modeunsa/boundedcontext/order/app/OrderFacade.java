@@ -48,14 +48,6 @@ public class OrderFacade {
     return orderCreateCartItemUseCase.createCartItem(memberId, requestDto);
   }
 
-  public long countProduct() {
-    return orderSupport.countProduct();
-  }
-
-  public long countMember() {
-    return orderSupport.countMember();
-  }
-
   public OrderMember findByMemberId(Long memberId) {
     return orderSupport.findByMemberId(memberId);
   }
@@ -82,10 +74,6 @@ public class OrderFacade {
   @Transactional
   public OrderResponseDto createCartOrder(Long memberId, CreateCartOrderRequestDto requestDto) {
     return orderCreateCartOrderUseCase.createCartOrder(memberId, requestDto);
-  }
-
-  public long countOrder() {
-    return orderSupport.countOrder();
   }
 
   public Page<OrderListResponseDto> getOrders(Long memberId, Pageable pageable) {
