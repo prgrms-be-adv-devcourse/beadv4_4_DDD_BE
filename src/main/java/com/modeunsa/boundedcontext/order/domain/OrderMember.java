@@ -20,12 +20,21 @@ import lombok.experimental.SuperBuilder;
 @Table(name = "order_member")
 public class OrderMember extends ManualIdAndAuditedEntity {
 
-  @Column(name = "member_name", nullable = false, length = 20)
-  private String memberName;
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(name = "real_name", nullable = false, length = 500)
+  String realName;
 
   @Convert(converter = EncryptedStringConverter.class)
-  @Column(name = "member_phone", nullable = false, length = 500)
-  private String memberPhone;
+  @Column(name = "phone_number", nullable = false, length = 500)
+  String phoneNumber;
+
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(name = "recipient_name", length = 500)
+  String recipientName;
+
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(name = "recipient_phone", length = 500)
+  String recipientPhone;
 
   @Convert(converter = EncryptedStringConverter.class)
   @Column(name = "zipcode", length = 500)
@@ -39,14 +48,27 @@ public class OrderMember extends ManualIdAndAuditedEntity {
   @Column(name = "address_detail", length = 500)
   private String addressDetail;
 
-  public void updateInfo(String memberName, String memberPhone) {
-    this.memberName = memberName;
-    this.memberPhone = memberPhone;
+  @Convert(converter = EncryptedStringConverter.class)
+  @Column(name = "address_name", length = 500)
+  String addressName;
+
+  public void updateInfo(String realName, String phoneNumber) {
+    this.realName = realName;
+    this.phoneNumber = phoneNumber;
   }
 
-  public void createDeliveryAddress(String zipCode, String address, String addressDetail) {
+  public void createDeliveryAddress(
+      String recipientName,
+      String recipientPhone,
+      String zipCode,
+      String address,
+      String addressDetail,
+      String addressName) {
+    this.recipientName = recipientName;
+    this.recipientPhone = recipientPhone;
     this.zipCode = zipCode;
     this.address = address;
     this.addressDetail = addressDetail;
+    this.addressName = addressName;
   }
 }
