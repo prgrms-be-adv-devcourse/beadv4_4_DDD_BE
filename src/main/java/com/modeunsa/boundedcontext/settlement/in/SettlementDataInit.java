@@ -87,40 +87,19 @@ public class SettlementDataInit {
   }
 
   public void initCandidateItems() throws InterruptedException {
-    log.info("[정산] 2. 정산 후보 항목 대기 또는 생성");
+    log.info("[정산] 2. 정산 후보 항목 생성");
 
-    // 이미 후보 항목이 있으면 스킵
-    if (settlementCandidateItemRepository.count() > 0) {
-      log.info("[정산] 정산 후보 항목이 이미 존재합니다. (count={})", settlementCandidateItemRepository.count());
+    long count = settlementCandidateItemRepository.count();
+    if (count > 0) {
+      log.info("[정산] 정산 후보 항목 존재 (count={})", count);
       return;
     }
 
-    // OrderScheduler가 이벤트를 발행할 때까지 대기
-    int maxWaitSeconds = 30;
-    int checkIntervalSeconds = 5;
-    int waited = 0;
-
-    log.info("[정산] OrderScheduler 이벤트 대기 시작 (최대 {}초)", maxWaitSeconds);
-
-    while (waited < maxWaitSeconds) {
-      Thread.sleep(checkIntervalSeconds * 1000L);
-      waited += checkIntervalSeconds;
-
-      long count = settlementCandidateItemRepository.count();
-      if (count > 0) {
-        log.info("[정산] 정산 후보 항목 수신 완료 (count={}, 대기시간={}초)", count, waited);
-        return;
-      }
-      log.info("[정산] 정산 후보 항목 대기 중... ({}초/{}초)", waited, maxWaitSeconds);
-    }
-
-    // 타임아웃 시 직접 생성
-    log.warn("[정산] 타임아웃! 정산 후보 항목을 직접 생성합니다.");
-    self.createCandidateItemsDirectly();
+    self.createCandidateItems();
   }
 
   @Transactional
-  public void createCandidateItemsDirectly() {
+  public void createCandidateItems() {
     LocalDateTime now = LocalDateTime.now();
 
     SettlementCandidateItem candidate1 =
