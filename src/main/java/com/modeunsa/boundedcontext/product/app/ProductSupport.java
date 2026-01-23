@@ -30,6 +30,10 @@ public class ProductSupport {
     return productMemberSellerRepository.existsById(sellerId);
   }
 
+  public boolean existsByMemberId(Long memberId) {
+    return productMemberRepository.existsById(memberId);
+  }
+
   public Product getProduct(Long productId) {
     return productRepository
         .findById(productId)

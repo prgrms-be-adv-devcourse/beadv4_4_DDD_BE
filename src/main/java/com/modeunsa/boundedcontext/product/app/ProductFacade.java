@@ -35,6 +35,7 @@ public class ProductFacade {
   private final ProductRestoreStockUseCase productRestoreStockUseCase;
   private final ProductCreateMemberUseCase productCreateMemberUseCase;
   private final ProductCreateSellerUseCase productCreateSellerUseCase;
+  private final ProductUpdateMemberUseCase productUpdateMemberUseCase;
   private final ProductSupport productSupport;
   private final ProductMapper productMapper;
 
@@ -107,5 +108,9 @@ public class ProductFacade {
 
   public void syncSeller(Long sellerId, String businessName, String representativeName) {
     productCreateSellerUseCase.createMemberSeller(sellerId, businessName, representativeName);
+  }
+
+  public void updateMember(Long memberId, String realName, String email, String phoneNumber) {
+    productUpdateMemberUseCase.updateMember(memberId, realName, email, phoneNumber);
   }
 }
