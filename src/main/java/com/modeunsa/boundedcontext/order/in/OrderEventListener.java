@@ -23,6 +23,7 @@ public class OrderEventListener {
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Transactional(propagation = REQUIRES_NEW)
   public void handle(MemberSignupEvent event) {
+    System.out.println("===========================================================");
     orderFacade.syncMember(event.memberId(), event.realName(), event.phoneNumber());
   }
 
@@ -36,7 +37,13 @@ public class OrderEventListener {
   @Transactional(propagation = REQUIRES_NEW)
   public void handle(MemberDeliveryAddressSetAsDefaultEvent event) {
     orderFacade.createDeliveryAddress(
-        event.memberId(), event.zipCode(), event.address(), event.addressDetail());
+        event.memberId(),
+        event.recipientName(),
+        event.recipientPhone(),
+        event.zipCode(),
+        event.address(),
+        event.addressDetail(),
+        event.addressName());
   }
 
   @TransactionalEventListener(phase = AFTER_COMMIT)
