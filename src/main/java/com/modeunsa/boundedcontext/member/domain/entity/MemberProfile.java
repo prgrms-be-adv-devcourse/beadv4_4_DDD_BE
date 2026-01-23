@@ -53,7 +53,6 @@ public class MemberProfile extends GeneratedIdAndAuditedEntity {
     return this;
   }
 
-  // TODO: S3 연동 후 수정 필요
   public MemberProfile updateProfileImageUrl(String profileImageUrl) {
     if (profileImageUrl != null) {
       this.profileImageUrl = profileImageUrl;
