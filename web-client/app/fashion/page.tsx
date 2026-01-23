@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 
-export default function Home() {
+export default function FashionPage() {
   return (
     <div className="home-page">
       {/* Header */}
@@ -25,61 +25,39 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Main Banner */}
-      <section className="main-banner">
-        <div className="banner-content">
-          <h1>새로운 시즌 컬렉션</h1>
-          <p>트렌디한 패션과 프리미엄 뷰티를 만나보세요</p>
-          <button className="banner-cta">지금 쇼핑하기</button>
-        </div>
-      </section>
-
-      {/* Category Section */}
-      <section className="category-section">
+      {/* Page Header */}
+      <div className="page-header">
         <div className="container">
-          <h2 className="section-title">카테고리</h2>
-          <div className="category-grid">
-            <div className="category-item">
-              <div className="category-icon">👗</div>
-              <span>여성패션</span>
-            </div>
-            <div className="category-item">
-              <div className="category-icon">👔</div>
-              <span>남성패션</span>
-            </div>
-            <div className="category-item">
-              <div className="category-icon">💄</div>
-              <span>화장품</span>
-            </div>
-            <div className="category-item">
-              <div className="category-icon">🧴</div>
-              <span>스킨케어</span>
-            </div>
-            <div className="category-item">
-              <div className="category-icon">👠</div>
-              <span>신발/가방</span>
-            </div>
-            <div className="category-item">
-              <div className="category-icon">⌚</div>
-              <span>액세서리</span>
-            </div>
-          </div>
+          <h1 className="page-title">패션</h1>
+          <p className="page-subtitle">트렌디한 패션 아이템을 만나보세요</p>
         </div>
-      </section>
+      </div>
 
-      {/* Products */}
+      {/* Products Section */}
       <section className="products-section">
         <div className="container">
+          <div className="products-header">
+            <h2 className="section-title">전체 상품</h2>
+            <div className="filter-options">
+              <select className="filter-select">
+                <option>정렬순</option>
+                <option>인기순</option>
+                <option>최신순</option>
+                <option>가격 낮은순</option>
+                <option>가격 높은순</option>
+              </select>
+            </div>
+          </div>
           <div className="products-grid">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((item) => (
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((item) => (
               <Link key={item} href={`/products/${item}`} className="product-card">
                 <div className="product-image">
                   <div className="image-placeholder">이미지</div>
                 </div>
                 <div className="product-info">
                   <div className="product-brand">브랜드명</div>
-                  <div className="product-name">상품명 {item}</div>
-                  <div className="product-price">₩{((item * 10000) + 9000).toLocaleString()}</div>
+                  <div className="product-name">패션 상품 {item}</div>
+                  <div className="product-price">₩{((item * 15000) + 10000).toLocaleString()}</div>
                 </div>
               </Link>
             ))}
