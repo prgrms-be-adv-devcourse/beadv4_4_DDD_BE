@@ -1,7 +1,7 @@
 'use client'
 
 import { useSearchParams, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 
 interface JwtTokenResponse {
   accessToken: string
@@ -17,7 +17,7 @@ interface ApiResponse {
   result: JwtTokenResponse
 }
 
-export default function LoginCallbackPage() {
+function LoginCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
@@ -162,5 +162,38 @@ export default function LoginCallbackPage() {
         </>
       )}
     </div>
+  )
+}
+
+export default function LoginCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: '100vh',
+        flexDirection: 'column',
+        gap: '20px'
+      }}>
+        <div style={{ 
+          width: '48px', 
+          height: '48px', 
+          border: '4px solid #f3f3f3',
+          borderTop: '4px solid #667eea',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }}></div>
+        <p>로딩 중...</p>
+        <style jsx>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    }>
+      <LoginCallbackContent />
+    </Suspense>
   )
 }

@@ -18,6 +18,11 @@ interface CartItemsResponseDto {
   cartItems: CartItemDto[]
 }
 
+// salePrice를 number로 변환하는 헬퍼 함수
+const toNumber = (value: number | string): number => {
+  return typeof value === 'number' ? value : parseFloat(value.toString() || '0')
+}
+
 interface ApiResponse {
   isSuccess: boolean
   code: string
@@ -159,7 +164,7 @@ export default function CartPage() {
     
     const totalAmount = updatedItems
       .filter(item => item.isAvailable)
-      .reduce((sum, item) => sum + (item.salePrice * item.quantity), 0)
+      .reduce((sum, item) => sum + (toNumber(item.salePrice) * item.quantity), 0)
     
     setCartData({
       ...cartData,
@@ -184,7 +189,7 @@ export default function CartPage() {
     
     const totalAmount = updatedItems
       .filter(item => item.isAvailable)
-      .reduce((sum, item) => sum + (item.salePrice * item.quantity), 0)
+      .reduce((sum, item) => sum + (toNumber(item.salePrice) * item.quantity), 0)
     
     setCartData({
       ...cartData,
@@ -216,7 +221,7 @@ export default function CartPage() {
     
     const totalAmount = updatedItems
       .filter(item => item.isAvailable)
-      .reduce((sum, item) => sum + (item.salePrice * item.quantity), 0)
+      .reduce((sum, item) => sum + (toNumber(item.salePrice) * item.quantity), 0)
     
     setCartData({
       ...cartData,
@@ -227,7 +232,7 @@ export default function CartPage() {
   }
 
   const selectedCartItems = items.filter(item => selectedItems.has(item.productId))
-  const totalPrice = selectedCartItems.reduce((sum, item) => sum + (item.salePrice * item.quantity), 0)
+  const totalPrice = selectedCartItems.reduce((sum, item) => sum + (toNumber(item.salePrice) * item.quantity), 0)
   const deliveryFee = 0
   const finalTotal = totalPrice + deliveryFee
 
@@ -314,7 +319,7 @@ export default function CartPage() {
                       </div>
                       <div className="cart-item-info">
                         <div className="cart-item-name">{item.name}</div>
-                        <div className="cart-item-price">₩{formatPrice(item.salePrice)}</div>
+                        <div className="cart-item-price">₩{formatPrice(toNumber(item.salePrice))}</div>
                         {!item.isAvailable && (
                           <div style={{ fontSize: '13px', color: '#f44336', marginTop: '4px' }}>
                             구매 불가
@@ -340,7 +345,7 @@ export default function CartPage() {
                           </button>
                         </div>
                         <div className="cart-item-total">
-                          ₩{formatPrice(item.salePrice * item.quantity)}
+                          ₩{formatPrice(toNumber(item.salePrice) * item.quantity)}
                         </div>
                         <button 
                           className="remove-item-btn"
