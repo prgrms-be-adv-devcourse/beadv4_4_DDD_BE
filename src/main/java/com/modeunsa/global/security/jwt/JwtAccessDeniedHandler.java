@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 
+  // TODO: new ObjectMapper() 제거 검토
   private final ObjectMapper objectMapper = new ObjectMapper();
 
   @Override
