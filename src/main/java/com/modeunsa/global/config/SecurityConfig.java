@@ -140,7 +140,7 @@ public class SecurityConfig {
         .role("ADMIN")
         .implies("SELLER") // ADMIN은 SELLER의 모든 권한을 가짐
         .role("SELLER")
-        .implies("MEMBER")// SELLER는 MEMBER의 모든 권한을 가짐
+        .implies("MEMBER") // SELLER는 MEMBER의 모든 권한을 가짐
         .build();
   }
 

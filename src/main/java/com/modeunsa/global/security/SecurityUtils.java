@@ -58,15 +58,22 @@ public class SecurityUtils {
     return hasRole(MemberRole.ADMIN);
   }
 
-  /** 현재 사용자가 판매자인지 확인 (관리자 포함) */
+  /** 현재 사용자가 판매자인지 확인 (판매자를 포함하는 계층) */
   public static boolean isSeller() {
     MemberRole role = getCurrentMemberRole();
-    return role == MemberRole.SELLER || role == MemberRole.ADMIN;
+    return role == MemberRole.SELLER
+        || role == MemberRole.ADMIN
+        || role == MemberRole.SYSTEM
+        || role == MemberRole.HOLDER;
   }
 
-  /** 현재 사용자가 회원인지 확인 (판매자, 관리자 포함) */
+  /** 현재 사용자가 회원인지 확인 (회원을 포함하는 계층) */
   public static boolean isMember() {
     MemberRole role = getCurrentMemberRole();
-    return role == MemberRole.MEMBER || role == MemberRole.SELLER || role == MemberRole.ADMIN;
+    return role == MemberRole.MEMBER
+        || role == MemberRole.SELLER
+        || role == MemberRole.ADMIN
+        || role == MemberRole.SYSTEM
+        || role == MemberRole.HOLDER;
   }
 }
