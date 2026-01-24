@@ -25,7 +25,7 @@ public class RoleTestController {
   private final AuthFacade authFacade;
 
   @Operation(summary = "내 권한 강제 변경", description = "현재 로그인한 사용자의 Role을 변경하고 새 토큰을 발급받습니다.")
-  @PatchMapping("change")
+  @PatchMapping("/change")
   public ResponseEntity<MemberRoleUpdateResponse> changeMyRole(
       @AuthenticationPrincipal CustomUserDetails user,
       @RequestBody MemberRoleUpdateRequest request) {
