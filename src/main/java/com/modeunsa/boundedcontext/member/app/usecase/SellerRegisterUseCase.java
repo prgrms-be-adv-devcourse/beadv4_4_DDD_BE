@@ -2,6 +2,7 @@ package com.modeunsa.boundedcontext.member.app.usecase;
 
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.entity.MemberSeller;
+import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.boundedcontext.member.domain.types.SellerStatus;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
 import com.modeunsa.boundedcontext.member.out.repository.MemberSellerRepository;
@@ -14,9 +15,11 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class SellerRegisterUseCase {
 
   private final MemberRepository memberRepository;
@@ -48,7 +51,7 @@ public class SellerRegisterUseCase {
       throw new GeneralException(ErrorStatus.IMAGE_FILE_REQUIRED);
     }
 
-    // 4. 엔티티 반영 (TODO 제거 및 로직 완성)
+    // 4. 엔티티 반영
     if (seller != null) { // 재신청 (기존 엔티티 업데이트)
       seller.reapply(
           request.businessName(),
@@ -73,6 +76,9 @@ public class SellerRegisterUseCase {
 
       memberSellerRepository.save(seller);
     }
+
+    // ROLE SELLER 부여
+    member.changeRole(MemberRole.SELLER);
 
     // 5. 이벤트 발행
     eventPublisher.publish(
