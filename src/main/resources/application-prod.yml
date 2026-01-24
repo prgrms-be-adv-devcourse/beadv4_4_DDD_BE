@@ -67,7 +67,7 @@ custom:
       - /api/v1/auths/oauth/*/url
       - /api/v1/auths/login/**
       - /api/v1/auths/reissue
-      - /api/v1/test/role/**
+      - /api/v1/test/roles/**
 
       # 헬스체크
       - /actuator/health
