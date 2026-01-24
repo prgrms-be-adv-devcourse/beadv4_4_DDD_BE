@@ -93,11 +93,11 @@ public class SecurityConfig {
                   // 5. 회원 전용
                   // ========================================
                   // 마이페이지
-                  .requestMatchers("/api/members/me/**")
+                  .requestMatchers("/api/v1/members/me/**")
                   .hasRole("MEMBER")
 
                   // 판매자 등록 신청
-                  .requestMatchers(HttpMethod.POST, "/api/v1/sellers/register")
+                  .requestMatchers(HttpMethod.POST, "/api/v1/members/me/sellers/register")
                   .hasRole("MEMBER")
 
                   // 관심상품

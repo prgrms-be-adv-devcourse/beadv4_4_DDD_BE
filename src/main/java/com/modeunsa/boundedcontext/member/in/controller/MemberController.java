@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Member", description = "회원 API")
 @RestController
-@RequestMapping("/api/members/me")
+@RequestMapping("/api/v1/members/me")
 @RequiredArgsConstructor
 public class MemberController {
 
