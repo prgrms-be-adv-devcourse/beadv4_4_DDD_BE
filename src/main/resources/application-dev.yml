@@ -75,6 +75,7 @@ custom:
       - /api/v1/auths/login/**
       - /api/v1/auths/reissue
       - /api/v1/auths/dev/**
+      - /login/oauth2/code/**
       - /api/v1/test/roles/**
 
       # ========== 콘텐츠 ==========

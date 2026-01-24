@@ -70,6 +70,7 @@ custom:
       - /api/v1/auths/login/**
       - /api/v1/auths/reissue
       - /api/v1/test/roles/**
+      - /login/oauth2/code/**
 
       # 헬스체크
       - /actuator/health
