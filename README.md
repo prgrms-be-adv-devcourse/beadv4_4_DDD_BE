@@ -106,6 +106,9 @@
 ### Docker 및 Docker Compose 가이드
 * [Docker 및 Docker Compose 가이드](./docs/docker.md)
 
+### PR 검증 및 CI 가이드
+- [PR 검증 및 CI 가이드](docs/ci.md)
+
 ### 배포(CD) 가이드
 - [배포 가이드](docs/deploy.md)
 
