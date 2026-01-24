@@ -109,6 +109,9 @@
 ### AWS 인프라 아키텍처
 * [AWS 인프라 아키텍처](./docs/aws_architecture.md)
 
+### Nginx 설정
+* [Nginx 설정](./docs/nginx.md)
+
 ### Spring Security + JWT 인증 시스템
 * [Spring Security + JWT 인증 시스템](./docs/security_jwt.md)
 
