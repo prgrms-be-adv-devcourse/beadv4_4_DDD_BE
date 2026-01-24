@@ -98,6 +98,8 @@ public class ExceptionAdvice {
 
     log.warn("Access Denied: {}", e.getMessage());
 
+    storeException(e);
+
     return ApiResponse.onFailure(ErrorStatus.AUTH_ACCESS_DENIED);
   }
 
