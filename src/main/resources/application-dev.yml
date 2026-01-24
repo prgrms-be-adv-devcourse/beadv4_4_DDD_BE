@@ -67,6 +67,7 @@ custom:
       - /h2-console/**
       - /swagger-ui/**
       - /v3/api-docs/**
+      - /favicon.ico
 
       # ========== 인증 API ==========
       - /api/v1/auths/oauth/*/url

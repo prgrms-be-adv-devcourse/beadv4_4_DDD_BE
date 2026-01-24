@@ -57,6 +57,7 @@ custom:
       # Swagger (운영에서 제거 고려)
       - /swagger-ui/**
       - /v3/api-docs/**
+      - /favicon.ico
 
       # 내부 통신용 API
       - /api/v1/orders/internal/**
