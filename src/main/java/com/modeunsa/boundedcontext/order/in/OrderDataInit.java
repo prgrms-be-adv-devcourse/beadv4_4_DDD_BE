@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
-//@Component
+// @Component
 public class OrderDataInit {
 
   private final OrderDataInit self;

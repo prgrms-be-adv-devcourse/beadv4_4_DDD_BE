@@ -129,10 +129,7 @@ public class SecurityConfig {
     return http.build();
   }
 
-  /**
-   * Role 계층 구조 업데이트: - SYSTEM > ADMIN - HOLDER > ADMIN - ADMIN > SELLER > MEMBER 결과적으로 SYSTEM과
-   * HOLDER는 모든 권한(ADMIN, SELLER, MEMBER)을 포함합니다.
-   */
+  /** Role Hierarchy 설정 */
   @Bean
   public RoleHierarchy roleHierarchy() {
     return RoleHierarchyImpl.withDefaultRolePrefix()
@@ -141,9 +138,9 @@ public class SecurityConfig {
         .role("HOLDER")
         .implies("ADMIN") // HOLDER는 ADMIN의 모든 권한을 가짐
         .role("ADMIN")
-        .implies("SELLER") // 기존 계층 유지
+        .implies("SELLER") // ADMIN은 SELLER의 모든 권한을 가짐
         .role("SELLER")
-        .implies("MEMBER")
+        .implies("MEMBER")// SELLER는 MEMBER의 모든 권한을 가짐
         .build();
   }
 
