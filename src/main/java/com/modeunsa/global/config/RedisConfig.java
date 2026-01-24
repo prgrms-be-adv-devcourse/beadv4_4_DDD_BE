@@ -12,6 +12,7 @@ import org.springframework.data.redis.connection.lettuce.LettuceClientConfigurat
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.util.StringUtils;
 
 @Configuration
 @EnableConfigurationProperties(RedisProperties.class)
@@ -26,7 +27,12 @@ public class RedisConfig {
     RedisStandaloneConfiguration redisConfig = new RedisStandaloneConfiguration();
     redisConfig.setHostName(redisProperties.getHost());
     redisConfig.setPort(redisProperties.getPort());
-    redisConfig.setPassword(redisProperties.getPassword());
+
+    // 비밀번호가 설정되어 있을 경우에만 적용
+    String password = redisProperties.getPassword();
+    if (StringUtils.hasText(password)) {
+      redisConfig.setPassword(password);
+    }
 
     // 2. Lettuce 클라이언트 옵션 설정 (프로토콜 버전을 RESP2로 강제)
     // 이 부분이 없으면 Redis 버전에 따라 "NOAUTH HELLO" 에러가 날 수 있습니다.

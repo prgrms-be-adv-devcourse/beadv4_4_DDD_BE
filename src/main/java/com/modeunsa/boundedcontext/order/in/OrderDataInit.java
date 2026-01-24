@@ -12,12 +12,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.annotation.Transactional;
 
-// @Configuration
-@Profile({"local", "dev"})
 @Slf4j
+// @Component
 public class OrderDataInit {
 
   private final OrderDataInit self;

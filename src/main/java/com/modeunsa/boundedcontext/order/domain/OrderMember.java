@@ -21,11 +21,11 @@ import lombok.experimental.SuperBuilder;
 public class OrderMember extends ManualIdAndAuditedEntity {
 
   @Convert(converter = EncryptedStringConverter.class)
-  @Column(name = "real_name", nullable = false, length = 500)
+  @Column(name = "real_name", length = 500)
   String realName;
 
   @Convert(converter = EncryptedStringConverter.class)
-  @Column(name = "phone_number", nullable = false, length = 500)
+  @Column(name = "phone_number", length = 500)
   String phoneNumber;
 
   @Convert(converter = EncryptedStringConverter.class)

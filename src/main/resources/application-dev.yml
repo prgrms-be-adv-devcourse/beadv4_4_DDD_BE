@@ -3,9 +3,9 @@ spring:
     activate:
       on-profile: dev
   datasource:
-    url: jdbc:mysql://localhost:3306/${MYSQL_DATABASE}?useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/modeunsa
     username: root
-    password: ${MYSQL_ROOT_PASSWORD}
+    password: ${MYSQL_ROOT_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
   h2:
     console:
@@ -21,6 +21,11 @@ spring:
         format_sql: true
         highlight_sql: true
         use_sql_comments: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ""
   security:
     oauth2:
       client:
@@ -58,19 +63,27 @@ custom:
   security:
     permit-all: false
     permit-urls:
+      # ========== 개발 도구 ==========
       - /h2-console/**
       - /swagger-ui/**
-      - /favicon.ico
-      - /error
-      - /login/oauth2/code/**
       - /v3/api-docs/**
-      - /api/v1/auths/**
-      - /api/v1/products/**
-      - /api/v1/orders/**
-      - /api/v1/payments/**
+      - /
+      - /favicon.ico
+
+      # ========== 인증 API ==========
+      - /api/v1/auths/oauth/*/url
+      - /api/v1/auths/login/**
+      - /api/v1/auths/reissue
+      - /api/v1/auths/dev/**
+      - /login/oauth2/code/**
+      - /api/v1/test/roles/**
+
+      # ========== 콘텐츠 ==========
       - /api/v1/contents/**
-      - /api/v1/settlements/**
-      - /api/v1/file-uploads/**
+
+      # ========== 결제 콜백 ==========
+      - /api/v1/payments/*/payment/confirm/by/tossPayments
+      - /api/v1/payments/**
     oauth2:
       allowed-redirect-domains:
         - localhost

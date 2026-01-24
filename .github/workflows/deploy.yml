@@ -47,8 +47,12 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/modeunsa:${{ steps.version.outputs.VERSION }} .
+          docker build \
+            -t ${{ secrets.DOCKER_USERNAME }}/modeunsa:${{ steps.version.outputs.VERSION }} \
+            -t ${{ secrets.DOCKER_USERNAME }}/modeunsa:latest .
+
           docker push ${{ secrets.DOCKER_USERNAME }}/modeunsa:${{ steps.version.outputs.VERSION }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/modeunsa:latest
 
       - name: Copy files to EC2
         uses: appleboy/scp-action@v0.1.7
@@ -56,7 +60,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.EC2_KEY }}
-          source: "docker-compose.yml,nginx-blue.conf,nginx-green.conf,deploy.sh"
+          source: "docker-compose.yml,nginx.conf,docker/"
           target: "/home/ec2-user/app"
 
       - name: Deploy to EC2
@@ -68,6 +72,7 @@ jobs:
           script: |
             set -e
             cd /home/ec2-user/app
-            chmod +x deploy.sh
-            ./deploy.sh ${{ secrets.DOCKER_USERNAME }}/modeunsa:${{ steps.version.outputs.VERSION }}
+            docker-compose pull app
+            docker-compose --env-file ./.env up -d --build --remove-orphans
+            docker image prune -f
           script_stop: true

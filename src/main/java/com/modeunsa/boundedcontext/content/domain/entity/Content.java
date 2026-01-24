@@ -53,6 +53,7 @@ public class Content extends GeneratedIdAndAuditedEntity {
 
   @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
   @OrderBy("createdAt ASC")
+  @Builder.Default
   private List<ContentComment> comments = new ArrayList<>();
 
   // 태그 추가, 내부 연관관계 일관되게 유지
