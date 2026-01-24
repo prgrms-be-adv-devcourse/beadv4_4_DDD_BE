@@ -19,6 +19,9 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -34,7 +37,8 @@ public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http.csrf(csrf -> csrf.disable())
+    http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        .csrf(csrf -> csrf.disable())
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .headers(headers -> headers.frameOptions(FrameOptionsConfig::sameOrigin))
@@ -150,5 +154,31 @@ public class SecurityConfig {
     DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
     handler.setRoleHierarchy(roleHierarchy);
     return handler;
+  }
+
+  @Bean
+  public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
+
+    // 1. 허용할 출처 (프론트엔드 주소)
+    configuration.addAllowedOrigin("https://modeunsa.store");
+    configuration.addAllowedOrigin("https://www.modeunsa.store");
+    configuration.addAllowedOrigin("http://localhost:3000"); // 로컬 테스트용
+
+    // 2. 허용할 HTTP 메서드
+    configuration.addAllowedMethod("*"); // GET, POST, PUT, DELETE 등 모두 허용
+
+    // 3. 허용할 헤더
+    configuration.addAllowedHeader("*");
+
+    // 4. 자격 증명 허용 (쿠키나 JWT를 헤더에 담아 보낼 때 필수)
+    configuration.setAllowCredentials(true);
+
+    // 5. 브라우저가 응답에서 접근할 수 있는 헤더 (JWT 사용 시 필요할 수 있음)
+    configuration.addExposedHeader("Authorization");
+
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", configuration); // 모든 경로에 적용
+    return source;
   }
 }
