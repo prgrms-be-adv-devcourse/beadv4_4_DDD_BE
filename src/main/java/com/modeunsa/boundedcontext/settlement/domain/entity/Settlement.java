@@ -94,4 +94,9 @@ public class Settlement extends GeneratedIdAndAuditedEntity {
   public void completePayout() {
     this.payoutAt = LocalDateTime.now();
   }
+
+  public void changeSettlementPeriod(int year, int month) {
+    this.settlementYear = year;
+    this.settlementMonth = month;
+  }
 }

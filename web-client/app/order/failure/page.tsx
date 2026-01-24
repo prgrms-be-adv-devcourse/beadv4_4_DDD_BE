@@ -2,8 +2,9 @@
 
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 
-export default function FailurePage() {
+function FailureContent() {
   const searchParams = useSearchParams()
   const orderNo = searchParams.get('orderNo') || 'N/A'
   const amount = searchParams.get('amount')
@@ -125,5 +126,40 @@ export default function FailurePage() {
         </div>
       </footer>
     </div>
+  )
+}
+
+export default function FailurePage() {
+  return (
+    <Suspense fallback={
+      <div className="home-page">
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          minHeight: '100vh',
+          flexDirection: 'column',
+          gap: '20px'
+        }}>
+          <div style={{ 
+            width: '48px', 
+            height: '48px', 
+            border: '4px solid #f3f3f3',
+            borderTop: '4px solid #667eea',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }}></div>
+          <p>로딩 중...</p>
+          <style jsx>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+        </div>
+      </div>
+    }>
+      <FailureContent />
+    </Suspense>
   )
 }

@@ -10,7 +10,7 @@ public record SellerRegisterRequest(
     @NotBlank(message = "계좌번호는 필수입니다.")
         @Pattern(regexp = BANK_ACCOUNT_REGEX, message = "계좌번호 형식이 올바르지 않습니다")
         String settlementBankAccount,
-    // TODO: MultipartFile 변경 예정
-    @NotBlank String licenseImage) {
+    @NotBlank(message = "사업자등록증 이미지 키는 필수입니다.") String licenseImageRawKey,
+    @NotBlank(message = "콘텐츠 타입은 필수입니다.") String licenseContentType) {
   public static final String BANK_ACCOUNT_REGEX = "^[0-9-]{10,20}$";
 }

@@ -1,17 +1,27 @@
 package com.modeunsa.boundedcontext.member.app.facade;
 
 import com.modeunsa.boundedcontext.member.app.support.MemberSupport;
-import com.modeunsa.boundedcontext.member.app.usecase.ApproveSellerUseCase;
+import com.modeunsa.boundedcontext.member.app.usecase.AdminApproveSellerUseCase;
 import com.modeunsa.boundedcontext.member.app.usecase.MemberBasicInfoUpdateUseCase;
 import com.modeunsa.boundedcontext.member.app.usecase.MemberDeliveryAddressAddUseCase;
 import com.modeunsa.boundedcontext.member.app.usecase.MemberDeliveryAddressDeleteUseCase;
 import com.modeunsa.boundedcontext.member.app.usecase.MemberDeliveryAddressSetAsDefaultUseCase;
 import com.modeunsa.boundedcontext.member.app.usecase.MemberDeliveryAddressUpdateUseCase;
 import com.modeunsa.boundedcontext.member.app.usecase.MemberProfileCreateUseCase;
+import com.modeunsa.boundedcontext.member.app.usecase.MemberProfileUpdateImageUseCase;
 import com.modeunsa.boundedcontext.member.app.usecase.MemberProfileUpdateUseCase;
-import com.modeunsa.boundedcontext.member.app.usecase.RegisterSellerUseCase;
+import com.modeunsa.boundedcontext.member.app.usecase.SellerRegisterUseCase;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.entity.MemberProfile;
+import com.modeunsa.global.exception.GeneralException;
+import com.modeunsa.global.s3.S3UploadService;
+import com.modeunsa.global.s3.dto.DomainType;
+import com.modeunsa.global.s3.dto.PresignedUrlRequest;
+import com.modeunsa.global.s3.dto.PresignedUrlResponse;
+import com.modeunsa.global.s3.dto.PublicUrlRequest;
+import com.modeunsa.global.s3.dto.PublicUrlResponse;
+import com.modeunsa.global.security.jwt.JwtTokenProvider;
+import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.member.dto.request.MemberBasicInfoUpdateRequest;
 import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressCreateRequest;
 import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressUpdateRequest;
@@ -21,17 +31,19 @@ import com.modeunsa.shared.member.dto.request.SellerRegisterRequest;
 import com.modeunsa.shared.member.dto.response.MemberBasicInfoResponse;
 import com.modeunsa.shared.member.dto.response.MemberDeliveryAddressResponse;
 import com.modeunsa.shared.member.dto.response.MemberProfileResponse;
+import com.modeunsa.shared.member.dto.response.SellerRegisterResponse;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
 public class MemberFacade {
-  private final ApproveSellerUseCase approveSellerUseCase;
-  private final RegisterSellerUseCase registerSellerUseCase;
+  private final AdminApproveSellerUseCase adminApproveSellerUseCase;
+  private final SellerRegisterUseCase sellerRegisterUseCase;
   private final MemberBasicInfoUpdateUseCase memberBasicInfoUpdateUseCase;
   private final MemberProfileCreateUseCase memberProfileCreateUseCase;
   private final MemberProfileUpdateUseCase memberProfileUpdateUseCase;
@@ -40,6 +52,9 @@ public class MemberFacade {
   private final MemberDeliveryAddressSetAsDefaultUseCase memberDeliveryAddressSetAsDefaultUseCase;
   private final MemberDeliveryAddressDeleteUseCase memberDeliveryAddressDeleteUseCase;
   private final MemberSupport memberSupport;
+  private final S3UploadService s3UploadService;
+  private final MemberProfileUpdateImageUseCase memberProfileUpdateImageUseCase;
+  private final JwtTokenProvider jwtTokenProvider;
 
   /** 생성 (Create) */
   @Transactional
@@ -101,14 +116,44 @@ public class MemberFacade {
     memberDeliveryAddressDeleteUseCase.execute(memberId, addressId);
   }
 
-  /** 판매자 관련 */
+  /** 관리자 관련 */
   @Transactional
   public void approveSeller(Long sellerId) {
-    approveSellerUseCase.execute(sellerId);
+    adminApproveSellerUseCase.execute(sellerId);
   }
 
+  /** 회원 프로필 이미지 관련 */
   @Transactional
-  public void registerSeller(Long memberId, SellerRegisterRequest request, String licenseImage) {
-    registerSellerUseCase.execute(memberId, request, licenseImage);
+  public PublicUrlResponse updateProfileImage(Long memberId, PublicUrlRequest request) {
+    PublicUrlResponse s3Response = s3UploadService.getPublicUrl(request);
+    memberProfileUpdateImageUseCase.execute(memberId, s3Response.imageUrl());
+    // TODO: 새 이미지와 다르고, 기존 이미지가 존재할 경우 삭제하여 비용 절감
+    return s3Response;
+  }
+
+  /** 판매자 사업자등록증 관련 */
+  @Transactional
+  public SellerRegisterResponse registerSeller(Long memberId, SellerRegisterRequest request) {
+    if (!StringUtils.hasText(request.licenseImageRawKey())
+        || !StringUtils.hasText(request.licenseContentType())) {
+      throw new GeneralException(ErrorStatus.IMAGE_FILE_REQUIRED);
+    }
+
+    PresignedUrlRequest presignedUrlRequest =
+        new PresignedUrlRequest(
+            memberId,
+            DomainType.SELLER,
+            request.licenseImageRawKey(),
+            request.licenseContentType());
+
+    PresignedUrlResponse s3Response = s3UploadService.getPresignedUrl(request.licenseImageRawKey());
+
+    sellerRegisterUseCase.execute(memberId, request, s3Response.presignedUrl());
+
+    Member member = memberSupport.getMember(memberId);
+    String accessToken = jwtTokenProvider.createAccessToken(member.getId(), member.getRole());
+    String refreshToken = jwtTokenProvider.createRefreshToken(member.getId(), member.getRole());
+
+    return new SellerRegisterResponse(accessToken, refreshToken);
   }
 }
