@@ -1,5 +1,6 @@
 package com.modeunsa.global.config;
 
+import com.modeunsa.global.security.CustomUserDetails;
 import java.util.Optional;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
@@ -20,6 +21,11 @@ public class UserAuditorAware implements AuditorAware<Long> {
       return Optional.empty();
     }
 
-    return Optional.of((Long) authentication.getPrincipal());
+    Object principal = authentication.getPrincipal();
+    if (principal instanceof CustomUserDetails) {
+      return Optional.ofNullable(((CustomUserDetails) principal).getMemberId());
+    }
+
+    return Optional.empty();
   }
 }

@@ -20,6 +20,7 @@ import com.modeunsa.global.s3.dto.PresignedUrlRequest;
 import com.modeunsa.global.s3.dto.PresignedUrlResponse;
 import com.modeunsa.global.s3.dto.PublicUrlRequest;
 import com.modeunsa.global.s3.dto.PublicUrlResponse;
+import com.modeunsa.global.security.jwt.JwtTokenProvider;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.member.dto.request.MemberBasicInfoUpdateRequest;
 import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressCreateRequest;
@@ -30,6 +31,7 @@ import com.modeunsa.shared.member.dto.request.SellerRegisterRequest;
 import com.modeunsa.shared.member.dto.response.MemberBasicInfoResponse;
 import com.modeunsa.shared.member.dto.response.MemberDeliveryAddressResponse;
 import com.modeunsa.shared.member.dto.response.MemberProfileResponse;
+import com.modeunsa.shared.member.dto.response.SellerRegisterResponse;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -52,6 +54,7 @@ public class MemberFacade {
   private final MemberSupport memberSupport;
   private final S3UploadService s3UploadService;
   private final MemberProfileUpdateImageUseCase memberProfileUpdateImageUseCase;
+  private final JwtTokenProvider jwtTokenProvider;
 
   /** 생성 (Create) */
   @Transactional
@@ -130,7 +133,7 @@ public class MemberFacade {
 
   /** 판매자 사업자등록증 관련 */
   @Transactional
-  public void registerSeller(Long memberId, SellerRegisterRequest request) {
+  public SellerRegisterResponse registerSeller(Long memberId, SellerRegisterRequest request) {
     if (!StringUtils.hasText(request.licenseImageRawKey())
         || !StringUtils.hasText(request.licenseContentType())) {
       throw new GeneralException(ErrorStatus.IMAGE_FILE_REQUIRED);
@@ -146,5 +149,11 @@ public class MemberFacade {
     PresignedUrlResponse s3Response = s3UploadService.getPresignedUrl(request.licenseImageRawKey());
 
     sellerRegisterUseCase.execute(memberId, request, s3Response.presignedUrl());
+
+    Member member = memberSupport.getMember(memberId);
+    String accessToken = jwtTokenProvider.createAccessToken(member.getId(), member.getRole());
+    String refreshToken = jwtTokenProvider.createRefreshToken(member.getId(), member.getRole());
+
+    return new SellerRegisterResponse(accessToken, refreshToken);
   }
 }
