@@ -50,7 +50,6 @@
 
 ## 6.CICD Diagram
 ![cicd_diagram](./src/main/resources/static/image/cicd_diagram.png)
-- modeunsa [배포 가이드](./DEPLOY.md)
 
 ## 7. Design Principles
 <!-- (왜 이런 구조인가) -->
@@ -103,6 +102,12 @@
 
 ### ElasticSearch 도입
 * [ElasticSearch](./docs/elasticsearch.md)
+
+### 배포 가이드
+- [배포 가이드](docs/deploy.md)
+
+### AWS 인프라 아키텍처
+* [AWS 인프라 아키텍처](./docs/aws_architecture.md)
 
 ### Spring Security + JWT 인증 시스템
 * [Spring Security + JWT 인증 시스템](./docs/security_jwt.md)
