@@ -3,6 +3,7 @@ package com.modeunsa.global.security.jwt;
 import com.modeunsa.boundedcontext.auth.out.repository.AuthAccessTokenBlacklistRepository;
 import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.global.exception.GeneralException;
+import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.global.status.ErrorStatus;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -62,9 +63,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         Long memberId = jwtTokenProvider.getMemberIdFromToken(token);
         MemberRole role = jwtTokenProvider.getRoleFromToken(token);
 
+        CustomUserDetails principal = new CustomUserDetails(memberId, role);
+
         UsernamePasswordAuthenticationToken authentication =
             new UsernamePasswordAuthenticationToken(
-                memberId, null, List.of(new SimpleGrantedAuthority(ROLE_PREFIX + role.name())));
+                principal, null, List.of(new SimpleGrantedAuthority(ROLE_PREFIX + role.name())));
 
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authentication);

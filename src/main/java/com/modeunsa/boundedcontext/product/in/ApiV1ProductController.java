@@ -21,9 +21,9 @@ import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -69,10 +69,14 @@ public class ApiV1ProductController {
   @GetMapping
   public ResponseEntity<ApiResponse> getProducts(
       @RequestParam(name = "category") ProductCategory category,
-      @PageableDefault(size = 20, sort = "createdAt", direction = Direction.DESC)
-          Pageable pageable) {
+      @RequestParam(name = "page") int page,
+      @RequestParam(name = "size") int size) {
     // TODO: memberId / role 받아와서 처리 예정
     Long memberId = 1L;
+    Pageable pageable =
+        PageRequest.of(
+            page, size, Sort.by(Sort.Direction.DESC, "createdAt") // 정렬 고정
+            );
     Page<ProductResponse> productResponses =
         productFacade.getProducts(memberId, category, pageable);
     return ApiResponse.onSuccess(SuccessStatus.OK, productResponses);

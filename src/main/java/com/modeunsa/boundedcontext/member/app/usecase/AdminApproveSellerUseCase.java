@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class ApproveSellerUseCase {
+public class AdminApproveSellerUseCase {
 
   private final MemberSellerRepository memberSellerRepository;
 

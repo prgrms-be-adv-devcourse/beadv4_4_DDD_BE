@@ -2,6 +2,7 @@ package com.modeunsa.boundedcontext.product.domain;
 
 import com.modeunsa.boundedcontext.product.domain.exception.InvalidStockException;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -60,9 +61,9 @@ public class Product extends GeneratedIdAndAuditedEntity {
   // TODO: 이벤트/트랜잭션으로 증감 관리 (정합성 전략 필요)
   @Builder.Default private int favoriteCount = 0;
 
-  @Builder.Default private int stock = 0;
+  private Integer stock;
 
-  @OneToMany(mappedBy = "product")
+  @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
   @OrderBy("sortOrder ASC")
   @Builder.Default
   private List<ProductImage> images = new ArrayList<>();
@@ -120,7 +121,6 @@ public class Product extends GeneratedIdAndAuditedEntity {
     if (stock != null) {
       this.stock = stock;
     }
-    // TODO: image 수정 추가
   }
 
   public void updateProductStatus(ProductStatus productStatus) {
@@ -140,11 +140,17 @@ public class Product extends GeneratedIdAndAuditedEntity {
 
   public void addImage(ProductImage image) {
     images.add(image);
-    image.setProduct(this);
   }
 
-  public void removeImage(ProductImage image) {
-    images.remove(image);
-    image.setProduct(null);
+  public void clearImages() {
+    this.images.clear();
+  }
+
+  public boolean isSoldOut() {
+    return this.stock != null && this.stock == 0;
+  }
+
+  public void changeSaleStatus(SaleStatus saleStatus) {
+    this.saleStatus = saleStatus;
   }
 }

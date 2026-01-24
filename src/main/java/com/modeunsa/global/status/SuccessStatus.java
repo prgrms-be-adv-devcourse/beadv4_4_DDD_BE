@@ -27,6 +27,7 @@ public enum SuccessStatus {
   MEMBER_ADDRESS_DELETE_SUCCESS(HttpStatus.OK, "MEMBER_200_007", "배송지 삭제에 성공했습니다."),
   MEMBER_ADDRESS_UPDATE_SUCCESS(HttpStatus.OK, "MEMBER_200_008", "배송지 수정에 성공했습니다."),
   SELLER_REGISTER_SUCCESS(HttpStatus.OK, "MEMBER_200_009", "판매자 등록 요청이 접수되었습니다."),
+  FILE_UPLOAD_URL_GET_SUCCESS(HttpStatus.OK, "FILE_200_001", "파일 업로드 URL 생성에 성공했습니다."),
 
   // Member 201
   MEMBER_ADDRESS_CREATE_SUCCESS(HttpStatus.CREATED, "MEMBER_201_001", "배송지 등록에 성공했습니다."),

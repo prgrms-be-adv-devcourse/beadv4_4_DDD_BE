@@ -27,7 +27,13 @@ public class ProductImage extends GeneratedIdAndAuditedEntity {
   private Boolean isPrimary; // 대표 이미지 여부
   @Builder.Default private int sortOrder = 0; // 노출순서
 
-  public void setProduct(Product product) {
-    this.product = product;
+  public static ProductImage create(
+      Product product, String imageUrl, boolean isPrimary, int sortOrder) {
+    return ProductImage.builder()
+        .product(product)
+        .imageUrl(imageUrl)
+        .isPrimary(isPrimary)
+        .sortOrder(sortOrder)
+        .build();
   }
 }
