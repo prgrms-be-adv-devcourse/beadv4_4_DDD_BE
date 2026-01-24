@@ -44,14 +44,16 @@
 ## 4. User Flow
 ![userflow](./src/main/resources/static/image/user_flow_0122.png)
 
-## 5. Architecture Overview
+## 5. System Architecture
 ![architecture_diagram](./src/main/resources/static/image/architecture_diagram.png)
 
+## 6. Infrastructure Architecture
+![infrastructure_diagram](./src/main/resources/static/image/infrastructure_diagram.png)
 
-## 6.CICD Diagram
+## 7. CICD Diagram
 ![cicd_diagram](./src/main/resources/static/image/cicd_diagram.png)
 
-## 7. Design Principles
+## 8. Design Principles
 <!-- (왜 이런 구조인가) -->
 
 - Domain Isolation: 각 도메인은 독립적으로 진화
@@ -59,7 +61,7 @@
 - Idempotent Event Handling: 중복 이벤트에도 안전
 - Clear Role Separation: Member / Seller / System / System / Holder
 
-## 8. Tech Stack
+## 9. Tech Stack
 <!-- (선택 이유 중심) -->
 
 - MSA로의 확장성 고려: 도메인 단위로 분리된 구조 (Bounded Context)
@@ -71,13 +73,13 @@
 - 부하 분산을 위한 비동기 처리: Spring Batch 와 scheduler를 활용하여 정산 처리
 - 조회 속도 향상: ElasticSearch 를 활용한 검색 도입
 
-## 9. Trade-offs & Limitations
+## 10. Trade-offs & Limitations
 <!-- (현실적 판단) -->
 - 초기에는 단일 DB 기반 이벤트 처리
 - Exactly-once 보장 대신 at-least-once 전략 채택
 - 실시간 정산이 아닌 배치 기반 정산
 
-## 10. Future Improvements
+## 11. Future Improvements
 <!-- (Kafka, CQRS, Scale-out) -->
 - 라이브 커머스 기능 도입
 - 콘텐츠 기반 상품 추천
@@ -86,7 +88,7 @@
 - MSA 도입
 - 성능 테스트
 
-## 11. Deep Dive Docs
+## 12. Deep Dive Docs
 <!-- 기술 README 링크 -->
 각 기술 및 설계 결정에 대한 상세 내용은 아래 문서에서 확인할 수 있습니다.
 
