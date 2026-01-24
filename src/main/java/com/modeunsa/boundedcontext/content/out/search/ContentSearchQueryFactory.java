@@ -3,7 +3,9 @@ package com.modeunsa.boundedcontext.content.out.search;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ContentSearchQueryFactory {
 
   public Query create(ContentSearchCondition condition) {
