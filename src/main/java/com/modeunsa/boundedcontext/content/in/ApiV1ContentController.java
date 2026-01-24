@@ -57,7 +57,7 @@ public class ApiV1ContentController {
   }
 
   @Operation(summary = "콘텐츠 삭제", description = "콘텐츠를 삭제합니다.")
-  @DeleteMapping
+  @DeleteMapping("/{contentId}")
   public ResponseEntity<ApiResponse> deleteContent(
       @PathVariable Long contentId, ContentMember author) {
     contentFacade.deleteContent(contentId, author);
