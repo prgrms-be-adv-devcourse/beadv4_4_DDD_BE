@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>정산 배치 흐름 시각화</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            background-color: #fafafa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+        }
+
+        .settlement-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .settlement-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+        }
+
+        .settlement-subtitle {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .steps-container {
+            background-color: #ffffff;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .steps-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            margin-bottom: 40px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 24px;
+            padding: 24px;
+            border-radius: 12px;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .step-item:hover {
+            background-color: #f9f9f9;
+        }
+
+        .step-item.active {
+            background-color: #f0f4ff;
+            border: 2px solid #667eea;
+        }
+
+        .step-number {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .step-description {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .step-connector {
+            position: absolute;
+            left: 47px;
+            top: 72px;
+            width: 2px;
+            height: calc(100% - 48px);
+            background: linear-gradient(to bottom, #667eea, #e5e5e5);
+        }
+
+        .step-item:last-child .step-connector {
+            display: none;
+        }
+
+        .step-details-card {
+            background-color: #f9f9f9;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 32px;
+        }
+
+        .step-details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .step-details-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .step-badge {
+            padding: 6px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .step-details-description {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .step-details-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .step-details-list li {
+            padding-left: 24px;
+            position: relative;
+            font-size: 14px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .step-details-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        .step-navigation {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .nav-button {
+            flex: 1;
+            padding: 14px 24px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            background-color: #ffffff;
+            color: #667eea;
+        }
+
+        .nav-button.next {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .nav-button.prev:hover:not(:disabled) {
+            background-color: #f0f4ff;
+        }
+
+        .nav-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .nav-button.load {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+        }
+
+        .nav-button.load:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .step-result-container {
+            margin-top: 32px;
+            background-color: #f9f9f9;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .result-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+        }
+
+        .step-result-content {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .result-item {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid #e5e5e5;
+        }
+
+        .result-item-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .result-item-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .result-table th,
+        .result-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .result-table th {
+            background-color: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        .result-table tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .settlement-query-section {
+            background-color: #ffffff;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .query-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .query-description {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 24px;
+        }
+
+        .query-controls {
+            display: flex;
+            gap: 16px;
+            align-items: flex-end;
+            margin-bottom: 24px;
+        }
+
+        .date-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .date-selector label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .date-selector select {
+            padding: 12px 16px;
+            border: 2px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 15px;
+            background-color: #ffffff;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .date-selector select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .query-button {
+            padding: 12px 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .query-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .error-message {
+            padding: 16px;
+            background-color: #ffebee;
+            border-left: 4px solid #f44336;
+            border-radius: 8px;
+            color: #c33;
+            margin-bottom: 24px;
+        }
+
+        .settlement-result {
+            margin-top: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        .result-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+        }
+
+        .settlement-summary {
+            background-color: #f9f9f9;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .summary-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .summary-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .summary-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .summary-value.amount {
+            color: #667eea;
+        }
+
+        .summary-value.fee {
+            color: #f44336;
+        }
+
+        .summary-value.payout {
+            color: #4caf50;
+            font-size: 20px;
+        }
+
+        .settlement-items {
+            background-color: #f9f9f9;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .items-table {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr 1.5fr 1.5fr 2fr;
+            background-color: #667eea;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr 1.5fr 1.5fr 2fr;
+            background-color: #ffffff;
+            border-top: 1px solid #e5e5e5;
+        }
+
+        .table-row:hover {
+            background-color: #f9f9f9;
+        }
+
+        .table-cell {
+            padding: 16px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .table-header .table-cell {
+            color: white;
+        }
+
+        .table-cell.amount {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .table-cell.fee {
+            color: #f44336;
+            font-weight: 600;
+        }
+
+        .table-cell.payout {
+            color: #4caf50;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .settlement-title {
+                font-size: 28px;
+            }
+
+            .steps-container {
+                padding: 24px;
+            }
+
+            .step-item {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .step-connector {
+                display: none;
+            }
+
+            .query-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-header,
+            .table-row {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .table-cell {
+                padding: 12px;
+            }
+
+            .table-header .table-cell {
+                font-weight: 700;
+                background-color: #667eea;
+                padding: 8px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 헤더 -->
+        <div class="settlement-header">
+            <h1 class="settlement-title">정산 배치 흐름 시각화</h1>
+            <p class="settlement-subtitle">
+                SettlementFlowTest의 내용을 기반으로 정산 배치의 전체 흐름을 확인할 수 있습니다.
+            </p>
+        </div>
+
+        <!-- 단계 표시 -->
+        <div class="steps-container">
+            <div class="steps-timeline">
+                <div class="step-item" th:classappend="${currentStep == 0} ? 'active' : ''">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3 class="step-title">1단계: 기본 멤버 데이터 초기화</h3>
+                        <p class="step-description">SYSTEM, SELLER, BUYER 멤버 생성</p>
+                    </div>
+                    <div class="step-connector"></div>
+                </div>
+
+                <div class="step-item" th:classappend="${currentStep == 1} ? 'active' : ''">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3 class="step-title">2단계: 주문 생성 및 구매 확정</h3>
+                        <p class="step-description">주문 생성 → 구매 확정 → 정산 후보 항목 생성</p>
+                    </div>
+                    <div class="step-connector"></div>
+                </div>
+
+                <div class="step-item" th:classappend="${currentStep == 2} ? 'active' : ''">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3 class="step-title">3단계: 일별 정산 수집 배치 실행</h3>
+                        <p class="step-description">CandidateItem을 수집하여 Settlement(정산서) 생성</p>
+                    </div>
+                    <div class="step-connector"></div>
+                </div>
+
+                <div class="step-item" th:classappend="${currentStep == 3} ? 'active' : ''">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3 class="step-title">4단계: 테스트를 위해 정산서 기간 조정</h3>
+                        <p class="step-description">정산서 기간을 저번달로 조정</p>
+                    </div>
+                    <div class="step-connector"></div>
+                </div>
+
+                <div class="step-item" th:classappend="${currentStep == 4} ? 'active' : ''">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h3 class="step-title">5단계: 월별 정산 완료 배치 실행</h3>
+                        <p class="step-description">저번달 정산서에 대해 지급 완료 처리</p>
+                    </div>
+                    <div class="step-connector"></div>
+                </div>
+
+                <div class="step-item" th:classappend="${currentStep == 5} ? 'active' : ''">
+                    <div class="step-number">6</div>
+                    <div class="step-content">
+                        <h3 class="step-title">6단계: 최종 정산서 조회</h3>
+                        <p class="step-description">해당 월의 최종 정산서 데이터 확인</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 현재 단계 상세 정보 -->
+            <div class="step-details-card">
+                <div class="step-details-header">
+                    <h2 th:switch="${currentStep}">
+                        <span th:case="0">1단계: 기본 멤버 데이터 초기화</span>
+                        <span th:case="1">2단계: 주문 생성 및 구매 확정</span>
+                        <span th:case="2">3단계: 일별 정산 수집 배치 실행</span>
+                        <span th:case="3">4단계: 정산서 기간 조정</span>
+                        <span th:case="4">5단계: 월별 정산 완료 배치 실행</span>
+                        <span th:case="*">6단계: 최종 정산서 조회</span>
+                    </h2>
+                    <span class="step-badge" th:text="'단계 ' + (${currentStep} + 1) + ' / 6'">단계 1 / 6</span>
+                </div>
+                <p class="step-details-description" th:switch="${currentStep}">
+                    <span th:case="0">SYSTEM, SELLER, BUYER 멤버 생성</span>
+                    <span th:case="1">주문 생성 → 구매 확정 → 정산 후보 항목 생성</span>
+                    <span th:case="2">CandidateItem을 수집하여 Settlement(정산서) 생성</span>
+                    <span th:case="3">정산서 기간을 저번달로 조정</span>
+                    <span th:case="4">저번달 정산서에 대해 지급 완료 처리</span>
+                    <span th:case="*">해당 월의 최종 정산서 데이터 확인</span>
+                </p>
+                <ul class="step-details-list">
+                    <li th:if="${currentStep == 0}">SYSTEM 멤버 생성 (시스템 수수료 수집용)</li>
+                    <li th:if="${currentStep == 0}">판매자(SELLER) 멤버 생성</li>
+                    <li th:if="${currentStep == 0}">구매자(BUYER) 멤버 생성</li>
+
+                    <li th:if="${currentStep == 1}">주문 상품 생성 (3개 상품: 10,000원 + 25,000원 + 5,500원 = 40,500원)</li>
+                    <li th:if="${currentStep == 1}">주문 상태 변경: 결제 완료 → 배송 완료 → 구매 확정</li>
+                    <li th:if="${currentStep == 1}">정산 후보 항목(SettlementCandidateItem) 생성</li>
+                    <li th:if="${currentStep == 1}">총 판매 금액: 40,500원</li>
+
+                    <li th:if="${currentStep == 2}">일별 배치 실행 (매일 03:00 자동 실행)</li>
+                    <li th:if="${currentStep == 2}">정산 후보 항목을 수집하여 정산서 생성</li>
+                    <li th:if="${currentStep == 2}">판매자 정산서: 판매대금 = 총액 - 수수료(10%) = 36,450원</li>
+                    <li th:if="${currentStep == 2}">시스템 정산서: 수수료 = 총액 * 10% = 4,050원</li>
+
+                    <li th:if="${currentStep == 3}">월별 배치는 저번달 정산서만 처리하므로 기간 조정 필요</li>
+                    <li th:if="${currentStep == 3}">정산서의 settlementYear, settlementMonth를 저번달로 변경</li>
+
+                    <li th:if="${currentStep == 4}">월별 배치 실행 (매월 25일 04:00 자동 실행)</li>
+                    <li th:if="${currentStep == 4}">저번달 정산서에 대해 지급 완료 처리</li>
+                    <li th:if="${currentStep == 4}">payoutAt 필드에 지급 일시 기록</li>
+
+                    <li th:if="${currentStep == 5}">년도와 월을 선택하여 정산서 조회</li>
+                    <li th:if="${currentStep == 5}">정산서 요약 정보 확인 (총 판매 금액, 수수료, 정산 금액, 지급 일시)</li>
+                    <li th:if="${currentStep == 5}">정산 항목 상세 정보 확인</li>
+                </ul>
+            </div>
+
+            <!-- 네비게이션 버튼 -->
+            <div class="step-navigation">
+                <button class="nav-button prev" onclick="goToStep(-1)" th:disabled="${currentStep == 0}">이전 단계</button>
+                <button class="nav-button next" onclick="goToStep(1)" th:disabled="${currentStep == 5}">다음 단계</button>
+                <button id="load-data-btn" class="nav-button load" th:if="${currentStep != 5}">단계 데이터 조회</button>
+            </div>
+
+            <!-- 단계별 결과 표시 영역 -->
+            <div id="step-result" class="step-result-container" style="display: none;">
+                <h3 class="result-section-title">단계별 결과</h3>
+                <div id="step-result-content"></div>
+            </div>
+        </div>
+
+        <!-- 정산서 조회 섹션 (6단계) -->
+        <div id="settlement-query-section" class="settlement-query-section" th:style="${currentStep == 5} ? 'display:block' : 'display:none'">
+            <h2 class="query-title">6단계: 최종 정산서 조회</h2>
+            <p class="query-description">
+                해당 월의 정산서를 조회하여 최종 정산 데이터를 확인할 수 있습니다.
+            </p>
+
+            <form id="settlement-query-form" class="query-controls" onsubmit="handleSettlementQuery(event)">
+                <div class="date-selector">
+                    <label for="year">년도</label>
+                    <select id="year" name="year">
+                        <option th:each="y : ${#numbers.sequence(2020, 2025)}" 
+                                th:value="${y}" 
+                                th:text="${y} + '년'"
+                                th:selected="${selectedYear != null and selectedYear == y}"></option>
+                    </select>
+                </div>
+
+                <div class="date-selector">
+                    <label for="month">월</label>
+                    <select id="month" name="month">
+                        <option th:each="m : ${#numbers.sequence(1, 12)}" 
+                                th:value="${m}" 
+                                th:text="${m} + '월'"
+                                th:selected="${selectedMonth != null and selectedMonth == m}"></option>
+                    </select>
+                </div>
+
+                <button type="submit" class="query-button">정산서 조회</button>
+            </form>
+
+            <div id="settlement-error" class="error-message" style="display: none;">
+                <p id="settlement-error-message"></p>
+            </div>
+
+            <div id="settlement-result" class="settlement-result" style="display: none;">
+                <div class="settlement-summary">
+                    <h3 class="result-title">정산서 요약</h3>
+                    <div class="summary-grid" id="settlement-summary-grid">
+                        <!-- JavaScript로 동적 생성 -->
+                    </div>
+                </div>
+
+                <div id="settlement-items" class="settlement-items" style="display: none;">
+                    <h3 class="result-title">정산 항목 상세</h3>
+                    <div class="items-table">
+                        <div class="table-header">
+                            <div class="table-cell">주문 항목 ID</div>
+                            <div class="table-cell">총 판매 금액</div>
+                            <div class="table-cell">수수료</div>
+                            <div class="table-cell">정산 금액</div>
+                            <div class="table-cell">구매 확정 일시</div>
+                        </div>
+                        <div id="settlement-items-tbody">
+                            <!-- JavaScript로 동적 생성 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 0;
+
+        function goToStep(delta) {
+            const stepNumber = parseInt(document.querySelector('.step-item.active')?.querySelector('.step-number')?.textContent || '1');
+            const newStep = Math.max(0, Math.min(5, stepNumber - 1 + delta));
+            currentStep = newStep;
+            
+            window.location.href = '/settlement?step=' + newStep;
+        }
+
+        function loadStepData() {
+            console.log('loadStepData 함수 호출됨');
+            const stepNumber = parseInt(document.querySelector('.step-item.active')?.querySelector('.step-number')?.textContent || '1');
+            console.log('현재 단계:', stepNumber);
+            
+            const resultContainer = document.getElementById('step-result');
+            const resultContent = document.getElementById('step-result-content');
+            
+            if (!resultContainer || !resultContent) {
+                console.error('결과 컨테이너를 찾을 수 없습니다.');
+                alert('결과 표시 영역을 찾을 수 없습니다.');
+                return;
+            }
+            
+            resultContainer.style.display = 'block';
+            resultContent.innerHTML = '<div class="loading">데이터를 불러오는 중...</div>';
+            
+            let apiUrl = '';
+            switch(stepNumber) {
+                case 1:
+                    apiUrl = '/api/v1/settlements/flow/step1';
+                    break;
+                case 2:
+                    apiUrl = '/api/v1/settlements/flow/step2';
+                    break;
+                case 3:
+                    apiUrl = '/api/v1/settlements/flow/step3';
+                    break;
+                case 4:
+                    apiUrl = '/api/v1/settlements/flow/step4';
+                    break;
+                case 5:
+                    apiUrl = '/api/v1/settlements/flow/step5';
+                    break;
+                default:
+                    resultContent.innerHTML = '<div class="error-message">잘못된 단계입니다. (단계: ' + stepNumber + ')</div>';
+                    return;
+            }
+            
+            console.log('API 호출 URL:', apiUrl);
+            
+            fetch(apiUrl, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    console.log('응답 상태:', response.status, response.statusText);
+                    if (!response.ok) {
+                        throw new Error('HTTP error! status: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('응답 데이터:', data);
+                    console.log('응답 데이터 타입:', typeof data);
+                    console.log('isSuccess:', data.isSuccess);
+                    console.log('result:', data.result);
+                    if (data.isSuccess && data.result) {
+                        displayStepResult(stepNumber, data.result);
+                    } else {
+                        console.error('데이터 구조:', JSON.stringify(data, null, 2));
+                        resultContent.innerHTML = '<div class="error-message">데이터를 불러올 수 없습니다. (isSuccess: ' + data.isSuccess + ', result: ' + (data.result ? '있음' : '없음') + ')</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    resultContent.innerHTML = '<div class="error-message">오류가 발생했습니다: ' + error.message + '</div>';
+                });
+        }
+
+        function displayStepResult(step, data) {
+            const resultContent = document.getElementById('step-result-content');
+            let html = '';
+            
+            switch(step) {
+                case 1:
+                    html = '<h4>초기화된 멤버 목록</h4>';
+                    html += '<table class="result-table"><thead><tr><th>ID</th><th>역할</th><th>생성일시</th></tr></thead><tbody>';
+                    data.forEach(member => {
+                        html += `<tr><td>${member.id}</td><td>${member.role}</td><td>${formatDateTime(member.createdAt)}</td></tr>`;
+                    });
+                    html += '</tbody></table>';
+                    break;
+                    
+                case 2:
+                    html = '<h4>정산 후보 항목 목록</h4>';
+                    html += `<div class="result-item"><span class="result-item-label">총 판매 금액</span><span class="result-item-value">${formatCurrency(data.totalAmount)}</span></div>`;
+                    html += '<table class="result-table"><thead><tr><th>ID</th><th>주문 항목 ID</th><th>구매자 ID</th><th>판매자 ID</th><th>금액</th><th>구매 확정 일시</th><th>수집 일시</th></tr></thead><tbody>';
+                    data.items.forEach(item => {
+                        html += `<tr>
+                            <td>${item.id}</td>
+                            <td>#${item.orderItemId}</td>
+                            <td>${item.buyerMemberId}</td>
+                            <td>${item.sellerMemberId}</td>
+                            <td>${formatCurrency(item.amount)}</td>
+                            <td>${formatDateTime(item.purchaseConfirmedAt)}</td>
+                            <td>${item.collectedAt ? formatDateTime(item.collectedAt) : '-'}</td>
+                        </tr>`;
+                    });
+                    html += '</tbody></table>';
+                    break;
+                    
+                case 3:
+                    html = '<h4>일별 배치 후 생성된 정산서</h4>';
+                    if (data.totalSellerAmount !== undefined) {
+                        html += `<div class="result-item"><span class="result-item-label">판매자 정산 금액</span><span class="result-item-value amount">${formatCurrency(data.totalSellerAmount)}</span></div>`;
+                    }
+                    if (data.totalFeeAmount !== undefined) {
+                        html += `<div class="result-item"><span class="result-item-label">시스템 수수료</span><span class="result-item-value fee">${formatCurrency(data.totalFeeAmount)}</span></div>`;
+                    }
+                    if (data.settlements && Array.isArray(data.settlements) && data.settlements.length > 0) {
+                        html += '<h5 style="margin-top: 24px; margin-bottom: 12px; font-size: 16px; font-weight: 600;">정산서 목록</h5>';
+                        html += '<table class="result-table"><thead><tr><th>ID</th><th>판매자 ID</th><th>유형</th><th>금액</th><th>정산 기간</th><th>항목 수</th></tr></thead><tbody>';
+                        data.settlements.forEach(settlement => {
+                            html += `<tr>
+                                <td>${settlement.id}</td>
+                                <td>${settlement.sellerMemberId}</td>
+                                <td>${settlement.type}</td>
+                                <td>${formatCurrency(settlement.amount)}</td>
+                                <td>${settlement.settlementYear}년 ${settlement.settlementMonth}월</td>
+                                <td>${settlement.itemCount}건</td>
+                            </tr>`;
+                        });
+                        html += '</tbody></table>';
+                    } else {
+                        html += '<div class="result-item"><span class="result-item-label">정산서가 없습니다.</span></div>';
+                    }
+                    
+                    // 정산 아이템 목록 표시
+                    if (data.allItems && Array.isArray(data.allItems) && data.allItems.length > 0) {
+                        html += '<h5 style="margin-top: 32px; margin-bottom: 12px; font-size: 16px; font-weight: 600;">정산 아이템 상세 목록</h5>';
+                        html += '<table class="result-table"><thead><tr><th>ID</th><th>정산서 ID</th><th>주문 항목 ID</th><th>구매자 ID</th><th>판매자 ID</th><th>금액</th><th>이벤트 유형</th><th>구매 확정 일시</th></tr></thead><tbody>';
+                        data.allItems.forEach(item => {
+                            html += `<tr>
+                                <td>${item.id}</td>
+                                <td>#${item.settlementId}</td>
+                                <td>#${item.orderItemId}</td>
+                                <td>${item.buyerMemberId}</td>
+                                <td>${item.sellerMemberId}</td>
+                                <td>${formatCurrency(item.amount)}</td>
+                                <td>${item.eventType}</td>
+                                <td>${formatDateTime(item.purchaseConfirmedAt)}</td>
+                            </tr>`;
+                        });
+                        html += '</tbody></table>';
+                        html += `<div class="result-item" style="margin-top: 16px;"><span class="result-item-label">총 아이템 수</span><span class="result-item-value">${data.allItems.length}건</span></div>`;
+                    }
+                    break;
+                    
+                case 4:
+                    html = '<h4>기간 조정 후 정산서</h4>';
+                    html += '<table class="result-table"><thead><tr><th>ID</th><th>판매자 ID</th><th>유형</th><th>금액</th><th>정산 기간</th><th>항목 수</th></tr></thead><tbody>';
+                    data.forEach(settlement => {
+                        html += `<tr>
+                            <td>${settlement.id}</td>
+                            <td>${settlement.sellerMemberId}</td>
+                            <td>${settlement.type}</td>
+                            <td>${formatCurrency(settlement.amount)}</td>
+                            <td>${settlement.settlementYear}년 ${settlement.settlementMonth}월</td>
+                            <td>${settlement.itemCount}건</td>
+                        </tr>`;
+                    });
+                    html += '</tbody></table>';
+                    break;
+                    
+                case 5:
+                    html = '<h4>월별 배치 후 지급 완료된 정산서</h4>';
+                    html += `<div class="result-item"><span class="result-item-label">지급 완료</span><span class="result-item-value payout">${data.paidCount} / ${data.totalCount}건</span></div>`;
+                    html += '<table class="result-table"><thead><tr><th>ID</th><th>판매자 ID</th><th>유형</th><th>금액</th><th>정산 기간</th><th>지급 일시</th><th>항목 수</th></tr></thead><tbody>';
+                    data.settlements.forEach(settlement => {
+                        html += `<tr>
+                            <td>${settlement.id}</td>
+                            <td>${settlement.sellerMemberId}</td>
+                            <td>${settlement.type}</td>
+                            <td>${formatCurrency(settlement.amount)}</td>
+                            <td>${settlement.settlementYear}년 ${settlement.settlementMonth}월</td>
+                            <td>${settlement.payoutAt ? formatDateTime(settlement.payoutAt) : '-'}</td>
+                            <td>${settlement.itemCount}건</td>
+                        </tr>`;
+                    });
+                    html += '</tbody></table>';
+                    break;
+            }
+            
+            resultContent.innerHTML = html;
+        }
+
+        function formatCurrency(amount) {
+            if (!amount) return '0원';
+            return new Intl.NumberFormat('ko-KR', {
+                style: 'currency',
+                currency: 'KRW'
+            }).format(amount);
+        }
+
+        function formatDateTime(dateTime) {
+            if (!dateTime) return '-';
+            const date = new Date(dateTime);
+            return new Intl.DateTimeFormat('ko-KR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }).format(date);
+        }
+
+        // 정산서 조회 폼 제출 처리
+        function handleSettlementQuery(event) {
+            event.preventDefault();
+            
+            const year = document.getElementById('year').value;
+            const month = document.getElementById('month').value;
+            
+            const errorDiv = document.getElementById('settlement-error');
+            const errorMessage = document.getElementById('settlement-error-message');
+            const resultDiv = document.getElementById('settlement-result');
+            
+            errorDiv.style.display = 'none';
+            resultDiv.style.display = 'none';
+            
+            // API 호출
+            fetch(`/api/v1/settlements/${year}/${month}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    console.log('정산서 조회 응답 상태:', response.status);
+                    if (!response.ok) {
+                        throw new Error('HTTP error! status: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('정산서 조회 응답 데이터:', data);
+                    if (data.isSuccess && data.result) {
+                        displaySettlementResult(data.result);
+                    } else {
+                        errorMessage.textContent = '정산서를 찾을 수 없습니다.';
+                        errorDiv.style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('정산서 조회 오류:', error);
+                    errorMessage.textContent = '오류가 발생했습니다: ' + error.message;
+                    errorDiv.style.display = 'block';
+                });
+        }
+
+        function displaySettlementResult(settlement) {
+            const resultDiv = document.getElementById('settlement-result');
+            const summaryGrid = document.getElementById('settlement-summary-grid');
+            const itemsDiv = document.getElementById('settlement-items');
+            const itemsTbody = document.getElementById('settlement-items-tbody');
+            
+            // 요약 정보 표시
+            summaryGrid.innerHTML = `
+                <div class="summary-item">
+                    <span class="summary-label">정산서 ID</span>
+                    <span class="summary-value">#${settlement.id}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">총 판매 금액</span>
+                    <span class="summary-value amount">${formatCurrency(settlement.totalSalesAmount)}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">수수료 (10%)</span>
+                    <span class="summary-value fee">${formatCurrency(settlement.feeAmount)}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">정산 금액</span>
+                    <span class="summary-value payout">${formatCurrency(settlement.amount)}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">지급 일시</span>
+                    <span class="summary-value">${settlement.payoutAt ? formatDateTime(settlement.payoutAt) : '-'}</span>
+                </div>
+            `;
+            
+            // 항목 상세 표시
+            if (settlement.items && settlement.items.length > 0) {
+                itemsTbody.innerHTML = '';
+                settlement.items.forEach(item => {
+                    const row = document.createElement('div');
+                    row.className = 'table-row';
+                    row.innerHTML = `
+                        <div class="table-cell">#${item.orderItemId}</div>
+                        <div class="table-cell amount">${formatCurrency(item.totalSalesAmount)}</div>
+                        <div class="table-cell fee">${formatCurrency(item.feeAmount)}</div>
+                        <div class="table-cell payout">${formatCurrency(item.amount)}</div>
+                        <div class="table-cell">${item.purchaseConfirmedAt ? formatDateTime(item.purchaseConfirmedAt) : '-'}</div>
+                    `;
+                    itemsTbody.appendChild(row);
+                });
+                itemsDiv.style.display = 'block';
+            } else {
+                itemsDiv.style.display = 'none';
+            }
+            
+            resultDiv.style.display = 'block';
+        }
+
+        // URL 파라미터에서 step 읽기
+        const urlParams = new URLSearchParams(window.location.search);
+        const step = urlParams.get('step');
+        if (step !== null) {
+            currentStep = parseInt(step);
+            const stepItems = document.querySelectorAll('.step-item');
+            stepItems.forEach((item, index) => {
+                item.classList.remove('active');
+                if (index === parseInt(step)) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // 6단계일 때 정산서 조회 섹션 표시
+            if (currentStep === 5) {
+                const querySection = document.getElementById('settlement-query-section');
+                if (querySection) {
+                    querySection.style.display = 'block';
+                }
+            }
+        }
+
+        // 전역 스코프에 함수 정의 (onclick에서도 사용 가능하도록)
+        window.loadStepData = loadStepData;
+
+        // 페이지 로드 시 버튼 이벤트 리스너 추가
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM 로드 완료');
+            
+            // 모든 조회 버튼에 이벤트 리스너 추가
+            const loadButtons = document.querySelectorAll('.nav-button.load, #load-data-btn');
+            console.log('조회 버튼 개수:', loadButtons.length);
+            
+            loadButtons.forEach(function(loadButton) {
+                if (loadButton) {
+                    console.log('조회 버튼 찾음:', loadButton);
+                    loadButton.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('조회 버튼 클릭됨 (이벤트 리스너)');
+                        if (typeof loadStepData === 'function') {
+                            loadStepData();
+                        } else {
+                            console.error('loadStepData 함수를 찾을 수 없습니다.');
+                            alert('오류: loadStepData 함수를 찾을 수 없습니다.');
+                        }
+                        return false;
+                    });
+                }
+            });
+            
+            if (loadButtons.length === 0) {
+                console.warn('조회 버튼을 찾을 수 없습니다. (6단계일 수 있음)');
+            }
+        });
+    </script>
+</body>
+</html>

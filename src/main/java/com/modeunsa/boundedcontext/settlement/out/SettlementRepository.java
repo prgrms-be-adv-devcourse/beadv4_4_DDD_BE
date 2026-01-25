@@ -12,6 +12,11 @@ public interface SettlementRepository extends JpaRepository<Settlement, Long> {
   Optional<Settlement> findBySellerMemberIdAndSettlementYearAndSettlementMonth(
       Long sellerMemberId, int settlementYear, int settlementMonth);
 
+  java.util.List<Settlement> findAllBySellerMemberIdAndSettlementYearAndSettlementMonth(
+      Long sellerMemberId, int settlementYear, int settlementMonth);
+
+  java.util.List<Settlement> findAllBySellerMemberId(Long sellerMemberId);
+
   Page<Settlement> findByPayoutAtIsNullAndSettlementYearAndSettlementMonth(
       int settlementYear, int settlementMonth, Pageable pageable);
 }

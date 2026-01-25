@@ -28,18 +28,28 @@ public class SettlementSupport {
   private final SettlementConfig settlementConfig;
 
   public SettlementResponseDto getSettlement(Long sellerMemberId, int year, int month) {
-    // 1. 정산서를 불러온다.
-    Settlement settlement =
-        settlementRepository
-            .findBySellerMemberIdAndSettlementYearAndSettlementMonth(sellerMemberId, year, month)
-            .orElseThrow(() -> new GeneralException(ErrorStatus.SETTLEMENT_NOT_FOUND));
+    // 1. 정산서를 불러온다. (여러 개가 있을 수 있으므로 첫 번째 것을 사용)
+    java.util.List<Settlement> sellerSettlements =
+        settlementRepository.findAllBySellerMemberIdAndSettlementYearAndSettlementMonth(
+            sellerMemberId, year, month);
+
+    if (sellerSettlements.isEmpty()) {
+      throw new GeneralException(ErrorStatus.SETTLEMENT_NOT_FOUND);
+    }
+
+    Settlement settlement = sellerSettlements.get(0);
 
     Long systemMemberId = settlementConfig.getSystemMemberId();
 
-    Settlement feeSettlement =
-        settlementRepository
-            .findBySellerMemberIdAndSettlementYearAndSettlementMonth(systemMemberId, year, month)
-            .orElseThrow(() -> new GeneralException(ErrorStatus.SETTLEMENT_NOT_FOUND));
+    java.util.List<Settlement> feeSettlements =
+        settlementRepository.findAllBySellerMemberIdAndSettlementYearAndSettlementMonth(
+            systemMemberId, year, month);
+
+    if (feeSettlements.isEmpty()) {
+      throw new GeneralException(ErrorStatus.SETTLEMENT_NOT_FOUND);
+    }
+
+    Settlement feeSettlement = feeSettlements.get(0);
 
     // 수수료를 map으로 저장
     Map<Long, BigDecimal> feeMap =

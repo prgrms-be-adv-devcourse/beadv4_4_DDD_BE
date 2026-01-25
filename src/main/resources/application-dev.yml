@@ -25,7 +25,6 @@ spring:
     redis:
       host: localhost
       port: 6379
-      password: ""
   security:
     oauth2:
       client:
@@ -76,6 +75,9 @@ custom:
       - /api/v1/contents/**
       - /api/v1/settlements/**
       - /api/v1/file-uploads/**
+      - /settlement/**
+      - /api/v1/settlements/flow/**
+      - /.well-known/**
     oauth2:
       allowed-redirect-domains:
         - localhost

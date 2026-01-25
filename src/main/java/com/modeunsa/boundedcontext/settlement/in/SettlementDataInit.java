@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Configuration
 @Slf4j
-@Profile("!prod")
+@Profile({"local", "dev"}) // test 프로파일에서는 실행 안됨
 public class SettlementDataInit {
   private static final Long SELLER_MEMBER_ID = 7L;
   private static final Long BUYER_MEMBER_ID = 4L;
@@ -100,7 +100,9 @@ public class SettlementDataInit {
 
   @Transactional
   public void createCandidateItems() {
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = LocalDateTime.now().minusDays(1);
+
+    LocalDateTime prevMonth = now.minusMonths(1);
 
     SettlementCandidateItem candidate1 =
         SettlementCandidateItem.create(
@@ -116,6 +118,21 @@ public class SettlementDataInit {
         SettlementCandidateItem.create(
             1003L, BUYER_MEMBER_ID, SELLER_MEMBER_ID, new BigDecimal("5500"), 1, now);
     settlementCandidateItemRepository.save(candidate3);
+
+    SettlementCandidateItem candidate4 =
+        SettlementCandidateItem.create(
+            1001L, BUYER_MEMBER_ID, SELLER_MEMBER_ID, new BigDecimal("10000"), 1, prevMonth);
+    settlementCandidateItemRepository.save(candidate4);
+
+    SettlementCandidateItem candidate5 =
+        SettlementCandidateItem.create(
+            1002L, BUYER_MEMBER_ID, SELLER_MEMBER_ID, new BigDecimal("25000"), 1, prevMonth);
+    settlementCandidateItemRepository.save(candidate5);
+
+    SettlementCandidateItem candidate6 =
+        SettlementCandidateItem.create(
+            1003L, BUYER_MEMBER_ID, SELLER_MEMBER_ID, new BigDecimal("5500"), 1, prevMonth);
+    settlementCandidateItemRepository.save(candidate6);
 
     log.info("[정산] 정산 후보 항목 3건 직접 생성 완료");
   }

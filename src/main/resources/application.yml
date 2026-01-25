@@ -8,7 +8,7 @@ spring:
     name: modeunsa
   data:
     redis:
-      host: localhost
+      host: ${REDIS_HOST:redis}
       port: 6379
       password: ${REDIS_PASSWORD:}
       username: default
