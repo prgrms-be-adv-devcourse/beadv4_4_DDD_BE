@@ -40,8 +40,13 @@ public class ProductSupport {
         .orElseThrow(() -> new GeneralException(ErrorStatus.PRODUCT_NOT_FOUND));
   }
 
-  public Page<Product> getProducts(Long memberId, ProductCategory category, Pageable pageable) {
-    // TODO: seller 가 보는 조회 쿼리와 member가 보는 조회 쿼리 다르게 가져가기
+  public Product getProduct(Long productId, Long sellerId) {
+    return productRepository
+        .findByIdAndSellerId(productId, sellerId)
+        .orElseThrow(() -> new GeneralException(ErrorStatus.PRODUCT_SELLER_INCORRECT));
+  }
+
+  public Page<Product> getProducts(ProductCategory category, Pageable pageable) {
     return productRepository.findAllByCategoryAndSaleStatusInAndProductStatusIn(
         category,
         ProductPolicy.DISPLAYABLE_SALE_STATUES_FOR_ALL,
@@ -87,5 +92,11 @@ public class ProductSupport {
         throw new GeneralException(ErrorStatus.PRODUCT_NOT_FOUND);
       }
     }
+  }
+
+  public ProductMemberSeller getProductMemberSellerByMemberId(Long memberId) {
+    return productMemberSellerRepository
+        .findByMemberId(memberId)
+        .orElseThrow(() -> new GeneralException(ErrorStatus.PRODUCT_SELLER_NOT_FOUND));
   }
 }

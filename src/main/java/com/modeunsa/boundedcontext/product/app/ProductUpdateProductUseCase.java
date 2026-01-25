@@ -2,11 +2,10 @@ package com.modeunsa.boundedcontext.product.app;
 
 import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.boundedcontext.product.domain.ProductImage;
+import com.modeunsa.boundedcontext.product.domain.ProductMemberSeller;
 import com.modeunsa.boundedcontext.product.domain.ProductPolicy;
 import com.modeunsa.boundedcontext.product.out.ProductRepository;
 import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
-import com.modeunsa.global.exception.GeneralException;
-import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.product.dto.ProductDto;
 import com.modeunsa.shared.product.dto.ProductUpdateRequest;
 import com.modeunsa.shared.product.event.ProductUpdatedEvent;
@@ -24,13 +23,10 @@ public class ProductUpdateProductUseCase {
   private final SpringDomainEventPublisher eventPublisher;
   private final ProductPolicy productPolicy;
 
-  public Product updateProduct(Long sellerId, Long productId, ProductUpdateRequest request) {
-    // 판매자 검증
-    if (sellerId == null || !productSupport.existsBySellerId(sellerId)) {
-      throw new GeneralException(ErrorStatus.SELLER_NOT_FOUND);
-    }
-
-    Product product = productSupport.getProduct(productId);
+  public Product updateProduct(Long memberId, Long productId, ProductUpdateRequest request) {
+    // 판매자 및 상품 검증
+    ProductMemberSeller seller = productSupport.getProductMemberSellerByMemberId(memberId);
+    Product product = productSupport.getProduct(productId, seller.getId());
 
     // 정책 검증
     productPolicy.validate(product.getProductStatus(), request);

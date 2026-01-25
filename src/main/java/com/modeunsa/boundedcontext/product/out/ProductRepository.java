@@ -7,6 +7,7 @@ import com.modeunsa.boundedcontext.product.domain.SaleStatus;
 import io.lettuce.core.dynamic.annotation.Param;
 import jakarta.persistence.LockModeType;
 import java.util.Collection;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -45,4 +46,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query("select p from Product p where p.id = :id")
   Product findByIdForUpdate(@Param("id") Long id);
+
+  Optional<Product> findByIdAndSellerId(Long productId, Long sellerId);
 }
