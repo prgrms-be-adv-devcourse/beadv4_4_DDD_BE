@@ -157,10 +157,14 @@ public class SecurityConfig {
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
 
-    // 1. 허용할 출처 (프론트엔드 주소)
+    // YAML 설정에서 허용된 출처들을 가져와서 추가
+    if (securityProperties.getCors().getAllowedOrigins() != null) {
+      configuration.setAllowedOrigins(securityProperties.getCors().getAllowedOrigins());
+    }
+
+    // 1. 허용할 출처
     configuration.addAllowedOrigin("https://modeunsa.store");
     configuration.addAllowedOrigin("https://www.modeunsa.store");
-    configuration.addAllowedOrigin("http://localhost:3000"); // 로컬 테스트용
 
     // 2. 허용할 HTTP 메서드
     configuration.addAllowedMethod("*"); // GET, POST, PUT, DELETE 등 모두 허용
