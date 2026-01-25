@@ -26,11 +26,12 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@EnableConfigurationProperties(SecurityProperties.class)
+@EnableConfigurationProperties({SecurityProperties.class, CorsProperties.class})
 @RequiredArgsConstructor
 public class SecurityConfig {
 
   private final SecurityProperties securityProperties;
+  private final CorsProperties corsProperties;
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
   private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
   private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
@@ -157,14 +158,8 @@ public class SecurityConfig {
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
 
-    // YAML 설정에서 허용된 출처들을 가져와서 추가
-    if (securityProperties.getCors().getAllowedOrigins() != null) {
-      configuration.setAllowedOrigins(securityProperties.getCors().getAllowedOrigins());
-    }
-
     // 1. 허용할 출처
-    configuration.addAllowedOrigin("https://modeunsa.store");
-    configuration.addAllowedOrigin("https://www.modeunsa.store");
+    configuration.setAllowedOrigins(corsProperties.allowedOrigins());
 
     // 2. 허용할 HTTP 메서드
     configuration.addAllowedMethod("*"); // GET, POST, PUT, DELETE 등 모두 허용

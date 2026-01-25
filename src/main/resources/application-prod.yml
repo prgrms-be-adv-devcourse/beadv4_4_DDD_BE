@@ -86,7 +86,10 @@ custom:
         - localhost
         - 52.79.155.221
   cors:
-    enabled: false
+    enabled: true
+    allowed-origins:
+      - https://modeunsa.store
+      - https://www.modeunsa.store
 
 management:
   endpoints:
