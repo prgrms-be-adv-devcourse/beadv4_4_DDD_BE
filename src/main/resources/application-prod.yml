@@ -86,8 +86,8 @@ custom:
       - /api/v1/payments/**
     oauth2:
       allowed-redirect-domains:
-        - localhost
-        - 52.79.155.221
+        - modeunsa.store
+        - www.modeunsa.store
   cors:
     enabled: true
     allowed-origins:
