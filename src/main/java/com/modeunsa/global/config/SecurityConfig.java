@@ -58,6 +58,11 @@ public class SecurityConfig {
           auth ->
               auth
                   // ========================================
+                  // 0. Actuator 엔드포인트 (내부 모니터링용)
+                  // ========================================
+                  .requestMatchers("/actuator/**")
+                  .permitAll()
+                  // ========================================
                   // 1. 공개 URL (yml에서 관리)
                   // ========================================
                   .requestMatchers(permitUrls)

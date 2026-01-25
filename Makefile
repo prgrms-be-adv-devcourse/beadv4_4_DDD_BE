@@ -30,13 +30,20 @@ format-apply:
 	@echo "Applying code formatting..."
 	@./gradlew -q spotlessApply
 
-docker-build:
+build:
 	@echo "Gradle clean & build"
 	./gradlew clean build
 
+docker-build:
 	@echo "Building image: $(DOCKER_IMAGE)"
-	docker build --platform linux/arm64 -t $(DOCKER_IMAGE) .
+	docker buildx build --platform linux/amd64,linux/arm64 -t $(DOCKER_IMAGE) .
 
 docker-push:
 	@echo "Pushing image: $(DOCKER_IMAGE)"
 	docker push $(DOCKER_IMAGE)
+
+multi-docker-build-push:
+	docker buildx build \
+      --platform linux/amd64,linux/arm64 \
+      -t $(DOCKER_IMAGE) \
+      --push .
