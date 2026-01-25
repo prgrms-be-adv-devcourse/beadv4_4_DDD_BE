@@ -73,6 +73,7 @@ jobs:
             set -e
             cd /home/ec2-user/app
             docker-compose pull app
+            docker rm -f redis || true
             docker-compose --env-file ./.env up -d --build --remove-orphans
             docker image prune -f
           script_stop: true

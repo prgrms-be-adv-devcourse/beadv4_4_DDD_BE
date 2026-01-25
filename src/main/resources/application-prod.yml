@@ -51,6 +51,9 @@ spring:
       - http://elasticsearch:9200
 
 custom:
+  swagger:
+    serverUrl: https://modeunsa.store
+    description: "Production Server"
   security:
     permit-all: false
     permit-urls:
@@ -83,10 +86,13 @@ custom:
       - /api/v1/payments/**
     oauth2:
       allowed-redirect-domains:
-        - localhost
-        - 52.79.155.221
+        - modeunsa.store
+        - www.modeunsa.store
   cors:
-    enabled: false
+    enabled: true
+    allowed-origins:
+      - https://modeunsa.store
+      - https://www.modeunsa.store
 
 management:
   endpoints:
