@@ -42,7 +42,7 @@
 
 
 ## 4. User Flow
-![userflow](./src/main/resources/static/image/user_flow_0122.png)
+![userflow](./src/main/resources/static/image/userflow_0125.png)
 
 ## 5. System Architecture
 ![architecture_diagram](./src/main/resources/static/image/architecture_diagram.png)
