@@ -58,8 +58,9 @@ spring:
       - http://localhost:9200
 
 custom:
-  global:
-    internalBackUrl: http://localhost:${server.port:8080}
+  swagger:
+    serverUrl: http://localhost:8080
+    description: "Local Server"
   security:
     permit-all: false
     permit-urls:

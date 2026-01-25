@@ -51,6 +51,9 @@ spring:
       - http://elasticsearch:9200
 
 custom:
+  swagger:
+    serverUrl: https://modeunsa.store
+    description: "Production Server"
   security:
     permit-all: false
     permit-urls:
