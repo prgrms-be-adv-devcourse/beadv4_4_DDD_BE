@@ -77,6 +77,7 @@ custom:
 
       # 헬스체크
       - /actuator/health
+      - /actuator/prometheus
 
       # 콘텐츠
       - /api/v1/contents/**
