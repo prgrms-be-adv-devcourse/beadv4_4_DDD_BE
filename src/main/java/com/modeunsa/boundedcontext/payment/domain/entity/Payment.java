@@ -79,6 +79,7 @@ public class Payment extends AuditedEntity {
   @Column(precision = 19, scale = 2)
   private BigDecimal shortAmount;
 
+  @Column(nullable = false)
   private LocalDateTime paymentDeadlineAt;
 
   @Column(length = 20)
@@ -166,11 +167,12 @@ public class Payment extends AuditedEntity {
     changeStatusByFailure(PaymentStatus.FAILED, message);
   }
 
-  public void changePendingStatus() {
+  public void initPayment(LocalDateTime paymentDeadlineAt) {
     if (!isRetryable()) {
       throw new PaymentDomainException(
           INVALID_PAYMENT, getId().getMemberId(), getId().getOrderNo());
     }
+    this.paymentDeadlineAt = paymentDeadlineAt;
     changeStatus(PaymentStatus.PENDING);
   }
 

@@ -31,7 +31,7 @@ public class PaymentInitializeUseCase {
     Optional<Payment> findPayment = paymentRepository.findById(paymentId);
     if (findPayment.isPresent()) {
       Payment payment = findPayment.get();
-      payment.changePendingStatus();
+      payment.initPayment(paymentRequest.paymentDeadlineAt());
       return PaymentProcessContext.fromPaymentForInitialize(payment);
     }
 
