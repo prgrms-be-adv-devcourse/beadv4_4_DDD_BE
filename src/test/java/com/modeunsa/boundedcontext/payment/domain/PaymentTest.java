@@ -1,5 +1,7 @@
 package com.modeunsa.boundedcontext.payment.domain;
 
+import static com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode.INVALID_PAYMENT_STATUS;
+import static com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode.OVERDUE_PAYMENT_DEADLINE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -56,7 +58,13 @@ class PaymentTest {
             .build();
 
     // when, then
-    assertThatThrownBy(() -> payment.changeInProgress()).isInstanceOf(PaymentDomainException.class);
+    assertThatThrownBy(payment::changeInProgress)
+        .isInstanceOf(PaymentDomainException.class)
+        .satisfies(
+            exception -> {
+              PaymentDomainException ex = (PaymentDomainException) exception;
+              assertThat(ex.getErrorCode()).isEqualTo(INVALID_PAYMENT_STATUS);
+            });
   }
 
   @Test
@@ -71,15 +79,14 @@ class PaymentTest {
 
     PaymentId paymentId = PaymentId.create(memberId, orderNo);
     Payment payment = Payment.create(paymentId, orderId, totalAmount, pastDeadline);
-    // Payment.create()는 PENDING 상태로 생성하지만, 마감일이 지났음
 
     // when, then
-    assertThatThrownBy(() -> payment.changeInProgress())
+    assertThatThrownBy(payment::changeInProgress)
         .isInstanceOf(PaymentDomainException.class)
         .satisfies(
             exception -> {
               PaymentDomainException ex = (PaymentDomainException) exception;
-              assertThat(ex.getErrorCode()).isNotNull();
+              assertThat(ex.getErrorCode()).isEqualTo(OVERDUE_PAYMENT_DEADLINE);
             });
   }
 }
