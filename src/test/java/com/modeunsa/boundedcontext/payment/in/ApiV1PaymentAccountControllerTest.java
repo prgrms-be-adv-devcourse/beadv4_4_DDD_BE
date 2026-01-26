@@ -1,11 +1,11 @@
 package com.modeunsa.boundedcontext.payment.in;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositResponse;
@@ -28,6 +28,7 @@ class ApiV1PaymentAccountControllerTest extends BasePaymentControllerTest {
   void setUp() {
     super.setUpBase();
     setUpMockMvc(new ApiV1PaymentAccountController(paymentFacade));
+    setSecurityContext(1L, MemberRole.MEMBER);
   }
 
   @Test
@@ -39,11 +40,10 @@ class ApiV1PaymentAccountControllerTest extends BasePaymentControllerTest {
     PaymentEventType eventType = PaymentEventType.CHARGE_BANK_TRANSFER;
     BigDecimal balanceAfter = BigDecimal.valueOf(10000.00);
 
-    PaymentAccountDepositRequest request =
-        new PaymentAccountDepositRequest(memberId, amount, eventType);
+    PaymentAccountDepositRequest request = new PaymentAccountDepositRequest(amount, eventType);
     PaymentAccountDepositResponse response = new PaymentAccountDepositResponse(balanceAfter);
 
-    when(paymentFacade.creditAccount(any(PaymentAccountDepositRequest.class))).thenReturn(response);
+    when(paymentFacade.creditAccount(memberId, request)).thenReturn(response);
 
     // when, then
     mockMvc
@@ -60,14 +60,13 @@ class ApiV1PaymentAccountControllerTest extends BasePaymentControllerTest {
   @DisplayName("계좌 입금 실패 - 계좌를 찾을 수 없는 경우")
   void depositAccountFailureAccountNotFound() throws Exception {
     // given
-    Long memberId = 999L;
+    Long memberId = 1L;
     BigDecimal amount = BigDecimal.valueOf(10000.00);
     PaymentEventType eventType = PaymentEventType.CHARGE_BANK_TRANSFER;
 
-    PaymentAccountDepositRequest request =
-        new PaymentAccountDepositRequest(memberId, amount, eventType);
+    PaymentAccountDepositRequest request = new PaymentAccountDepositRequest(amount, eventType);
 
-    when(paymentFacade.creditAccount(any(PaymentAccountDepositRequest.class)))
+    when(paymentFacade.creditAccount(memberId, request))
         .thenThrow(new GeneralException(ErrorStatus.PAYMENT_ACCOUNT_NOT_FOUND));
 
     // when, then
@@ -86,12 +85,10 @@ class ApiV1PaymentAccountControllerTest extends BasePaymentControllerTest {
   @DisplayName("계좌 입금 실패 - 입금액이 0원인 경우")
   void depositAccountFailureZeroAmount() throws Exception {
     // given
-    Long memberId = 999L;
     BigDecimal amount = BigDecimal.ZERO;
     PaymentEventType eventType = PaymentEventType.CHARGE_BANK_TRANSFER;
 
-    PaymentAccountDepositRequest request =
-        new PaymentAccountDepositRequest(memberId, amount, eventType);
+    PaymentAccountDepositRequest request = new PaymentAccountDepositRequest(amount, eventType);
 
     // when, then
     mockMvc

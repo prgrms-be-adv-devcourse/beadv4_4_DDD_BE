@@ -72,8 +72,9 @@ public class PaymentFacade {
   }
 
   public PaymentAccountDepositResponse creditAccount(
-      PaymentAccountDepositRequest paymentAccountDepositRequest) {
-    BigDecimal balance = paymentCreditAccountUseCase.execute(paymentAccountDepositRequest);
+      Long memberId, PaymentAccountDepositRequest paymentAccountDepositRequest) {
+    BigDecimal balance =
+        paymentCreditAccountUseCase.execute(memberId, paymentAccountDepositRequest);
     return new PaymentAccountDepositResponse(balance);
   }
 
