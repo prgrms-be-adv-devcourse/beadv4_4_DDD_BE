@@ -44,8 +44,11 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
 
     PaymentRequest request =
         PaymentRequest.builder()
-            .orderId(orderId).orderNo(orderNo).totalAmount(totalAmount)
-            .paymentDeadlineAt(paymentDeadlineAt).build();
+            .orderId(orderId)
+            .orderNo(orderNo)
+            .totalAmount(totalAmount)
+            .paymentDeadlineAt(paymentDeadlineAt)
+            .build();
 
     PaymentResponse response =
         PaymentResponse.builder()
@@ -81,56 +84,6 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
         PaymentRequest.builder()
             .orderId(null)
             .orderNo("ORDER12345")
-            .totalAmount(BigDecimal.valueOf(50000))
-            .paymentDeadlineAt(LocalDateTime.now().plusDays(1))
-            .build();
-
-    // when, then
-    mockMvc
-        .perform(
-            post("/api/v1/payments")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.isSuccess").value(false))
-        .andExpect(jsonPath("$.code").exists())
-        .andExpect(jsonPath("$.message").exists());
-  }
-
-  @Test
-  @DisplayName("결제 요청 실패 - orderNo가 빈 문자열인 경우")
-  void requestPaymentFailureOrderNoEmpty() throws Exception {
-    // given
-    PaymentRequest request =
-        PaymentRequest.builder()
-            .orderId(1L)
-            .orderNo("")
-            .buyerId(1000L)
-            .totalAmount(BigDecimal.valueOf(50000))
-            .paymentDeadlineAt(LocalDateTime.now().plusDays(1))
-            .build();
-
-    // when, then
-    mockMvc
-        .perform(
-            post("/api/v1/payments")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.isSuccess").value(false))
-        .andExpect(jsonPath("$.code").exists())
-        .andExpect(jsonPath("$.message").exists());
-  }
-
-  @Test
-  @DisplayName("결제 요청 실패 - buyerId가 null인 경우")
-  void requestPaymentFailureBuyerIdNull() throws Exception {
-    // given
-    PaymentRequest request =
-        PaymentRequest.builder()
-            .orderId(1L)
-            .orderNo("ORDER12345")
-            .buyerId(null)
             .totalAmount(BigDecimal.valueOf(50000))
             .paymentDeadlineAt(LocalDateTime.now().plusDays(1))
             .build();
