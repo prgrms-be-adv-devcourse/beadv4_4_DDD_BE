@@ -94,7 +94,7 @@ public class PaymentProcessUseCase {
   private void publishPaymentSuccessEvent(PaymentProcessContext paymentProcessContext) {
     eventPublisher.publish(
         new PaymentSuccessEvent(
-            new PaymentDto(
+            PaymentDto.of(
                 paymentProcessContext.orderId(),
                 paymentProcessContext.orderNo(),
                 paymentProcessContext.buyerId(),

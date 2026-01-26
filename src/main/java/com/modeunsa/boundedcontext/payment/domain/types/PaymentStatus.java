@@ -9,6 +9,7 @@ public enum PaymentStatus {
   APPROVED("결제 승인"),
   CANCELED("결제 취소"),
   FAILED("결제 실패"),
+  FINAL_FAILED("최종 결제 실패"),
   COMPLETED("결제 완료"),
   REFUND_REQUESTED("환불 요청"),
   REFUNDED("환불 완료");

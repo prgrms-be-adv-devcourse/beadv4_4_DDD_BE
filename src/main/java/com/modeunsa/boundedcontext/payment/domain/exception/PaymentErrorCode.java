@@ -1,5 +1,6 @@
 package com.modeunsa.boundedcontext.payment.domain.exception;
 
+import java.util.Set;
 import lombok.Getter;
 
 @Getter
@@ -14,11 +15,17 @@ public enum PaymentErrorCode {
 
   private final String messageTemplate;
 
+  private static final Set<PaymentErrorCode> FINAL_FAILURE_CODES = Set.of(OVERDUE_PAYMENT_DEADLINE);
+
   PaymentErrorCode(String messageTemplate) {
     this.messageTemplate = messageTemplate;
   }
 
   public String format(Object... args) {
     return String.format(this.messageTemplate, args);
+  }
+
+  public boolean isFinalFailure() {
+    return FINAL_FAILURE_CODES.contains(this);
   }
 }

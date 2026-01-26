@@ -43,6 +43,7 @@ public record PaymentProcessContext(
       Long memberId, String orderNo, ConfirmPaymentRequest confirmPaymentRequest) {
     return PaymentProcessContext.builder()
         .buyerId(memberId)
+        .orderId(Long.valueOf(confirmPaymentRequest.orderId()))
         .orderNo(orderNo)
         .needsCharge(true)
         .chargeAmount(BigDecimal.valueOf(confirmPaymentRequest.amount()))
