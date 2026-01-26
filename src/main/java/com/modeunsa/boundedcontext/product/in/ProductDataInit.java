@@ -1,9 +1,9 @@
 package com.modeunsa.boundedcontext.product.in;
 
 import com.modeunsa.boundedcontext.product.app.ProductFacade;
+import com.modeunsa.boundedcontext.product.app.ProductSupport;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
-import com.modeunsa.boundedcontext.product.domain.ProductMemberSeller;
-import com.modeunsa.boundedcontext.product.out.ProductMemberSellerRepository;
+import com.modeunsa.boundedcontext.product.domain.ProductMember;
 import com.modeunsa.boundedcontext.product.out.ProductRepository;
 import com.modeunsa.shared.product.dto.ProductCreateRequest;
 import com.modeunsa.shared.product.dto.ProductResponse;
@@ -20,19 +20,19 @@ import org.springframework.core.annotation.Order;
 public class ProductDataInit {
   private final ProductDataInit self;
   private final ProductRepository productRepository;
-  private final ProductMemberSellerRepository productMemberSellerRepository;
   private final ProductFacade productFacade;
+  private final ProductSupport productSupport;
 
   public ProductDataInit(
       @Lazy ProductDataInit self,
       ProductRepository productRepository,
-      ProductMemberSellerRepository productMemberSellerRepository,
-      ProductFacade productFacade) {
+      ProductFacade productFacade,
+      ProductSupport productSupport) {
 
     this.self = self;
     this.productRepository = productRepository;
-    this.productMemberSellerRepository = productMemberSellerRepository;
     this.productFacade = productFacade;
+    this.productSupport = productSupport;
   }
 
   @Bean
@@ -48,11 +48,11 @@ public class ProductDataInit {
     if (productRepository.count() > 0) {
       return;
     }
-    ProductMemberSeller seller1 = productMemberSellerRepository.findById(1L).get();
+    ProductMember member1 = productSupport.getProductMember(7L); // 최판매
 
     ProductResponse product1 =
         productFacade.createProduct(
-            seller1.getId(),
+            member1.getId(),
             new ProductCreateRequest(
                 "코트",
                 ProductCategory.OUTER,
@@ -69,7 +69,7 @@ public class ProductDataInit {
 
     ProductResponse product2 =
         productFacade.createProduct(
-            seller1.getId(),
+            member1.getId(),
             new ProductCreateRequest(
                 "패딩",
                 ProductCategory.OUTER,
@@ -83,7 +83,7 @@ public class ProductDataInit {
 
     ProductResponse product3 =
         productFacade.createProduct(
-            seller1.getId(),
+            member1.getId(),
             new ProductCreateRequest(
                 "경량패딩",
                 ProductCategory.OUTER,
@@ -95,7 +95,7 @@ public class ProductDataInit {
 
     ProductResponse product4 =
         productFacade.createProduct(
-            seller1.getId(),
+            member1.getId(),
             new ProductCreateRequest(
                 "맨투맨",
                 ProductCategory.UPPER,
@@ -107,7 +107,7 @@ public class ProductDataInit {
 
     ProductResponse product5 =
         productFacade.createProduct(
-            seller1.getId(),
+            member1.getId(),
             new ProductCreateRequest(
                 "양말",
                 ProductCategory.SHOES,
@@ -119,7 +119,7 @@ public class ProductDataInit {
 
     ProductResponse product6 =
         productFacade.createProduct(
-            seller1.getId(),
+            member1.getId(),
             new ProductCreateRequest(
                 "바지",
                 ProductCategory.LOWER,
@@ -131,7 +131,7 @@ public class ProductDataInit {
 
     ProductResponse product7 =
         productFacade.createProduct(
-            seller1.getId(),
+            member1.getId(),
             new ProductCreateRequest(
                 "모자",
                 ProductCategory.CAP,
@@ -143,7 +143,7 @@ public class ProductDataInit {
 
     ProductResponse product8 =
         productFacade.createProduct(
-            seller1.getId(),
+            member1.getId(),
             new ProductCreateRequest(
                 "신발",
                 ProductCategory.SHOES,

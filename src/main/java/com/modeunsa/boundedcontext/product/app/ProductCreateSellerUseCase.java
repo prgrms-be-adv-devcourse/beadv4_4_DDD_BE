@@ -11,9 +11,10 @@ public class ProductCreateSellerUseCase {
 
   private final ProductMemberSellerRepository productMemberSellerRepository;
 
-  public void createMemberSeller(Long sellerId, String businessName, String representativeName) {
+  public void createMemberSeller(
+      Long sellerId, Long memberId, String businessName, String representativeName) {
     ProductMemberSeller seller =
-        ProductMemberSeller.create(sellerId, businessName, representativeName);
+        ProductMemberSeller.create(sellerId, memberId, businessName, representativeName);
     productMemberSellerRepository.save(seller);
   }
 }

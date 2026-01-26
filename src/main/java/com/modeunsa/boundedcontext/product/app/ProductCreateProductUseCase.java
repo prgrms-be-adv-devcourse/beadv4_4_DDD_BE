@@ -5,9 +5,6 @@ import com.modeunsa.boundedcontext.product.domain.ProductImage;
 import com.modeunsa.boundedcontext.product.domain.ProductMemberSeller;
 import com.modeunsa.boundedcontext.product.out.ProductRepository;
 import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
-import com.modeunsa.global.exception.GeneralException;
-import com.modeunsa.global.filter.RequestLoggingInterceptor;
-import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.product.dto.ProductCreateRequest;
 import com.modeunsa.shared.product.dto.ProductDto;
 import com.modeunsa.shared.product.event.ProductCreatedEvent;
@@ -23,14 +20,11 @@ public class ProductCreateProductUseCase {
   private final ProductRepository productRepository;
   private final ProductMapper productMapper;
   private final SpringDomainEventPublisher eventPublisher;
-  private final RequestLoggingInterceptor requestLoggingInterceptor;
 
-  public Product createProduct(Long sellerId, ProductCreateRequest productCreateRequest) {
+  public Product createProduct(Long memberId, ProductCreateRequest productCreateRequest) {
     // 판매자 검증
-    if (sellerId == null || !productSupport.existsBySellerId(sellerId)) {
-      throw new GeneralException(ErrorStatus.PRODUCT_SELLER_NOT_FOUND);
-    }
-    ProductMemberSeller seller = productSupport.getProductMemberSeller(sellerId);
+    ProductMemberSeller seller = productSupport.getProductMemberSellerByMemberId(memberId);
+
     Product product =
         Product.create(
             seller,

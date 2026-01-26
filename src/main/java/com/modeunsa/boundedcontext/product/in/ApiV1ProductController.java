@@ -5,6 +5,7 @@ import com.modeunsa.boundedcontext.product.domain.ProductCategory;
 import com.modeunsa.boundedcontext.product.domain.ProductStatus;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.response.ApiResponse;
+import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.global.status.SuccessStatus;
 import com.modeunsa.shared.product.dto.ProductCreateRequest;
@@ -25,6 +26,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -46,22 +48,23 @@ public class ApiV1ProductController {
   @Operation(summary = "상품 생성", description = "상품을 생성합니다.")
   @PostMapping
   public ResponseEntity<ApiResponse> createProduct(
+      @AuthenticationPrincipal CustomUserDetails user,
       @Valid @RequestBody ProductCreateRequest productCreateRequest) {
-    // TODO: sellerId 는 나중에 security 에서 가져올 것
-    Long sellerId = 1L;
-    ProductResponse productResponse = productFacade.createProduct(sellerId, productCreateRequest);
+    // TODO: sellerId userDetail 가져오도록 수정
+    ProductResponse productResponse =
+        productFacade.createProduct(user.getMemberId(), productCreateRequest);
     return ApiResponse.onSuccess(SuccessStatus.CREATED, productResponse);
   }
 
   @Operation(summary = "상품 상세 조회", description = "상품 id를 이용해 상품 상세를 조회합니다.")
   @GetMapping("/{id}")
-  public ResponseEntity<ApiResponse> getProduct(@PathVariable(name = "id") Long productId) {
-    // TODO: memberId / role 받아와서 처리 예정
-    Long memberId = 1L;
-    if (memberId == null || productId == null) {
+  public ResponseEntity<ApiResponse> getProduct(
+      @AuthenticationPrincipal CustomUserDetails user, @PathVariable(name = "id") Long productId) {
+    if (productId == null) {
       throw new GeneralException(ErrorStatus.PRODUCT_FIELD_REQUIRED);
     }
-    ProductDetailResponse productResponse = productFacade.getProduct(memberId, productId);
+    ProductDetailResponse productResponse =
+        productFacade.getProduct(user != null ? user.getMemberId() : null, productId);
     return ApiResponse.onSuccess(SuccessStatus.OK, productResponse);
   }
 
@@ -71,48 +74,43 @@ public class ApiV1ProductController {
       @RequestParam(name = "category") ProductCategory category,
       @RequestParam(name = "page") int page,
       @RequestParam(name = "size") int size) {
-    // TODO: memberId / role 받아와서 처리 예정
-    Long memberId = 1L;
     Pageable pageable =
         PageRequest.of(
             page, size, Sort.by(Sort.Direction.DESC, "createdAt") // 정렬 고정
             );
-    Page<ProductResponse> productResponses =
-        productFacade.getProducts(memberId, category, pageable);
+    Page<ProductResponse> productResponses = productFacade.getProducts(category, pageable);
     return ApiResponse.onSuccess(SuccessStatus.OK, productResponses);
   }
 
   @Operation(summary = "상품 수정", description = "상품을 수정합니다.")
   @PatchMapping("/{id}")
   public ResponseEntity<ApiResponse> updateProduct(
+      @AuthenticationPrincipal CustomUserDetails user,
       @PathVariable(name = "id") Long productId,
       @Valid @RequestBody ProductUpdateRequest productRequest) {
-    // TODO: sellerId 는 나중에 security 에서 가져올것
-    Long sellerId = 1L;
+    // TODO: sellerId userDetail 가져오도록 수정
     ProductResponse productResponse =
-        productFacade.updateProduct(sellerId, productId, productRequest);
+        productFacade.updateProduct(user.getMemberId(), productId, productRequest);
     return ApiResponse.onSuccess(SuccessStatus.OK, productResponse);
   }
 
   @Operation(summary = "상품 상태 변경", description = "상품의 등록 상태를 변경합니다 (DRAFT, COMPLETED, CANCELED)")
   @PatchMapping("/{id}/status")
   public ResponseEntity<ApiResponse> updateProductStatus(
+      @AuthenticationPrincipal CustomUserDetails user,
       @PathVariable(name = "id") Long productId,
       @RequestParam(name = "status") ProductStatus productStatus) {
-
-    // TODO: sellerId 는 나중에 security 에서 가져올것
-    Long sellerId = 1L;
     ProductResponse productResponse =
-        productFacade.updateProductStatus(sellerId, productId, productStatus);
+        productFacade.updateProductStatus(user.getMemberId(), productId, productStatus);
     return ApiResponse.onSuccess(SuccessStatus.OK, productResponse);
   }
 
   @Operation(summary = "관심상품 추가", description = "상품을 관심상품에 추가합니다.")
   @PostMapping("/{id}/favorite")
   public ResponseEntity<ApiResponse> createProductFavorite(
+      @AuthenticationPrincipal CustomUserDetails user,
       @Valid @PathVariable(name = "id") Long productId) {
-    // TODO: sellerId 는 나중에 security 에서 가져올것
-    Long memberId = 1L;
+    Long memberId = user.getMemberId();
     if (memberId == null || productId == null) {
       throw new GeneralException(ErrorStatus.PRODUCT_FIELD_REQUIRED);
     }
@@ -123,9 +121,9 @@ public class ApiV1ProductController {
   @Operation(summary = "관심상품 삭제", description = "상품을 관심상품에서 삭제합니다.")
   @DeleteMapping("/{id}/favorite")
   public ResponseEntity<ApiResponse> deleteProductFavorite(
+      @AuthenticationPrincipal CustomUserDetails user,
       @Valid @PathVariable(name = "id") Long productId) {
-    // TODO: sellerId 는 나중에 security 에서 가져올것
-    Long memberId = 1L;
+    Long memberId = user.getMemberId();
     if (memberId == null || productId == null) {
       throw new GeneralException(ErrorStatus.PRODUCT_FIELD_REQUIRED);
     }
