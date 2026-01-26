@@ -28,6 +28,7 @@ import com.modeunsa.boundedcontext.payment.app.usecase.PaymentSyncMemberUseCase;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
+import com.modeunsa.global.security.CustomUserDetails;
 import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -95,10 +96,11 @@ public class PaymentFacade {
    * 특정 단계에서 실패하면 데이터를 롤백처리하는 것이 아니라 실패에 대한 상태로 저장하여 관리합니다.
    * 각 UseCase 내부에서 필요한 트랜잭션 처리를 수행합니다.
    */
-  public PaymentResponse requestPayment(Long memberId, PaymentRequest paymentRequest) {
+  public PaymentResponse requestPayment(CustomUserDetails user, PaymentRequest paymentRequest) {
 
     // 1. 결제 요청
-    PaymentProcessContext context = paymentInitializeUseCase.execute(memberId, paymentRequest);
+    PaymentProcessContext context =
+        paymentInitializeUseCase.execute(user.getMemberId(), paymentRequest);
 
     // 2. 결제 진행 상태로 변경 및 검증
     context = paymentInProgressUseCase.execute(context);

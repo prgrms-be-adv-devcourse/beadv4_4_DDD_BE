@@ -6,6 +6,7 @@ import com.modeunsa.boundedcontext.payment.app.dto.ConfirmPaymentResponse;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentResponse;
 import com.modeunsa.global.response.ApiResponse;
+import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.global.status.SuccessStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,8 +31,9 @@ public class ApiV1PaymentController {
   @Operation(summary = "결제 요청 기능", description = "결제를 요청하는 기능입니다.")
   @PostMapping
   public ResponseEntity<ApiResponse> requestPayment(
-      @AuthenticationPrincipal Long memberId, @Valid @RequestBody PaymentRequest paymentRequest) {
-    PaymentResponse response = paymentFacade.requestPayment(memberId, paymentRequest);
+      @AuthenticationPrincipal CustomUserDetails user,
+      @Valid @RequestBody PaymentRequest paymentRequest) {
+    PaymentResponse response = paymentFacade.requestPayment(user, paymentRequest);
     return ApiResponse.onSuccess(SuccessStatus.OK, response);
   }
 
