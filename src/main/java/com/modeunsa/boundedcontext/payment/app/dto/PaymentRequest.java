@@ -8,7 +8,4 @@ import lombok.Builder;
 
 @Builder
 public record PaymentRequest(
-    @NotNull Long orderId,
-    @NotBlank String orderNo,
-    @NotNull Long buyerId,
-    @NotNull @Positive BigDecimal totalAmount) {}
+    @NotNull Long orderId, @NotBlank String orderNo, @NotNull @Positive BigDecimal totalAmount) {}

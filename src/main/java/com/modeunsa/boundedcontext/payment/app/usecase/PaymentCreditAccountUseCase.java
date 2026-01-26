@@ -14,9 +14,9 @@ public class PaymentCreditAccountUseCase {
 
   private final PaymentAccountSupport paymentAccountSupport;
 
-  public BigDecimal execute(PaymentAccountDepositRequest paymentAccountDepositRequest) {
-    var paymentAccount =
-        paymentAccountSupport.getPaymentAccountByMemberId(paymentAccountDepositRequest.memberId());
+  public BigDecimal execute(
+      Long memberId, PaymentAccountDepositRequest paymentAccountDepositRequest) {
+    var paymentAccount = paymentAccountSupport.getPaymentAccountByMemberId(memberId);
     paymentAccount.credit(
         paymentAccountDepositRequest.amount(), paymentAccountDepositRequest.paymentEventType());
     return paymentAccount.getBalance();

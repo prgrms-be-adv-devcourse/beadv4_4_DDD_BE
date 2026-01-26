@@ -15,7 +15,8 @@ public record PaymentProcessContext(
     String paymentKey,
     String pgCustomerName,
     String pgCustomerEmail,
-    String pgOrderId) {
+    String pgOrderId,
+    long pgAmount) {
 
   public static PaymentProcessContext fromPaymentForInitialize(Payment payment) {
     return PaymentProcessContext.builder()
@@ -39,9 +40,9 @@ public record PaymentProcessContext(
   }
 
   public static PaymentProcessContext fromConfirmPaymentRequest(
-      String orderNo, ConfirmPaymentRequest confirmPaymentRequest) {
+      Long memberId, String orderNo, ConfirmPaymentRequest confirmPaymentRequest) {
     return PaymentProcessContext.builder()
-        .buyerId(confirmPaymentRequest.memberId())
+        .buyerId(memberId)
         .orderNo(orderNo)
         .needsCharge(true)
         .chargeAmount(BigDecimal.valueOf(confirmPaymentRequest.amount()))
@@ -49,6 +50,7 @@ public record PaymentProcessContext(
         .pgCustomerEmail(confirmPaymentRequest.pgCustomerEmail())
         .pgCustomerName(confirmPaymentRequest.pgCustomerName())
         .pgOrderId(confirmPaymentRequest.orderId())
+        .pgAmount(confirmPaymentRequest.amount())
         .build();
   }
 

@@ -1,6 +1,5 @@
 package com.modeunsa.boundedcontext.payment.app.usecase;
 
-import com.modeunsa.boundedcontext.payment.app.dto.ConfirmPaymentRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
 import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmResponse;
@@ -22,14 +21,13 @@ public class PaymentConfirmTossPaymentUseCase {
   private final PaymentSupport paymentSupport;
   private final TossPaymentClient tossPaymentClient;
 
-  public PaymentProcessContext execute(
-      String orderNo, ConfirmPaymentRequest confirmPaymentRequest) {
+  public PaymentProcessContext execute(PaymentProcessContext context) {
 
-    PaymentId paymentId = PaymentId.create(confirmPaymentRequest.memberId(), orderNo);
+    PaymentId paymentId = PaymentId.create(context.buyerId(), context.orderNo());
 
     Payment payment = paymentSupport.getPaymentById(paymentId);
 
-    TossPaymentsConfirmRequest tossReq = TossPaymentsConfirmRequest.from(confirmPaymentRequest);
+    TossPaymentsConfirmRequest tossReq = TossPaymentsConfirmRequest.from(context);
 
     try {
       TossPaymentsConfirmResponse tossRes = tossPaymentClient.confirmPayment(tossReq);

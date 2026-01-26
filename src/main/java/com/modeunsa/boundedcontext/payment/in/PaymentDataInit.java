@@ -47,25 +47,31 @@ public class PaymentDataInit {
     }
 
     paymentFacade.creditAccount(
+        1L,
         new PaymentAccountDepositRequest(
-            1L, BigDecimal.valueOf(100_000), PaymentEventType.CHARGE_BANK_TRANSFER));
+            BigDecimal.valueOf(100_000), PaymentEventType.CHARGE_BANK_TRANSFER));
 
     paymentFacade.creditAccount(
+        2L,
         new PaymentAccountDepositRequest(
-            2L, BigDecimal.valueOf(100_000), PaymentEventType.CHARGE_BANK_TRANSFER));
+            BigDecimal.valueOf(100_000), PaymentEventType.CHARGE_BANK_TRANSFER));
 
     paymentFacade.creditAccount(
+        3L,
         new PaymentAccountDepositRequest(
-            3L, BigDecimal.valueOf(100_000), PaymentEventType.CHARGE_BANK_TRANSFER));
+            BigDecimal.valueOf(100_000), PaymentEventType.CHARGE_BANK_TRANSFER));
 
     paymentFacade.creditAccount(
+        4L,
         new PaymentAccountDepositRequest(
-            4L, BigDecimal.valueOf(20_000), PaymentEventType.CHARGE_BANK_TRANSFER));
+            BigDecimal.valueOf(20_000), PaymentEventType.CHARGE_BANK_TRANSFER));
     paymentFacade.creditAccount(
+        5L,
         new PaymentAccountDepositRequest(
-            5L, BigDecimal.valueOf(150_000), PaymentEventType.CHARGE_BANK_TRANSFER));
+            BigDecimal.valueOf(150_000), PaymentEventType.CHARGE_BANK_TRANSFER));
     paymentFacade.creditAccount(
+        6L,
         new PaymentAccountDepositRequest(
-            6L, BigDecimal.valueOf(50_000), PaymentEventType.CHARGE_BANK_TRANSFER));
+            BigDecimal.valueOf(50_000), PaymentEventType.CHARGE_BANK_TRANSFER));
   }
 }

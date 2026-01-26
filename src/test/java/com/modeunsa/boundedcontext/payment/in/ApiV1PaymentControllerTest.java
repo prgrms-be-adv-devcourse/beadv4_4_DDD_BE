@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentResponse;
@@ -27,6 +28,7 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
   void setUp() {
     super.setUpBase();
     setUpMockMvc(new ApiV1PaymentController(paymentFacade));
+    setSecurityContext(1L, MemberRole.MEMBER);
   }
 
   @Test
@@ -39,12 +41,7 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
     BigDecimal totalAmount = BigDecimal.valueOf(50000);
 
     PaymentRequest request =
-        PaymentRequest.builder()
-            .orderId(orderId)
-            .orderNo(orderNo)
-            .buyerId(buyerId)
-            .totalAmount(totalAmount)
-            .build();
+        PaymentRequest.builder().orderId(orderId).orderNo(orderNo).totalAmount(totalAmount).build();
 
     PaymentResponse response =
         PaymentResponse.builder()
@@ -56,7 +53,7 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
             .chargeAmount(BigDecimal.ZERO)
             .build();
 
-    when(paymentFacade.requestPayment(any(PaymentRequest.class))).thenReturn(response);
+    when(paymentFacade.requestPayment(any(), any())).thenReturn(response);
 
     // when, then
     mockMvc
@@ -80,7 +77,6 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
         PaymentRequest.builder()
             .orderId(null)
             .orderNo("ORDER12345")
-            .buyerId(1000L)
             .totalAmount(BigDecimal.valueOf(50000))
             .build();
 
@@ -104,31 +100,6 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
         PaymentRequest.builder()
             .orderId(1L)
             .orderNo("")
-            .buyerId(1000L)
-            .totalAmount(BigDecimal.valueOf(50000))
-            .build();
-
-    // when, then
-    mockMvc
-        .perform(
-            post("/api/v1/payments")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.isSuccess").value(false))
-        .andExpect(jsonPath("$.code").exists())
-        .andExpect(jsonPath("$.message").exists());
-  }
-
-  @Test
-  @DisplayName("결제 요청 실패 - buyerId가 null인 경우")
-  void requestPaymentFailureBuyerIdNull() throws Exception {
-    // given
-    PaymentRequest request =
-        PaymentRequest.builder()
-            .orderId(1L)
-            .orderNo("ORDER12345")
-            .buyerId(null)
             .totalAmount(BigDecimal.valueOf(50000))
             .build();
 
@@ -152,7 +123,6 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
         PaymentRequest.builder()
             .orderId(1L)
             .orderNo("ORDER12345")
-            .buyerId(1000L)
             .totalAmount(BigDecimal.ZERO)
             .build();
 
@@ -176,11 +146,10 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
         PaymentRequest.builder()
             .orderId(1L)
             .orderNo("ORDER12345")
-            .buyerId(1000L)
             .totalAmount(BigDecimal.valueOf(50000))
             .build();
 
-    when(paymentFacade.requestPayment(any(PaymentRequest.class)))
+    when(paymentFacade.requestPayment(any(), any()))
         .thenThrow(new GeneralException(ErrorStatus.PAYMENT_DUPLICATE));
 
     // when, then
@@ -203,11 +172,10 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
         PaymentRequest.builder()
             .orderId(1L)
             .orderNo("ORDER12345")
-            .buyerId(999L)
             .totalAmount(BigDecimal.valueOf(50000))
             .build();
 
-    when(paymentFacade.requestPayment(any(PaymentRequest.class)))
+    when(paymentFacade.requestPayment(any(), any()))
         .thenThrow(new GeneralException(ErrorStatus.PAYMENT_ACCOUNT_NOT_FOUND));
 
     // when, then
@@ -230,11 +198,10 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
         PaymentRequest.builder()
             .orderId(1L)
             .orderNo("ORDER12345")
-            .buyerId(1000L)
             .totalAmount(BigDecimal.valueOf(50000))
             .build();
 
-    when(paymentFacade.requestPayment(any(PaymentRequest.class)))
+    when(paymentFacade.requestPayment(any(), any()))
         .thenThrow(new GeneralException(ErrorStatus.PAYMENT_MEMBER_IN_ACTIVE));
 
     // when, then

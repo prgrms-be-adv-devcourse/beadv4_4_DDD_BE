@@ -28,6 +28,7 @@ import com.modeunsa.boundedcontext.payment.app.usecase.PaymentSyncMemberUseCase;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
+import com.modeunsa.global.security.CustomUserDetails;
 import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -71,8 +72,9 @@ public class PaymentFacade {
   }
 
   public PaymentAccountDepositResponse creditAccount(
-      PaymentAccountDepositRequest paymentAccountDepositRequest) {
-    BigDecimal balance = paymentCreditAccountUseCase.execute(paymentAccountDepositRequest);
+      Long memberId, PaymentAccountDepositRequest paymentAccountDepositRequest) {
+    BigDecimal balance =
+        paymentCreditAccountUseCase.execute(memberId, paymentAccountDepositRequest);
     return new PaymentAccountDepositResponse(balance);
   }
 
@@ -95,10 +97,11 @@ public class PaymentFacade {
    * 특정 단계에서 실패하면 데이터를 롤백처리하는 것이 아니라 실패에 대한 상태로 저장하여 관리합니다.
    * 각 UseCase 내부에서 필요한 트랜잭션 처리를 수행합니다.
    */
-  public PaymentResponse requestPayment(PaymentRequest paymentRequest) {
+  public PaymentResponse requestPayment(CustomUserDetails user, PaymentRequest paymentRequest) {
 
     // 1. 결제 요청
-    PaymentProcessContext context = paymentInitializeUseCase.execute(paymentRequest);
+    PaymentProcessContext context =
+        paymentInitializeUseCase.execute(user.getMemberId(), paymentRequest);
 
     // 2. 결제 진행 상태로 변경 및 검증
     context = paymentInProgressUseCase.execute(context);
@@ -122,16 +125,17 @@ public class PaymentFacade {
    * 특정 단계에서 실패하면 해당 단계의 상태만 저장되고, 이후 단계는 실행되지 않습니다.
    */
   public ConfirmPaymentResponse confirmTossPayment(
-      String orderNo, ConfirmPaymentRequest confirmPaymentRequest) {
+      CustomUserDetails user, String orderNo, ConfirmPaymentRequest confirmPaymentRequest) {
 
     PaymentProcessContext context =
-        PaymentProcessContext.fromConfirmPaymentRequest(orderNo, confirmPaymentRequest);
+        PaymentProcessContext.fromConfirmPaymentRequest(
+            user.getMemberId(), orderNo, confirmPaymentRequest);
 
     // 1. 결제 진행 상태로 변경 및 검증
     paymentInProgressUseCase.execute(context);
 
     // 2. 토스페이먼츠 결제 승인 요청 및 결과 저장
-    context = paymentConfirmTossPaymentUseCase.execute(orderNo, confirmPaymentRequest);
+    context = paymentConfirmTossPaymentUseCase.execute(context);
 
     // 3. 결제 완료 처리 (계좌 입출금, 이벤트 발행)
     paymentProcessUseCase.execute(context);

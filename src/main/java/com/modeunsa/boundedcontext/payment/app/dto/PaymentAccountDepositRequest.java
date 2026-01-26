@@ -6,6 +6,4 @@ import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 
 public record PaymentAccountDepositRequest(
-    @NotNull Long memberId,
-    @NotNull @Positive BigDecimal amount,
-    @NotNull PaymentEventType paymentEventType) {}
+    @NotNull @Positive BigDecimal amount, @NotNull PaymentEventType paymentEventType) {}
