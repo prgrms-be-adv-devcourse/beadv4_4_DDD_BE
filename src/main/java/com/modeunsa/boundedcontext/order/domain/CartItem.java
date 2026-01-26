@@ -40,4 +40,8 @@ public class CartItem extends GeneratedIdAndAuditedEntity {
 
   @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
+
+  public void updateQuantity(int quantity) {
+    this.quantity = quantity;
+  }
 }

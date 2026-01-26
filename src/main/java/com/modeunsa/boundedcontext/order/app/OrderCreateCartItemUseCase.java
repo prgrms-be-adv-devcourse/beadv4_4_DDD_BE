@@ -23,11 +23,22 @@ public class OrderCreateCartItemUseCase {
     OrderMember member = orderSupport.findByMemberId(memberId);
 
     // 상품 확인
-    OrderProduct product = orderSupport.findByProductId(createCartItemRequestDto.getProductId());
+    OrderProduct product = orderSupport.findByProductId(createCartItemRequestDto.productId());
 
-    CartItem cartItem = orderMapper.toCartItemEntity(memberId, createCartItemRequestDto);
-
-    orderCartItemRepository.save(cartItem);
+    CartItem cartItem =
+        orderCartItemRepository
+            .findByMemberIdAndProductId(member.getId(), product.getId())
+            .map(
+                item -> {
+                  item.updateQuantity(createCartItemRequestDto.quantity());
+                  return item;
+                })
+            .orElseGet(
+                () -> {
+                  CartItem newItem =
+                      orderMapper.toCartItemEntity(memberId, createCartItemRequestDto);
+                  return orderCartItemRepository.save(newItem);
+                });
 
     return orderMapper.toCreateCartItemResponseDto(cartItem);
   }
