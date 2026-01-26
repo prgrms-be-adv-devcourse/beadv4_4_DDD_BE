@@ -1,3 +1,11 @@
+# =========================
+# Env loading
+# =========================
+ifneq (,$(wildcard .env))
+	include .env
+	export
+endif
+
 git-setup: git-template git-hooks
 	@echo "✅ Done. (repo-local git template + hooks applied)"
 
@@ -21,3 +29,21 @@ format-check:
 format-apply:
 	@echo "Applying code formatting..."
 	@./gradlew -q spotlessApply
+
+build:
+	@echo "Gradle clean & build"
+	./gradlew clean build
+
+docker-build:
+	@echo "Building image: $(DOCKER_IMAGE)"
+	docker buildx build --platform linux/amd64,linux/arm64 -t $(DOCKER_IMAGE) .
+
+docker-push:
+	@echo "Pushing image: $(DOCKER_IMAGE)"
+	docker push $(DOCKER_IMAGE)
+
+multi-docker-build-push:
+	docker buildx build \
+      --platform linux/amd64,linux/arm64 \
+      -t $(DOCKER_IMAGE) \
+      --push .
