@@ -1,6 +1,7 @@
 package com.modeunsa.boundedcontext.payment.in;
 
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -9,6 +10,7 @@ import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositResponse;
+import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberResponse;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
@@ -97,6 +99,50 @@ class ApiV1PaymentAccountControllerTest extends BasePaymentControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.isSuccess").value(false))
+        .andExpect(jsonPath("$.code").exists())
+        .andExpect(jsonPath("$.message").exists());
+  }
+
+  @Test
+  @DisplayName("계좌 정보 조회 성공 - 유효한 요청으로 계좌 정보 조회 성공")
+  void getMemberSuccess() throws Exception {
+    // given
+    Long memberId = 1L;
+    String customerKey = "customer_key_123";
+    String customerName = "홍길동";
+    String customerEmail = "test@example.com";
+    BigDecimal balance = BigDecimal.valueOf(50000.00);
+
+    PaymentMemberResponse response =
+        new PaymentMemberResponse(customerKey, customerName, customerEmail, balance);
+
+    when(paymentFacade.getMember(memberId)).thenReturn(response);
+
+    // when, then
+    mockMvc
+        .perform(get("/api/v1/payments/accounts"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.isSuccess").value(true))
+        .andExpect(jsonPath("$.result.customerKey").value(customerKey))
+        .andExpect(jsonPath("$.result.customerName").value(customerName))
+        .andExpect(jsonPath("$.result.customerEmail").value(customerEmail))
+        .andExpect(jsonPath("$.result.balance").value(50000));
+  }
+
+  @Test
+  @DisplayName("계좌 정보 조회 실패 - 계좌를 찾을 수 없는 경우")
+  void getMemberFailureAccountNotFound() throws Exception {
+    // given
+    Long memberId = 1L;
+
+    when(paymentFacade.getMember(memberId))
+        .thenThrow(new GeneralException(ErrorStatus.PAYMENT_ACCOUNT_NOT_FOUND));
+
+    // when, then
+    mockMvc
+        .perform(get("/api/v1/payments/accounts"))
+        .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.isSuccess").value(false))
         .andExpect(jsonPath("$.code").exists())
         .andExpect(jsonPath("$.message").exists());
