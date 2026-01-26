@@ -1,7 +1,6 @@
 package com.modeunsa.boundedcontext.payment.in;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -112,34 +111,6 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.isSuccess").value(false))
-        .andExpect(jsonPath("$.code").exists())
-        .andExpect(jsonPath("$.message").exists());
-  }
-
-  @Test
-  @DisplayName("결제 요청 실패 - buyerId가 null인 경우")
-  void requestPaymentFailureBuyerIdNull() throws Exception {
-    // given
-    PaymentRequest request =
-        PaymentRequest.builder()
-            .orderId(1L)
-            .orderNo("ORDER12345")
-            .totalAmount(BigDecimal.valueOf(50000))
-            .build();
-
-    // 실제 구현에서는 인증 정보가 없으면 회원을 찾을 수 없다는 도메인 예외가 발생한다고 가정하고,
-    // memberId 가 null 인 경우에 대한 예외 매핑을 검증한다.
-    when(paymentFacade.requestPayment(isNull(), any(PaymentRequest.class)))
-        .thenThrow(new GeneralException(ErrorStatus.PAYMENT_MEMBER_NOT_FOUND));
-
-    // when, then
-    mockMvc
-        .perform(
-            post("/api/v1/payments")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.isSuccess").value(false))
         .andExpect(jsonPath("$.code").exists())
         .andExpect(jsonPath("$.message").exists());

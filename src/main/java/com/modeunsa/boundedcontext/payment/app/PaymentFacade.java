@@ -124,16 +124,17 @@ public class PaymentFacade {
    * 특정 단계에서 실패하면 해당 단계의 상태만 저장되고, 이후 단계는 실행되지 않습니다.
    */
   public ConfirmPaymentResponse confirmTossPayment(
-      String orderNo, ConfirmPaymentRequest confirmPaymentRequest) {
+      CustomUserDetails user, String orderNo, ConfirmPaymentRequest confirmPaymentRequest) {
 
     PaymentProcessContext context =
-        PaymentProcessContext.fromConfirmPaymentRequest(orderNo, confirmPaymentRequest);
+        PaymentProcessContext.fromConfirmPaymentRequest(
+            user.getMemberId(), orderNo, confirmPaymentRequest);
 
     // 1. 결제 진행 상태로 변경 및 검증
     paymentInProgressUseCase.execute(context);
 
     // 2. 토스페이먼츠 결제 승인 요청 및 결과 저장
-    context = paymentConfirmTossPaymentUseCase.execute(orderNo, confirmPaymentRequest);
+    context = paymentConfirmTossPaymentUseCase.execute(context);
 
     // 3. 결제 완료 처리 (계좌 입출금, 이벤트 발행)
     paymentProcessUseCase.execute(context);

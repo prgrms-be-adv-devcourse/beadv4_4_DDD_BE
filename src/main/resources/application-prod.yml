@@ -81,10 +81,6 @@ custom:
 
       # 콘텐츠
       - /api/v1/contents/**
-
-      # 결제 콜백
-      - /api/v1/payments/*/payment/confirm/by/tossPayments
-      - /api/v1/payments/**
     oauth2:
       allowed-redirect-domains:
         - modeunsa.store

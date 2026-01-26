@@ -114,6 +114,9 @@ public class SecurityConfig {
                   // 결제
                   .requestMatchers(HttpMethod.POST, "/api/v1/payments")
                   .hasRole("MEMBER")
+                  .requestMatchers(
+                      HttpMethod.POST, "/api/v1/payments/*/payment/confirm/by/tossPayments")
+                  .hasRole("MEMBER")
                   .requestMatchers("/api/v1/payments/accounts/**")
                   .hasRole("MEMBER")
                   .requestMatchers("/api/v1/payments/members/**")
