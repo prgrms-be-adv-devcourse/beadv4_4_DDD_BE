@@ -36,7 +36,11 @@ public class PaymentInitializeUseCase {
     }
 
     Payment payment =
-        Payment.create(paymentId, paymentRequest.orderId(), paymentRequest.totalAmount());
+        Payment.create(
+            paymentId,
+            paymentRequest.orderId(),
+            paymentRequest.totalAmount(),
+            paymentRequest.paymentDeadlineAt());
     return savePayment(payment);
   }
 

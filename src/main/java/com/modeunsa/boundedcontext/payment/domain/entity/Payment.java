@@ -2,6 +2,8 @@ package com.modeunsa.boundedcontext.payment.domain.entity;
 
 import static com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode.INVALID_CHARGE_AMOUNT;
 import static com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode.INVALID_PAYMENT;
+import static com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode.INVALID_PAYMENT_STATUS;
+import static com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode.OVERDUE_PAYMENT_DEADLINE;
 import static jakarta.persistence.CascadeType.PERSIST;
 
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
@@ -64,7 +66,7 @@ public class Payment extends AuditedEntity {
   @Builder.Default
   @Column(nullable = false, length = 20)
   @Enumerated(EnumType.STRING)
-  private PaymentStatus status = PaymentStatus.READY;
+  private PaymentStatus status = PaymentStatus.PENDING;
 
   @Column(nullable = false)
   private Long orderId;
@@ -76,6 +78,8 @@ public class Payment extends AuditedEntity {
 
   @Column(precision = 19, scale = 2)
   private BigDecimal shortAmount;
+
+  private LocalDateTime paymentDeadlineAt;
 
   @Column(length = 20)
   @Enumerated(EnumType.STRING)
@@ -111,18 +115,20 @@ public class Payment extends AuditedEntity {
 
   @Lob private String pgFailureReason;
 
-  public static Payment create(PaymentId id, Long orderId, BigDecimal totalAmount) {
+  public static Payment create(
+      PaymentId id, Long orderId, BigDecimal totalAmount, LocalDateTime paymentDeadlineAt) {
     validateTotalAmount(totalAmount);
     return Payment.builder()
         .id(id)
         .orderId(orderId)
         .totalAmount(totalAmount)
+        .paymentDeadlineAt(paymentDeadlineAt)
         .status(PaymentStatus.PENDING)
         .build();
   }
 
   public void addInitialLog(Payment payment) {
-    PaymentLog paymentLog = PaymentLog.addInitialLog(payment, PaymentStatus.READY);
+    PaymentLog paymentLog = PaymentLog.addInitialLog(payment, PaymentStatus.PENDING);
     this.paymentLogs.add(paymentLog);
   }
 
@@ -169,6 +175,7 @@ public class Payment extends AuditedEntity {
   }
 
   public void changeInProgress() {
+    validateCanChangeToInProgress();
     changeStatus(PaymentStatus.IN_PROGRESS);
   }
 
@@ -219,5 +226,24 @@ public class Payment extends AuditedEntity {
 
   private boolean isRetryable() {
     return this.status == PaymentStatus.PENDING || this.status == PaymentStatus.FAILED;
+  }
+
+  private void validateCanChangeToInProgress() {
+    if (this.status != PaymentStatus.PENDING) {
+      throw new PaymentDomainException(
+          INVALID_PAYMENT_STATUS,
+          getId().getMemberId(),
+          getId().getOrderNo(),
+          this.status,
+          PaymentStatus.IN_PROGRESS);
+    }
+
+    if (this.paymentDeadlineAt.isBefore(LocalDateTime.now())) {
+      throw new PaymentDomainException(
+          OVERDUE_PAYMENT_DEADLINE,
+          getId().getMemberId(),
+          getId().getOrderNo(),
+          this.paymentDeadlineAt);
+    }
   }
 }
