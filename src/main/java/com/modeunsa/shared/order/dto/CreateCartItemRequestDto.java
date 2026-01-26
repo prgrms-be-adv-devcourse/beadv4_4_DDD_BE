@@ -1,13 +1,5 @@
 package com.modeunsa.shared.order.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Positive;
 
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-public class CreateCartItemRequestDto {
-  private long productId;
-  private int quantity;
-}
+public record CreateCartItemRequestDto(long productId, @Positive int quantity) {}
