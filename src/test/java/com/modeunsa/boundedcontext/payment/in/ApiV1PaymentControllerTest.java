@@ -13,6 +13,7 @@ import com.modeunsa.boundedcontext.payment.app.dto.PaymentResponse;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,9 +40,12 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
     String orderNo = "ORDER12345";
     Long buyerId = 1000L;
     BigDecimal totalAmount = BigDecimal.valueOf(50000);
+    LocalDateTime paymentDeadlineAt = LocalDateTime.now().plusDays(1);
 
     PaymentRequest request =
-        PaymentRequest.builder().orderId(orderId).orderNo(orderNo).totalAmount(totalAmount).build();
+        PaymentRequest.builder()
+            .orderId(orderId).orderNo(orderNo).totalAmount(totalAmount)
+            .paymentDeadlineAt(paymentDeadlineAt).build();
 
     PaymentResponse response =
         PaymentResponse.builder()
@@ -78,6 +82,7 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
             .orderId(null)
             .orderNo("ORDER12345")
             .totalAmount(BigDecimal.valueOf(50000))
+            .paymentDeadlineAt(LocalDateTime.now().plusDays(1))
             .build();
 
     // when, then
@@ -100,7 +105,34 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
         PaymentRequest.builder()
             .orderId(1L)
             .orderNo("")
+            .buyerId(1000L)
             .totalAmount(BigDecimal.valueOf(50000))
+            .paymentDeadlineAt(LocalDateTime.now().plusDays(1))
+            .build();
+
+    // when, then
+    mockMvc
+        .perform(
+            post("/api/v1/payments")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.isSuccess").value(false))
+        .andExpect(jsonPath("$.code").exists())
+        .andExpect(jsonPath("$.message").exists());
+  }
+
+  @Test
+  @DisplayName("결제 요청 실패 - buyerId가 null인 경우")
+  void requestPaymentFailureBuyerIdNull() throws Exception {
+    // given
+    PaymentRequest request =
+        PaymentRequest.builder()
+            .orderId(1L)
+            .orderNo("ORDER12345")
+            .buyerId(null)
+            .totalAmount(BigDecimal.valueOf(50000))
+            .paymentDeadlineAt(LocalDateTime.now().plusDays(1))
             .build();
 
     // when, then
@@ -124,6 +156,7 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
             .orderId(1L)
             .orderNo("ORDER12345")
             .totalAmount(BigDecimal.ZERO)
+            .paymentDeadlineAt(LocalDateTime.now().plusDays(1))
             .build();
 
     // when, then
@@ -147,6 +180,7 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
             .orderId(1L)
             .orderNo("ORDER12345")
             .totalAmount(BigDecimal.valueOf(50000))
+            .paymentDeadlineAt(LocalDateTime.now().plusDays(1))
             .build();
 
     when(paymentFacade.requestPayment(any(), any()))
@@ -173,6 +207,7 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
             .orderId(1L)
             .orderNo("ORDER12345")
             .totalAmount(BigDecimal.valueOf(50000))
+            .paymentDeadlineAt(LocalDateTime.now().plusDays(1))
             .build();
 
     when(paymentFacade.requestPayment(any(), any()))
@@ -199,6 +234,7 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
             .orderId(1L)
             .orderNo("ORDER12345")
             .totalAmount(BigDecimal.valueOf(50000))
+            .paymentDeadlineAt(LocalDateTime.now().plusDays(1))
             .build();
 
     when(paymentFacade.requestPayment(any(), any()))
