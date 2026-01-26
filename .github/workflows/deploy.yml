@@ -73,6 +73,7 @@ jobs:
             set -e
             cd /home/ec2-user/app
             docker-compose pull app
-            docker-compose --env-file ./.env up -d --build --remove-orphans
+            docker-compose --env-file ./.env down --remove-orphans
+            docker-compose --env-file ./.env up -d --build
             docker image prune -f
           script_stop: true

@@ -36,7 +36,7 @@ public class ProductEventListener {
   @Transactional(propagation = REQUIRES_NEW)
   public void handleSellerRegisteredEvent(SellerRegisteredEvent event) {
     productFacade.syncSeller(
-        event.memberSellerId(), event.businessName(), event.representativeName());
+        event.memberSellerId(), event.memberId(), event.businessName(), event.representativeName());
   }
 
   @TransactionalEventListener(phase = AFTER_COMMIT)

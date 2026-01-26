@@ -17,6 +17,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class ProductMemberSeller extends ManualIdAndAuditedEntity {
+  @Column(nullable = false)
+  private Long memberId;
+
   @Column(nullable = false, length = 200)
   private String businessName;
 
@@ -24,9 +27,10 @@ public class ProductMemberSeller extends ManualIdAndAuditedEntity {
   private String representativeName;
 
   public static ProductMemberSeller create(
-      Long sellerId, String businessName, String representativeName) {
+      Long sellerId, Long memberId, String businessName, String representativeName) {
     ProductMemberSeller seller =
         ProductMemberSeller.builder()
+            .memberId(memberId)
             .businessName(businessName)
             .representativeName(representativeName)
             .build();
