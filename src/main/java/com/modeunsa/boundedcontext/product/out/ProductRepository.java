@@ -2,6 +2,7 @@ package com.modeunsa.boundedcontext.product.out;
 
 import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
+import com.modeunsa.boundedcontext.product.domain.ProductMemberSeller;
 import com.modeunsa.boundedcontext.product.domain.ProductStatus;
 import com.modeunsa.boundedcontext.product.domain.SaleStatus;
 import io.lettuce.core.dynamic.annotation.Param;
@@ -21,6 +22,12 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
   Page<Product> findAllByCategoryAndSaleStatusInAndProductStatusIn(
       ProductCategory category,
+      Collection<SaleStatus> saleStatus,
+      Collection<ProductStatus> productStatus,
+      Pageable pageable);
+
+  Page<Product> findAllBySellerAndSaleStatusInAndProductStatusIn(
+      ProductMemberSeller seller,
       Collection<SaleStatus> saleStatus,
       Collection<ProductStatus> productStatus,
       Pageable pageable);
