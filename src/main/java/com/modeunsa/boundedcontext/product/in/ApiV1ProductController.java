@@ -146,7 +146,7 @@ public class ApiV1ProductController {
   }
 
   @Operation(summary = "(판매자용) 상품 리스트 조회", description = "판매자용 상품 리스트를 조회합니다.")
-  @GetMapping
+  @GetMapping("/products/seller")
   public ResponseEntity<ApiResponse> getProductsForSeller(
       @AuthenticationPrincipal CustomUserDetails user,
       @RequestParam(name = "page") int page,
