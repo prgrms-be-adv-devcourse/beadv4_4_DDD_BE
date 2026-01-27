@@ -3,6 +3,7 @@ package com.modeunsa.boundedcontext.payment.app.usecase;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
 import com.modeunsa.boundedcontext.payment.app.lock.LockedPaymentAccounts;
 import com.modeunsa.boundedcontext.payment.app.lock.PaymentAccountLockManager;
+import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentSupport;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PaymentProcessUseCase {
 
   private final PaymentSupport paymentSupport;
+  private final PaymentAccountSupport paymentAccountSupport;
   private final PaymentAccountLockManager paymentAccountLockManager;
   private final SpringDomainEventPublisher eventPublisher;
   private final PaymentAccountConfig paymentAccountConfig;
@@ -38,6 +40,21 @@ public class PaymentProcessUseCase {
     PaymentAccount buyerAccount = accounts.get(paymentProcessContext.buyerId());
 
     // 3. 결제 처리
+    if (paymentProcessContext.needsCharge()) {
+      processWithCharge(holderAccount, buyerAccount, paymentProcessContext);
+    } else {
+      processWithoutCharge(holderAccount, buyerAccount, paymentProcessContext);
+    }
+  }
+
+  public void executeWithoutLock(PaymentProcessContext paymentProcessContext) {
+
+    // 1. 결제 계좌 영속성 획득 (Lock 미획득)
+    PaymentAccount holderAccount = paymentAccountSupport.getHolderAccount();
+    PaymentAccount buyerAccount =
+        paymentAccountSupport.getPaymentAccountByMemberId(paymentProcessContext.buyerId());
+
+    // 2. 결제 처리
     if (paymentProcessContext.needsCharge()) {
       processWithCharge(holderAccount, buyerAccount, paymentProcessContext);
     } else {
