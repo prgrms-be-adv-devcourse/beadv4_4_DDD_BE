@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 
 public record PaymentFailedEvent(
     Long memberId,
+    Long orderId,
     String orderNo,
     BigDecimal amount,
     PaymentErrorCode failureReason,
@@ -15,13 +16,21 @@ public record PaymentFailedEvent(
     implements TraceableEvent {
 
   public PaymentFailedEvent(
-      Long memberId, String orderNo, BigDecimal amount, PaymentErrorCode failureReason) {
-    this(memberId, orderNo, amount, failureReason, EventUtils.extractTraceId());
+      Long memberId,
+      Long orderId,
+      String orderNo,
+      BigDecimal amount,
+      PaymentErrorCode failureReason) {
+    this(memberId, orderId, orderNo, amount, failureReason, EventUtils.extractTraceId());
   }
 
   public static PaymentFailedEvent from(
       PaymentProcessContext context, PaymentErrorCode failureReason) {
     return new PaymentFailedEvent(
-        context.buyerId(), context.orderNo(), context.totalAmount(), failureReason);
+        context.buyerId(),
+        context.orderId(),
+        context.orderNo(),
+        context.totalAmount(),
+        failureReason);
   }
 }

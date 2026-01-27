@@ -18,7 +18,7 @@ import com.modeunsa.boundedcontext.payment.app.support.PaymentMemberSupport;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentConfirmTossPaymentUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreateAccountUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreditAccountUseCase;
-import com.modeunsa.boundedcontext.payment.app.usecase.PaymentFailUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.PaymentFailureUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentInProgressUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentInitializeUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentPayoutCompleteUseCase;
@@ -45,7 +45,7 @@ public class PaymentFacade {
   private final PaymentCreditAccountUseCase paymentCreditAccountUseCase;
   private final PaymentInitializeUseCase paymentInitializeUseCase;
   private final PaymentInProgressUseCase paymentInProgressUseCase;
-  private final PaymentFailUseCase paymentFailUseCase;
+  private final PaymentFailureUseCase paymentFailureUseCase;
   private final PaymentProcessUseCase paymentProcessUseCase;
   private final PaymentRefundUseCase paymentRefundUseCase;
   private final PaymentPayoutCompleteUseCase paymentPayoutCompleteUseCase;
@@ -144,7 +144,7 @@ public class PaymentFacade {
   }
 
   public void handlePaymentFailed(PaymentFailedEvent paymentFailedEvent) {
-    paymentFailUseCase.execute(paymentFailedEvent);
+    paymentFailureUseCase.execute(paymentFailedEvent);
   }
 
   public long countAccountLog() {

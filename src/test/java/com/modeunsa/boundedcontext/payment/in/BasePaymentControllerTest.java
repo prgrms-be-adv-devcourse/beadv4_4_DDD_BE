@@ -1,6 +1,7 @@
 package com.modeunsa.boundedcontext.payment.in;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.global.exception.ExceptionAdvice;
 import com.modeunsa.global.security.CustomUserDetails;
@@ -25,8 +26,8 @@ public abstract class BasePaymentControllerTest {
 
   @BeforeEach
   void setUpBase() {
-    objectMapper = new ObjectMapper();
     SecurityContextHolder.clearContext();
+    objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
   }
 
   protected void setUpMockMvc(Object controller) {
