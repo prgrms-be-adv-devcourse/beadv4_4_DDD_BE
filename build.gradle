@@ -95,7 +95,9 @@ jar {
 }
 
 tasks.named('test') {
-    useJUnitPlatform()
+    useJUnitPlatform(
+            excludeTags: ['ignore']
+    )
 
     testLogging {
         events "skipped", "failed"
