@@ -19,7 +19,7 @@ public class ProductPolicy {
   public static final Set<SaleStatus> DISPLAYABLE_SALE_STATUES_FOR_SELLER =
       EnumSet.of(SaleStatus.SALE, SaleStatus.NOT_SALE, SaleStatus.SOLD_OUT);
 
-  public static final Set<ProductStatus> DISPLAYABLE_PRODUCT_STATUES_FOR_SELLER =
+  public static final Set<ProductStatus> DISPLAYABLE_PRODUCT_STATUSES_FOR_SELLER =
       EnumSet.of(ProductStatus.DRAFT, ProductStatus.COMPLETED, ProductStatus.CANCELED);
 
   public static final Set<SaleStatus> ORDERABLE_SALE_STATUES = EnumSet.of(SaleStatus.SALE);

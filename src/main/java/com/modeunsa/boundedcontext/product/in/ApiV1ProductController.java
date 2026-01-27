@@ -144,4 +144,19 @@ public class ApiV1ProductController {
       @Valid @RequestBody ProductStockUpdateRequest productStockUpdateRequest) {
     return productFacade.deductStock(productStockUpdateRequest);
   }
+
+  @Operation(summary = "(판매자용) 상품 리스트 조회", description = "판매자용 상품 리스트를 조회합니다.")
+  @GetMapping
+  public ResponseEntity<ApiResponse> getProductsForSeller(
+      @AuthenticationPrincipal CustomUserDetails user,
+      @RequestParam(name = "page") int page,
+      @RequestParam(name = "size") int size) {
+    Pageable pageable =
+        PageRequest.of(
+            page, size, Sort.by(Sort.Direction.DESC, "createdAt") // 정렬 고정
+            );
+    Page<ProductResponse> productResponses =
+        productFacade.getProducts(user.getMemberId(), pageable);
+    return ApiResponse.onSuccess(SuccessStatus.OK, productResponses);
+  }
 }

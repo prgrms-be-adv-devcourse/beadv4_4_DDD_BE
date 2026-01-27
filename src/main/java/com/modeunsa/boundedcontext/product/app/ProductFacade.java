@@ -62,6 +62,11 @@ public class ProductFacade {
     return products.map(productMapper::toResponse);
   }
 
+  public Page<ProductResponse> getProducts(Long memberId, Pageable pageable) {
+    Page<Product> products = productSupport.getProducts(memberId, pageable);
+    return products.map(productMapper::toResponse);
+  }
+
   public List<ProductOrderResponse> getProducts(List<Long> productIds) {
     return productValidateOrderUseCase.validateOrder(productIds).stream()
         .map(productMapper::toProductOrderResponse)
