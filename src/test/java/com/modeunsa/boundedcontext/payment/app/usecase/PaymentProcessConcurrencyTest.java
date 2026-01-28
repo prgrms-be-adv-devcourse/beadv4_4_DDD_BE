@@ -15,6 +15,8 @@ import com.modeunsa.boundedcontext.payment.out.PaymentMemberRepository;
 import com.modeunsa.boundedcontext.payment.out.PaymentRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -93,15 +95,33 @@ class PaymentProcessConcurrencyTest {
     BigDecimal amount = BigDecimal.valueOf(1_000);
     var threadCount = 20;
 
-    final PaymentProcessContext paymentProcessContext =
-        PaymentProcessContext.builder()
-            .buyerId(buyerId)
-            .orderNo(orderNo)
-            .orderId(orderId)
-            .needsCharge(false)
-            .chargeAmount(BigDecimal.ZERO)
-            .totalAmount(amount)
-            .build();
+    List<PaymentProcessContext> contexts = new ArrayList<>();
+
+    for (int i = 0; i < threadCount; i++) {
+      String threadOrderNo = orderNo + "-" + i;
+      Long threadOrderId = orderId + i;
+
+      PaymentId paymentId = PaymentId.create(buyerId, threadOrderNo);
+      Payment payment =
+          Payment.create(
+              paymentId,
+              threadOrderId,
+              BigDecimal.valueOf(20_000),
+              LocalDateTime.now().plusDays(1));
+      paymentRepository.save(payment);
+
+      PaymentProcessContext ctx =
+          PaymentProcessContext.builder()
+              .buyerId(buyerId)
+              .orderNo(threadOrderNo)
+              .orderId(threadOrderId)
+              .needsCharge(false)
+              .chargeAmount(BigDecimal.ZERO)
+              .totalAmount(amount)
+              .build();
+
+      contexts.add(ctx);
+    }
 
     ExecutorService executor = Executors.newFixedThreadPool(10);
     CountDownLatch startLatch = new CountDownLatch(1);
@@ -109,13 +129,15 @@ class PaymentProcessConcurrencyTest {
 
     // when
     for (int i = 0; i < threadCount; i++) {
+      final PaymentProcessContext ctx = contexts.get(i);
+
       executor.submit(
           () -> {
             try {
               // 모든 준비될 때까지 대기
               startLatch.await();
 
-              paymentProcessUseCase.executeWithoutLock(paymentProcessContext);
+              paymentProcessUseCase.executeWithoutLock(ctx);
             } catch (Exception e) {
               fail("동시성 작업 중 예외 발생", e);
             } finally {
@@ -127,10 +149,8 @@ class PaymentProcessConcurrencyTest {
     startLatch.countDown();
     doneLatch.await();
     executor.shutdown();
-    boolean finished = executor.awaitTermination(60, TimeUnit.SECONDS);
-    if (!finished) {
+    if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
       executor.shutdownNow();
-      fail("테스트 작업이 시간 내에 완료되지 않았습니다.");
     }
 
     // then
@@ -156,15 +176,33 @@ class PaymentProcessConcurrencyTest {
     BigDecimal amount = BigDecimal.valueOf(1_000);
     var threadCount = 20;
 
-    final PaymentProcessContext paymentProcessContext =
-        PaymentProcessContext.builder()
-            .buyerId(buyerId)
-            .orderNo(orderNo)
-            .orderId(orderId)
-            .needsCharge(false)
-            .chargeAmount(BigDecimal.ZERO)
-            .totalAmount(amount)
-            .build();
+    List<PaymentProcessContext> contexts = new ArrayList<>();
+
+    for (int i = 0; i < threadCount; i++) {
+      String threadOrderNo = orderNo + "-" + i;
+      Long threadOrderId = orderId + i;
+
+      PaymentId paymentId = PaymentId.create(buyerId, threadOrderNo);
+      Payment payment =
+          Payment.create(
+              paymentId,
+              threadOrderId,
+              BigDecimal.valueOf(20_000),
+              LocalDateTime.now().plusDays(1));
+      paymentRepository.save(payment);
+
+      PaymentProcessContext ctx =
+          PaymentProcessContext.builder()
+              .buyerId(buyerId)
+              .orderNo(threadOrderNo)
+              .orderId(threadOrderId)
+              .needsCharge(false)
+              .chargeAmount(BigDecimal.ZERO)
+              .totalAmount(amount)
+              .build();
+
+      contexts.add(ctx);
+    }
 
     ExecutorService executor = Executors.newFixedThreadPool(10);
     CountDownLatch startLatch = new CountDownLatch(1);
@@ -172,13 +210,15 @@ class PaymentProcessConcurrencyTest {
 
     // when
     for (int i = 0; i < threadCount; i++) {
+      final PaymentProcessContext ctx = contexts.get(i);
+
       executor.submit(
           () -> {
             try {
               // 모든 준비될 때까지 대기
               startLatch.await();
 
-              paymentProcessUseCase.execute(paymentProcessContext);
+              paymentProcessUseCase.execute(ctx);
             } catch (Exception e) {
               fail("동시성 작업 중 예외 발생", e);
             } finally {
@@ -190,10 +230,8 @@ class PaymentProcessConcurrencyTest {
     startLatch.countDown();
     doneLatch.await();
     executor.shutdown();
-    boolean finished = executor.awaitTermination(60, TimeUnit.SECONDS);
-    if (!finished) {
+    if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
       executor.shutdownNow();
-      fail("테스트 작업이 시간 내에 완료되지 않았습니다.");
     }
 
     // then
