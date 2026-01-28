@@ -13,6 +13,7 @@ import com.modeunsa.boundedcontext.payment.out.PaymentAccountLogRepository;
 import com.modeunsa.boundedcontext.payment.out.PaymentAccountRepository;
 import com.modeunsa.boundedcontext.payment.out.PaymentMemberRepository;
 import com.modeunsa.boundedcontext.payment.out.PaymentRepository;
+import com.modeunsa.global.config.PaymentAccountConfig;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -46,10 +47,13 @@ class PaymentProcessConcurrencyTest {
 
   @Autowired private PaymentAccountLogRepository paymentAccountLogRepository;
 
+  @Autowired private PaymentAccountConfig paymentAccountConfig;
+
   private Long holderId;
-  private Long buyerId;
-  private String orderNo;
-  private Long orderId;
+  private List<Long> buyerIds;
+  private BigDecimal amount;
+  private int threadCount;
+  private List<PaymentProcessContext> contexts;
 
   @BeforeEach
   void setUp() {
@@ -61,60 +65,51 @@ class PaymentProcessConcurrencyTest {
 
     PaymentMember holderMember =
         paymentMemberRepository.save(
-            PaymentMember.create(2L, "holder@example.com", "Holder", MemberStatus.ACTIVE));
-    PaymentMember buyerMember =
-        paymentMemberRepository.save(
-            PaymentMember.create(1000L, "user1@example.com", "구매자", MemberStatus.ACTIVE));
-
+            PaymentMember.create(
+                paymentAccountConfig.getHolderMemberId(),
+                "holder@example.com",
+                "Holder",
+                MemberStatus.ACTIVE));
     paymentAccountRepository.save(PaymentAccount.create(holderMember));
-
-    PaymentAccount buyerAccount =
-        PaymentAccount.builder().member(buyerMember).balance(BigDecimal.valueOf(20_000)).build();
-
-    paymentAccountRepository.save(buyerAccount);
-
-    this.orderNo = "ORDER12345";
-    this.orderId = 1L;
     this.holderId = holderMember.getId();
-    this.buyerId = buyerMember.getId();
 
-    PaymentId paymentId = PaymentId.create(this.buyerId, orderNo);
-
-    Payment payment =
-        Payment.create(
-            paymentId, orderId, BigDecimal.valueOf(20_000), LocalDateTime.now().plusDays(1));
-
-    paymentRepository.save(payment);
-  }
-
-  @Test
-  @DisplayName("동시 결제 처리 테스트 - 동시성 문제로 인한 잔액 불일치 검증")
-  void testConcurrentPaymentProcessingWithoutLock() throws InterruptedException {
-
-    // given
-    BigDecimal amount = BigDecimal.valueOf(1_000);
-    var threadCount = 20;
-
-    List<PaymentProcessContext> contexts = new ArrayList<>();
+    this.threadCount = 20;
+    this.amount = BigDecimal.valueOf(1_000);
+    this.buyerIds = new ArrayList<>();
+    this.contexts = new ArrayList<>();
 
     for (int i = 0; i < threadCount; i++) {
-      String threadOrderNo = orderNo + "-" + i;
-      Long threadOrderId = orderId + i;
+      // buyer 생성
+      PaymentMember buyerMember =
+          paymentMemberRepository.save(
+              PaymentMember.create(
+                  1000L + i, "buyer" + i + "@example.com", "구매자" + i, MemberStatus.ACTIVE));
 
-      PaymentId paymentId = PaymentId.create(buyerId, threadOrderNo);
+      // buyer 계정 생성 (잔액 20_000)
+      PaymentAccount buyerAccount =
+          PaymentAccount.builder().member(buyerMember).balance(BigDecimal.valueOf(20_000)).build();
+      paymentAccountRepository.save(buyerAccount);
+
+      Long buyerId = buyerMember.getId();
+      buyerIds.add(buyerId);
+
+      // 각 buyer의 주문 정보
+      String orderNo = "ORDER" + i;
+      Long orderId = (long) (i + 1);
+
+      // Payment 생성
+      PaymentId paymentId = PaymentId.create(buyerId, orderNo);
       Payment payment =
           Payment.create(
-              paymentId,
-              threadOrderId,
-              BigDecimal.valueOf(20_000),
-              LocalDateTime.now().plusDays(1));
+              paymentId, orderId, BigDecimal.valueOf(20_000), LocalDateTime.now().plusDays(1));
       paymentRepository.save(payment);
 
+      // PaymentProcessContext 생성
       PaymentProcessContext ctx =
           PaymentProcessContext.builder()
               .buyerId(buyerId)
-              .orderNo(threadOrderNo)
-              .orderId(threadOrderId)
+              .orderNo(orderNo)
+              .orderId(orderId)
               .needsCharge(false)
               .chargeAmount(BigDecimal.ZERO)
               .totalAmount(amount)
@@ -122,7 +117,13 @@ class PaymentProcessConcurrencyTest {
 
       contexts.add(ctx);
     }
+  }
 
+  @Test
+  @DisplayName("동시 결제 처리 테스트 - 동시성 문제로 인한 잔액 불일치 검증")
+  void testConcurrentPaymentProcessingWithoutLock() throws InterruptedException {
+
+    // given
     ExecutorService executor = Executors.newFixedThreadPool(10);
     CountDownLatch startLatch = new CountDownLatch(1);
     CountDownLatch doneLatch = new CountDownLatch(threadCount);
@@ -155,17 +156,28 @@ class PaymentProcessConcurrencyTest {
 
     // then
     PaymentAccount holderAccount = paymentAccountRepository.findByMemberId(holderId).orElseThrow();
-    PaymentAccount buyerAccount = paymentAccountRepository.findByMemberId(buyerId).orElseThrow();
 
-    BigDecimal expectedBuyer =
-        BigDecimal.valueOf(20_000).subtract(amount.multiply(BigDecimal.valueOf(threadCount)));
-    BigDecimal expectedHolder = amount.multiply(BigDecimal.valueOf(threadCount));
+    // 각 buyer의 잔액 확인 (각 buyer는 20_000 - 1_000 = 19_000이 되어야 함)
+    BigDecimal expectedBuyerBalance = BigDecimal.valueOf(20_000).subtract(amount);
+    // holder는 모든 buyer들의 결제 금액 합계를 받아야 함 (1_000 * 20 = 20_000)
+    BigDecimal expectedHolderBalance = amount.multiply(BigDecimal.valueOf(threadCount));
 
-    logExpectedAndActualBalances(
-        buyerAccount.getBalance(), holderAccount.getBalance(), expectedBuyer, expectedHolder);
+    // 모든 buyer들의 잔액 확인
+    // buyer 는 각각의 계좌에 하나씩 접근한 것으로 동시성 문제 없음
+    for (Long buyerId : buyerIds) {
+      PaymentAccount buyerAccount = paymentAccountRepository.findByMemberId(buyerId).orElseThrow();
+      log.info(
+          "Buyer {} balance: {}, expected: {}",
+          buyerId,
+          buyerAccount.getBalance(),
+          expectedBuyerBalance);
+    }
 
-    assertThat(buyerAccount.getBalance()).isNotEqualByComparingTo(expectedBuyer);
-    assertThat(holderAccount.getBalance()).isNotEqualByComparingTo(expectedHolder);
+    // Holder 는 동시에 여러 트랜잭션이 하나의 Row 에 접근한 것으로 동시성 문제 발생
+    log.info("Holder balance: {}, expected: {}", holderAccount.getBalance(), expectedHolderBalance);
+
+    // 동시성 문제로 인해 잔액이 일치하지 않아야 함
+    assertThat(holderAccount.getBalance()).isNotEqualByComparingTo(expectedHolderBalance);
   }
 
   @Test
@@ -173,36 +185,6 @@ class PaymentProcessConcurrencyTest {
   void testConcurrentPaymentProcessingWithLock() throws InterruptedException {
 
     // given
-    BigDecimal amount = BigDecimal.valueOf(1_000);
-    var threadCount = 20;
-
-    List<PaymentProcessContext> contexts = new ArrayList<>();
-
-    for (int i = 0; i < threadCount; i++) {
-      String threadOrderNo = orderNo + "-" + i;
-      Long threadOrderId = orderId + i;
-
-      PaymentId paymentId = PaymentId.create(buyerId, threadOrderNo);
-      Payment payment =
-          Payment.create(
-              paymentId,
-              threadOrderId,
-              BigDecimal.valueOf(20_000),
-              LocalDateTime.now().plusDays(1));
-      paymentRepository.save(payment);
-
-      PaymentProcessContext ctx =
-          PaymentProcessContext.builder()
-              .buyerId(buyerId)
-              .orderNo(threadOrderNo)
-              .orderId(threadOrderId)
-              .needsCharge(false)
-              .chargeAmount(BigDecimal.ZERO)
-              .totalAmount(amount)
-              .build();
-
-      contexts.add(ctx);
-    }
 
     ExecutorService executor = Executors.newFixedThreadPool(10);
     CountDownLatch startLatch = new CountDownLatch(1);
@@ -236,29 +218,21 @@ class PaymentProcessConcurrencyTest {
 
     // then
     PaymentAccount holderAccount = paymentAccountRepository.findByMemberId(holderId).orElseThrow();
-    PaymentAccount buyerAccount = paymentAccountRepository.findByMemberId(buyerId).orElseThrow();
 
-    BigDecimal expectedBuyer =
-        BigDecimal.valueOf(20_000).subtract(amount.multiply(BigDecimal.valueOf(threadCount)));
-    BigDecimal expectedHolder = amount.multiply(BigDecimal.valueOf(threadCount));
+    // 각 buyer의 잔액 확인 (각 buyer는 20_000 - 1_000 = 19_000이 되어야 함)
+    BigDecimal expectedBuyerBalance = BigDecimal.valueOf(20_000).subtract(amount);
+    // holder는 모든 buyer들의 결제 금액 합계를 받아야 함 (1_000 * 20 = 20_000)
+    BigDecimal expectedHolderBalance = amount.multiply(BigDecimal.valueOf(threadCount));
 
-    logExpectedAndActualBalances(
-        buyerAccount.getBalance(), holderAccount.getBalance(), expectedBuyer, expectedHolder);
+    // 모든 buyer들의 잔액 확인
+    for (Long buyerId : buyerIds) {
+      PaymentAccount buyerAccount = paymentAccountRepository.findByMemberId(buyerId).orElseThrow();
+      assertThat(buyerAccount.getBalance()).isEqualByComparingTo(expectedBuyerBalance);
+    }
 
-    assertThat(buyerAccount.getBalance()).isEqualByComparingTo(expectedBuyer);
-    assertThat(holderAccount.getBalance()).isEqualByComparingTo(expectedHolder);
-  }
+    // 동시에 여러 트랜잭션이 하나의 Row 에 접근했지만 락 적용으로 인해 잔액이 일치해야 함
+    log.info("Holder balance: {}, expected: {}", holderAccount.getBalance(), expectedHolderBalance);
 
-  private void logExpectedAndActualBalances(
-      BigDecimal buyerBalance,
-      BigDecimal holderBalance,
-      BigDecimal expectedBuyer,
-      BigDecimal expectedHolder) {
-    log.info(
-        "buyer={}, holder={}, expectedBuyer={}, expectedHolder={}",
-        buyerBalance,
-        holderBalance,
-        expectedBuyer,
-        expectedHolder);
+    assertThat(holderAccount.getBalance()).isEqualByComparingTo(expectedHolderBalance);
   }
 }
