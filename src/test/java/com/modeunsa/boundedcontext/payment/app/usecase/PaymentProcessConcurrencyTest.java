@@ -1,6 +1,7 @@
 package com.modeunsa.boundedcontext.payment.app.usecase;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
 import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
@@ -115,7 +116,7 @@ class PaymentProcessConcurrencyTest {
 
               paymentProcessUseCase.executeWithoutLock(paymentProcessContext);
             } catch (Exception e) {
-              e.printStackTrace();
+              fail("동시성 작업 중 예외 발생", e);
             } finally {
               doneLatch.countDown();
             }
@@ -173,7 +174,7 @@ class PaymentProcessConcurrencyTest {
 
               paymentProcessUseCase.execute(paymentProcessContext);
             } catch (Exception e) {
-              e.printStackTrace();
+              fail("동시성 작업 중 예외 발생", e);
             } finally {
               doneLatch.countDown();
             }
