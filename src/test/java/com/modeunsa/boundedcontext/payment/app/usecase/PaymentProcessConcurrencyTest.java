@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -25,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+@Slf4j
 @Tag("ignore")
 @SpringBootTest
 @ActiveProfiles("test")
@@ -55,7 +57,7 @@ class PaymentProcessConcurrencyTest {
 
     PaymentMember holderMember =
         paymentMemberRepository.save(
-            PaymentMember.create(2L, "hodler@example.com", "Holder", MemberStatus.ACTIVE));
+            PaymentMember.create(2L, "holder@example.com", "Holder", MemberStatus.ACTIVE));
     PaymentMember buyerMember =
         paymentMemberRepository.save(
             PaymentMember.create(1000L, "user1@example.com", "구매자", MemberStatus.ACTIVE));
@@ -132,15 +134,8 @@ class PaymentProcessConcurrencyTest {
         BigDecimal.valueOf(20_000).subtract(amount.multiply(BigDecimal.valueOf(threadCount)));
     BigDecimal expectedHolder = amount.multiply(BigDecimal.valueOf(threadCount));
 
-    System.out.println(
-        "buyer="
-            + buyerAccount.getBalance()
-            + ", holder="
-            + holderAccount.getBalance()
-            + ", expectedBuyer="
-            + expectedBuyer
-            + ", expectedHolder="
-            + expectedHolder);
+    logExpectedAndActualBalances(
+        buyerAccount.getBalance(), holderAccount.getBalance(), expectedBuyer, expectedHolder);
 
     assertThat(buyerAccount.getBalance()).isNotEqualByComparingTo(expectedBuyer);
     assertThat(holderAccount.getBalance()).isNotEqualByComparingTo(expectedHolder);
@@ -197,17 +192,23 @@ class PaymentProcessConcurrencyTest {
         BigDecimal.valueOf(20_000).subtract(amount.multiply(BigDecimal.valueOf(threadCount)));
     BigDecimal expectedHolder = amount.multiply(BigDecimal.valueOf(threadCount));
 
-    System.out.println(
-        "buyer="
-            + buyerAccount.getBalance()
-            + ", holder="
-            + holderAccount.getBalance()
-            + ", expectedBuyer="
-            + expectedBuyer
-            + ", expectedHolder="
-            + expectedHolder);
+    logExpectedAndActualBalances(
+        buyerAccount.getBalance(), holderAccount.getBalance(), expectedBuyer, expectedHolder);
 
     assertThat(buyerAccount.getBalance()).isEqualByComparingTo(expectedBuyer);
     assertThat(holderAccount.getBalance()).isEqualByComparingTo(expectedHolder);
+  }
+
+  private void logExpectedAndActualBalances(
+      BigDecimal buyerBalance,
+      BigDecimal holderBalance,
+      BigDecimal expectedBuyer,
+      BigDecimal expectedHolder) {
+    log.info(
+        "buyer={}, holder={}, expectedBuyer={}, expectedHolder={}",
+        buyerBalance,
+        holderBalance,
+        expectedBuyer,
+        expectedHolder);
   }
 }
