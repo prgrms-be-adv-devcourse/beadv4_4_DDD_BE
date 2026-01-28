@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -126,6 +127,11 @@ class PaymentProcessConcurrencyTest {
     startLatch.countDown();
     doneLatch.await();
     executor.shutdown();
+    boolean finished = executor.awaitTermination(60, TimeUnit.SECONDS);
+    if (!finished) {
+      executor.shutdownNow();
+      fail("테스트 작업이 시간 내에 완료되지 않았습니다.");
+    }
 
     // then
     PaymentAccount holderAccount = paymentAccountRepository.findByMemberId(holderId).orElseThrow();
@@ -184,6 +190,11 @@ class PaymentProcessConcurrencyTest {
     startLatch.countDown();
     doneLatch.await();
     executor.shutdown();
+    boolean finished = executor.awaitTermination(60, TimeUnit.SECONDS);
+    if (!finished) {
+      executor.shutdownNow();
+      fail("테스트 작업이 시간 내에 완료되지 않았습니다.");
+    }
 
     // then
     PaymentAccount holderAccount = paymentAccountRepository.findByMemberId(holderId).orElseThrow();

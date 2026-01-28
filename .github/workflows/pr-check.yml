@@ -94,7 +94,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Run tests
-        run: ./gradlew test -Dspring.profiles.active=test --no-daemon
+        run: ./gradlew test -Dspring.profiles.active=test -Djunit.excludeTags=ignore --no-daemon
 
       - name: Upload Test Report
         if: always()

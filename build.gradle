@@ -98,7 +98,10 @@ jar {
 
 tasks.named('test') {
     useJUnitPlatform {
-        excludeTags 'ignore'
+        def excluded = System.getProperty('junit.excludeTags')
+        if (excluded) {
+            excludeTags excluded.split(',')   // 예: "ignore,concurrency"
+        }
     }
 
     testLogging {
