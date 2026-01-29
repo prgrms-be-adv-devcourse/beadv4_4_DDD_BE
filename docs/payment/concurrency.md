@@ -58,13 +58,13 @@ public void credit(
 ```
 시간 | Thread 1 (Buyer 1)          | Thread 2 (Buyer 2)          | Thread 3 (Buyer 3)          | DB 실제 값
 -----|------------------------------|------------------------------|------------------------------|------------
-T1   | holderAccount 조회           | holderAccount 조회           | holderAccount 조회           | balance = 0
-     | balance = 0 읽음             | balance = 0 읽음             | balance = 0 읽음             |
-T2   | balance = 0 + 1,000 = 1,000 | balance = 0 + 1,000 = 1,000 | balance = 0 + 1,000 = 1,000 | balance = 0
-     | (메모리상 계산)              | (메모리상 계산)              | (메모리상 계산)              |
-T3   | 커밋: balance = 1,000        |                              |                              | balance = 1,000
-T4   |                              | 커밋: balance = 1,000        |                              | balance = 1,000 (덮어씀!)
-T5   |                              |                              | 커밋: balance = 1,000         | balance = 1,000 (덮어씀!)
+T1   | holderAccount 조회            | holderAccount 조회           | holderAccount 조회           | balance = 0
+     | balance = 0 읽음              | balance = 0 읽음             | balance = 0 읽음             |
+T2   | balance = 0 + 1,000 = 1,000  | balance = 0 + 1,000 = 1,000 | balance = 0 + 1,000 = 1,000 | balance = 0
+     | (메모리상 계산)                 | (메모리상 계산)                 | (메모리상 계산)                |
+T3   | 커밋: balance = 1,000         |                             |                             | balance = 1,000
+T4   |                              | 커밋: balance = 1,000        |                             | balance = 1,000 (덮어씀!)
+T5   |                              |                             | 커밋: balance = 1,000        | balance = 1,000 (덮어씀!)
 ```
 
 ### 핵심 문제점
