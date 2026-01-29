@@ -7,56 +7,48 @@ const mockSettlements = [
   {
     id: 'STL-001',
     date: '2024-01-15',
-    dateDisplay: '2024.01.15',
-    period: '2024.01.01 ~ 2024.01.15',
-    salesAmount: 450000,
+    depositDate: '2024.01.15',
+    depositAccount: '국민 123-456-789012',
     salesAmountDisplay: '450,000원',
-    fee: 22500,
     feeDisplay: '22,500원',
-    settlementAmount: 427500,
-    settlementAmountDisplay: '427,500원',
-    status: '정산완료',
+    depositAmount: 427500,
+    depositAmountDisplay: '427,500원',
+    status: '입금완료',
     statusStyle: { color: '#22c55e', fontWeight: 600 },
   },
   {
     id: 'STL-002',
     date: '2023-12-31',
-    dateDisplay: '2023.12.31',
-    period: '2023.12.16 ~ 2023.12.31',
-    salesAmount: 320000,
+    depositDate: '2023.12.31',
+    depositAccount: '국민 123-456-789012',
     salesAmountDisplay: '320,000원',
-    fee: 16000,
     feeDisplay: '16,000원',
-    settlementAmount: 304000,
-    settlementAmountDisplay: '304,000원',
-    status: '정산완료',
+    depositAmount: 304000,
+    depositAmountDisplay: '304,000원',
+    status: '입금완료',
     statusStyle: { color: '#22c55e', fontWeight: 600 },
   },
   {
     id: 'STL-003',
     date: '2023-12-15',
-    dateDisplay: '2023.12.15',
-    period: '2023.12.01 ~ 2023.12.15',
-    salesAmount: 180000,
+    depositDate: '2023.12.15',
+    depositAccount: '국민 123-456-789012',
     salesAmountDisplay: '180,000원',
-    fee: 9000,
     feeDisplay: '9,000원',
-    settlementAmount: 171000,
-    settlementAmountDisplay: '171,000원',
-    status: '정산완료',
+    depositAmount: 171000,
+    depositAmountDisplay: '171,000원',
+    status: '입금완료',
     statusStyle: { color: '#22c55e', fontWeight: 600 },
   },
   {
     id: 'STL-004',
     date: '2024-01-31',
-    dateDisplay: '2024.01.31',
-    period: '2024.01.16 ~ 2024.01.31',
-    salesAmount: 0,
+    depositDate: '-',
+    depositAccount: '국민 123-456-789012',
     salesAmountDisplay: '0원',
-    fee: 0,
     feeDisplay: '0원',
-    settlementAmount: 0,
-    settlementAmountDisplay: '0원',
+    depositAmount: 0,
+    depositAmountDisplay: '0원',
     status: '대기중',
     statusStyle: { color: '#f59e0b', fontWeight: 600 },
   },
@@ -98,6 +90,9 @@ export default function SettlementPage() {
     return d >= startDate && d <= endDate
   })
 
+  const totalDepositAmount = filteredSettlements.reduce((sum, item) => sum + item.depositAmount, 0)
+  const totalDepositDisplay = totalDepositAmount.toLocaleString('ko-KR') + '원'
+
   const totalPages = Math.max(1, Math.ceil(filteredSettlements.length / PAGE_SIZE))
   const paginatedSettlements = filteredSettlements.slice(
     (currentPage - 1) * PAGE_SIZE,
@@ -123,8 +118,24 @@ export default function SettlementPage() {
             marginBottom: '24px',
           }}
         >
-          <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px', color: '#333' }}>
-            조회 기간
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '16px' }}>
+            <div style={{ fontSize: '14px', fontWeight: 600, color: '#333' }}>
+              조회 기간
+            </div>
+            <div
+              style={{
+                background: 'linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%)',
+                borderRadius: '8px',
+                padding: '10px 16px',
+                border: '1px solid #e8ecff',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+              }}
+            >
+              <span style={{ fontSize: '14px', color: '#666', fontWeight: 500 }}>총 입금 금액</span>
+              <span style={{ fontSize: '18px', fontWeight: 700, color: '#333' }}>{totalDepositDisplay}</span>
+            </div>
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
             {[
@@ -224,10 +235,10 @@ export default function SettlementPage() {
               <thead>
                 <tr style={{ background: '#f8f9fa', borderBottom: '2px solid #eee' }}>
                   <th style={{ padding: '14px 12px', textAlign: 'left', fontWeight: 600, color: '#333' }}>
-                    정산일
+                    입금일
                   </th>
                   <th style={{ padding: '14px 12px', textAlign: 'left', fontWeight: 600, color: '#333' }}>
-                    정산주기
+                    입금계좌
                   </th>
                   <th style={{ padding: '14px 12px', textAlign: 'right', fontWeight: 600, color: '#333' }}>
                     판매금액
@@ -236,22 +247,19 @@ export default function SettlementPage() {
                     수수료
                   </th>
                   <th style={{ padding: '14px 12px', textAlign: 'right', fontWeight: 600, color: '#333' }}>
-                    정산금액
+                    입금금액
                   </th>
                   <th style={{ padding: '14px 12px', textAlign: 'center', fontWeight: 600, color: '#333' }}>
                     상태
-                  </th>
-                  <th style={{ padding: '14px 12px', textAlign: 'center', fontWeight: 600, color: '#333' }}>
-                    상세
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {paginatedSettlements.map((item) => (
                   <tr key={item.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
-                    <td style={{ padding: '14px 12px', color: '#333' }}>{item.dateDisplay}</td>
+                    <td style={{ padding: '14px 12px', color: '#333' }}>{item.depositDate}</td>
                     <td style={{ padding: '14px 12px', color: '#666', fontSize: '13px' }}>
-                      {item.period}
+                      {item.depositAccount}
                     </td>
                     <td style={{ padding: '14px 12px', textAlign: 'right', fontWeight: 500, color: '#333' }}>
                       {item.salesAmountDisplay}
@@ -260,27 +268,10 @@ export default function SettlementPage() {
                       {item.feeDisplay}
                     </td>
                     <td style={{ padding: '14px 12px', textAlign: 'right', fontWeight: 600, color: '#333' }}>
-                      {item.settlementAmountDisplay}
+                      {item.depositAmountDisplay}
                     </td>
                     <td style={{ padding: '14px 12px', textAlign: 'center' }}>
                       <span style={item.statusStyle}>{item.status}</span>
-                    </td>
-                    <td style={{ padding: '14px 12px', textAlign: 'center' }}>
-                      <button
-                        type="button"
-                        onClick={() => alert(`정산 상세: ${item.id}\n(데모 화면입니다.)`)}
-                        style={{
-                          fontSize: '13px',
-                          color: '#667eea',
-                          fontWeight: 500,
-                          background: 'none',
-                          border: 'none',
-                          cursor: 'pointer',
-                          textDecoration: 'underline',
-                        }}
-                      >
-                        상세보기
-                      </button>
                     </td>
                   </tr>
                 ))}
