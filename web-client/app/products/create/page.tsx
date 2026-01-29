@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import MypageLayout from '../../components/MypageLayout'
 
 type ProductCategory = 'OUTER' | 'UPPER' | 'LOWER' | 'CAP' | 'SHOES' | 'BAG' | 'BEAUTY'
 
@@ -193,7 +194,7 @@ export default function ProductCreatePage() {
     try {
       // API 통신 제거됨
       alert('상품 관리 기능이 비활성화되었습니다.')
-      router.push('/')
+      router.push('/mypage/products')
     } catch (error) {
       console.error('상품 관리 실패:', error)
       const errorMessage = error instanceof Error ? error.message : '상품 관리 중 오류가 발생했습니다.'
@@ -204,37 +205,14 @@ export default function ProductCreatePage() {
   }
 
   return (
-    <div className="home-page">
-      {/* Header */}
-      <header className="header">
-        <div className="header-container">
-          <div className="logo">
-            <Link href="/">뭐든사</Link>
-          </div>
-          <nav className="nav">
-            <Link href="/fashion">패션</Link>
-            <Link href="/beauty">뷰티</Link>
-            <Link href="/sale">세일</Link>
-            <Link href="/magazine">매거진</Link>
-          </nav>
-          <div className="header-actions">
-            <Link href="/search" className="search-btn">검색</Link>
-            <Link href="/cart" className="cart-btn">장바구니</Link>
-            <Link href="/login" className="user-btn">로그인</Link>
-          </div>
+    <MypageLayout>
+      <div className="product-create-container" style={{ maxWidth: '900px' }}>
+        <div className="create-header">
+          <h1 className="create-title">상품 등록</h1>
+          <Link href="/mypage/products" className="create-cancel-btn">
+            취소
+          </Link>
         </div>
-      </header>
-
-      {/* Product Create Section */}
-      <section className="product-create-section">
-        <div className="container">
-          <div className="product-create-container">
-            <div className="create-header">
-              <h1 className="create-title">상품 관리</h1>
-              <Link href="/" className="create-cancel-btn">
-                취소
-              </Link>
-            </div>
 
             <form className="create-form" onSubmit={handleSubmit}>
               {/* Product Name */}
@@ -416,39 +394,11 @@ export default function ProductCreatePage() {
                   className="create-submit-btn"
                   disabled={isSubmitting || uploadingImageIndex.size > 0 || !formData.name.trim() || formData.price <= 0 || formData.salePrice <= 0}
                 >
-                  {uploadingImageIndex.size > 0 ? `이미지 업로드 중... (${uploadingImageIndex.size})` : isSubmitting ? '등록 중...' : '상품 관리'}
+                  {uploadingImageIndex.size > 0 ? `이미지 업로드 중... (${uploadingImageIndex.size})` : isSubmitting ? '등록 중...' : '상품 등록'}
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="footer">
-        <div className="container">
-          <div className="footer-content">
-            <div className="footer-section">
-              <h3>고객센터</h3>
-              <p>1588-0000</p>
-              <p>평일 09:00 - 18:00</p>
-            </div>
-            <div className="footer-section">
-              <h3>회사정보</h3>
-              <p>주소: 서울시 강남구</p>
-              <p>사업자등록번호: 000-00-00000</p>
-            </div>
-            <div className="footer-section">
-              <h3>이용안내</h3>
-              <Link href="/terms">이용약관</Link>
-              <Link href="/privacy">개인정보처리방침</Link>
-            </div>
-          </div>
-          <div className="footer-bottom">
-            <p>&copy; 2024 뭐든사. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
-    </div>
+      </div>
+    </MypageLayout>
   )
 }
