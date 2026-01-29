@@ -282,7 +282,7 @@ export default function ProductsPage() {
                     <td style={{ padding: '14px 12px', color: '#666' }}>{product.registeredAt}</td>
                     <td style={{ padding: '14px 12px', textAlign: 'center' }}>
                       <Link
-                        href={`/products/${product.id}`}
+                        href={`/mypage/products/${product.id}/edit`}
                         style={{
                           fontSize: '13px',
                           color: '#667eea',
