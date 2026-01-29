@@ -109,7 +109,7 @@ export default function MyPage() {
                   배송지
                 </Link>
 
-                <div style={{ fontSize: '12px', color: '#999', margin: '12px 0 4px' }}>주문 · 혜택</div>
+                <div style={{ fontSize: '12px', color: '#999', margin: '12px 0 4px' }}>주문</div>
                 <Link
                   href="/mypage/orders"
                   style={{
@@ -134,6 +134,34 @@ export default function MyPage() {
                 >
                   취소/반품 내역
                 </Link>
+
+                <div style={{ fontSize: '12px', color: '#999', margin: '12px 0 4px' }}>뭐든사 머니</div>
+                <Link
+                  href="/mypage/money/charge"
+                  style={{
+                    padding: '8px 10px',
+                    borderRadius: '8px',
+                    textDecoration: 'none',
+                    color: '#333',
+                    fontSize: '13px',
+                  }}
+                >
+                  충전하기
+                </Link>
+                <Link
+                  href="/mypage/money/history"
+                  style={{
+                    padding: '8px 10px',
+                    borderRadius: '8px',
+                    textDecoration: 'none',
+                    color: '#333',
+                    fontSize: '13px',
+                  }}
+                >
+                  사용 내역
+                </Link>
+
+                <div style={{ fontSize: '12px', color: '#999', margin: '12px 0 4px' }}>저장</div>
                 <Link
                   href="/mypage/favorites"
                   style={{
@@ -158,7 +186,7 @@ export default function MyPage() {
                     fontSize: '13px',
                   }}
                 >
-                  판매자 전환
+                  내정보
                 </Link>
                 <Link
                   href="/products/create"
@@ -186,14 +214,7 @@ export default function MyPage() {
                   marginBottom: '24px',
                 }}
               >
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: '20px',
-                  }}
-                >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '20px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <div
                       style={{
@@ -216,185 +237,248 @@ export default function MyPage() {
                       <p style={{ color: '#666', fontSize: '13px' }}>뭐든사 회원</p>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <Link
-                      href="/mypage/profile"
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        fontSize: '13px',
-                        color: '#667eea',
-                        textDecoration: 'none',
-                        padding: '6px 10px',
-                        borderRadius: '999px',
-                        border: '1px solid #e0e0ff',
-                        background: '#f8f8ff',
-                      }}
-                    >
-                      기본 정보 수정
-                    </Link>
-                    <Link
-                      href="/mypage/profile/edit"
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        fontSize: '13px',
-                        color: '#667eea',
-                        textDecoration: 'none',
-                        padding: '6px 10px',
-                        borderRadius: '999px',
-                        border: '1px solid #e0e0ff',
-                        background: '#f8f8ff',
-                      }}
-                    >
-                      프로필 수정
-                    </Link>
-                    <Link
-                      href="/mypage/address"
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        fontSize: '13px',
-                        color: '#667eea',
-                        textDecoration: 'none',
-                        padding: '6px 10px',
-                        borderRadius: '999px',
-                        border: '1px solid #e0e0ff',
-                        background: '#f8f8ff',
-                      }}
-                    >
-                      배송지
-                    </Link>
-                    <Link
-                      href="/mypage/seller-request"
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        fontSize: '13px',
-                        color: '#667eea',
-                        textDecoration: 'none',
-                        padding: '6px 10px',
-                        borderRadius: '999px',
-                        border: '1px solid #e0e0ff',
-                        background: '#f8f8ff',
-                      }}
-                    >
-                      판매자 전환
-                    </Link>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: '13px', color: '#666', marginBottom: '2px' }}>보유 머니</div>
+                    <div style={{ fontSize: '20px', fontWeight: '700', color: '#333' }}>50,000원</div>
                   </div>
                 </div>
               </div>
 
-              {/* 뭐든사 머니 충전하기 */}
+              {/* 내정보 카드 */}
               <div
                 style={{
                   background: 'white',
                   borderRadius: '12px',
-                  padding: '32px',
+                  padding: '24px',
                   boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
                   marginBottom: '24px',
                 }}
               >
-                <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '16px' }}>뭐든사 머니</h3>
+                <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '8px' }}>내정보</h3>
                 <p style={{ color: '#666', fontSize: '14px', marginBottom: '16px' }}>
-                  결제 시 사용할 수 있는 뭐든사 전용 머니입니다.
+                  프로필, 배송지 등 내 정보를 관리할 수 있어요.
                 </p>
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '24px',
-                    padding: '16px 20px',
-                    borderRadius: '8px',
-                    background: '#f8f9ff',
-                  }}
-                >
-                  <div>
-                    <div style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>보유 머니</div>
-                    <div style={{ fontSize: '20px', fontWeight: '700', color: '#333' }}>50,000원</div>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  <button
-                    type="button"
-                    onClick={() => router.push('/mypage/money/charge')}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  <Link
+                    href="/mypage/profile"
                     style={{
-                      padding: '10px 24px',
+                      padding: '8px 14px',
                       borderRadius: '8px',
-                      border: 'none',
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                      color: 'white',
-                      cursor: 'pointer',
-                      fontSize: '14px',
-                      fontWeight: 600,
-                      whiteSpace: 'nowrap',
+                      border: '1px solid #e0e0ff',
+                      background: '#f8f8ff',
+                      color: '#667eea',
+                      fontSize: '13px',
+                      fontWeight: 500,
+                      textDecoration: 'none',
                     }}
                   >
-                    충전하기
-                  </button>
+                    기본 정보 수정
+                  </Link>
+                  <Link
+                    href="/mypage/profile/edit"
+                    style={{
+                      padding: '8px 14px',
+                      borderRadius: '8px',
+                      border: '1px solid #e0e0ff',
+                      background: '#f8f8ff',
+                      color: '#667eea',
+                      fontSize: '13px',
+                      fontWeight: 500,
+                      textDecoration: 'none',
+                    }}
+                  >
+                    프로필 수정
+                  </Link>
+                  <Link
+                    href="/mypage/address"
+                    style={{
+                      padding: '8px 14px',
+                      borderRadius: '8px',
+                      border: '1px solid #e0e0ff',
+                      background: '#f8f8ff',
+                      color: '#667eea',
+                      fontSize: '13px',
+                      fontWeight: 500,
+                      textDecoration: 'none',
+                    }}
+                  >
+                    배송지
+                  </Link>
                 </div>
               </div>
 
+              {/* 주문 카드 */}
               <div
                 style={{
                   background: 'white',
                   borderRadius: '12px',
-                  padding: '24px 32px 32px',
+                  padding: '24px',
                   boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  marginBottom: '24px',
                 }}
               >
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '8px' }}>주문</h3>
+                <p style={{ color: '#666', fontSize: '14px', marginBottom: '16px' }}>
+                  주문 내역과 취소·반품을 확인할 수 있어요.
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                   <Link
                     href="/mypage/orders"
                     style={{
-                      padding: '16px',
-                      background: '#f5f5f5',
+                      padding: '8px 14px',
                       borderRadius: '8px',
+                      border: '1px solid #e0e0ff',
+                      background: '#f8f8ff',
+                      color: '#667eea',
+                      fontSize: '13px',
+                      fontWeight: 500,
                       textDecoration: 'none',
-                      color: '#333',
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      transition: 'background-color 0.2s',
                     }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#e0e0e0')}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#f5f5f5')}
                   >
                     주문 내역
                   </Link>
                   <Link
                     href="/mypage/cancel"
                     style={{
-                      padding: '16px',
-                      background: '#f5f5f5',
+                      padding: '8px 14px',
                       borderRadius: '8px',
+                      border: '1px solid #e0e0ff',
+                      background: '#f8f8ff',
+                      color: '#667eea',
+                      fontSize: '13px',
+                      fontWeight: 500,
                       textDecoration: 'none',
-                      color: '#333',
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      transition: 'background-color 0.2s',
                     }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#e0e0e0')}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#f5f5f5')}
                   >
                     취소/반품 내역
                   </Link>
+                </div>
+              </div>
+
+              {/* 뭐든사 머니 카드 */}
+              <div
+                style={{
+                  background: 'white',
+                  borderRadius: '12px',
+                  padding: '24px',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  marginBottom: '24px',
+                }}
+              >
+                <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '8px' }}>뭐든사 머니</h3>
+                <p style={{ color: '#666', fontSize: '14px', marginBottom: '16px' }}>
+                  결제 시 사용할 수 있는 뭐든사 전용 머니예요.
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                   <Link
-                    href="/mypage/favorites"
+                    href="/mypage/money/charge"
                     style={{
-                      padding: '16px',
-                      background: '#f5f5f5',
+                      padding: '8px 14px',
                       borderRadius: '8px',
+                      border: '1px solid #e0e0ff',
+                      background: '#f8f8ff',
+                      color: '#667eea',
+                      fontSize: '13px',
+                      fontWeight: 500,
                       textDecoration: 'none',
-                      color: '#333',
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      transition: 'background-color 0.2s',
                     }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#e0e0e0')}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#f5f5f5')}
                   >
-                    좋아요
+                    충전하기
+                  </Link>
+                  <Link
+                    href="/mypage/money/history"
+                    style={{
+                      padding: '8px 14px',
+                      borderRadius: '8px',
+                      border: '1px solid #e0e0ff',
+                      background: '#f8f8ff',
+                      color: '#667eea',
+                      fontSize: '13px',
+                      fontWeight: 500,
+                      textDecoration: 'none',
+                    }}
+                  >
+                    사용 내역
+                  </Link>
+                </div>
+              </div>
+
+              {/* 저장 카드 */}
+              <div
+                style={{
+                  background: 'white',
+                  borderRadius: '12px',
+                  padding: '24px',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  marginBottom: '24px',
+                }}
+              >
+                <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '8px' }}>저장</h3>
+                <p style={{ color: '#666', fontSize: '14px', marginBottom: '16px' }}>
+                  좋아요한 상품과 스냅을 한 곳에서 모아볼 수 있어요.
+                </p>
+                <Link
+                  href="/mypage/favorites"
+                  style={{
+                    display: 'inline-block',
+                    padding: '8px 14px',
+                    borderRadius: '8px',
+                    border: '1px solid #e0e0ff',
+                    background: '#f8f8ff',
+                    color: '#667eea',
+                    fontSize: '13px',
+                    fontWeight: 500,
+                    textDecoration: 'none',
+                  }}
+                >
+                  좋아요
+                </Link>
+              </div>
+
+              {/* 판매 카드 */}
+              <div
+                style={{
+                  background: 'white',
+                  borderRadius: '12px',
+                  padding: '24px',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  marginBottom: '24px',
+                }}
+              >
+                <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '8px' }}>판매</h3>
+                <p style={{ color: '#666', fontSize: '14px', marginBottom: '16px' }}>
+                  판매자 전환 후 상품을 등록하고 관리할 수 있어요.
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  <Link
+                    href="/mypage/seller-request"
+                    style={{
+                      padding: '8px 14px',
+                      borderRadius: '8px',
+                      border: '1px solid #e0e0ff',
+                      background: '#f8f8ff',
+                      color: '#667eea',
+                      fontSize: '13px',
+                      fontWeight: 500,
+                      textDecoration: 'none',
+                    }}
+                  >
+                    내정보
+                  </Link>
+                  <Link
+                    href="/products/create"
+                    style={{
+                      padding: '8px 14px',
+                      borderRadius: '8px',
+                      border: '1px solid #e0e0ff',
+                      background: '#f8f8ff',
+                      color: '#667eea',
+                      fontSize: '13px',
+                      fontWeight: 500,
+                      textDecoration: 'none',
+                    }}
+                  >
+                    상품 등록
                   </Link>
                 </div>
               </div>
