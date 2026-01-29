@@ -6,6 +6,8 @@ import MypageLayout from '../../components/MypageLayout'
 
 export default function ProfilePage() {
   const [email, setEmail] = useState('test@example.com')
+  const [linkedNaver, setLinkedNaver] = useState(false)
+  const [linkedKakao, setLinkedKakao] = useState(false)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -13,7 +15,25 @@ export default function ProfilePage() {
     if (stored) {
       setEmail(stored)
     }
+    const naver = localStorage.getItem('social_naver')
+    const kakao = localStorage.getItem('social_kakao')
+    if (naver !== null) setLinkedNaver(naver === 'true')
+    if (kakao !== null) setLinkedKakao(kakao === 'true')
   }, [])
+
+  const handleNaverToggle = () => {
+    const next = !linkedNaver
+    setLinkedNaver(next)
+    if (typeof window !== 'undefined') localStorage.setItem('social_naver', String(next))
+    alert(next ? '네이버 계정이 연동되었습니다. (데모)' : '네이버 연동이 해제되었습니다. (데모)')
+  }
+
+  const handleKakaoToggle = () => {
+    const next = !linkedKakao
+    setLinkedKakao(next)
+    if (typeof window !== 'undefined') localStorage.setItem('social_kakao', String(next))
+    alert(next ? '카카오 계정이 연동되었습니다. (데모)' : '카카오 연동이 해제되었습니다. (데모)')
+  }
 
   return (
     <MypageLayout>
@@ -60,6 +80,7 @@ export default function ProfilePage() {
               borderRadius: '12px',
               padding: '24px',
               boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+              marginBottom: '24px',
             }}
           >
             <div style={{ marginBottom: '16px' }}>
@@ -140,6 +161,142 @@ export default function ProfilePage() {
             >
               저장하기
             </button>
+          </div>
+
+          {/* 소셜 연동 */}
+          <div
+            style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '24px',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+            }}
+          >
+            <div style={{ fontSize: '16px', fontWeight: 600, marginBottom: '16px' }}>소셜 연동</div>
+            <p style={{ fontSize: '13px', color: '#666', marginBottom: '16px' }}>
+              연동된 계정으로 간편 로그인할 수 있어요.
+            </p>
+
+            {/* 네이버 */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '14px 0',
+                borderBottom: '1px solid #f0f0f0',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '8px',
+                    background: '#03C75A',
+                    color: 'white',
+                    fontSize: '14px',
+                    fontWeight: 700,
+                  }}
+                >
+                  N
+                </span>
+                <span style={{ fontSize: '15px', fontWeight: 500 }}>네이버</span>
+              </div>
+              <button
+                type="button"
+                onClick={handleNaverToggle}
+                role="switch"
+                aria-checked={linkedNaver}
+                style={{
+                  width: '48px',
+                  height: '28px',
+                  borderRadius: '14px',
+                  border: 'none',
+                  background: linkedNaver ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#e0e0e0',
+                  cursor: 'pointer',
+                  position: 'relative',
+                  transition: 'background 0.2s',
+                }}
+              >
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: '3px',
+                    left: linkedNaver ? '23px' : '3px',
+                    width: '22px',
+                    height: '22px',
+                    borderRadius: '50%',
+                    background: 'white',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                    transition: 'left 0.2s',
+                  }}
+                />
+              </button>
+            </div>
+
+            {/* 카카오 */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '14px 0',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '8px',
+                    background: '#FEE500',
+                    color: '#191919',
+                    fontSize: '14px',
+                    fontWeight: 700,
+                  }}
+                >
+                  K
+                </span>
+                <span style={{ fontSize: '15px', fontWeight: 500 }}>카카오</span>
+              </div>
+              <button
+                type="button"
+                onClick={handleKakaoToggle}
+                role="switch"
+                aria-checked={linkedKakao}
+                style={{
+                  width: '48px',
+                  height: '28px',
+                  borderRadius: '14px',
+                  border: 'none',
+                  background: linkedKakao ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#e0e0e0',
+                  cursor: 'pointer',
+                  position: 'relative',
+                  transition: 'background 0.2s',
+                }}
+              >
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: '3px',
+                    left: linkedKakao ? '23px' : '3px',
+                    width: '22px',
+                    height: '22px',
+                    borderRadius: '50%',
+                    background: 'white',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                    transition: 'left 0.2s',
+                  }}
+                />
+              </button>
+            </div>
           </div>
 
       </div>
