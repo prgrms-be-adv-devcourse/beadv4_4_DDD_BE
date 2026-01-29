@@ -8,6 +8,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -25,7 +26,12 @@ import lombok.Setter;
 
 @Entity
 @Getter
-@Table(name = "product_product")
+@Table(
+    name = "product_product",
+    indexes = {
+      @Index(name = "idx_product_seller_id", columnList = "seller_id"),
+      @Index(name = "idx_product_category", columnList = "category")
+    })
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder

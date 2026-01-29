@@ -56,11 +56,7 @@ public class ProductSupport {
 
   public Page<Product> getProducts(Long memberId, Pageable pageable) {
     ProductMemberSeller seller = this.getProductMemberSellerByMemberId(memberId);
-    return productRepository.findAllBySellerAndSaleStatusInAndProductStatusIn(
-        seller,
-        ProductPolicy.DISPLAYABLE_SALE_STATUES_FOR_SELLER,
-        ProductPolicy.DISPLAYABLE_PRODUCT_STATUSES_FOR_SELLER,
-        pageable);
+    return productRepository.findAllBySeller(seller, pageable);
   }
 
   public List<Product> getProducts(List<Long> productIds) {

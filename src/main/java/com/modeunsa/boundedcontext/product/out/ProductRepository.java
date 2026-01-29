@@ -26,11 +26,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
       Collection<ProductStatus> productStatus,
       Pageable pageable);
 
-  Page<Product> findAllBySellerAndSaleStatusInAndProductStatusIn(
-      ProductMemberSeller seller,
-      Collection<SaleStatus> saleStatus,
-      Collection<ProductStatus> productStatus,
-      Pageable pageable);
+  Page<Product> findAllBySeller(ProductMemberSeller seller, Pageable pageable);
 
   @Modifying
   @Query(
