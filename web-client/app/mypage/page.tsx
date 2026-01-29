@@ -279,7 +279,7 @@ export default function MyPage() {
                     판매자정보
                   </Link>
                   <Link
-                    href="/products/create"
+                    href="/mypage/products"
                     style={{
                       padding: '8px 14px',
                       borderRadius: '8px',
