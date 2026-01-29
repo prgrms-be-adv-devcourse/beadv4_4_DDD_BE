@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import Header from '../../components/Header'
+import MypageLayout from '../../components/MypageLayout'
 
 export default function SellerRequestPage() {
   const [email, setEmail] = useState('test@example.com')
@@ -16,12 +16,9 @@ export default function SellerRequestPage() {
   }, [])
 
   return (
-    <div className="home-page">
-      <Header />
-
-      <div style={{ padding: '40px 20px', minHeight: '60vh' }}>
-        <div className="container" style={{ maxWidth: '600px', margin: '0 auto' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: 700, marginBottom: '24px' }}>판매자 전환</h1>
+    <MypageLayout>
+      <div style={{ maxWidth: '600px' }}>
+        <h1 style={{ fontSize: '28px', fontWeight: 700, marginBottom: '24px' }}>판매자 전환</h1>
 
           {/* 상단 프로필 카드 */}
           <div
@@ -225,9 +222,8 @@ export default function SellerRequestPage() {
               마이페이지로 돌아가기
             </Link>
           </div>
-        </div>
       </div>
-    </div>
+    </MypageLayout>
   )
 }
 

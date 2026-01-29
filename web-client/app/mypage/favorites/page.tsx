@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import Header from '../../components/Header'
+import MypageLayout from '../../components/MypageLayout'
 
 type TabKey = 'product' | 'snap'
 
@@ -10,20 +10,13 @@ export default function FavoritesPage() {
   const [activeTab, setActiveTab] = useState<TabKey>('product')
 
   return (
-    <div className="home-page">
-      <Header />
+    <MypageLayout>
+      <div>
+        <h1 className="page-title" style={{ fontSize: '28px', fontWeight: 700, marginBottom: '8px' }}>좋아요</h1>
+        <p className="page-subtitle" style={{ color: '#666', fontSize: '14px', marginBottom: '24px' }}>
+          내가 좋아요한 상품과 스냅을 한 곳에서 모아볼 수 있어요.
+        </p>
 
-      {/* Page Header */}
-      <div className="page-header">
-        <div className="container">
-          <h1 className="page-title">좋아요</h1>
-          <p className="page-subtitle">내가 좋아요한 상품과 스냅을 한 곳에서 모아볼 수 있어요.</p>
-        </div>
-      </div>
-
-      {/* Favorites Content */}
-      <section className="products-section">
-        <div className="container">
           {/* Tabs */}
           <div
             style={{
@@ -72,11 +65,10 @@ export default function FavoritesPage() {
             </button>
           </div>
 
-          {/* Tab contents */}
-          {activeTab === 'product' ? <ProductFavorites /> : <SnapFavorites />}
-        </div>
-      </section>
-    </div>
+        {/* Tab contents */}
+        {activeTab === 'product' ? <ProductFavorites /> : <SnapFavorites />}
+      </div>
+    </MypageLayout>
   )
 }
 

@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import Header from '../../components/Header'
+import MypageLayout from '../../components/MypageLayout'
 
 type Address = {
   id: number
@@ -83,12 +83,9 @@ export default function AddressPage() {
   }, [selectedId, addresses])
 
   return (
-    <div className="home-page">
-      <Header />
-
-      <div style={{ padding: '40px 20px', minHeight: '60vh' }}>
-        <div className="container" style={{ maxWidth: '600px', margin: '0 auto' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: 700, marginBottom: '24px' }}>배송지 정보 입력</h1>
+    <MypageLayout>
+      <div style={{ maxWidth: '600px' }}>
+        <h1 style={{ fontSize: '28px', fontWeight: 700, marginBottom: '24px' }}>배송지 정보 입력</h1>
 
           {/* 상단 프로필 카드 */}
           <div
@@ -433,9 +430,8 @@ export default function AddressPage() {
               마이페이지로 돌아가기
             </Link>
           </div>
-        </div>
       </div>
-    </div>
+    </MypageLayout>
   )
 }
 

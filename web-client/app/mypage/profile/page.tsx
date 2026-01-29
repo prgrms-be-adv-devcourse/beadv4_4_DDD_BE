@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import Header from '../../components/Header'
+import MypageLayout from '../../components/MypageLayout'
 
 export default function ProfilePage() {
   const [email, setEmail] = useState('test@example.com')
@@ -16,12 +16,9 @@ export default function ProfilePage() {
   }, [])
 
   return (
-    <div className="home-page">
-      <Header />
-
-      <div style={{ padding: '40px 20px', minHeight: '60vh' }}>
-        <div className="container" style={{ maxWidth: '600px', margin: '0 auto' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: 700, marginBottom: '24px' }}>기본 정보 수정</h1>
+    <MypageLayout>
+      <div style={{ maxWidth: '600px' }}>
+        <h1 style={{ fontSize: '28px', fontWeight: 700, marginBottom: '24px' }}>기본 정보 수정</h1>
 
           <div
             style={{
@@ -163,9 +160,8 @@ export default function ProfilePage() {
               마이페이지로 돌아가기
             </Link>
           </div>
-        </div>
       </div>
-    </div>
+    </MypageLayout>
   )
 }
 
