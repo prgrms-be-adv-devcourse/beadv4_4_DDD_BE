@@ -37,90 +37,32 @@ export default function CartPage() {
   const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set())
 
   useEffect(() => {
-    const fetchCartItems = async () => {
-      try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
-        const url = `${apiUrl}/api/v1/orders/cart-items`
-        console.log('장바구니 API 호출:', url)
-        
-        const response = await fetch(url, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
-        
-        console.log('장바구니 API 응답 상태:', response.status, response.statusText)
-        
-        if (!response.ok) {
-          let errorText = ''
-          try {
-            errorText = await response.text()
-            console.error('API 응답 에러 본문:', errorText)
-            
-            // JSON 형식인 경우 파싱 시도
-            try {
-              const errorJson = JSON.parse(errorText)
-              console.error('API 응답 에러 JSON:', errorJson)
-              throw new Error(errorJson.message || `장바구니 정보를 불러올 수 없습니다 (${response.status})`)
-            } catch (parseError) {
-              // JSON 파싱 실패 시 원본 텍스트 사용
-              throw new Error(`장바구니 정보를 불러올 수 없습니다 (${response.status}: ${errorText})`)
-            }
-          } catch (e) {
-            if (e instanceof Error) {
-              throw e
-            }
-            throw new Error(`장바구니 정보를 불러올 수 없습니다 (${response.status})`)
-          }
-        }
-        
-        const apiResponse: ApiResponse = await response.json()
-        console.log('장바구니 API 응답:', apiResponse)
-        
-        if (apiResponse.isSuccess) {
-          if (apiResponse.result) {
-            // BigDecimal을 number로 변환 (필요한 경우)
-            const result = {
-              ...apiResponse.result,
-              totalAmount: typeof apiResponse.result.totalAmount === 'number' 
-                ? apiResponse.result.totalAmount 
-                : parseFloat(apiResponse.result.totalAmount?.toString() || '0'),
-              cartItems: apiResponse.result.cartItems?.map((item: any) => ({
-                ...item,
-                salePrice: typeof item.salePrice === 'number' 
-                  ? item.salePrice 
-                  : parseFloat(item.salePrice?.toString() || '0'),
-              })) || [],
-            }
-            
-            console.log('변환된 장바구니 데이터:', result)
-            setCartData(result)
-            
-            // 사용 가능한 상품만 기본 선택
-            const availableItems = new Set(
-              result.cartItems
-                .filter((item: CartItemDto) => item.isAvailable)
-                .map((item: CartItemDto) => item.productId)
-            )
-            setSelectedItems(availableItems)
-            setError(null)
-          } else {
-            throw new Error('장바구니 데이터가 없습니다.')
-          }
-        } else {
-          throw new Error(apiResponse.message || '장바구니 정보를 가져올 수 없습니다.')
-        }
-      } catch (error) {
-        console.error('장바구니 정보 조회 실패:', error)
-        const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.'
-        setError(errorMessage)
-      } finally {
-        setIsLoading(false)
-      }
+    // Mock 장바구니 데이터
+    const mockCartData: CartItemsResponseDto = {
+      memberId: 1,
+      totalQuantity: 2,
+      totalAmount: 39600,
+      cartItems: [
+        {
+          productId: 1,
+          name: '베이직 레더 가방 130004',
+          quantity: 2,
+          salePrice: 19800,
+          isAvailable: true,
+        },
+      ],
     }
-
-    fetchCartItems()
+    
+    setTimeout(() => {
+      setCartData(mockCartData)
+      const availableItems = new Set(
+        mockCartData.cartItems
+          .filter((item: CartItemDto) => item.isAvailable)
+          .map((item: CartItemDto) => item.productId)
+      )
+      setSelectedItems(availableItems)
+      setIsLoading(false)
+    }, 300)
   }, [])
 
   const items = cartData?.cartItems || []

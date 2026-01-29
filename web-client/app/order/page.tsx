@@ -51,35 +51,18 @@ export default function OrderPage() {
 
   // 회원 정보 조회
   useEffect(() => {
-    const fetchMemberInfo = async () => {
-      try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
-        const response = await fetch(`${apiUrl}/api/v1/payments/members/${memberId}`)
-        
-        if (!response.ok) {
-          const errorText = await response.text()
-          console.error('API 응답 에러:', response.status, errorText)
-          throw new Error(`회원 정보 조회 실패 (${response.status})`)
-        }
-        
-        const apiResponse: PaymentMemberApiResponse = await response.json()
-        
-        if (apiResponse.isSuccess && apiResponse.result) {
-          setMemberInfo(apiResponse.result)
-          setMemberError(null)
-        } else {
-          throw new Error('회원 정보를 가져올 수 없습니다.')
-        }
-      } catch (error) {
-        console.error('회원 정보 조회 실패:', error)
-        const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.'
-        setMemberError(errorMessage)
-      } finally {
-        setIsLoadingMember(false)
-      }
+    // Mock 회원 정보
+    const mockMemberInfo: PaymentMemberResponse = {
+      customerKey: 'customer-123',
+      customerName: '홍길동',
+      customerEmail: 'hong@example.com',
+      balance: 50000,
     }
-
-    fetchMemberInfo()
+    
+    setTimeout(() => {
+      setMemberInfo(mockMemberInfo)
+      setIsLoadingMember(false)
+    }, 300)
   }, [router, memberId])
 
   // 토스페이먼츠 위젯 스크립트 로드
@@ -117,84 +100,11 @@ export default function OrderPage() {
       return
     }
 
-    let payment: PaymentResponse | null = null
-
-    try {
-      const amount = 19800 // 19,800원
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
-
-      // 1) 먼저 결제 요청 API 호출
-      const paymentRes = await fetch(`${apiUrl}/api/v1/payments`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          buyerId: memberId,
-          orderId: Date.now(),
-          orderNo: `ORD-${Date.now()}`,
-          totalAmount: amount,
-        }),
-      })
-
-      if (!paymentRes.ok) {
-        const errorText = await paymentRes.text()
-        console.error('결제 요청 API 에러:', paymentRes.status, errorText)
-        router.push(`/order/failure?amount=${amount}`)
-        return
-      }
-
-      const paymentApiResponse: ApiResponse<PaymentResponse> = await paymentRes.json()
-
-      if (!paymentApiResponse.isSuccess || !paymentApiResponse.result) {
-        console.error('결제 요청 응답 실패:', paymentApiResponse.message)
-        router.push(`/order/failure?amount=${amount}`)
-        return
-      }
-
-      payment = paymentApiResponse.result
-
-      // 2) needsCharge가 false이면 토스 결제 모듈 없이 바로 성공 페이지로 이동
-      if (!payment.needsCharge) {
-        router.push(
-          `/order/success?orderNo=${payment.orderNo}&amount=${payment.totalAmount}`
-        )
-        return
-      }
-
-      // 3) needsCharge가 true이면 토스 결제 모듈 호출 (충전 필요 금액 기준)
-      const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY
-      if (!clientKey) {
-        alert('토스페이먼츠 클라이언트 키가 설정되지 않았습니다. 환경 변수를 확인해주세요.')
-        return
-      }
-
-      if (!widgetRef.current) {
-        alert('결제 위젯을 불러오는 중입니다. 잠시 후 다시 시도해주세요.')
-        return
-      }
-
-      await widgetRef.current.requestPayment('카드', {
-        amount: payment.chargeAmount,
-        orderId: payment.orderId,
-        orderName: '베이직 레더 가방 130004',
-        customerName: memberInfo.customerName,
-        customerKey: memberInfo.customerKey,
-        customerEmail: memberInfo.customerEmail,
-        successUrl: `${window.location.origin}/order/success?orderNo=${payment.orderNo}&memberId=${memberId}&pgCustomerName=${encodeURIComponent(memberInfo.customerName)}&pgCustomerEmail=${encodeURIComponent(memberInfo.customerEmail)}`,
-        failUrl: `${window.location.origin}/order/failure?orderNo=${payment.orderNo}&amount=${payment.totalAmount}`,
-      })
-    } catch (error) {
-      console.error('결제 요청 실패:', error)
-      if (payment) {
-        router.push(
-          `/order/failure?orderNo=${payment.orderNo}&amount=${payment.totalAmount}`
-        )
-      } else {
-        const fallbackAmount = 19800
-        router.push(`/order/failure?amount=${fallbackAmount}`)
-      }
-    }
+    const amount = 19800
+    const orderNo = `ORD-${Date.now()}`
+    
+    // Mock 데이터로 결제 성공 페이지로 이동
+    router.push(`/order/success?orderNo=${orderNo}&amount=${amount}`)
   }
 
   return (

@@ -132,64 +132,9 @@ export default function MagazineWritePage() {
     setIsSubmitting(true)
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
-      
-      // 이미지 파일을 base64로 변환
-      const imageUrls: string[] = []
-      for (const file of imageFiles) {
-        const base64 = await convertFileToBase64(file)
-        imageUrls.push(base64)
-      }
-      
-      const contentRequest: ContentRequest = {
-        text: text.trim(),
-        tags: tags,
-        images: imageUrls.map((url, index) => ({
-          imageUrl: url,
-          isPrimary: index === 0,
-          sortOrder: index,
-        })),
-      }
-
-      console.log('콘텐츠 생성 요청:', contentRequest)
-
-      const response = await fetch(`${apiUrl}/api/v1/contents`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(contentRequest),
-      })
-
-      if (!response.ok) {
-        const errorText = await response.text()
-        console.error('API 응답 에러:', response.status, errorText)
-        let errorMessage = `콘텐츠 생성 실패 (${response.status})`
-        try {
-          const errorResponse = JSON.parse(errorText)
-          if (errorResponse.message) {
-            errorMessage = errorResponse.message
-          }
-        } catch (e) {
-          // JSON 파싱 실패 시 기본 메시지 사용
-        }
-        throw new Error(errorMessage)
-      }
-
-      const apiResponse: ApiResponse = await response.json()
-      console.log('콘텐츠 생성 응답:', apiResponse)
-
-      if (apiResponse.isSuccess && apiResponse.result) {
-        alert('글이 성공적으로 작성되었습니다.')
-        const contentId = apiResponse.result.contentId || apiResponse.result.id
-        if (contentId) {
-          router.push(`/magazine/${contentId}`)
-        } else {
-          router.push('/magazine')
-        }
-      } else {
-        throw new Error(apiResponse.message || '콘텐츠 생성에 실패했습니다.')
-      }
+      // API 통신 제거됨
+      alert('콘텐츠 작성 기능이 비활성화되었습니다.')
+      router.push('/magazine')
     } catch (error) {
       console.error('콘텐츠 생성 실패:', error)
       const errorMessage = error instanceof Error ? error.message : '콘텐츠 생성 중 오류가 발생했습니다.'

@@ -44,52 +44,9 @@ function LoginCallbackContent() {
       }
 
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
-        const redirectUri = `${window.location.origin}/login/callback`
-        
-        // 소셜 로그인 API 호출
-        const response = await fetch(
-          `${apiUrl}/api/v1/auths/login/${provider}?code=${encodeURIComponent(code)}&redirectUri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        )
-
-        if (!response.ok) {
-          const errorText = await response.text()
-          console.error('소셜 로그인 실패:', response.status, errorText)
-          let errorMsg = `로그인 실패 (${response.status})`
-          try {
-            const errorResponse = JSON.parse(errorText)
-            if (errorResponse.message) {
-              errorMsg = errorResponse.message
-            }
-          } catch (e) {
-            // JSON 파싱 실패 시 기본 메시지 사용
-          }
-          throw new Error(errorMsg)
-        }
-
-        const apiResponse: ApiResponse = await response.json()
-
-        if (apiResponse.isSuccess && apiResponse.result) {
-          // JWT 토큰 저장
-          localStorage.setItem('accessToken', apiResponse.result.accessToken)
-          localStorage.setItem('refreshToken', apiResponse.result.refreshToken)
-          localStorage.setItem('accessTokenExpiresIn', apiResponse.result.accessTokenExpiresIn.toString())
-          localStorage.setItem('refreshTokenExpiresIn', apiResponse.result.refreshTokenExpiresIn.toString())
-
-          setStatus('success')
-          // 홈으로 리다이렉트
-          setTimeout(() => {
-            router.push('/')
-          }, 1500)
-        } else {
-          throw new Error(apiResponse.message || '로그인에 실패했습니다.')
-        }
+        // API 통신 제거됨
+        setStatus('error')
+        setErrorMessage('로그인 기능이 비활성화되었습니다.')
       } catch (error) {
         console.error('소셜 로그인 실패:', error)
         const errorMsg = error instanceof Error ? error.message : '로그인 중 오류가 발생했습니다.'

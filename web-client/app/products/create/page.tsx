@@ -142,78 +142,14 @@ export default function ProductCreatePage() {
 
   // Presigned URL 요청 및 S3 업로드
   const uploadImageToS3 = async (file: File, domainId: number = 0): Promise<string> => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
-    const ext = getFileExtension(file.name)
-    const contentType = file.type || `image/${ext === 'jpg' ? 'jpeg' : ext}`
-
-    // 1. Presigned URL 요청
-    const presignedUrlResponse = await fetch(`${apiUrl}/api/v1/file-uploads/presigned-url`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        domainId: domainId,
-        domainType: 'PRODUCT',
-        ext: ext,
-        contentType: contentType,
-      }),
+    // API 통신 제거됨 - 로컬 미리보기 URL 반환
+    return new Promise((resolve) => {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        resolve(reader.result as string)
+      }
+      reader.readAsDataURL(file)
     })
-
-    if (!presignedUrlResponse.ok) {
-      const errorText = await presignedUrlResponse.text()
-      console.error('Presigned URL 요청 실패:', presignedUrlResponse.status, errorText)
-      throw new Error('이미지 업로드 URL을 가져오는데 실패했습니다.')
-    }
-
-    const presignedUrlApiResponse = await presignedUrlResponse.json()
-    if (!presignedUrlApiResponse.isSuccess || !presignedUrlApiResponse.result) {
-      throw new Error(presignedUrlApiResponse.message || '이미지 업로드 URL을 가져오는데 실패했습니다.')
-    }
-
-    const { presignedUrl, key: rawKey } = presignedUrlApiResponse.result
-
-    // 2. S3에 직접 업로드
-    const uploadResponse = await fetch(presignedUrl, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': contentType,
-      },
-      body: file,
-    })
-
-    if (!uploadResponse.ok) {
-      console.error('S3 업로드 실패:', uploadResponse.status, uploadResponse.statusText)
-      throw new Error('이미지 업로드에 실패했습니다.')
-    }
-
-    // 3. Public URL 변환
-    const publicUrlResponse = await fetch(`${apiUrl}/api/v1/file-uploads/public-url`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        rawKey: rawKey,
-        domainType: 'PRODUCT',
-        domainId: domainId,
-        contentType: contentType,
-      }),
-    })
-
-    if (!publicUrlResponse.ok) {
-      const errorText = await publicUrlResponse.text()
-      console.error('Public URL 변환 실패:', publicUrlResponse.status, errorText)
-      throw new Error('이미지 URL 변환에 실패했습니다.')
-    }
-
-    const publicUrlApiResponse = await publicUrlResponse.json()
-    if (!publicUrlApiResponse.isSuccess || !publicUrlApiResponse.result) {
-      throw new Error(publicUrlApiResponse.message || '이미지 URL 변환에 실패했습니다.')
-    }
-
-    // PublicUrlResponse의 필드명은 imageUrl입니다
-    return publicUrlApiResponse.result.imageUrl || publicUrlApiResponse.result.publicUrl
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -255,61 +191,9 @@ export default function ProductCreatePage() {
     setIsSubmitting(true)
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
-      
-      // 이미 업로드된 public URL들 사용
-      const imageUrls = uploadedImageUrls.filter(url => url)
-      console.log('상품 등록에 사용할 이미지 URLs:', imageUrls)
-      
-      const productRequest: ProductCreateRequest = {
-        name: formData.name.trim(),
-        category: formData.category,
-        description: formData.description.trim() || '',
-        price: formData.price,
-        salePrice: formData.salePrice,
-        stock: formData.stock,
-        images: imageUrls,
-      }
-
-      console.log('상품 등록 요청:', productRequest)
-
-      const response = await fetch(`${apiUrl}/api/v1/products`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(productRequest),
-      })
-
-      if (!response.ok) {
-        const errorText = await response.text()
-        console.error('API 응답 에러:', response.status, errorText)
-        let errorMessage = `상품 등록 실패 (${response.status})`
-        try {
-          const errorResponse = JSON.parse(errorText)
-          if (errorResponse.message) {
-            errorMessage = errorResponse.message
-          }
-        } catch (e) {
-          // JSON 파싱 실패 시 기본 메시지 사용
-        }
-        throw new Error(errorMessage)
-      }
-
-      const apiResponse: ApiResponse = await response.json()
-      console.log('상품 등록 응답:', apiResponse)
-
-      if (apiResponse.isSuccess && apiResponse.result) {
-        alert('상품이 성공적으로 등록되었습니다.')
-        const productId = apiResponse.result.id || apiResponse.result.productId
-        if (productId) {
-          router.push(`/products/${productId}`)
-        } else {
-          router.push('/')
-        }
-      } else {
-        throw new Error(apiResponse.message || '상품 등록에 실패했습니다.')
-      }
+      // API 통신 제거됨
+      alert('상품 등록 기능이 비활성화되었습니다.')
+      router.push('/')
     } catch (error) {
       console.error('상품 등록 실패:', error)
       const errorMessage = error instanceof Error ? error.message : '상품 등록 중 오류가 발생했습니다.'
