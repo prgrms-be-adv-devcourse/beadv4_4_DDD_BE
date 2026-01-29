@@ -291,7 +291,7 @@ export default function MyPage() {
                       textDecoration: 'none',
                     }}
                   >
-                    상품 등록
+                    상품 관리
                   </Link>
                 </div>
               </div>

@@ -54,7 +54,7 @@ export default function SellerRequestPage() {
               </div>
             </div>
             <p style={{ fontSize: '13px', color: '#666', marginTop: '8px', lineHeight: 1.5 }}>
-              판매자 전환을 신청하면 상품 등록, 주문 관리 기능을 사용할 수 있어요. 아래 정보를 입력하고 신청해 주세요.
+              판매자 전환을 신청하면 상품 관리, 주문 관리 기능을 사용할 수 있어요. 아래 정보를 입력하고 신청해 주세요.
             </p>
           </div>
 
@@ -172,7 +172,7 @@ export default function SellerRequestPage() {
             </button>
           </div>
 
-          {/* 상품 등록 카드 */}
+          {/* 상품 관리 카드 */}
           <div
             style={{
               marginTop: '24px',
@@ -182,9 +182,9 @@ export default function SellerRequestPage() {
               boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
             }}
           >
-            <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '8px' }}>상품 등록</h2>
+            <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '8px' }}>상품 관리</h2>
             <p style={{ fontSize: '13px', color: '#666', marginBottom: '16px' }}>
-              판매자 전환이 완료되면 바로 상품을 등록해 보세요.
+              판매자 전환이 완료되면 바로 상품을 관리해 보세요.
             </p>
             <Link
               href="/products/create"
@@ -200,7 +200,7 @@ export default function SellerRequestPage() {
                 textDecoration: 'none',
               }}
             >
-              상품 등록하러 가기
+              상품 관리하러 가기
             </Link>
           </div>
 

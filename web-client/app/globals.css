@@ -222,9 +222,8 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 350px;
-  object-fit: cover;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .product-card .product-image img {
@@ -744,8 +743,8 @@ a {
   }
 
   .product-card .product-image {
-    min-height: 200px;
     width: 100% !important;
+    aspect-ratio: 1;
   }
 
   .footer-content {

@@ -192,11 +192,11 @@ export default function ProductCreatePage() {
 
     try {
       // API 통신 제거됨
-      alert('상품 등록 기능이 비활성화되었습니다.')
+      alert('상품 관리 기능이 비활성화되었습니다.')
       router.push('/')
     } catch (error) {
-      console.error('상품 등록 실패:', error)
-      const errorMessage = error instanceof Error ? error.message : '상품 등록 중 오류가 발생했습니다.'
+      console.error('상품 관리 실패:', error)
+      const errorMessage = error instanceof Error ? error.message : '상품 관리 중 오류가 발생했습니다.'
       alert(errorMessage)
     } finally {
       setIsSubmitting(false)
@@ -230,7 +230,7 @@ export default function ProductCreatePage() {
         <div className="container">
           <div className="product-create-container">
             <div className="create-header">
-              <h1 className="create-title">상품 등록</h1>
+              <h1 className="create-title">상품 관리</h1>
               <Link href="/" className="create-cancel-btn">
                 취소
               </Link>
@@ -416,7 +416,7 @@ export default function ProductCreatePage() {
                   className="create-submit-btn"
                   disabled={isSubmitting || uploadingImageIndex.size > 0 || !formData.name.trim() || formData.price <= 0 || formData.salePrice <= 0}
                 >
-                  {uploadingImageIndex.size > 0 ? `이미지 업로드 중... (${uploadingImageIndex.size})` : isSubmitting ? '등록 중...' : '상품 등록'}
+                  {uploadingImageIndex.size > 0 ? `이미지 업로드 중... (${uploadingImageIndex.size})` : isSubmitting ? '등록 중...' : '상품 관리'}
                 </button>
               </div>
             </form>

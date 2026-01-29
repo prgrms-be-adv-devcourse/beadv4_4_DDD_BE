@@ -99,7 +99,7 @@ export default function MypageNav() {
 
         <div style={{ fontSize: '12px', color: '#999', margin: '12px 0 4px' }}>판매</div>
         <NavLink href="/mypage/seller-request">내정보</NavLink>
-        <NavLink href="/products/create">상품 등록</NavLink>
+        <NavLink href="/products/create">상품 관리</NavLink>
       </nav>
     </aside>
   )
