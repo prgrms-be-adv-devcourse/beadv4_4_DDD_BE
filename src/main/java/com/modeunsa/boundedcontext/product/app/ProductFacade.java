@@ -40,9 +40,10 @@ public class ProductFacade {
   private final ProductMapper productMapper;
 
   @Transactional
-  public ProductResponse createProduct(Long memberId, ProductCreateRequest productCreateRequest) {
+  public ProductDetailResponse createProduct(
+      Long memberId, ProductCreateRequest productCreateRequest) {
     Product product = productCreateProductUseCase.createProduct(memberId, productCreateRequest);
-    return productMapper.toResponse(product);
+    return productMapper.toDetailResponse(product, false);
   }
 
   public ProductDetailResponse getProduct(Long memberId, Long productId) {
@@ -59,12 +60,12 @@ public class ProductFacade {
 
   public Page<ProductResponse> getProducts(ProductCategory category, Pageable pageable) {
     Page<Product> products = productSupport.getProducts(category, pageable);
-    return products.map(productMapper::toResponse);
+    return products.map(product -> productMapper.toResponse(product, product.getPrimaryImageUrl()));
   }
 
   public Page<ProductResponse> getProducts(Long memberId, Pageable pageable) {
     Page<Product> products = productSupport.getProducts(memberId, pageable);
-    return products.map(productMapper::toResponse);
+    return products.map(product -> productMapper.toResponse(product, product.getPrimaryImageUrl()));
   }
 
   public List<ProductOrderResponse> getProducts(List<Long> productIds) {
@@ -74,19 +75,23 @@ public class ProductFacade {
   }
 
   @Transactional
-  public ProductResponse updateProduct(
+  public ProductDetailResponse updateProduct(
       Long memberId, Long productId, ProductUpdateRequest productRequest) {
     Product product =
         productUpdateProductUseCase.updateProduct(memberId, productId, productRequest);
-    return productMapper.toResponse(product);
+    ProductMember member = productSupport.getProductMember(memberId);
+    boolean isFavorite = productSupport.existsProductFavorite(member.getId(), product.getId());
+    return productMapper.toDetailResponse(product, isFavorite);
   }
 
   @Transactional
-  public ProductResponse updateProductStatus(
+  public ProductDetailResponse updateProductStatus(
       Long memberId, Long productId, ProductStatus productStatus) {
     Product product =
         productUpdateProductStatusUseCase.updateProductStatus(memberId, productId, productStatus);
-    return productMapper.toResponse(product);
+    ProductMember member = productSupport.getProductMember(memberId);
+    boolean isFavorite = productSupport.existsProductFavorite(member.getId(), product.getId());
+    return productMapper.toDetailResponse(product, isFavorite);
   }
 
   @Transactional

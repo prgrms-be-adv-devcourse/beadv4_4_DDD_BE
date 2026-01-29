@@ -159,4 +159,11 @@ public class Product extends GeneratedIdAndAuditedEntity {
   public void changeSaleStatus(SaleStatus saleStatus) {
     this.saleStatus = saleStatus;
   }
+
+  public String getPrimaryImageUrl() {
+    if (images == null || images.isEmpty()) {
+      return null;
+    }
+    return images.get(0).getImageUrl();
+  }
 }
