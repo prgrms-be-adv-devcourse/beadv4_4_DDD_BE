@@ -1,56 +1,348 @@
 'use client'
 
-import Link from 'next/link'
+import { useState } from 'react'
 import MypageLayout from '../../../components/MypageLayout'
 
+const mockHistory = [
+  {
+    id: 'TXN-001',
+    date: '2024-01-16',
+    dateDisplay: '2024.01.16 15:20',
+    type: '충전',
+    typeStyle: { color: '#22c55e', fontWeight: 600 },
+    description: '카드 충전',
+    amount: '+30,000',
+    amountStyle: { color: '#22c55e', fontWeight: 600 },
+    balance: '80,000원',
+  },
+  {
+    id: 'TXN-002',
+    date: '2024-01-15',
+    dateDisplay: '2024.01.15 14:30',
+    type: '사용',
+    typeStyle: { color: '#666', fontWeight: 600 },
+    description: '주문 결제 (ORD-2024-001)',
+    amount: '-89,000',
+    amountStyle: { color: '#333', fontWeight: 600 },
+    balance: '50,000원',
+  },
+  {
+    id: 'TXN-003',
+    date: '2024-01-10',
+    dateDisplay: '2024.01.10 11:00',
+    type: '충전',
+    typeStyle: { color: '#22c55e', fontWeight: 600 },
+    description: '카드 충전',
+    amount: '+50,000',
+    amountStyle: { color: '#22c55e', fontWeight: 600 },
+    balance: '139,000원',
+  },
+  {
+    id: 'TXN-004',
+    date: '2024-01-05',
+    dateDisplay: '2024.01.05 09:15',
+    type: '사용',
+    typeStyle: { color: '#666', fontWeight: 600 },
+    description: '주문 결제 (ORD-2024-003)',
+    amount: '-132,000',
+    amountStyle: { color: '#333', fontWeight: 600 },
+    balance: '89,000원',
+  },
+]
+
+const PAGE_SIZE = 10
+
+type PresetKey = 'week' | 'month1' | 'month3' | 'month6' | 'direct'
+
 export default function MoneyHistoryPage() {
+  const [preset, setPreset] = useState<PresetKey>('month1')
+  const [startDate, setStartDate] = useState('2024-01-01')
+  const [endDate, setEndDate] = useState('2024-01-31')
+  const [currentPage, setCurrentPage] = useState(1)
+
+  const handlePreset = (key: PresetKey) => {
+    setPreset(key)
+    setCurrentPage(1)
+    const today = new Date()
+    const end = new Date(today)
+    let start = new Date(today)
+    if (key === 'week') start.setDate(start.getDate() - 7)
+    else if (key === 'month1') start.setMonth(start.getMonth() - 1)
+    else if (key === 'month3') start.setMonth(start.getMonth() - 3)
+    else if (key === 'month6') start.setMonth(start.getMonth() - 6)
+    if (key !== 'direct') {
+      setStartDate(start.toISOString().slice(0, 10))
+      setEndDate(end.toISOString().slice(0, 10))
+    }
+  }
+
+  const handleSearch = () => {
+    setCurrentPage(1)
+    alert(`기간 검색: ${startDate} ~ ${endDate}\n(데모 화면입니다.)`)
+  }
+
+  const filteredHistory = mockHistory.filter((item) => {
+    const d = item.date
+    return d >= startDate && d <= endDate
+  })
+
+  const totalPages = Math.max(1, Math.ceil(filteredHistory.length / PAGE_SIZE))
+  const paginatedHistory = filteredHistory.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  )
+
   return (
     <MypageLayout>
-      <div style={{ maxWidth: '600px' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '24px' }}>뭐든사 머니 사용 내역</h1>
+      <div style={{ maxWidth: '900px' }}>
+        <h1 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '8px' }}>뭐든사 머니 사용 내역</h1>
+        <p style={{ color: '#666', fontSize: '14px', marginBottom: '24px' }}>
+          충전·사용 내역을 기간별로 확인할 수 있어요.
+        </p>
 
-          <div
-            style={{
-              background: 'white',
-              borderRadius: '12px',
-              padding: '24px',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-              marginBottom: '24px',
-            }}
-          >
-            <div style={{ fontSize: '14px', color: '#666', marginBottom: '8px' }}>현재 보유 머니</div>
-            <div style={{ fontSize: '22px', fontWeight: 700, marginBottom: '24px' }}>50,000원</div>
+        {/* 보유 머니 */}
+        <div
+          style={{
+            background: 'linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%)',
+            borderRadius: '12px',
+            padding: '16px 20px',
+            marginBottom: '24px',
+            border: '1px solid #e8ecff',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <span style={{ fontSize: '14px', color: '#666', fontWeight: 500 }}>현재 보유 머니</span>
+          <span style={{ fontSize: '22px', fontWeight: 700, color: '#333' }}>50,000원</span>
+        </div>
 
+        {/* 기간 검색 */}
+        <div
+          style={{
+            background: 'white',
+            borderRadius: '12px',
+            padding: '20px',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+            border: '1px solid #f0f0f0',
+            marginBottom: '24px',
+          }}
+        >
+          <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px', color: '#333' }}>
+            조회 기간
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
+            {[
+              { key: 'week' as PresetKey, label: '최근 1주일' },
+              { key: 'month1' as PresetKey, label: '1개월' },
+              { key: 'month3' as PresetKey, label: '3개월' },
+              { key: 'month6' as PresetKey, label: '6개월' },
+            ].map(({ key, label }) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => handlePreset(key)}
+                style={{
+                  padding: '8px 14px',
+                  borderRadius: '8px',
+                  border: preset === key ? '2px solid #667eea' : '1px solid #e0e0e0',
+                  background: preset === key ? '#f8f8ff' : '#fff',
+                  color: preset === key ? '#667eea' : '#666',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px' }}>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => {
+                setStartDate(e.target.value)
+                setPreset('direct')
+                setCurrentPage(1)
+              }}
+              style={{
+                padding: '8px 12px',
+                borderRadius: '8px',
+                border: '1px solid #e0e0e0',
+                fontSize: '14px',
+              }}
+            />
+            <span style={{ color: '#999', fontSize: '14px' }}>~</span>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => {
+                setEndDate(e.target.value)
+                setPreset('direct')
+                setCurrentPage(1)
+              }}
+              style={{
+                padding: '8px 12px',
+                borderRadius: '8px',
+                border: '1px solid #e0e0e0',
+                fontSize: '14px',
+              }}
+            />
+            <button
+              type="button"
+              onClick={handleSearch}
+              style={{
+                padding: '8px 20px',
+                borderRadius: '8px',
+                border: 'none',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: 'white',
+                fontSize: '14px',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              검색
+            </button>
+          </div>
+        </div>
+
+        {/* 테이블 */}
+        <div
+          style={{
+            background: 'white',
+            borderRadius: '12px',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+            border: '1px solid #f0f0f0',
+            overflow: 'hidden',
+          }}
+        >
+          <div style={{ overflowX: 'auto' }}>
+            <table
+              style={{
+                width: '100%',
+                borderCollapse: 'collapse',
+                fontSize: '14px',
+              }}
+            >
+              <thead>
+                <tr style={{ background: '#f8f9fa', borderBottom: '2px solid #eee' }}>
+                  <th style={{ padding: '14px 12px', textAlign: 'left', fontWeight: 600, color: '#333' }}>
+                    사용일시
+                  </th>
+                  <th style={{ padding: '14px 12px', textAlign: 'center', fontWeight: 600, color: '#333' }}>
+                    구분
+                  </th>
+                  <th style={{ padding: '14px 12px', textAlign: 'left', fontWeight: 600, color: '#333' }}>
+                    내용
+                  </th>
+                  <th style={{ padding: '14px 12px', textAlign: 'right', fontWeight: 600, color: '#333' }}>
+                    금액
+                  </th>
+                  <th style={{ padding: '14px 12px', textAlign: 'right', fontWeight: 600, color: '#333' }}>
+                    잔액
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedHistory.map((item) => (
+                  <tr key={item.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
+                    <td style={{ padding: '14px 12px', color: '#666' }}>{item.dateDisplay}</td>
+                    <td style={{ padding: '14px 12px', textAlign: 'center' }}>
+                      <span style={item.typeStyle}>{item.type}</span>
+                    </td>
+                    <td style={{ padding: '14px 12px', color: '#333' }}>{item.description}</td>
+                    <td style={{ padding: '14px 12px', textAlign: 'right' }}>
+                      <span style={item.amountStyle}>{item.amount}</span>
+                    </td>
+                    <td style={{ padding: '14px 12px', textAlign: 'right', fontWeight: 600, color: '#333' }}>
+                      {item.balance}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {filteredHistory.length > 0 && totalPages > 0 && (
             <div
               style={{
-                padding: '32px 16px',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '16px',
+                borderTop: '1px solid #f0f0f0',
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  border: '1px solid #e0e0e0',
+                  background: currentPage === 1 ? '#f5f5f5' : '#fff',
+                  color: currentPage === 1 ? '#999' : '#333',
+                  fontSize: '14px',
+                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                }}
+              >
+                이전
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  type="button"
+                  onClick={() => setCurrentPage(page)}
+                  style={{
+                    minWidth: '36px',
+                    padding: '8px',
+                    borderRadius: '8px',
+                    border: currentPage === page ? '2px solid #667eea' : '1px solid #e0e0e0',
+                    background: currentPage === page ? '#f8f8ff' : '#fff',
+                    color: currentPage === page ? '#667eea' : '#333',
+                    fontSize: '14px',
+                    fontWeight: currentPage === page ? 600 : 400,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {page}
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  border: '1px solid #e0e0e0',
+                  background: currentPage === totalPages ? '#f5f5f5' : '#fff',
+                  color: currentPage === totalPages ? '#999' : '#333',
+                  fontSize: '14px',
+                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                }}
+              >
+                다음
+              </button>
+            </div>
+          )}
+
+          {filteredHistory.length === 0 && (
+            <div
+              style={{
+                padding: '48px 24px',
                 textAlign: 'center',
                 color: '#999',
                 fontSize: '14px',
-                borderTop: '1px solid #eee',
               }}
             >
-              사용 내역이 없습니다.
+              해당 기간 사용 내역이 없습니다.
             </div>
-          </div>
-
-        <div style={{ textAlign: 'center', marginTop: '16px' }}>
-          <Link
-            href="/mypage"
-            style={{
-              display: 'inline-block',
-              padding: '10px 20px',
-              borderRadius: '8px',
-              border: '1px solid #e0e0ff',
-              background: '#f8f8ff',
-              color: '#667eea',
-              fontSize: '13px',
-              fontWeight: 500,
-              textDecoration: 'none',
-            }}
-          >
-            마이페이지로 돌아가기
-          </Link>
+          )}
         </div>
       </div>
     </MypageLayout>

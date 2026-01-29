@@ -142,24 +142,6 @@ export default function ProfilePage() {
             </button>
           </div>
 
-          <div style={{ marginTop: '24px', textAlign: 'center' }}>
-            <Link
-              href="/mypage"
-              style={{
-                display: 'inline-block',
-                padding: '10px 20px',
-                borderRadius: '8px',
-                border: '1px solid #e0e0ff',
-                background: '#f8f8ff',
-                color: '#667eea',
-                fontSize: '13px',
-                fontWeight: 500,
-                textDecoration: 'none',
-              }}
-            >
-              마이페이지로 돌아가기
-            </Link>
-          </div>
       </div>
     </MypageLayout>
   )

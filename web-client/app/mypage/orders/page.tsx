@@ -37,15 +37,19 @@ const mockOrders = [
   },
 ]
 
+const PAGE_SIZE = 10
+
 type PresetKey = 'week' | 'month1' | 'month3' | 'month6' | 'direct'
 
 export default function OrdersPage() {
   const [preset, setPreset] = useState<PresetKey>('month1')
   const [startDate, setStartDate] = useState('2024-01-01')
   const [endDate, setEndDate] = useState('2024-01-31')
+  const [currentPage, setCurrentPage] = useState(1)
 
   const handlePreset = (key: PresetKey) => {
     setPreset(key)
+    setCurrentPage(1)
     const today = new Date()
     const end = new Date(today)
     let start = new Date(today)
@@ -60,6 +64,7 @@ export default function OrdersPage() {
   }
 
   const handleSearch = () => {
+    setCurrentPage(1)
     // Mock: 실제로는 startDate, endDate로 API 호출
     alert(`기간 검색: ${startDate} ~ ${endDate}\n(데모 화면입니다.)`)
   }
@@ -68,6 +73,12 @@ export default function OrdersPage() {
     const d = order.date
     return d >= startDate && d <= endDate
   })
+
+  const totalPages = Math.max(1, Math.ceil(filteredOrders.length / PAGE_SIZE))
+  const paginatedOrders = filteredOrders.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  )
 
   return (
     <MypageLayout>
@@ -124,6 +135,7 @@ export default function OrdersPage() {
               onChange={(e) => {
                 setStartDate(e.target.value)
                 setPreset('direct')
+                setCurrentPage(1)
               }}
               style={{
                 padding: '8px 12px',
@@ -139,6 +151,7 @@ export default function OrdersPage() {
               onChange={(e) => {
                 setEndDate(e.target.value)
                 setPreset('direct')
+                setCurrentPage(1)
               }}
               style={{
                 padding: '8px 12px',
@@ -210,7 +223,7 @@ export default function OrdersPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredOrders.map((order) => (
+                {paginatedOrders.map((order) => (
                   <tr
                     key={order.id}
                     style={{
@@ -248,6 +261,72 @@ export default function OrdersPage() {
             </table>
           </div>
 
+          {filteredOrders.length > 0 && totalPages > 0 && (
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '16px',
+                borderTop: '1px solid #f0f0f0',
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  border: '1px solid #e0e0e0',
+                  background: currentPage === 1 ? '#f5f5f5' : '#fff',
+                  color: currentPage === 1 ? '#999' : '#333',
+                  fontSize: '14px',
+                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                }}
+              >
+                이전
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  type="button"
+                  onClick={() => setCurrentPage(page)}
+                  style={{
+                    minWidth: '36px',
+                    padding: '8px',
+                    borderRadius: '8px',
+                    border: currentPage === page ? '2px solid #667eea' : '1px solid #e0e0e0',
+                    background: currentPage === page ? '#f8f8ff' : '#fff',
+                    color: currentPage === page ? '#667eea' : '#333',
+                    fontSize: '14px',
+                    fontWeight: currentPage === page ? 600 : 400,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {page}
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  border: '1px solid #e0e0e0',
+                  background: currentPage === totalPages ? '#f5f5f5' : '#fff',
+                  color: currentPage === totalPages ? '#999' : '#333',
+                  fontSize: '14px',
+                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                }}
+              >
+                다음
+              </button>
+            </div>
+          )}
+
           {filteredOrders.length === 0 && (
             <div
               style={{
@@ -262,24 +341,6 @@ export default function OrdersPage() {
           )}
         </div>
 
-        <div style={{ marginTop: '24px', textAlign: 'center' }}>
-          <Link
-            href="/mypage"
-            style={{
-              display: 'inline-block',
-              padding: '10px 20px',
-              borderRadius: '8px',
-              border: '1px solid #e0e0ff',
-              background: '#f8f8ff',
-              color: '#667eea',
-              fontSize: '13px',
-              fontWeight: 500,
-              textDecoration: 'none',
-            }}
-          >
-            마이페이지로 돌아가기
-          </Link>
-        </div>
       </div>
     </MypageLayout>
   )
