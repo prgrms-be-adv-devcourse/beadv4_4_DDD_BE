@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
+import Header from '../components/Header'
 
 interface CartItemDto {
   productId: number
@@ -185,24 +186,7 @@ export default function CartPage() {
   return (
     <div className="home-page">
       {/* Header */}
-      <header className="header">
-        <div className="header-container">
-          <div className="logo">
-            <Link href="/">뭐든사</Link>
-          </div>
-          <nav className="nav">
-            <Link href="/fashion">패션</Link>
-            <Link href="/beauty">뷰티</Link>
-            <Link href="/sale">세일</Link>
-            <Link href="/magazine">매거진</Link>
-          </nav>
-          <div className="header-actions">
-            <Link href="/search" className="search-btn">검색</Link>
-            <Link href="/cart" className="cart-btn">장바구니</Link>
-            <Link href="/login" className="user-btn">로그인</Link>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Cart Section */}
       <div className="cart-page-container">

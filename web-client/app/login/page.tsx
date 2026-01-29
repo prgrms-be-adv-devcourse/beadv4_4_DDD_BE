@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Header from '../components/Header'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -13,10 +14,24 @@ export default function LoginPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // 실제 로그인 로직은 여기에 구현
-    console.log('Login:', { email, password, rememberMe })
-    // 로그인 성공 후 홈으로 이동
-    // router.push('/')
+    
+    // Mock 로그인: 이메일 test@example.com, 비밀번호 1234
+    if (email === 'test@example.com' && password === '1234') {
+      // Mock 토큰 및 이메일 저장
+      localStorage.setItem('accessToken', 'mock-access-token-' + Date.now())
+      localStorage.setItem('refreshToken', 'mock-refresh-token-' + Date.now())
+      localStorage.setItem('accessTokenExpiresIn', '3600')
+      localStorage.setItem('refreshTokenExpiresIn', '86400')
+      localStorage.setItem('email', email)
+      
+      // 로그인 상태 변경 이벤트 발생
+      window.dispatchEvent(new Event('loginStatusChanged'))
+      
+      alert('로그인 성공!')
+      router.push('/')
+    } else {
+      alert('이메일 또는 비밀번호가 올바르지 않습니다.\n이메일: test@example.com\n비밀번호: 1234')
+    }
   }
 
   const handleSocialLogin = async (provider: 'kakao' | 'naver') => {
@@ -27,24 +42,7 @@ export default function LoginPage() {
   return (
     <div className="home-page">
       {/* Header */}
-      <header className="header">
-        <div className="header-container">
-          <div className="logo">
-            <Link href="/">뭐든사</Link>
-          </div>
-          <nav className="nav">
-            <Link href="/fashion">패션</Link>
-            <Link href="/beauty">뷰티</Link>
-            <Link href="/sale">세일</Link>
-            <Link href="/magazine">매거진</Link>
-          </nav>
-          <div className="header-actions">
-            <Link href="/search" className="search-btn">검색</Link>
-            <Link href="/cart" className="cart-btn">장바구니</Link>
-            <button className="user-btn">로그인</button>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Login Section */}
       <section className="login-section">
