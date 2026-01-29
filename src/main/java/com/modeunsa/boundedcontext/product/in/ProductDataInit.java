@@ -6,7 +6,7 @@ import com.modeunsa.boundedcontext.product.domain.ProductCategory;
 import com.modeunsa.boundedcontext.product.domain.ProductMember;
 import com.modeunsa.boundedcontext.product.out.ProductRepository;
 import com.modeunsa.shared.product.dto.ProductCreateRequest;
-import com.modeunsa.shared.product.dto.ProductResponse;
+import com.modeunsa.shared.product.dto.ProductDetailResponse;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
@@ -50,7 +50,7 @@ public class ProductDataInit {
     }
     ProductMember member1 = productSupport.getProductMember(7L); // 최판매
 
-    ProductResponse product1 =
+    ProductDetailResponse product1 =
         productFacade.createProduct(
             member1.getId(),
             new ProductCreateRequest(
@@ -67,7 +67,7 @@ public class ProductDataInit {
                     "https://team01-storage.s3.ap-northeast-2.amazonaws.com/dev/product/1/coat4.jpg",
                     "https://team01-storage.s3.ap-northeast-2.amazonaws.com/dev/product/1/coat5.jpg")));
 
-    ProductResponse product2 =
+    ProductDetailResponse product2 =
         productFacade.createProduct(
             member1.getId(),
             new ProductCreateRequest(
@@ -81,7 +81,7 @@ public class ProductDataInit {
                     "https://team01-storage.s3.ap-northeast-2.amazonaws.com/dev/product/1/ad3e23cd-155c-4ae9-80e3-40bcdefb1036.jpg",
                     "https://team01-storage.s3.ap-northeast-2.amazonaws.com/dev/product/1/3457593b-9a40-486a-b506-68224177bb8a.jpg")));
 
-    ProductResponse product3 =
+    ProductDetailResponse product3 =
         productFacade.createProduct(
             member1.getId(),
             new ProductCreateRequest(
@@ -93,7 +93,7 @@ public class ProductDataInit {
                 20,
                 null));
 
-    ProductResponse product4 =
+    ProductDetailResponse product4 =
         productFacade.createProduct(
             member1.getId(),
             new ProductCreateRequest(
@@ -105,7 +105,7 @@ public class ProductDataInit {
                 100,
                 null));
 
-    ProductResponse product5 =
+    ProductDetailResponse product5 =
         productFacade.createProduct(
             member1.getId(),
             new ProductCreateRequest(
@@ -117,7 +117,7 @@ public class ProductDataInit {
                 50,
                 null));
 
-    ProductResponse product6 =
+    ProductDetailResponse product6 =
         productFacade.createProduct(
             member1.getId(),
             new ProductCreateRequest(
@@ -129,7 +129,7 @@ public class ProductDataInit {
                 120,
                 null));
 
-    ProductResponse product7 =
+    ProductDetailResponse product7 =
         productFacade.createProduct(
             member1.getId(),
             new ProductCreateRequest(
@@ -141,7 +141,7 @@ public class ProductDataInit {
                 100,
                 null));
 
-    ProductResponse product8 =
+    ProductDetailResponse product8 =
         productFacade.createProduct(
             member1.getId(),
             new ProductCreateRequest(

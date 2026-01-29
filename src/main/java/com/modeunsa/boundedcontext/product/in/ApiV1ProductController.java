@@ -51,9 +51,9 @@ public class ApiV1ProductController {
       @AuthenticationPrincipal CustomUserDetails user,
       @Valid @RequestBody ProductCreateRequest productCreateRequest) {
     // TODO: sellerId userDetail 가져오도록 수정
-    ProductResponse productResponse =
+    ProductDetailResponse productDetailResponse =
         productFacade.createProduct(user.getMemberId(), productCreateRequest);
-    return ApiResponse.onSuccess(SuccessStatus.CREATED, productResponse);
+    return ApiResponse.onSuccess(SuccessStatus.CREATED, productDetailResponse);
   }
 
   @Operation(summary = "상품 상세 조회", description = "상품 id를 이용해 상품 상세를 조회합니다.")
@@ -63,9 +63,9 @@ public class ApiV1ProductController {
     if (productId == null) {
       throw new GeneralException(ErrorStatus.PRODUCT_FIELD_REQUIRED);
     }
-    ProductDetailResponse productResponse =
+    ProductDetailResponse productDetailResponse =
         productFacade.getProduct(user != null ? user.getMemberId() : null, productId);
-    return ApiResponse.onSuccess(SuccessStatus.OK, productResponse);
+    return ApiResponse.onSuccess(SuccessStatus.OK, productDetailResponse);
   }
 
   @Operation(summary = "상품 리스트 조회", description = "상품 리스트를 조회합니다.")
@@ -89,9 +89,9 @@ public class ApiV1ProductController {
       @PathVariable(name = "id") Long productId,
       @Valid @RequestBody ProductUpdateRequest productRequest) {
     // TODO: sellerId userDetail 가져오도록 수정
-    ProductResponse productResponse =
+    ProductDetailResponse productDetailResponse =
         productFacade.updateProduct(user.getMemberId(), productId, productRequest);
-    return ApiResponse.onSuccess(SuccessStatus.OK, productResponse);
+    return ApiResponse.onSuccess(SuccessStatus.OK, productDetailResponse);
   }
 
   @Operation(summary = "상품 상태 변경", description = "상품의 등록 상태를 변경합니다 (DRAFT, COMPLETED, CANCELED)")
@@ -100,9 +100,9 @@ public class ApiV1ProductController {
       @AuthenticationPrincipal CustomUserDetails user,
       @PathVariable(name = "id") Long productId,
       @RequestParam(name = "status") ProductStatus productStatus) {
-    ProductResponse productResponse =
+    ProductDetailResponse productDetailResponse =
         productFacade.updateProductStatus(user.getMemberId(), productId, productStatus);
-    return ApiResponse.onSuccess(SuccessStatus.OK, productResponse);
+    return ApiResponse.onSuccess(SuccessStatus.OK, productDetailResponse);
   }
 
   @Operation(summary = "관심상품 추가", description = "상품을 관심상품에 추가합니다.")
@@ -143,5 +143,20 @@ public class ApiV1ProductController {
   public List<ProductStockResponse> deductStock(
       @Valid @RequestBody ProductStockUpdateRequest productStockUpdateRequest) {
     return productFacade.deductStock(productStockUpdateRequest);
+  }
+
+  @Operation(summary = "(판매자용) 상품 리스트 조회", description = "판매자용 상품 리스트를 조회합니다.")
+  @GetMapping("/products/seller")
+  public ResponseEntity<ApiResponse> getProductsForSeller(
+      @AuthenticationPrincipal CustomUserDetails user,
+      @RequestParam(name = "page") int page,
+      @RequestParam(name = "size") int size) {
+    Pageable pageable =
+        PageRequest.of(
+            page, size, Sort.by(Sort.Direction.DESC, "createdAt") // 정렬 고정
+            );
+    Page<ProductResponse> productResponses =
+        productFacade.getProducts(user.getMemberId(), pageable);
+    return ApiResponse.onSuccess(SuccessStatus.OK, productResponses);
   }
 }

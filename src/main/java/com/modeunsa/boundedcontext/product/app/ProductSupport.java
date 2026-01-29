@@ -54,6 +54,11 @@ public class ProductSupport {
         pageable);
   }
 
+  public Page<Product> getProducts(Long memberId, Pageable pageable) {
+    ProductMemberSeller seller = this.getProductMemberSellerByMemberId(memberId);
+    return productRepository.findAllBySeller(seller, pageable);
+  }
+
   public List<Product> getProducts(List<Long> productIds) {
     return productRepository.findAllById(productIds);
   }
