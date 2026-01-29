@@ -172,38 +172,6 @@ export default function SellerRequestPage() {
             </button>
           </div>
 
-          {/* 상품 관리 카드 */}
-          <div
-            style={{
-              marginTop: '24px',
-              background: 'white',
-              borderRadius: '12px',
-              padding: '24px',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
-            }}
-          >
-            <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '8px' }}>상품 관리</h2>
-            <p style={{ fontSize: '13px', color: '#666', marginBottom: '16px' }}>
-              판매자 전환이 완료되면 바로 상품을 관리해 보세요.
-            </p>
-            <Link
-              href="/products/create"
-              style={{
-                display: 'inline-block',
-                padding: '10px 18px',
-                borderRadius: '8px',
-                border: 'none',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                color: 'white',
-                fontSize: '14px',
-                fontWeight: 600,
-                textDecoration: 'none',
-              }}
-            >
-              상품 관리하러 가기
-            </Link>
-          </div>
-
       </div>
     </MypageLayout>
   )

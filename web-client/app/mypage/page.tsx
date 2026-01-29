@@ -276,7 +276,7 @@ export default function MyPage() {
                       textDecoration: 'none',
                     }}
                   >
-                    내정보
+                    판매자정보
                   </Link>
                   <Link
                     href="/products/create"
