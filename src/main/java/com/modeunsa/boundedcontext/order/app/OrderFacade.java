@@ -86,7 +86,7 @@ public class OrderFacade {
     return orderCancelOrderUseCase.cancelOrder(memberId, orderId);
   }
 
-  // 주문 취소 요청
+  // 주문 환불 요청
   @Transactional
   public OrderResponseDto refundOrder(Long memberId, Long orderId) {
     return orderRefundOrderUseCase.refundOrder(memberId, orderId);
