@@ -105,6 +105,7 @@ export default function MypageNav() {
           <div style={{ fontSize: '12px', color: '#999', margin: '8px 0 4px' }}>판매</div>
           <NavLink href="/mypage/seller-request">판매자정보</NavLink>
           <NavLink href="/mypage/products">상품 관리</NavLink>
+          <NavLink href="/mypage/settlement">정산 내역</NavLink>
         </nav>
       </aside>
     </div>
