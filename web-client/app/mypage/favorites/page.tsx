@@ -16,7 +16,7 @@ export default function FavoritesPage() {
       {/* Page Header */}
       <div className="page-header">
         <div className="container">
-          <h1 className="page-title">좋아요 내역</h1>
+          <h1 className="page-title">좋아요</h1>
           <p className="page-subtitle">내가 좋아요한 상품과 스냅을 한 곳에서 모아볼 수 있어요.</p>
         </div>
       </div>
