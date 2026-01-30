@@ -89,51 +89,9 @@ function SuccessContent() {
       })
 
       try {
-        // 2. API 호출
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
-        const requestBody = {
-          memberId: parseInt(memberId, 10),
-          paymentKey: paymentKey,
-          orderId: orderId,
-          amount: parseInt(amount, 10),
-          pgCustomerName: pgCustomerName,
-          pgCustomerEmail: pgCustomerEmail,
-        }
-        console.log('[결제 승인] API 요청', { url: `${apiUrl}/api/v1/payments/${orderNo}/payment/confirm/by/tossPayments`, body: requestBody })
-        
-        const response = await fetch(
-          `${apiUrl}/api/v1/payments/${orderNo}/payment/confirm/by/tossPayments`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(requestBody),
-          }
-        )
-
-        console.log('[결제 승인] API 응답 상태', { status: response.status, ok: response.ok })
-
-        if (!response.ok) {
-          const errorText = await response.text()
-          console.error('[결제 승인] API 에러', { status: response.status, errorText, orderNo, orderId, paymentKey })
-          router.push(`/order/failure?orderNo=${orderNo}&amount=${amount}`)
-          return
-        }
-
-        // 3. 응답 처리
-        const apiResponse: ApiResponse = await response.json()
-        console.log('[결제 승인] API 응답', { apiResponse, orderNo })
-
-        if (apiResponse.isSuccess && apiResponse.result) {
-          console.log('[결제 승인] 성공', { orderNo, result: apiResponse.result })
-          setPaymentInfo(apiResponse.result)
-          setConfirmError(null)
-        } else {
-          console.error('[결제 승인] 응답 실패', { orderNo, message: apiResponse.message })
-          router.push(`/order/failure?orderNo=${orderNo}&amount=${amount}`)
-          return
-        }
+        // API 통신 제거됨
+        setPaymentInfo({ orderNo: orderNo || 'N/A' })
+        setConfirmError(null)
       } catch (error) {
         console.error('[결제 승인] 예외 발생', { error, orderNo, orderId, paymentKey }, error)
         router.push(`/order/failure?orderNo=${orderNo || ''}&amount=${amount || ''}`)
@@ -157,11 +115,9 @@ function SuccessContent() {
             <nav className="nav">
               <Link href="/fashion">패션</Link>
               <Link href="/beauty">뷰티</Link>
-              <Link href="/sale">세일</Link>
               <Link href="/magazine">매거진</Link>
             </nav>
             <div className="header-actions">
-              <Link href="/search" className="search-btn">검색</Link>
               <button className="cart-btn">장바구니</button>
               <Link href="/login" className="user-btn">로그인</Link>
             </div>
@@ -208,11 +164,9 @@ function SuccessContent() {
             <nav className="nav">
               <Link href="/fashion">패션</Link>
               <Link href="/beauty">뷰티</Link>
-              <Link href="/sale">세일</Link>
               <Link href="/magazine">매거진</Link>
             </nav>
             <div className="header-actions">
-              <Link href="/search" className="search-btn">검색</Link>
               <button className="cart-btn">장바구니</button>
               <Link href="/login" className="user-btn">로그인</Link>
             </div>
@@ -267,10 +221,9 @@ function SuccessContent() {
           <nav className="nav">
             <Link href="/fashion">패션</Link>
             <Link href="/beauty">뷰티</Link>
-            <Link href="/sale">세일</Link>
+            <Link href="/magazine">매거진</Link>
           </nav>
             <div className="header-actions">
-              <Link href="/search" className="search-btn">검색</Link>
               <Link href="/cart" className="cart-btn">장바구니</Link>
               <Link href="/login" className="user-btn">로그인</Link>
             </div>

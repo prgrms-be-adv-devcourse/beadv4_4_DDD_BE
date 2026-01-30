@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Header from '../components/Header'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -13,104 +14,35 @@ export default function LoginPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // 실제 로그인 로직은 여기에 구현
-    console.log('Login:', { email, password, rememberMe })
-    // 로그인 성공 후 홈으로 이동
-    // router.push('/')
+    
+    // Mock 로그인: 이메일 test@example.com, 비밀번호 1234
+    if (email === 'test@example.com' && password === '1234') {
+      // Mock 토큰 및 이메일 저장
+      localStorage.setItem('accessToken', 'mock-access-token-' + Date.now())
+      localStorage.setItem('refreshToken', 'mock-refresh-token-' + Date.now())
+      localStorage.setItem('accessTokenExpiresIn', '3600')
+      localStorage.setItem('refreshTokenExpiresIn', '86400')
+      localStorage.setItem('email', email)
+      
+      // 로그인 상태 변경 이벤트 발생
+      window.dispatchEvent(new Event('loginStatusChanged'))
+      
+      alert('로그인 성공!')
+      router.push('/')
+    } else {
+      alert('이메일 또는 비밀번호가 올바르지 않습니다.\n이메일: test@example.com\n비밀번호: 1234')
+    }
   }
 
   const handleSocialLogin = async (provider: 'kakao' | 'naver') => {
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
-      // redirectUri는 백엔드 설정에 맞춰서 프론트엔드 도메인만 전달 (쿼리 파라미터 제거)
-      const redirectUri = `${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/login/callback`
-      
-      console.log('소셜 로그인 시작:', { provider, redirectUri, apiUrl })
-      
-      // OAuth 로그인 URL 조회
-      const url = `${apiUrl}/api/v1/auths/oauth/${provider}/url?redirectUri=${encodeURIComponent(redirectUri)}`
-      console.log('요청 URL:', url)
-      
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-      
-      console.log('응답 상태:', response.status, response.statusText)
-      
-      if (!response.ok) {
-        let errorText = ''
-        try {
-          errorText = await response.text()
-          console.error('OAuth URL 조회 실패 - 응답 본문:', errorText)
-          
-          // JSON 형식인 경우 파싱 시도
-          try {
-            const errorJson = JSON.parse(errorText)
-            alert(errorJson.message || `소셜 로그인 URL을 가져오는데 실패했습니다. (${response.status})`)
-          } catch {
-            alert(`소셜 로그인 URL을 가져오는데 실패했습니다. (${response.status}: ${errorText})`)
-          }
-        } catch (e) {
-          console.error('에러 응답 파싱 실패:', e)
-          alert(`소셜 로그인 URL을 가져오는데 실패했습니다. (${response.status})`)
-        }
-        return
-      }
-
-      const apiResponse = await response.json()
-      console.log('API 응답:', apiResponse)
-      
-      if (apiResponse.isSuccess) {
-        if (apiResponse.result && typeof apiResponse.result === 'string') {
-          console.log('OAuth URL 획득 성공:', apiResponse.result)
-          // provider를 sessionStorage에 저장하여 콜백에서 사용
-          if (typeof window !== 'undefined') {
-            sessionStorage.setItem('oauth_provider', provider)
-          }
-          // OAuth 인증 페이지로 리다이렉트
-          window.location.href = apiResponse.result
-        } else {
-          console.error('응답 result가 문자열이 아님:', apiResponse.result)
-          alert('소셜 로그인 URL 형식이 올바르지 않습니다.')
-        }
-      } else {
-        console.error('API 응답 실패:', apiResponse)
-        alert(apiResponse.message || '소셜 로그인 URL을 가져오는데 실패했습니다.')
-      }
-    } catch (error) {
-      console.error('소셜 로그인 실패:', error)
-      if (error instanceof Error) {
-        alert(`소셜 로그인 중 오류가 발생했습니다: ${error.message}`)
-      } else {
-        alert('소셜 로그인 중 오류가 발생했습니다.')
-      }
-    }
+    // API 통신 제거됨
+    alert('소셜 로그인 기능이 비활성화되었습니다.')
   }
 
   return (
     <div className="home-page">
       {/* Header */}
-      <header className="header">
-        <div className="header-container">
-          <div className="logo">
-            <Link href="/">뭐든사</Link>
-          </div>
-          <nav className="nav">
-            <Link href="/fashion">패션</Link>
-            <Link href="/beauty">뷰티</Link>
-            <Link href="/sale">세일</Link>
-            <Link href="/magazine">매거진</Link>
-          </nav>
-          <div className="header-actions">
-            <Link href="/search" className="search-btn">검색</Link>
-            <Link href="/cart" className="cart-btn">장바구니</Link>
-            <button className="user-btn">로그인</button>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Login Section */}
       <section className="login-section">
