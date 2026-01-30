@@ -9,7 +9,7 @@ import com.modeunsa.boundedcontext.member.domain.entity.MemberSeller;
 import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
 import com.modeunsa.boundedcontext.member.out.repository.MemberSellerRepository;
-import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
+import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.shared.member.event.MemberSignupEvent;
 import com.modeunsa.shared.member.event.SellerRegisteredEvent;
 import java.time.LocalDateTime;
@@ -28,13 +28,13 @@ public class MemberDataInit {
   private final MemberDataInit self;
   private final MemberRepository memberRepository;
   private final MemberSellerRepository memberSellerRepository;
-  private final SpringDomainEventPublisher eventPublisher;
+  private final EventPublisher eventPublisher;
 
   public MemberDataInit(
       @Lazy MemberDataInit self,
       MemberRepository memberRepository,
       MemberSellerRepository memberSellerRepository,
-      SpringDomainEventPublisher eventPublisher) {
+      EventPublisher eventPublisher) {
     this.self = self;
     this.memberRepository = memberRepository;
     this.memberSellerRepository = memberSellerRepository;

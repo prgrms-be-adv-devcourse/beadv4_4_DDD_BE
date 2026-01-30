@@ -11,7 +11,7 @@ import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentStatus;
 import com.modeunsa.boundedcontext.payment.domain.types.ReferenceType;
 import com.modeunsa.global.config.PaymentAccountConfig;
-import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
+import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.shared.payment.dto.PaymentDto;
 import com.modeunsa.shared.payment.event.PaymentSuccessEvent;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class PaymentProcessUseCase {
   private final PaymentSupport paymentSupport;
   private final PaymentAccountSupport paymentAccountSupport;
   private final PaymentAccountLockManager paymentAccountLockManager;
-  private final SpringDomainEventPublisher eventPublisher;
+  private final EventPublisher eventPublisher;
   private final PaymentAccountConfig paymentAccountConfig;
 
   public void execute(PaymentProcessContext paymentProcessContext) {

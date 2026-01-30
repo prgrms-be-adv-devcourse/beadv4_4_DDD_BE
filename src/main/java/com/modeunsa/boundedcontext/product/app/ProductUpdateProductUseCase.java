@@ -5,7 +5,7 @@ import com.modeunsa.boundedcontext.product.domain.ProductImage;
 import com.modeunsa.boundedcontext.product.domain.ProductMemberSeller;
 import com.modeunsa.boundedcontext.product.domain.ProductPolicy;
 import com.modeunsa.boundedcontext.product.out.ProductRepository;
-import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
+import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.shared.product.dto.ProductDto;
 import com.modeunsa.shared.product.dto.ProductUpdateRequest;
 import com.modeunsa.shared.product.event.ProductUpdatedEvent;
@@ -20,7 +20,7 @@ public class ProductUpdateProductUseCase {
   private final ProductRepository productRepository;
   private final ProductSupport productSupport;
   private final ProductMapper productMapper;
-  private final SpringDomainEventPublisher eventPublisher;
+  private final EventPublisher eventPublisher;
   private final ProductPolicy productPolicy;
 
   public Product updateProduct(Long memberId, Long productId, ProductUpdateRequest request) {

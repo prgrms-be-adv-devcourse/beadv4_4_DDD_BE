@@ -4,7 +4,7 @@ import com.modeunsa.boundedcontext.order.domain.Order;
 import com.modeunsa.boundedcontext.order.domain.OrderMapper;
 import com.modeunsa.boundedcontext.order.domain.OrderStatus;
 import com.modeunsa.boundedcontext.order.out.OrderRepository;
-import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
+import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.shared.order.event.OrderPurchaseConfirmedEvent;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrderScheduler {
 
   private final OrderRepository orderRepository;
-  private final SpringDomainEventPublisher eventPublisher;
+  private final EventPublisher eventPublisher;
   private final OrderMapper orderMapper;
 
   // 1분마다 실행
