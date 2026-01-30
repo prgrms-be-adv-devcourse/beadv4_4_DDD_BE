@@ -1,8 +1,23 @@
 'use client'
 
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
+
+const FASHION_CATEGORIES = [
+  { label: '전체', href: '/fashion', value: null },
+  { label: '아우터', href: '/fashion?category=outer', value: 'outer' },
+  { label: '상의', href: '/fashion?category=upper', value: 'upper' },
+  { label: '하의', href: '/fashion?category=lower', value: 'lower' },
+  { label: '원피스/스커트', href: '/fashion?category=dress', value: 'dress' },
+  { label: '가방', href: '/fashion?category=bag', value: 'bag' },
+  { label: '신발', href: '/fashion?category=shoes', value: 'shoes' },
+  { label: '액세서리', href: '/fashion?category=accessory', value: 'accessory' },
+] as const
 
 export default function FashionPage() {
+  const searchParams = useSearchParams()
+  const currentCategory = searchParams.get('category')
+
   return (
     <div className="home-page">
       {/* Header */}
@@ -30,6 +45,26 @@ export default function FashionPage() {
           <p className="page-subtitle">트렌디한 패션 아이템을 만나보세요</p>
         </div>
       </div>
+
+      {/* Category Section */}
+      <section className="category-section fashion-category-section">
+        <div className="container">
+          <div className="category-filters">
+            {FASHION_CATEGORIES.map(({ label, href, value }) => {
+              const isActive = value === null ? !currentCategory : currentCategory === value
+              return (
+                <Link
+                  key={value ?? 'all'}
+                  href={href}
+                  className={`category-filter-btn${isActive ? ' active' : ''}`}
+                >
+                  {label}
+                </Link>
+              )
+            })}
+          </div>
+        </div>
+      </section>
 
       {/* Products Section */}
       <section className="products-section">

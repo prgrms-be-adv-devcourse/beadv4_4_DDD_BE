@@ -282,6 +282,24 @@ a {
   color: #333;
 }
 
+/* 패션 카테고리 섹션 (매거진과 동일한 버튼 스타일 사용) */
+.fashion-category-section {
+  padding: 20px 0 28px;
+  background: linear-gradient(180deg, #fafbff 0%, #ffffff 100%);
+  border-bottom: 1px solid #f0f0f5;
+}
+
+.fashion-category-section .category-filters,
+.beauty-category-section .category-filters {
+  justify-content: flex-start;
+}
+
+.beauty-category-section {
+  padding: 20px 0 28px;
+  background: linear-gradient(180deg, #fafbff 0%, #ffffff 100%);
+  border-bottom: 1px solid #f0f0f5;
+}
+
 /* Products Section */
 .products-section {
   padding: 60px 0;
@@ -2080,6 +2098,8 @@ a {
   cursor: pointer;
   transition: all 0.2s;
   font-weight: 500;
+  text-decoration: none;
+  display: inline-block;
 }
 
 .category-filter-btn:hover {

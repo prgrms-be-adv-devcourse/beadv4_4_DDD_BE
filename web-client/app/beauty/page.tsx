@@ -1,8 +1,22 @@
 'use client'
 
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
+
+const BEAUTY_CATEGORIES = [
+  { label: '전체', href: '/beauty', value: null },
+  { label: '스킨케어', href: '/beauty?category=skincare', value: 'skincare' },
+  { label: '메이크업', href: '/beauty?category=makeup', value: 'makeup' },
+  { label: '헤어', href: '/beauty?category=hair', value: 'hair' },
+  { label: '바디', href: '/beauty?category=body', value: 'body' },
+  { label: '네일', href: '/beauty?category=nail', value: 'nail' },
+  { label: '향수', href: '/beauty?category=fragrance', value: 'fragrance' },
+] as const
 
 export default function BeautyPage() {
+  const searchParams = useSearchParams()
+  const currentCategory = searchParams.get('category')
+
   return (
     <div className="home-page">
       {/* Header */}
@@ -30,6 +44,26 @@ export default function BeautyPage() {
           <p className="page-subtitle">프리미엄 뷰티 제품을 만나보세요</p>
         </div>
       </div>
+
+      {/* Category Section */}
+      <section className="category-section beauty-category-section">
+        <div className="container">
+          <div className="category-filters">
+            {BEAUTY_CATEGORIES.map(({ label, href, value }) => {
+              const isActive = value === null ? !currentCategory : currentCategory === value
+              return (
+                <Link
+                  key={value ?? 'all'}
+                  href={href}
+                  className={`category-filter-btn${isActive ? ' active' : ''}`}
+                >
+                  {label}
+                </Link>
+              )
+            })}
+          </div>
+        </div>
+      </section>
 
       {/* Products Section */}
       <section className="products-section">
