@@ -43,4 +43,13 @@ public class Inventory extends GeneratedIdAndAuditedEntity {
 
   // 동시성 제어를 위한 낙관적 락 버전
   @Version private Long version;
+
+  // ----- 메서드 -----
+  public boolean updateInventory(Integer quantity) {
+    if (quantity < reservedQuantity) {
+      return false;
+    }
+    this.quantity = quantity;
+    return true;
+  }
 }
