@@ -2,6 +2,8 @@
 
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import { useCallback, useEffect, useState } from 'react'
+import Header from '../components/Header'
 
 const FASHION_CATEGORIES = [
   { label: '전체', href: '/fashion', value: null },
@@ -14,13 +16,135 @@ const FASHION_CATEGORIES = [
   { label: '액세서리', href: '/fashion?category=accessory', value: 'accessory' },
 ] as const
 
+/** 프론트 category 쿼리 → 백엔드 ProductCategory (OUTER, UPPER, LOWER, CAP, SHOES, BAG, BEAUTY) */
+function toApiCategory(value: string | null): string {
+  if (!value) return 'UPPER'
+  const map: Record<string, string> = {
+    outer: 'OUTER',
+    upper: 'UPPER',
+    lower: 'LOWER',
+    dress: 'UPPER',
+    bag: 'BAG',
+    shoes: 'SHOES',
+    accessory: 'CAP',
+  }
+  return map[value] ?? 'UPPER'
+}
+
+const PAGE_SIZE = 12
+
+interface ProductImageDto {
+  id: number
+  imageUrl: string
+  isPrimary: boolean
+  sortOrder: number
+}
+
+interface ProductResponse {
+  id: number
+  sellerId: number
+  sellerBusinessName: string
+  name: string
+  category: string
+  description: string
+  price: number
+  salePrice: number
+  currency: string
+  productStatus: string
+  saleStatus: string
+  stock: number
+  favoriteCount: number
+  images: ProductImageDto[]
+  createdAt: string
+  updatedAt: string
+  createdBy: number
+  updatedBy: number
+}
+
+interface PageInfo {
+  page: number
+  size: number
+  hasNext: boolean
+  totalElements: number
+  totalPages: number
+}
+
+interface ProductsApiResponse {
+  isSuccess: boolean
+  code: string
+  message: string
+  pageInfo: PageInfo | null
+  result: ProductResponse[] | null
+}
+
+function formatPrice(price: number): string {
+  return new Intl.NumberFormat('ko-KR').format(price)
+}
+
 export default function FashionPage() {
   const searchParams = useSearchParams()
   const currentCategory = searchParams.get('category')
+  const pageParam = searchParams.get('page')
+  const currentPage = Math.max(0, parseInt(pageParam ?? '0', 10) || 0)
+
+  const [products, setProducts] = useState<ProductResponse[]>([])
+  const [pageInfo, setPageInfo] = useState<PageInfo | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const fetchProducts = useCallback(async () => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+    if (!apiUrl) {
+      setProducts([])
+      setPageInfo(null)
+      setIsLoading(false)
+      return
+    }
+    setIsLoading(true)
+    setError(null)
+    try {
+      const category = toApiCategory(currentCategory)
+      const url = `${apiUrl}/api/v1/products?category=${encodeURIComponent(category)}&page=${currentPage}&size=${PAGE_SIZE}`
+      const res = await fetch(url)
+      const data: ProductsApiResponse = await res.json()
+      if (!res.ok) {
+        setError(data.message || '상품 목록을 불러오지 못했습니다.')
+        setProducts([])
+        setPageInfo(null)
+        return
+      }
+      if (data.isSuccess && data.result) {
+        setProducts(data.result)
+        setPageInfo(data.pageInfo ?? null)
+      } else {
+        setProducts([])
+        setPageInfo(null)
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '상품 목록을 불러오지 못했습니다.')
+      setProducts([])
+      setPageInfo(null)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [currentCategory, currentPage])
+
+  useEffect(() => {
+    fetchProducts()
+  }, [fetchProducts])
+
+  const totalPages = pageInfo?.totalPages ?? 0
+  const hasNext = pageInfo?.hasNext ?? false
+
+  function buildPageUrl(page: number): string {
+    const params = new URLSearchParams()
+    if (currentCategory) params.set('category', currentCategory)
+    params.set('page', String(page))
+    return `/fashion?${params.toString()}`
+  }
 
   return (
     <div className="home-page">
-      {/* Header */}
       <header className="header">
         <div className="header-container">
           <div className="logo">
@@ -38,7 +162,6 @@ export default function FashionPage() {
         </div>
       </header>
 
-      {/* Page Header */}
       <div className="page-header">
         <div className="container">
           <h1 className="page-title">패션</h1>
@@ -46,7 +169,6 @@ export default function FashionPage() {
         </div>
       </div>
 
-      {/* Category Section */}
       <section className="category-section fashion-category-section">
         <div className="container">
           <div className="category-filters">
@@ -66,7 +188,6 @@ export default function FashionPage() {
         </div>
       </section>
 
-      {/* Products Section */}
       <section className="products-section">
         <div className="container">
           <div className="products-header">
@@ -81,24 +202,102 @@ export default function FashionPage() {
               </select>
             </div>
           </div>
-          <div className="products-grid">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((item) => (
-              <Link key={item} href={`/products/${item}`} className="product-card">
-                <div className="product-image">
-                  <div className="image-placeholder">이미지</div>
+
+          {isLoading ? (
+            <div style={{ textAlign: 'center', padding: '48px 20px', color: '#666' }}>
+              상품 목록을 불러오는 중...
+            </div>
+          ) : error ? (
+            <div style={{ textAlign: 'center', padding: '48px 20px', color: '#f44336' }}>
+              {error}
+            </div>
+          ) : products.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '48px 20px', color: '#666' }}>
+              등록된 상품이 없습니다.
+            </div>
+          ) : (
+            <>
+              <div className="products-grid">
+                {products.map((product) => {
+                  const primaryImage = product.images?.find((i) => i.isPrimary) ?? product.images?.[0]
+                  return (
+                    <Link key={product.id} href={`/products/${product.id}`} className="product-card">
+                      <div className="product-image">
+                        {primaryImage?.imageUrl ? (
+                          <img
+                            src={primaryImage.imageUrl}
+                            alt={product.name}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          />
+                        ) : (
+                          <div className="image-placeholder">이미지</div>
+                        )}
+                      </div>
+                      <div className="product-info">
+                        <div className="product-brand">{product.sellerBusinessName || '브랜드'}</div>
+                        <div className="product-name">{product.name}</div>
+                        <div className="product-price">
+                          ₩{formatPrice(Number(product.salePrice))}
+                          {product.salePrice < product.price && (
+                            <span style={{ marginLeft: '8px', fontSize: '13px', color: '#999', textDecoration: 'line-through' }}>
+                              ₩{formatPrice(Number(product.price))}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  )
+                })}
+              </div>
+
+              {totalPages > 1 && (
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: '8px',
+                    marginTop: '32px',
+                  }}
+                >
+                  <Link
+                    href={currentPage <= 0 ? '#' : buildPageUrl(currentPage - 1)}
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: '8px',
+                      border: '1px solid #e0e0e0',
+                      background: currentPage <= 0 ? '#f5f5f5' : '#fff',
+                      color: currentPage <= 0 ? '#999' : '#333',
+                      pointerEvents: currentPage <= 0 ? 'none' : 'auto',
+                      textDecoration: 'none',
+                    }}
+                  >
+                    이전
+                  </Link>
+                  <span style={{ fontSize: '14px', color: '#666' }}>
+                    {currentPage + 1} / {totalPages}
+                  </span>
+                  <Link
+                    href={!hasNext ? '#' : buildPageUrl(currentPage + 1)}
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: '8px',
+                      border: '1px solid #e0e0e0',
+                      background: !hasNext ? '#f5f5f5' : '#fff',
+                      color: !hasNext ? '#999' : '#333',
+                      pointerEvents: !hasNext ? 'none' : 'auto',
+                      textDecoration: 'none',
+                    }}
+                  >
+                    다음
+                  </Link>
                 </div>
-                <div className="product-info">
-                  <div className="product-brand">브랜드명</div>
-                  <div className="product-name">패션 상품 {item}</div>
-                  <div className="product-price">₩{((item * 15000) + 10000).toLocaleString()}</div>
-                </div>
-              </Link>
-            ))}
-          </div>
+              )}
+            </>
+          )}
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="footer">
         <div className="container">
           <div className="footer-content">
