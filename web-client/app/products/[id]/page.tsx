@@ -202,41 +202,6 @@ export default function ProductDetailPage() {
                   <span className="product-price">₩{formatPrice(product.salePrice)}</span>
                 )}
               </div>
-              {product.stock > 0 ? (
-                <div style={{ fontSize: '14px', color: '#666', marginTop: '8px' }}>
-                  재고: {product.stock}개
-                </div>
-              ) : (
-                <div style={{ fontSize: '14px', color: '#f44336', marginTop: '8px' }}>
-                  품절
-                </div>
-              )}
-              
-              <div className="product-divider"></div>
-
-              {/* Product Options */}
-              <div className="product-options">
-                <div className="option-group">
-                  <label className="option-label">수량</label>
-                  <div className="quantity-selector">
-                    <button 
-                      className="quantity-btn minus"
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      disabled={quantity <= 1}
-                    >
-                      -
-                    </button>
-                    <span className="quantity-value">{quantity}</span>
-                    <button 
-                      className="quantity-btn plus"
-                      onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                      disabled={quantity >= product.stock}
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-              </div>
 
               <div className="product-divider"></div>
 
@@ -249,6 +214,35 @@ export default function ProductDetailPage() {
                 <div className="info-row">
                   <span className="info-label">배송예정</span>
                   <span className="info-value">01.14(수) 도착 예정</span>
+                </div>
+              </div>
+
+              <div className="product-divider"></div>
+
+              {/* 상품명 왼쪽 위, 수량·구매금액 같은 row (구매하기 버튼 위) */}
+              <div className="product-options">
+                <div className="option-group quantity-with-amount">
+                  <span className="option-label product-name-row">{product.name}</span>
+                  <div className="quantity-amount-row">
+                    <div className="quantity-selector">
+                      <button 
+                        className="quantity-btn minus"
+                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                        disabled={quantity <= 1}
+                      >
+                        -
+                      </button>
+                      <span className="quantity-value">{quantity}</span>
+                      <button 
+                        className="quantity-btn plus"
+                        onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                        disabled={quantity >= product.stock}
+                      >
+                        +
+                      </button>
+                    </div>
+                    <span className="quantity-amount">₩{formatPrice(product.salePrice * quantity)}</span>
+                  </div>
                 </div>
               </div>
 
