@@ -29,12 +29,4 @@ public class InventorySeller extends ManualIdAndAuditedEntity {
   @Convert(converter = EncryptedStringConverter.class)
   @Column(name = "representative_name", nullable = false, length = 500)
   private String representativeName;
-
-  @Convert(converter = EncryptedStringConverter.class)
-  @Column(name = "settlement_bank_name", nullable = false, length = 500)
-  private String settlementBankName;
-
-  @Convert(converter = EncryptedStringConverter.class)
-  @Column(name = "settlement_bank_account", nullable = false, length = 500)
-  private String settlementBankAccount;
 }
