@@ -32,8 +32,9 @@ public class Inventory extends GeneratedIdAndAuditedEntity {
   private Long sellerId;
 
   // 실재고
+  @Builder.Default
   @Column(name = "quantity", nullable = false)
-  private int quantity;
+  private int quantity = 0;
 
   // 예약재고
   @Builder.Default

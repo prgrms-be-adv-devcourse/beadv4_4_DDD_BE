@@ -1,5 +1,6 @@
 package com.modeunsa.boundedcontext.inventory.app;
 
+import com.modeunsa.boundedcontext.inventory.domain.Inventory;
 import com.modeunsa.boundedcontext.inventory.domain.InventoryProduct;
 import com.modeunsa.boundedcontext.inventory.domain.InventorySeller;
 import com.modeunsa.shared.product.dto.ProductDto;
@@ -14,4 +15,7 @@ public interface InventoryMapper {
 
   @Mapping(target = "id", source = "id")
   InventoryProduct toInventoryProduct(ProductDto productDto);
+
+  @Mapping(target = "productId", source = "id")
+  Inventory toInventoryFromProduct(InventoryProduct product);
 }

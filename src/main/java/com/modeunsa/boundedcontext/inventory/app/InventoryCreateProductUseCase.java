@@ -12,8 +12,8 @@ public class InventoryCreateProductUseCase {
   private final InventoryMapper inventoryMapper;
   private final InventoryProductRepository inventoryProductRepository;
 
-  public void createProduct(ProductDto productDto) {
+  public InventoryProduct createProduct(ProductDto productDto) {
     InventoryProduct product = inventoryMapper.toInventoryProduct(productDto);
-    inventoryProductRepository.save(product);
+    return inventoryProductRepository.save(product);
   }
 }
