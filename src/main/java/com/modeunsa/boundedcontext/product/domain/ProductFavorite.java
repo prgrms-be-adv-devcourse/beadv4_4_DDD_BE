@@ -3,6 +3,7 @@ package com.modeunsa.boundedcontext.product.domain;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -16,6 +17,9 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(
     name = "product_favorite",
+    indexes = {
+      @Index(name = "idx_favorite_member_id_created_at", columnList = "member_id, created_at desc")
+    },
     uniqueConstraints =
         @UniqueConstraint(
             name = "uk_product_favorite_member_product",
