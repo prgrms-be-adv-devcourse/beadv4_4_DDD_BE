@@ -1,11 +1,9 @@
 package com.modeunsa.global.eventpublisher.topic;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.time.Instant;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public record DomainEventEnvelope(
     String eventId, String eventType, Instant occurredAt, JsonNode payload) {
 
