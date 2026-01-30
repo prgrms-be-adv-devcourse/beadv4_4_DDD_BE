@@ -1,11 +1,17 @@
 package com.modeunsa.boundedcontext.inventory.app;
 
+import com.modeunsa.boundedcontext.inventory.domain.InventoryProduct;
 import com.modeunsa.boundedcontext.inventory.domain.InventorySeller;
+import com.modeunsa.shared.product.dto.ProductDto;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
-public abstract class InventoryMapper {
+public interface InventoryMapper {
 
-  public abstract InventorySeller toInventorySeller(
-      Long sellerId, String businessName, String representativeName);
+  @Mapping(target = "id", source = "sellerId")
+  InventorySeller toInventorySeller(Long sellerId, String businessName, String representativeName);
+
+  @Mapping(target = "id", source = "id")
+  InventoryProduct toInventoryProduct(ProductDto productDto);
 }

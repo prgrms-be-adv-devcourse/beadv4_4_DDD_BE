@@ -5,6 +5,7 @@ import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMI
 
 import com.modeunsa.boundedcontext.inventory.app.InventoryFacade;
 import com.modeunsa.shared.member.event.SellerRegisteredEvent;
+import com.modeunsa.shared.product.event.ProductCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,5 +22,11 @@ public class InventoryEventListener {
   public void handleSellerRegisteredEvent(SellerRegisteredEvent event) {
     inventoryFacade.registerSeller(
         event.memberSellerId(), event.businessName(), event.representativeName());
+  }
+
+  @TransactionalEventListener(phase = AFTER_COMMIT)
+  @Transactional(propagation = REQUIRES_NEW)
+  public void handle(ProductCreatedEvent event) {
+    inventoryFacade.createProduct(event.productDto());
   }
 }

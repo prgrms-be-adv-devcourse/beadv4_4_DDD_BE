@@ -8,20 +8,17 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
-@Builder
+@SuperBuilder
 @Table(name = "inventory_seller")
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class InventorySeller extends ManualIdAndAuditedEntity {
-  @Column(name = "seller_id", nullable = false, unique = true)
-  private Long sellerId;
-
   @Convert(converter = EncryptedStringConverter.class)
   @Column(name = "business_name", nullable = false, length = 500)
   private String businessName;
