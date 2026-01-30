@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import Header from '../../components/Header'
 
 interface ProductDetailResponse {
   id: number
@@ -41,37 +42,31 @@ export default function ProductDetailPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
-        const response = await fetch(`${apiUrl}/api/v1/products/${productId}`)
-        
-        if (!response.ok) {
-          const errorText = await response.text()
-          console.error('API 응답 에러:', response.status, errorText)
-          throw new Error(`상품 정보를 불러올 수 없습니다 (${response.status})`)
-        }
-        
-        const apiResponse: ApiResponse = await response.json()
-        
-        if (apiResponse.isSuccess && apiResponse.result) {
-          setProduct(apiResponse.result)
-          setError(null)
-        } else {
-          throw new Error(apiResponse.message || '상품 정보를 가져올 수 없습니다.')
-        }
-      } catch (error) {
-        console.error('상품 정보 조회 실패:', error)
-        const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.'
-        setError(errorMessage)
-      } finally {
-        setIsLoading(false)
-      }
+    // Mock 데이터로 상품 정보 표시
+    const mockProduct: ProductDetailResponse = {
+      id: parseInt(productId) || 1,
+      sellerId: 1,
+      name: '베이직 레더 가방 130004',
+      category: '지오다노',
+      description: '고급 가죽으로 제작된 베이직 레더 가방입니다. 실용적이면서도 세련된 디자인으로 일상생활과 여행 모두에 적합합니다. 넉넉한 수납공간과 내구성이 뛰어난 소재를 사용하여 오래 사용하실 수 있습니다.',
+      price: 25000,
+      salePrice: 19800,
+      currency: 'KRW',
+      productStatus: 'ACTIVE',
+      saleStatus: 'ON_SALE',
+      stock: 10,
+      isFavorite: false,
+      favoriteCount: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      createdBy: 1,
+      updatedBy: 1,
     }
-
-    if (productId) {
-      fetchProduct()
-    }
+    
+    setTimeout(() => {
+      setProduct(mockProduct)
+      setIsLoading(false)
+    }, 300) // 로딩 효과를 위한 약간의 지연
   }, [productId])
 
   const [quantity, setQuantity] = useState(1)
@@ -94,39 +89,8 @@ export default function ProductDetailPage() {
     setIsCreatingOrder(true)
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
-      
-      // 주문 생성 API 호출
-      const response = await fetch(`${apiUrl}/api/v1/orders`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          productId: product.id,
-          quantity: quantity,
-          recipientName: '홍길동', // TODO: 실제 사용자 정보로 변경
-          recipientPhone: '010-1234-5678', // TODO: 실제 사용자 정보로 변경
-          zipCode: '12345', // TODO: 실제 사용자 정보로 변경
-          address: '서울시 강남구', // TODO: 실제 사용자 정보로 변경
-          addressDetail: '테헤란로 123', // TODO: 실제 사용자 정보로 변경
-        }),
-      })
-
-      if (!response.ok) {
-        const errorText = await response.text()
-        console.error('주문 생성 API 에러:', response.status, errorText)
-        throw new Error(`주문 생성 실패 (${response.status})`)
-      }
-
-      const apiResponse = await response.json()
-
-      if (apiResponse.isSuccess && apiResponse.result) {
-        // 주문 성공 시 주문 페이지로 이동
-        router.push('/order')
-      } else {
-        throw new Error(apiResponse.message || '주문 생성에 실패했습니다.')
-      }
+      // Mock 데이터로 주문 페이지로 이동
+      router.push('/order')
     } catch (error) {
       console.error('주문 생성 실패:', error)
       const errorMessage = error instanceof Error ? error.message : '주문 생성 중 오류가 발생했습니다.'
@@ -156,37 +120,9 @@ export default function ProductDetailPage() {
     setIsAddingToCart(true)
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
-      
-      // 장바구니 추가 API 호출
-      const response = await fetch(`${apiUrl}/api/v1/orders/cart/item`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          productId: product.id,
-          quantity: quantity,
-        }),
-      })
-
-      if (!response.ok) {
-        const errorText = await response.text()
-        console.error('장바구니 추가 API 에러:', response.status, errorText)
-        throw new Error(`장바구니 추가 실패 (${response.status})`)
-      }
-
-      const apiResponse = await response.json()
-
-      if (apiResponse.isSuccess) {
-        alert('장바구니에 상품이 추가되었습니다.')
-        // 장바구니 페이지로 이동할지 선택할 수 있도록
-        if (confirm('장바구니로 이동하시겠습니까?')) {
-          router.push('/cart')
-        }
-      } else {
-        throw new Error(apiResponse.message || '장바구니 추가에 실패했습니다.')
-      }
+      // Mock 데이터로 장바구니에 추가하고 페이지 이동
+      alert('장바구니에 상품이 추가되었습니다.')
+      router.push('/cart')
     } catch (error) {
       console.error('장바구니 추가 실패:', error)
       const errorMessage = error instanceof Error ? error.message : '장바구니 추가 중 오류가 발생했습니다.'
@@ -199,24 +135,7 @@ export default function ProductDetailPage() {
   if (isLoading) {
     return (
       <div className="home-page">
-        <header className="header">
-          <div className="header-container">
-            <div className="logo">
-              <Link href="/">뭐든사</Link>
-            </div>
-            <nav className="nav">
-              <Link href="/fashion">패션</Link>
-              <Link href="/beauty">뷰티</Link>
-              <Link href="/sale">세일</Link>
-              <Link href="/magazine">매거진</Link>
-            </nav>
-            <div className="header-actions">
-              <Link href="/search" className="search-btn">검색</Link>
-              <Link href="/cart" className="cart-btn">장바구니</Link>
-              <Link href="/login" className="user-btn">로그인</Link>
-            </div>
-          </div>
-        </header>
+        <Header />
         <div className="product-detail-container">
           <div className="container">
             <div style={{ textAlign: 'center', padding: '80px 20px' }}>
@@ -231,24 +150,7 @@ export default function ProductDetailPage() {
   if (error || !product) {
     return (
       <div className="home-page">
-        <header className="header">
-          <div className="header-container">
-            <div className="logo">
-              <Link href="/">뭐든사</Link>
-            </div>
-            <nav className="nav">
-              <Link href="/fashion">패션</Link>
-              <Link href="/beauty">뷰티</Link>
-              <Link href="/sale">세일</Link>
-              <Link href="/magazine">매거진</Link>
-            </nav>
-            <div className="header-actions">
-              <Link href="/search" className="search-btn">검색</Link>
-              <Link href="/cart" className="cart-btn">장바구니</Link>
-              <Link href="/login" className="user-btn">로그인</Link>
-            </div>
-          </div>
-        </header>
+        <Header />
         <div className="product-detail-container">
           <div className="container">
             <div style={{ textAlign: 'center', padding: '80px 20px' }}>
@@ -266,24 +168,7 @@ export default function ProductDetailPage() {
   return (
     <div className="home-page">
       {/* Header */}
-      <header className="header">
-        <div className="header-container">
-          <div className="logo">
-            <Link href="/">뭐든사</Link>
-          </div>
-          <nav className="nav">
-            <Link href="/fashion">패션</Link>
-            <Link href="/beauty">뷰티</Link>
-            <Link href="/sale">세일</Link>
-            <Link href="/magazine">매거진</Link>
-          </nav>
-          <div className="header-actions">
-            <Link href="/search" className="search-btn">검색</Link>
-            <Link href="/cart" className="cart-btn">장바구니</Link>
-            <Link href="/login" className="user-btn">로그인</Link>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Product Detail Section */}
       <div className="product-detail-container">
@@ -317,41 +202,6 @@ export default function ProductDetailPage() {
                   <span className="product-price">₩{formatPrice(product.salePrice)}</span>
                 )}
               </div>
-              {product.stock > 0 ? (
-                <div style={{ fontSize: '14px', color: '#666', marginTop: '8px' }}>
-                  재고: {product.stock}개
-                </div>
-              ) : (
-                <div style={{ fontSize: '14px', color: '#f44336', marginTop: '8px' }}>
-                  품절
-                </div>
-              )}
-              
-              <div className="product-divider"></div>
-
-              {/* Product Options */}
-              <div className="product-options">
-                <div className="option-group">
-                  <label className="option-label">수량</label>
-                  <div className="quantity-selector">
-                    <button 
-                      className="quantity-btn minus"
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      disabled={quantity <= 1}
-                    >
-                      -
-                    </button>
-                    <span className="quantity-value">{quantity}</span>
-                    <button 
-                      className="quantity-btn plus"
-                      onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                      disabled={quantity >= product.stock}
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-              </div>
 
               <div className="product-divider"></div>
 
@@ -364,6 +214,35 @@ export default function ProductDetailPage() {
                 <div className="info-row">
                   <span className="info-label">배송예정</span>
                   <span className="info-value">01.14(수) 도착 예정</span>
+                </div>
+              </div>
+
+              <div className="product-divider"></div>
+
+              {/* 상품명 왼쪽 위, 수량·구매금액 같은 row (구매하기 버튼 위) */}
+              <div className="product-options">
+                <div className="option-group quantity-with-amount">
+                  <span className="option-label product-name-row">{product.name}</span>
+                  <div className="quantity-amount-row">
+                    <div className="quantity-selector">
+                      <button 
+                        className="quantity-btn minus"
+                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                        disabled={quantity <= 1}
+                      >
+                        -
+                      </button>
+                      <span className="quantity-value">{quantity}</span>
+                      <button 
+                        className="quantity-btn plus"
+                        onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                        disabled={quantity >= product.stock}
+                      >
+                        +
+                      </button>
+                    </div>
+                    <span className="quantity-amount">₩{formatPrice(product.salePrice * quantity)}</span>
+                  </div>
                 </div>
               </div>
 
