@@ -70,7 +70,9 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.springframework.batch:spring-batch-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
     // dotenv for loading .env file in tests
     testImplementation 'io.github.cdimascio:dotenv-java:3.0.0'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.3'
@@ -95,7 +97,12 @@ jar {
 }
 
 tasks.named('test') {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        def excluded = System.getProperty('junit.excludeTags')
+        if (excluded) {
+            excludeTags excluded.split(',')   // 예: "ignore,concurrency"
+        }
+    }
 
     testLogging {
         events "skipped", "failed"

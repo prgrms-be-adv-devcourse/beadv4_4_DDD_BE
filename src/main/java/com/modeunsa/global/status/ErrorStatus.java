@@ -124,8 +124,11 @@ public enum ErrorStatus {
 
   PAYMENT_FAILED_LOCK_ACQUIRE(
       HttpStatus.INTERNAL_SERVER_ERROR, "PAYMENT_500_001", "결제 처리 중 락을 획득하지 못했습니다."),
+
+  PAYMENT_LOCK_TIMEOUT(
+      HttpStatus.INTERNAL_SERVER_ERROR, "PAYMENT_500_002", "결제 처리 중 락 획득이 시간 초과되었습니다."),
   PAYMENT_SYSTEM_ERROR(
-      HttpStatus.INTERNAL_SERVER_ERROR, "PAYMENT_500_002", "결제 처리 중 시스템 오류가 발생했습니다."),
+      HttpStatus.INTERNAL_SERVER_ERROR, "PAYMENT_500_003", "결제 처리 중 시스템 오류가 발생했습니다."),
 
   // Content 400
   CONTENT_TAG_REQUIRED(HttpStatus.BAD_REQUEST, "CONTENT_400_001", "TAG는 NULL일 수 없습니다."),
