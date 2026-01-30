@@ -22,10 +22,9 @@ public class KafkaDomainEventPublisher implements EventPublisher {
     String topic = kafkaResolver.resolveTopic(event);
     String key = kafkaResolver.resolveKey(event);
     DomainEventEnvelope envelope = DomainEventEnvelope.of(event, objectMapper);
-    String payload = objectMapper.writeValueAsString(envelope);
 
     var message =
-        MessageBuilder.withPayload(payload)
+        MessageBuilder.withPayload(envelope)
             .setHeader(KafkaHeaders.TOPIC, topic)
             .setHeader(KafkaHeaders.KEY, key)
             .setHeader("eventType", envelope.eventType())
