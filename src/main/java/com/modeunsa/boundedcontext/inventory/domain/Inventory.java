@@ -33,12 +33,12 @@ public class Inventory extends GeneratedIdAndAuditedEntity {
 
   // 실재고
   @Column(name = "quantity", nullable = false)
-  private Integer quantity;
+  private int quantity;
 
   // 예약재고
   @Builder.Default
   @Column(name = "reserved_quantity", nullable = false)
-  private Integer reservedQuantity = 0;
+  private int reservedQuantity = 0;
 
   // 동시성 제어를 위한 낙관적 락 버전
   @Version private Long version;
