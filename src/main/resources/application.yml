@@ -56,12 +56,17 @@ spring:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
+      properties:
+        spring.json.add.type.headers: true
     consumer:
       group-id: modeunsa-group
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
       auto-offset-reset: earliest
+      properties:
+        spring.json.trusted.packages: com.modeunsa.*
+        spring.json.use.type.headers: true
 
 settlement:
   scheduler:
@@ -110,3 +115,5 @@ encryption:
 app:
   simulation:
     enabled: true
+  event-publisher:
+    type: ${EVENT_PUBLISHER_TYPE:spring}
