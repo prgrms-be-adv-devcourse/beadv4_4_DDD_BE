@@ -117,3 +117,5 @@ app:
     enabled: true
   event-publisher:
     type: ${EVENT_PUBLISHER_TYPE:spring}
+  data-init:
+    enabled: ${DATA_INIT:true}
