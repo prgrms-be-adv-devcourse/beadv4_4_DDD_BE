@@ -3,11 +3,13 @@ package com.modeunsa.boundedcontext.product.app;
 import com.modeunsa.boundedcontext.product.ProductCreateMemberUseCase;
 import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
+import com.modeunsa.boundedcontext.product.domain.ProductFavorite;
 import com.modeunsa.boundedcontext.product.domain.ProductMember;
 import com.modeunsa.boundedcontext.product.domain.ProductStatus;
 import com.modeunsa.shared.order.dto.OrderDto;
 import com.modeunsa.shared.product.dto.ProductCreateRequest;
 import com.modeunsa.shared.product.dto.ProductDetailResponse;
+import com.modeunsa.shared.product.dto.ProductFavoriteResponse;
 import com.modeunsa.shared.product.dto.ProductOrderResponse;
 import com.modeunsa.shared.product.dto.ProductResponse;
 import com.modeunsa.shared.product.dto.ProductStockResponse;
@@ -60,12 +62,12 @@ public class ProductFacade {
 
   public Page<ProductResponse> getProducts(ProductCategory category, Pageable pageable) {
     Page<Product> products = productSupport.getProducts(category, pageable);
-    return products.map(product -> productMapper.toResponse(product, product.getPrimaryImageUrl()));
+    return products.map(product -> productMapper.toResponse(product));
   }
 
   public Page<ProductResponse> getProducts(Long memberId, Pageable pageable) {
     Page<Product> products = productSupport.getProducts(memberId, pageable);
-    return products.map(product -> productMapper.toResponse(product, product.getPrimaryImageUrl()));
+    return products.map(product -> productMapper.toResponse(product));
   }
 
   public List<ProductOrderResponse> getProducts(List<Long> productIds) {
@@ -102,6 +104,11 @@ public class ProductFacade {
   @Transactional
   public void deleteProductFavorite(Long memberId, Long productId) {
     productDeleteFavoriteUseCase.deleteProductFavorite(memberId, productId);
+  }
+
+  public Page<ProductFavoriteResponse> getProductFavorites(Long memberId, Pageable pageable) {
+    Page<ProductFavorite> productFavorites = productSupport.getProductFavorites(memberId, pageable);
+    return productFavorites.map(productMapper::toProductFavoriteResponse);
   }
 
   @Transactional
