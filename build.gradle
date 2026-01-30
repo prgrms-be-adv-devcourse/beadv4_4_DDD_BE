@@ -90,6 +90,9 @@ dependencies {
 
     // prometheus
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+
+    // kafka
+    implementation 'org.springframework.kafka:spring-kafka'
 }
 
 jar {
