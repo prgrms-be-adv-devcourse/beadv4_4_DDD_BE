@@ -36,19 +36,14 @@ public class ProductCreateProductUseCase {
             productCreateRequest.getStock() != null ? productCreateRequest.getStock() : 0);
 
     List<String> images = productCreateRequest.getImages();
-    ProductImage primaryImage = null;
     if (images != null && !images.isEmpty()) {
       for (int i = 0; i < images.size(); i++) {
         ProductImage image = ProductImage.create(product, images.get(i), i == 0, i + 1);
         product.addImage(image);
-        if (i == 0) {
-          primaryImage = image;
-        }
       }
     }
     product = productRepository.save(product);
-    ProductDto productDto =
-        productMapper.toDto(product, primaryImage != null ? primaryImage.getImageUrl() : null);
+    ProductDto productDto = productMapper.toDto(product);
     eventPublisher.publish(new ProductCreatedEvent(productDto));
     return product;
   }
