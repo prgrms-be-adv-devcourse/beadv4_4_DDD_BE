@@ -4,6 +4,7 @@ import static org.springframework.transaction.annotation.Propagation.REQUIRES_NE
 
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
+import com.modeunsa.boundedcontext.payment.app.event.PaymentMemberCreatedEvent;
 import com.modeunsa.boundedcontext.payment.app.mapper.PaymentMapper;
 import com.modeunsa.global.eventpublisher.topic.DomainEventEnvelope;
 import com.modeunsa.shared.member.event.MemberSignupEvent;
@@ -23,7 +24,7 @@ public class PaymentKafkaEventListener {
 
   @KafkaListener(topics = "member-events", groupId = "payment-service")
   @Transactional(propagation = REQUIRES_NEW)
-  public void handleMemberCreateEvent(DomainEventEnvelope envelope) {
+  public void handleMemberEvent(DomainEventEnvelope envelope) {
     switch (envelope.eventType()) {
       case "MemberSignupEvent" -> {
         MemberSignupEvent event =
@@ -33,6 +34,21 @@ public class PaymentKafkaEventListener {
       }
       default -> {
         // ignore}
+      }
+    }
+  }
+
+  @KafkaListener(topics = "payment-events", groupId = "payment-service")
+  @Transactional(propagation = REQUIRES_NEW)
+  public void handlePaymentEvent(DomainEventEnvelope envelope) {
+    switch (envelope.eventType()) {
+      case "PaymentMemberCreatedEvent" -> {
+        PaymentMemberCreatedEvent event =
+            objectMapper.readValue(envelope.payload(), PaymentMemberCreatedEvent.class);
+        paymentFacade.createPaymentAccount(event.memberId());
+      }
+      default -> {
+        // ignore
       }
     }
   }
