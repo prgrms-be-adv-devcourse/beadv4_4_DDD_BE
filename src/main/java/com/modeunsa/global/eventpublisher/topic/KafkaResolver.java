@@ -1,5 +1,6 @@
 package com.modeunsa.global.eventpublisher.topic;
 
+import com.modeunsa.boundedcontext.payment.app.event.PaymentFailedEvent;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentMemberCreatedEvent;
 import com.modeunsa.shared.member.event.MemberSignupEvent;
 import org.springframework.stereotype.Component;
@@ -18,6 +19,9 @@ public class KafkaResolver {
     if (event instanceof PaymentMemberCreatedEvent) {
       return PAYMENT_EVENTS_TOPIC;
     }
+    if (event instanceof PaymentFailedEvent) {
+      return PAYMENT_EVENTS_TOPIC;
+    }
 
     return "unexpected-events-topic";
   }
@@ -28,6 +32,9 @@ public class KafkaResolver {
     }
     if (event instanceof PaymentMemberCreatedEvent e) {
       return "member-%d".formatted(e.memberId());
+    }
+    if (event instanceof PaymentFailedEvent e) {
+      return "payment-%d-%s".formatted(e.memberId(), e.orderId());
     }
 
     return "unexpected-key";

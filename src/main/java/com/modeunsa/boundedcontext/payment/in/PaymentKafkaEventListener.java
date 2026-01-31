@@ -4,6 +4,7 @@ import static org.springframework.transaction.annotation.Propagation.REQUIRES_NE
 
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
+import com.modeunsa.boundedcontext.payment.app.event.PaymentFailedEvent;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentMemberCreatedEvent;
 import com.modeunsa.boundedcontext.payment.app.mapper.PaymentMapper;
 import com.modeunsa.global.eventpublisher.topic.DomainEventEnvelope;
@@ -46,6 +47,11 @@ public class PaymentKafkaEventListener {
         PaymentMemberCreatedEvent event =
             objectMapper.readValue(envelope.payload(), PaymentMemberCreatedEvent.class);
         paymentFacade.createPaymentAccount(event.memberId());
+      }
+      case "PaymentFailedEvent" -> {
+        PaymentFailedEvent event =
+            objectMapper.readValue(envelope.payload(), PaymentFailedEvent.class);
+        paymentFacade.handlePaymentFailed(event);
       }
       default -> {
         // ignore
