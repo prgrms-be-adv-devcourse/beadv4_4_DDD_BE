@@ -4,11 +4,14 @@ import static org.springframework.transaction.annotation.Propagation.REQUIRES_NE
 
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
+import com.modeunsa.boundedcontext.payment.app.dto.order.PaymentOrderInfo;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentFailedEvent;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentMemberCreatedEvent;
 import com.modeunsa.boundedcontext.payment.app.mapper.PaymentMapper;
+import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
 import com.modeunsa.global.eventpublisher.topic.DomainEventEnvelope;
 import com.modeunsa.shared.member.event.MemberSignupEvent;
+import com.modeunsa.shared.order.event.RefundRequestedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
@@ -52,6 +55,22 @@ public class PaymentKafkaEventListener {
         PaymentFailedEvent event =
             objectMapper.readValue(envelope.payload(), PaymentFailedEvent.class);
         paymentFacade.handlePaymentFailed(event);
+      }
+      default -> {
+        // ignore
+      }
+    }
+  }
+
+  @KafkaListener(topics = "order-events", groupId = "payment-service")
+  @Transactional(propagation = REQUIRES_NEW)
+  public void handleOrderEvent(DomainEventEnvelope envelope) {
+    switch (envelope.eventType()) {
+      case "RefundRequestedEvent" -> {
+        RefundRequestedEvent event =
+            objectMapper.readValue(envelope.payload(), RefundRequestedEvent.class);
+        PaymentOrderInfo orderInfo = paymentMapper.toPaymentOrderInfo(event.orderDto());
+        paymentFacade.refund(orderInfo, RefundEventType.ORDER_CANCELLED);
       }
       default -> {
         // ignore
