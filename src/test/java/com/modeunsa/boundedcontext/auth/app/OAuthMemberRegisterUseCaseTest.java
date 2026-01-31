@@ -13,7 +13,7 @@ import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.boundedcontext.member.domain.types.MemberStatus;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
-import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
+import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.shared.auth.dto.OAuthUserInfo;
 import com.modeunsa.shared.member.event.MemberSignupEvent;
 import java.lang.reflect.Field;
@@ -32,7 +32,7 @@ class OAuthMemberRegisterUseCaseTest {
   @InjectMocks private OAuthMemberRegisterUseCase oauthMemberRegisterUseCase;
 
   @Mock private MemberRepository memberRepository;
-  @Mock private SpringDomainEventPublisher eventPublisher;
+  @Mock private EventPublisher eventPublisher;
 
   @Captor private ArgumentCaptor<Member> memberCaptor;
   @Captor private ArgumentCaptor<MemberSignupEvent> eventCaptor;

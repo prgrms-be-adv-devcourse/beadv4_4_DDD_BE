@@ -2,7 +2,7 @@ package com.modeunsa.boundedcontext.settlement.in.batch;
 
 import com.modeunsa.boundedcontext.settlement.domain.entity.Settlement;
 import com.modeunsa.boundedcontext.settlement.out.SettlementRepository;
-import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
+import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.shared.settlement.dto.SettlementCompletedPayoutDto;
 import com.modeunsa.shared.settlement.event.SettlementCompletedPayoutEvent;
 import java.time.LocalDate;
@@ -29,7 +29,7 @@ public class SettlementMonthSettlementStepConfig {
   private final JobRepository jobRepository;
   private final PlatformTransactionManager transactionManager;
   private final SettlementRepository settlementRepository;
-  private final SpringDomainEventPublisher eventPublisher;
+  private final EventPublisher eventPublisher;
 
   @Bean
   public Step monthlySettlementStep() {

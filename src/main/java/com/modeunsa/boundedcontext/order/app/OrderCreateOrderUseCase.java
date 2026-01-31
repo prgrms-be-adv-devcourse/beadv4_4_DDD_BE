@@ -5,7 +5,7 @@ import com.modeunsa.boundedcontext.order.domain.OrderItem;
 import com.modeunsa.boundedcontext.order.domain.OrderMapper;
 import com.modeunsa.boundedcontext.order.domain.OrderMember;
 import com.modeunsa.boundedcontext.order.out.OrderRepository;
-import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
+import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
@@ -27,7 +27,7 @@ public class OrderCreateOrderUseCase {
   private final OrderSupport orderSupport;
   private final OrderRepository orderRepository;
   private final OrderMapper orderMapper;
-  private final SpringDomainEventPublisher eventPublisher;
+  private final EventPublisher eventPublisher;
   private final ProductApiClient productApiClient;
 
   public OrderResponseDto createOrder(Long memberId, CreateOrderRequestDto requestDto) {

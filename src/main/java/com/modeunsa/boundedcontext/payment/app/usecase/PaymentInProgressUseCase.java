@@ -10,7 +10,7 @@ import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentDomainException;
-import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
+import com.modeunsa.global.eventpublisher.EventPublisher;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ public class PaymentInProgressUseCase {
   private final PaymentSupport paymentSupport;
   private final PaymentMemberSupport paymentMemberSupport;
   private final PaymentAccountSupport paymentAccountSupport;
-  private final SpringDomainEventPublisher eventPublisher;
+  private final EventPublisher eventPublisher;
 
   public PaymentProcessContext execute(PaymentProcessContext context) {
     try {
