@@ -250,24 +250,6 @@ export default function FashionPage() {
                             <span className="favorite-count">{formatCount(product.favoriteCount)}</span>
                         </div>
                       </div>
-      {/*                <div className="product-image">*/}
-      {/*                  {primaryImageUrl ? (*/}
-      {/*                    <img*/}
-      {/*                      src={primaryImageUrl}*/}
-      {/*                      alt={product.name}*/}
-      {/*                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}*/}
-      {/*                    />*/}
-      {/*                  ) : (*/}
-      {/*                    <div className="image-placeholder">이미지</div>*/}
-      {/*                  )}*/}
-      {/*                  /!* 좋아요 오버레이 *!/*/}
-      {/*                  <div className="favorite-overlay">*/}
-      {/*                    <HeartFilledIcon />*/}
-      {/*                    <span className="favorite-count">*/}
-      {/*  {formatCount(product.favoriteCount)}*/}
-      {/*</span>*/}
-      {/*                  </div>*/}
-      {/*                </div>*/}
 
                       <div className="product-info">
                         <div className="product-brand">{product.sellerBusinessName || '브랜드'}</div>
