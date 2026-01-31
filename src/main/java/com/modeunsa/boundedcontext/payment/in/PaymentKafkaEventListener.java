@@ -5,6 +5,7 @@ import static org.springframework.transaction.annotation.Propagation.REQUIRES_NE
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
 import com.modeunsa.boundedcontext.payment.app.dto.order.PaymentOrderInfo;
+import com.modeunsa.boundedcontext.payment.app.dto.settlement.PaymentPayoutInfo;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentFailedEvent;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentMemberCreatedEvent;
 import com.modeunsa.boundedcontext.payment.app.mapper.PaymentMapper;
@@ -12,6 +13,8 @@ import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
 import com.modeunsa.global.eventpublisher.topic.DomainEventEnvelope;
 import com.modeunsa.shared.member.event.MemberSignupEvent;
 import com.modeunsa.shared.order.event.RefundRequestedEvent;
+import com.modeunsa.shared.settlement.event.SettlementCompletedPayoutEvent;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
@@ -71,6 +74,22 @@ public class PaymentKafkaEventListener {
             objectMapper.readValue(envelope.payload(), RefundRequestedEvent.class);
         PaymentOrderInfo orderInfo = paymentMapper.toPaymentOrderInfo(event.orderDto());
         paymentFacade.refund(orderInfo, RefundEventType.ORDER_CANCELLED);
+      }
+      default -> {
+        // ignore
+      }
+    }
+  }
+
+  @KafkaListener(topics = "settlement-events", groupId = "payment-service")
+  @Transactional(propagation = REQUIRES_NEW)
+  public void handlePayoutEvent(DomainEventEnvelope envelope) {
+    switch (envelope.eventType()) {
+      case "SettlementCompletedPayoutEvent" -> {
+        SettlementCompletedPayoutEvent event =
+            objectMapper.readValue(envelope.payload(), SettlementCompletedPayoutEvent.class);
+        List<PaymentPayoutInfo> payouts = paymentMapper.toPaymentPayoutInfoList(event.payouts());
+        paymentFacade.completePayout(payouts);
       }
       default -> {
         // ignore
