@@ -49,12 +49,12 @@ public class PaymentKafkaEventListener {
   @Transactional(propagation = REQUIRES_NEW)
   public void handlePaymentEvent(DomainEventEnvelope envelope) {
     switch (envelope.eventType()) {
-      case "PaymentMemberCreatedEvent" -> {
+      case PaymentMemberCreatedEvent.EVENT_NAME -> {
         PaymentMemberCreatedEvent event =
             objectMapper.readValue(envelope.payload(), PaymentMemberCreatedEvent.class);
         paymentFacade.createPaymentAccount(event.memberId());
       }
-      case "PaymentFailedEvent" -> {
+      case PaymentFailedEvent.EVENT_NAME -> {
         PaymentFailedEvent event =
             objectMapper.readValue(envelope.payload(), PaymentFailedEvent.class);
         paymentFacade.handlePaymentFailed(event);

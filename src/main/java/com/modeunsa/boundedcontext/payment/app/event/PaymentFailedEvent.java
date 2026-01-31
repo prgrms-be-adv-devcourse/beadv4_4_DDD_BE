@@ -15,6 +15,8 @@ public record PaymentFailedEvent(
     String traceId)
     implements TraceableEvent {
 
+  public static final String EVENT_NAME = "PaymentFailedEvent";
+
   public PaymentFailedEvent(
       Long memberId,
       Long orderId,
@@ -32,5 +34,10 @@ public record PaymentFailedEvent(
         context.orderNo(),
         context.totalAmount(),
         failureReason);
+  }
+
+  @Override
+  public String eventName() {
+    return EVENT_NAME;
   }
 }
