@@ -11,6 +11,7 @@ import com.modeunsa.boundedcontext.payment.app.event.PaymentMemberCreatedEvent;
 import com.modeunsa.boundedcontext.payment.app.mapper.PaymentMapper;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
 import com.modeunsa.global.eventpublisher.topic.DomainEventEnvelope;
+import com.modeunsa.global.json.JsonConverter;
 import com.modeunsa.shared.member.event.MemberSignupEvent;
 import com.modeunsa.shared.order.event.RefundRequestedEvent;
 import com.modeunsa.shared.settlement.event.SettlementCompletedPayoutEvent;
@@ -19,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import tools.jackson.databind.ObjectMapper;
 
 @Component
 @RequiredArgsConstructor
@@ -27,7 +27,7 @@ public class PaymentKafkaEventListener {
 
   private final PaymentFacade paymentFacade;
   private final PaymentMapper paymentMapper;
-  private final ObjectMapper objectMapper;
+  private final JsonConverter jsonConverter;
 
   @KafkaListener(topics = "member-events", groupId = "payment-service")
   @Transactional(propagation = REQUIRES_NEW)
@@ -35,7 +35,7 @@ public class PaymentKafkaEventListener {
     switch (envelope.eventType()) {
       case "MemberSignupEvent" -> {
         MemberSignupEvent event =
-            objectMapper.readValue(envelope.payload(), MemberSignupEvent.class);
+            jsonConverter.deserialize(envelope.payload(), MemberSignupEvent.class);
         PaymentMemberDto member = paymentMapper.toPaymentMemberDto(event);
         paymentFacade.createPaymentMember(member);
       }
@@ -51,12 +51,12 @@ public class PaymentKafkaEventListener {
     switch (envelope.eventType()) {
       case PaymentMemberCreatedEvent.EVENT_NAME -> {
         PaymentMemberCreatedEvent event =
-            objectMapper.readValue(envelope.payload(), PaymentMemberCreatedEvent.class);
+            jsonConverter.deserialize(envelope.payload(), PaymentMemberCreatedEvent.class);
         paymentFacade.createPaymentAccount(event.memberId());
       }
       case PaymentFailedEvent.EVENT_NAME -> {
         PaymentFailedEvent event =
-            objectMapper.readValue(envelope.payload(), PaymentFailedEvent.class);
+            jsonConverter.deserialize(envelope.payload(), PaymentFailedEvent.class);
         paymentFacade.handlePaymentFailed(event);
       }
       default -> {
@@ -71,7 +71,7 @@ public class PaymentKafkaEventListener {
     switch (envelope.eventType()) {
       case "RefundRequestedEvent" -> {
         RefundRequestedEvent event =
-            objectMapper.readValue(envelope.payload(), RefundRequestedEvent.class);
+            jsonConverter.deserialize(envelope.payload(), RefundRequestedEvent.class);
         PaymentOrderInfo orderInfo = paymentMapper.toPaymentOrderInfo(event.orderDto());
         paymentFacade.refund(orderInfo, RefundEventType.ORDER_CANCELLED);
       }
@@ -87,7 +87,7 @@ public class PaymentKafkaEventListener {
     switch (envelope.eventType()) {
       case "SettlementCompletedPayoutEvent" -> {
         SettlementCompletedPayoutEvent event =
-            objectMapper.readValue(envelope.payload(), SettlementCompletedPayoutEvent.class);
+            jsonConverter.deserialize(envelope.payload(), SettlementCompletedPayoutEvent.class);
         List<PaymentPayoutInfo> payouts = paymentMapper.toPaymentPayoutInfoList(event.payouts());
         paymentFacade.completePayout(payouts);
       }
