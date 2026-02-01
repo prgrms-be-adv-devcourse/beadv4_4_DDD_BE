@@ -48,23 +48,51 @@ export default function OrderPage() {
   const [isLoadingMember, setIsLoadingMember] = useState(true)
   const [memberError, setMemberError] = useState<string | null>(null)
   const [selectedMethod, setSelectedMethod] = useState<'modeunsa' | 'toss'>('modeunsa')
-  const memberId = 4 // 회원 ID
+  const [isAuthChecked, setIsAuthChecked] = useState(false)
 
-  // 회원 정보 조회
+  // 로그인 여부 확인: 비로그인 시 로그인 페이지로 이동
   useEffect(() => {
-    // Mock 회원 정보
-    const mockMemberInfo: PaymentMemberResponse = {
-      customerKey: 'customer-123',
-      customerName: '홍길동',
-      customerEmail: 'hong@example.com',
-      balance: 50000,
+    if (typeof window === 'undefined') return
+    const accessToken = localStorage.getItem('accessToken')
+    if (!accessToken || accessToken.trim() === '') {
+      router.replace('/login')
+      return
     }
-    
-    setTimeout(() => {
-      setMemberInfo(mockMemberInfo)
+    setIsAuthChecked(true)
+  }, [router])
+
+  // 결제 계좌 정보(사용 가능 금액 등) 조회
+  useEffect(() => {
+    if (!isAuthChecked) return
+    const accessToken = localStorage.getItem('accessToken')
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+    if (!accessToken?.trim() || !apiUrl) {
+      setMemberError('API 설정을 확인해주세요.')
       setIsLoadingMember(false)
-    }, 300)
-  }, [router, memberId])
+      return
+    }
+    const fetchMemberInfo = async () => {
+      try {
+        const res = await fetch(`${apiUrl}/api/v1/payments/accounts`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        })
+        const data: PaymentMemberApiResponse = await res.json()
+        if (res.ok && data.isSuccess && data.result != null) {
+          setMemberInfo(data.result)
+          setMemberError(null)
+        } else {
+          setMemberError(data.message || '회원 정보를 불러오지 못했습니다.')
+          setMemberInfo(null)
+        }
+      } catch {
+        setMemberError('회원 정보를 불러오지 못했습니다.')
+        setMemberInfo(null)
+      } finally {
+        setIsLoadingMember(false)
+      }
+    }
+    fetchMemberInfo()
+  }, [isAuthChecked])
 
   // 토스페이먼츠 위젯 스크립트 로드
   useEffect(() => {
@@ -106,6 +134,10 @@ export default function OrderPage() {
     
     // Mock 데이터로 결제 성공 페이지로 이동
     router.push(`/order/success?orderNo=${orderNo}&amount=${amount}`)
+  }
+
+  if (!isAuthChecked) {
+    return null
   }
 
   return (
