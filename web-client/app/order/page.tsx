@@ -207,29 +207,46 @@ export default function OrderPage() {
         {/* 결제 수단 섹션 */}
         <section className="order-card">
           <h2 className="card-title">결제 수단</h2>
-          <div className="payment-method-option">
-            <input
-              type="radio"
-              id="modeunsa"
-              name="payment"
-              checked={selectedMethod === 'modeunsa'}
-              onChange={() => setSelectedMethod('modeunsa')}
-            />
-            <label htmlFor="modeunsa">
-              <div className="payment-logo">뭐든사</div>
-              <div className="payment-info">
-                <span>뭐든사페이</span>
-                <span className="payment-balance">
-                  (사용 가능 금액:{' '}
-                  {memberInfo
-                    ? `${new Intl.NumberFormat('ko-KR').format(Number(memberInfo.balance))}원`
-                    : isLoadingMember
-                    ? '로딩 중...'
-                    : '0원'}
-                  )
-                </span>
-              </div>
-            </label>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+            <div className="payment-method-option">
+              <input
+                type="radio"
+                id="modeunsa"
+                name="payment"
+                checked={selectedMethod === 'modeunsa'}
+                onChange={() => setSelectedMethod('modeunsa')}
+              />
+              <label htmlFor="modeunsa">
+                <div className="payment-logo payment-logo-fixed">뭐든사</div>
+                <div className="payment-info payment-info-row">
+                  <span>뭐든사페이</span>
+                  <span className="payment-balance">
+                    (사용 가능 금액:{' '}
+                    {memberInfo
+                      ? `${new Intl.NumberFormat('ko-KR').format(Number(memberInfo.balance))}원`
+                      : isLoadingMember
+                      ? '로딩 중...'
+                      : '0원'}
+                    )
+                  </span>
+                </div>
+              </label>
+            </div>
+            <div className="payment-method-option">
+              <input
+                type="radio"
+                id="toss"
+                name="payment"
+                checked={selectedMethod === 'toss'}
+                onChange={() => setSelectedMethod('toss')}
+              />
+              <label htmlFor="toss">
+                <div className="payment-logo payment-logo-fixed" style={{ background: '#0064FF', color: 'white' }}>Toss</div>
+                <div className="payment-info">
+                  <span>토스 페이먼츠</span>
+                </div>
+              </label>
+            </div>
           </div>
         </section>
 

@@ -577,17 +577,36 @@ a {
   width: fit-content;
 }
 
+.payment-logo-fixed {
+  min-width: 72px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
 .payment-info {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-auto-rows: auto;
   gap: 4px;
   font-size: 16px;
   color: #333;
 }
 
+.payment-info-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
 .payment-balance {
   font-size: 13px;
   color: #666;
+  white-space: nowrap;
 }
 
 .terms-notice {
