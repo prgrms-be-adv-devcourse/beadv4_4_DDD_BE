@@ -3312,6 +3312,12 @@ a {
   text-decoration: underline;
 }
 
+.login-error {
+  font-size: 14px;
+  color: #dc3545;
+  margin-top: -8px;
+}
+
 .login-button {
   padding: 16px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

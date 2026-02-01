@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState, Suspense } from 'react'
+import Header from '../../components/Header'
 
 interface ConfirmPaymentResponse {
   orderNo: string
@@ -107,22 +108,7 @@ function SuccessContent() {
   if (isConfirming) {
     return (
       <div className="home-page">
-        <header className="header">
-          <div className="header-container">
-            <div className="logo">
-              <Link href="/">뭐든사</Link>
-            </div>
-            <nav className="nav">
-              <Link href="/fashion">패션</Link>
-              <Link href="/beauty">뷰티</Link>
-              <Link href="/magazine">매거진</Link>
-            </nav>
-            <div className="header-actions">
-              <button className="cart-btn">장바구니</button>
-              <Link href="/login" className="user-btn">로그인</Link>
-            </div>
-          </div>
-        </header>
+        <Header />
         <div className="order-page-container">
           <div className="container" style={{ textAlign: 'center', maxWidth: '600px' }}>
             <div className="success-icon">
@@ -156,22 +142,7 @@ function SuccessContent() {
   if (confirmError) {
     return (
       <div className="home-page">
-        <header className="header">
-          <div className="header-container">
-            <div className="logo">
-              <Link href="/">뭐든사</Link>
-            </div>
-            <nav className="nav">
-              <Link href="/fashion">패션</Link>
-              <Link href="/beauty">뷰티</Link>
-              <Link href="/magazine">매거진</Link>
-            </nav>
-            <div className="header-actions">
-              <button className="cart-btn">장바구니</button>
-              <Link href="/login" className="user-btn">로그인</Link>
-            </div>
-          </div>
-        </header>
+        <Header />
         <div className="order-page-container">
           <div className="container" style={{ textAlign: 'center', maxWidth: '600px' }}>
             <div className="success-icon">
@@ -213,22 +184,7 @@ function SuccessContent() {
 
   return (
     <div className="home-page">
-      <header className="header">
-        <div className="header-container">
-          <div className="logo">
-            <Link href="/">뭐든사</Link>
-          </div>
-          <nav className="nav">
-            <Link href="/fashion">패션</Link>
-            <Link href="/beauty">뷰티</Link>
-            <Link href="/magazine">매거진</Link>
-          </nav>
-            <div className="header-actions">
-              <Link href="/cart" className="cart-btn">장바구니</Link>
-              <Link href="/login" className="user-btn">로그인</Link>
-            </div>
-        </div>
-      </header>
+      <Header />
 
       <div className="order-page-container">
         <div className="container" style={{ maxWidth: '600px' }}>

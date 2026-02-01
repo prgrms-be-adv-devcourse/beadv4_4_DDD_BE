@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import Header from '../components/Header'
 
 export default function SearchPage() {
   const searchParams = useSearchParams()
@@ -32,23 +33,7 @@ export default function SearchPage() {
 
   return (
     <div className="home-page">
-      {/* Header */}
-      <header className="header">
-        <div className="header-container">
-          <div className="logo">
-            <Link href="/">뭐든사</Link>
-          </div>
-          <nav className="nav">
-            <Link href="/fashion">패션</Link>
-            <Link href="/beauty">뷰티</Link>
-            <Link href="/magazine">매거진</Link>
-          </nav>
-          <div className="header-actions">
-            <Link href="/cart" className="cart-btn">장바구니</Link>
-            <Link href="/login" className="user-btn">로그인</Link>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Search Hero Section */}
       <section className="search-hero">
