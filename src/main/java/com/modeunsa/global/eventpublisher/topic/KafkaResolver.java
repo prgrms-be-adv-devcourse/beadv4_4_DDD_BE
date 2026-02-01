@@ -45,7 +45,7 @@ public class KafkaResolver {
       return "payment-member-%d".formatted(e.memberId());
     }
     if (event instanceof PaymentFailedEvent e) {
-      return "payment-%d-%s".formatted(e.memberId(), e.orderId());
+      return "payment-%d-%s".formatted(e.memberId(), e.orderNo());
     }
     if (event instanceof RefundRequestedEvent e) {
       return "order-%s".formatted(e.orderDto().getOrderNo());
