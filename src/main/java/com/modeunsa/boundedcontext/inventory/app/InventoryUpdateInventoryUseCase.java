@@ -40,6 +40,7 @@ public class InventoryUpdateInventoryUseCase {
     if (!isUpdated) {
       throw new GeneralException(ErrorStatus.INVALID_STOCK_QUANTITY);
     }
+    inventoryRepository.saveAndFlush(inventory);
 
     if (inventory.getQuantity() == 0) {
       eventPublisher.publish(new ProductSoldOutEvent(productId));

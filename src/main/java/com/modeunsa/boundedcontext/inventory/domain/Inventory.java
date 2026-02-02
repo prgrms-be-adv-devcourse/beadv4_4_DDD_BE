@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
@@ -38,6 +39,7 @@ public class Inventory extends GeneratedIdAndAuditedEntity {
 
   // 예약재고
   @Builder.Default
+  @Setter // 테스트용 TODO: 주문 연결 후 삭제
   @Column(name = "reserved_quantity", nullable = false)
   private int reservedQuantity = 0;
 
