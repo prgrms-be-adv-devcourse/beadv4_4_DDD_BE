@@ -1,6 +1,7 @@
 package com.modeunsa.boundedcontext.auth.in.controller;
 
 import com.modeunsa.boundedcontext.auth.app.facade.AuthFacade;
+import com.modeunsa.boundedcontext.member.app.support.MemberSupport;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
 import com.modeunsa.global.exception.GeneralException;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ApiV1DevAuthController {
   private final MemberRepository memberRepository;
+  private final MemberSupport memberSupport;
   private final AuthFacade authFacade;
 
   @Operation(
@@ -38,6 +40,8 @@ public class ApiV1DevAuthController {
             .findById(memberId)
             .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
-    return authFacade.login(member.getId(), member.getRole());
+    Long sellerId = memberSupport.getSellerIdByMemberId(memberId);
+
+    return authFacade.login(member.getId(), member.getRole(), sellerId);
   }
 }
