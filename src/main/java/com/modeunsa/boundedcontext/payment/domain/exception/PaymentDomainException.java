@@ -8,14 +8,14 @@ public class PaymentDomainException extends RuntimeException {
   private final String errorMessage;
 
   public PaymentDomainException(PaymentErrorCode errorCode, String errorMessage, Object... args) {
-    super(errorCode.format(args));
+    super(errorMessage);
     this.errorCode = errorCode;
     this.errorMessage = errorMessage;
   }
 
   public PaymentDomainException(
       PaymentErrorCode errorCode, String errorMessage, Throwable cause, Object... args) {
-    super(errorCode.format(args), cause);
+    super(errorMessage, cause);
     this.errorCode = errorCode;
     this.errorMessage = errorMessage;
   }
