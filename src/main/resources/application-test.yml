@@ -28,3 +28,6 @@ settlement:
     monthly-25-04: "* * * * * *"
   member:
     system-member-id: 1
+
+internal:
+  api-key: test-internal-key

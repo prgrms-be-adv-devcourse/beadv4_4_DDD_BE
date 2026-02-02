@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.product.in;
+package com.modeunsa.boundedcontext.product.in.api.v1;
 
 import com.modeunsa.boundedcontext.product.app.ProductFacade;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
@@ -10,7 +10,6 @@ import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.global.status.SuccessStatus;
 import com.modeunsa.shared.product.dto.ProductCreateRequest;
 import com.modeunsa.shared.product.dto.ProductDetailResponse;
-import com.modeunsa.shared.product.dto.ProductFavoriteResponse;
 import com.modeunsa.shared.product.dto.ProductOrderResponse;
 import com.modeunsa.shared.product.dto.ProductOrderValidateRequest;
 import com.modeunsa.shared.product.dto.ProductResponse;
@@ -28,7 +27,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,7 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/products")
 @RequiredArgsConstructor
-public class ApiV1ProductController {
+public class ProductController {
 
   private final ProductFacade productFacade;
 
@@ -106,47 +104,6 @@ public class ApiV1ProductController {
     return ApiResponse.onSuccess(SuccessStatus.OK, productDetailResponse);
   }
 
-  @Operation(summary = "관심상품 추가", description = "상품을 관심상품에 추가합니다.")
-  @PostMapping("/{id}/favorite")
-  public ResponseEntity<ApiResponse> createProductFavorite(
-      @AuthenticationPrincipal CustomUserDetails user,
-      @Valid @PathVariable(name = "id") Long productId) {
-    Long memberId = user.getMemberId();
-    if (memberId == null || productId == null) {
-      throw new GeneralException(ErrorStatus.PRODUCT_FIELD_REQUIRED);
-    }
-    productFacade.createProductFavorite(memberId, productId);
-    return ApiResponse.onSuccess(SuccessStatus.CREATED);
-  }
-
-  @Operation(summary = "관심상품 삭제", description = "상품을 관심상품에서 삭제합니다.")
-  @DeleteMapping("/{id}/favorite")
-  public ResponseEntity<ApiResponse> deleteProductFavorite(
-      @AuthenticationPrincipal CustomUserDetails user,
-      @Valid @PathVariable(name = "id") Long productId) {
-    Long memberId = user.getMemberId();
-    if (memberId == null || productId == null) {
-      throw new GeneralException(ErrorStatus.PRODUCT_FIELD_REQUIRED);
-    }
-    productFacade.deleteProductFavorite(memberId, productId);
-    return ApiResponse.onSuccess(SuccessStatus.OK);
-  }
-
-  @Operation(summary = "관심상품 내역 조회", description = "마이페이지 > 관심상품 내역을 조회합니다.")
-  @GetMapping("/favorites")
-  public ResponseEntity<ApiResponse> getProductFavorites(
-      @AuthenticationPrincipal CustomUserDetails user,
-      @RequestParam(name = "page") int page,
-      @RequestParam(name = "size") int size) {
-    Pageable pageable =
-        PageRequest.of(
-            page, size, Sort.by(Sort.Direction.DESC, "createdAt") // 정렬 고정
-            );
-    Page<ProductFavoriteResponse> productFavoriteResponses =
-        productFacade.getProductFavorites(user.getMemberId(), pageable);
-    return ApiResponse.onSuccess(SuccessStatus.OK, productFavoriteResponses);
-  }
-
   @Operation(summary = "주문 상품 검증용 상품 리스트 조회", description = "주문 직전 상품의 유효성 검증을 위해 상품 리스트를 조회합니다.")
   @PostMapping("/validate-order")
   public List<ProductOrderResponse> validateOrderProducts(
@@ -154,6 +111,7 @@ public class ApiV1ProductController {
     return productFacade.getProducts(productOrderValidateRequest.productIds());
   }
 
+  @Deprecated
   @Operation(summary = "재고 차감 API", description = "주문 생성 시 재고를 차감합니다.")
   @PatchMapping("/stock")
   public List<ProductStockResponse> deductStock(
@@ -162,7 +120,7 @@ public class ApiV1ProductController {
   }
 
   @Operation(summary = "(판매자용) 상품 리스트 조회", description = "판매자용 상품 리스트를 조회합니다.")
-  @GetMapping("/products/seller")
+  @GetMapping("/sellers")
   public ResponseEntity<ApiResponse> getProductsForSeller(
       @AuthenticationPrincipal CustomUserDetails user,
       @RequestParam(name = "page") int page,

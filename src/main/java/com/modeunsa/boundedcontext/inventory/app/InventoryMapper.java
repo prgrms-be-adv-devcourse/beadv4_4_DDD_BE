@@ -3,6 +3,7 @@ package com.modeunsa.boundedcontext.inventory.app;
 import com.modeunsa.boundedcontext.inventory.domain.Inventory;
 import com.modeunsa.boundedcontext.inventory.domain.InventoryProduct;
 import com.modeunsa.boundedcontext.inventory.domain.InventorySeller;
+import com.modeunsa.shared.inventory.dto.InventoryDto;
 import com.modeunsa.shared.inventory.dto.InventoryUpdateResponse;
 import com.modeunsa.shared.product.dto.ProductDto;
 import org.mapstruct.Mapper;
@@ -21,4 +22,6 @@ public interface InventoryMapper {
   Inventory toInventoryFromProduct(InventoryProduct product);
 
   InventoryUpdateResponse toInventoryUpdateResponse(Inventory inventory);
+
+  InventoryDto toInventoryDto(Inventory inventory);
 }
