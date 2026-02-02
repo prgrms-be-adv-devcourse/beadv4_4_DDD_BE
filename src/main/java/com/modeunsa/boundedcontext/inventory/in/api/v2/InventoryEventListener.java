@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.inventory.in;
+package com.modeunsa.boundedcontext.inventory.in.api.v2;
 
 import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;

@@ -7,17 +7,21 @@ import com.modeunsa.global.status.SuccessStatus;
 import com.modeunsa.shared.inventory.dto.InventoryUpdateRequest;
 import com.modeunsa.shared.inventory.dto.InventoryUpdateResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-public class ApiV1InventoryController {
+@RequestMapping("/api/v2/inventories")
+@Tag(name = "Inventory", description = "재고 도메인 API")
+public class InventoryController {
   private final InventoryFacade inventoryFacade;
 
   @Operation(summary = "실재고 수정", description = "판매자가 상품 실재고를 수정합니다.")
