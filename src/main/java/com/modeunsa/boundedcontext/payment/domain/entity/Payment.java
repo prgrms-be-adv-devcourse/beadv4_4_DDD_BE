@@ -161,7 +161,9 @@ public class Payment extends AuditedEntity {
   public void failedPayment(PaymentErrorCode errorCode, Long memberId, String orderNo) {
     this.failedErrorCode = errorCode;
     this.failedAt = LocalDateTime.now();
-    changeStatusByFailure(PaymentStatus.FAILED, errorCode.format(memberId, orderNo));
+    changeStatusByFailure(
+        PaymentStatus.FAILED,
+        errorCode.format(memberId, orderNo, this.status, PaymentStatus.FAILED));
   }
 
   public void failedTossPayment(HttpStatus httpStatus, String message) {
