@@ -2,7 +2,14 @@ package com.modeunsa.global.eventpublisher.topic;
 
 import com.modeunsa.boundedcontext.payment.app.event.PaymentFailedEvent;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentMemberCreatedEvent;
+import com.modeunsa.shared.member.event.MemberBasicInfoUpdatedEvent;
+import com.modeunsa.shared.member.event.MemberDeliveryAddressAddedEvent;
+import com.modeunsa.shared.member.event.MemberDeliveryAddressDeletedEvent;
+import com.modeunsa.shared.member.event.MemberDeliveryAddressUpdatedEvent;
+import com.modeunsa.shared.member.event.MemberProfileCreatedEvent;
+import com.modeunsa.shared.member.event.MemberProfileUpdatedEvent;
 import com.modeunsa.shared.member.event.MemberSignupEvent;
+import com.modeunsa.shared.member.event.SellerRegisteredEvent;
 import com.modeunsa.shared.order.event.RefundRequestedEvent;
 import com.modeunsa.shared.settlement.event.SettlementCompletedPayoutEvent;
 import org.springframework.stereotype.Component;
@@ -17,7 +24,14 @@ public class KafkaResolver {
 
   public String resolveTopic(Object event) {
 
-    if (event instanceof MemberSignupEvent) {
+    if (event instanceof MemberSignupEvent ||
+        event instanceof MemberBasicInfoUpdatedEvent ||
+        event instanceof MemberProfileCreatedEvent ||
+        event instanceof MemberProfileUpdatedEvent ||
+        event instanceof MemberDeliveryAddressAddedEvent ||
+        event instanceof MemberDeliveryAddressUpdatedEvent ||
+        event instanceof MemberDeliveryAddressDeletedEvent ||
+        event instanceof SellerRegisteredEvent) {
       return MEMBER_EVENTS_TOPIC;
     }
     if (event instanceof PaymentMemberCreatedEvent) {
@@ -38,9 +52,12 @@ public class KafkaResolver {
 
   // key 는 같은 topic 안에서 동일한 key 라면 같은 파티션에서 순차적으로 메시지가 처리된다.
   public String resolveKey(Object event) {
-    if (event instanceof MemberSignupEvent e) {
-      return "member-%d".formatted(e.memberId());
-    }
+    if (event instanceof MemberSignupEvent e) return "member-%d".formatted(e.memberId());
+    if (event instanceof MemberBasicInfoUpdatedEvent e) return "member-%d".formatted(e.memberId());
+    if (event instanceof MemberProfileCreatedEvent e) return "member-%d".formatted(e.memberId());
+    if (event instanceof SellerRegisteredEvent e) return "member-%d".formatted(e.memberId());
+    if (event instanceof MemberDeliveryAddressAddedEvent e) return "member-%d".formatted(e.memberId());
+
     if (event instanceof PaymentMemberCreatedEvent e) {
       return "payment-member-%d".formatted(e.memberId());
     }
