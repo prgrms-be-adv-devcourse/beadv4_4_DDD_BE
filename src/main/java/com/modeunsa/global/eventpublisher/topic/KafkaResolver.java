@@ -5,6 +5,7 @@ import com.modeunsa.boundedcontext.payment.app.event.PaymentMemberCreatedEvent;
 import com.modeunsa.shared.member.event.MemberBasicInfoUpdatedEvent;
 import com.modeunsa.shared.member.event.MemberDeliveryAddressAddedEvent;
 import com.modeunsa.shared.member.event.MemberDeliveryAddressDeletedEvent;
+import com.modeunsa.shared.member.event.MemberDeliveryAddressSetAsDefaultEvent;
 import com.modeunsa.shared.member.event.MemberDeliveryAddressUpdatedEvent;
 import com.modeunsa.shared.member.event.MemberProfileCreatedEvent;
 import com.modeunsa.shared.member.event.MemberProfileUpdatedEvent;
@@ -34,13 +35,8 @@ public class KafkaResolver {
         || event instanceof MemberDeliveryAddressAddedEvent
         || event instanceof MemberDeliveryAddressUpdatedEvent
         || event instanceof MemberDeliveryAddressDeletedEvent
+        || event instanceof MemberDeliveryAddressSetAsDefaultEvent
         || event instanceof SellerRegisteredEvent) {
-      return MEMBER_EVENTS_TOPIC;
-    }
-    if (event instanceof MemberBasicInfoUpdatedEvent) {
-      return MEMBER_EVENTS_TOPIC;
-    }
-    if (event instanceof SellerRegisteredEvent) {
       return MEMBER_EVENTS_TOPIC;
     }
 
@@ -84,7 +80,19 @@ public class KafkaResolver {
     if (event instanceof MemberProfileCreatedEvent e) {
       return "member-%d".formatted(e.memberId());
     }
+    if (event instanceof MemberProfileUpdatedEvent e) {
+      return "member-%d".formatted(e.memberId());
+    }
     if (event instanceof MemberDeliveryAddressAddedEvent e) {
+      return "member-%d".formatted(e.memberId());
+    }
+    if (event instanceof MemberDeliveryAddressUpdatedEvent e) {
+      return "member-%d".formatted(e.memberId());
+    }
+    if (event instanceof MemberDeliveryAddressDeletedEvent e) {
+      return "member-%d".formatted(e.memberId());
+    }
+    if (event instanceof MemberDeliveryAddressSetAsDefaultEvent e) {
       return "member-%d".formatted(e.memberId());
     }
     if (event instanceof SellerRegisteredEvent e) {
