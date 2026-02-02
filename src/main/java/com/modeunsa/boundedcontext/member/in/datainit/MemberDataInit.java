@@ -183,7 +183,7 @@ public class MemberDataInit {
             seller.getRepresentativeName(),
             seller.getSettlementBankName(),
             seller.getSettlementBankAccount(),
-            seller.getStatus()));
+            seller.getStatus().name()));
   }
 
   private Member createMember(String email, String realName, String phoneNumber, MemberRole role) {
