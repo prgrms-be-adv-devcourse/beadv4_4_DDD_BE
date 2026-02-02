@@ -10,6 +10,7 @@ import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentResponse;
+import com.modeunsa.boundedcontext.payment.in.api.v1.PaymentController;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import java.math.BigDecimal;
@@ -21,15 +22,15 @@ import org.mockito.Mock;
 import org.springframework.http.MediaType;
 
 @DisplayName("PaymentController 테스트")
-class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
+class PaymentControllerTest extends BasePaymentControllerTest {
 
   @Mock private PaymentFacade paymentFacade;
 
   @BeforeEach
   void setUp() {
     super.setUpBase();
-    setUpMockMvc(new ApiV1PaymentController(paymentFacade));
-    setSecurityContext(1L, MemberRole.MEMBER, null);
+    setUpMockMvc(new PaymentController(paymentFacade));
+    setSecurityContext(1L, MemberRole.MEMBER);
   }
 
   @Test
