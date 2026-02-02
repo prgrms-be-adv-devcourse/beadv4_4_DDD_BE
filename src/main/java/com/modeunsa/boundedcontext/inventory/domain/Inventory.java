@@ -45,6 +45,13 @@ public class Inventory extends GeneratedIdAndAuditedEntity {
   @Version private Long version;
 
   // ----- 메서드 -----
+  public boolean isOwner(Long requestSellerId) {
+    if (requestSellerId == null || !this.sellerId.equals(requestSellerId)) {
+      return false;
+    }
+    return true;
+  }
+
   public boolean updateInventory(Integer quantity) {
     if (quantity < reservedQuantity) {
       return false;
