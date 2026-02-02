@@ -11,11 +11,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Getter
 public class CustomUserDetails implements UserDetails {
 
-  private final MemberRole role;
   private final Long memberId;
+  private final MemberRole role;
   private final Long sellerId; // nullable
 
-  public CustomUserDetails(MemberRole role, Long memberId, Long sellerId) {
+  public CustomUserDetails(Long memberId, MemberRole role, Long sellerId) {
     this.memberId = memberId;
     this.role = role;
     this.sellerId = sellerId;
