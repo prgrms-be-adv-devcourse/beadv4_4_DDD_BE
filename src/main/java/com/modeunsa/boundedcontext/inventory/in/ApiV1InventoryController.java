@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ApiV1InventoryController {
   private final InventoryFacade inventoryFacade;
 
-  @Operation(summary = "재고 수정", description = "판매자가 상품 실재고를 수정합니다.")
+  @Operation(summary = "실재고 수정", description = "판매자가 상품 실재고를 수정합니다.")
   @PatchMapping("/{productId}")
   public ResponseEntity<ApiResponse> updateInventory(
       @AuthenticationPrincipal CustomUserDetails user,
