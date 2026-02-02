@@ -58,8 +58,8 @@ class PaymentControllerTest extends BasePaymentControllerTest {
             .orderNo(orderNo)
             .orderId(orderId)
             .totalAmount(totalAmount)
-            .needsCharge(false)
-            .chargeAmount(BigDecimal.ZERO)
+            .needsPgPayment(false)
+            .pgPaymentAmount(BigDecimal.ZERO)
             .build();
 
     when(paymentFacade.requestPayment(any(), any())).thenReturn(response);

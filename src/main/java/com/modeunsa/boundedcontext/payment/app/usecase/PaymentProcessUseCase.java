@@ -41,7 +41,7 @@ public class PaymentProcessUseCase {
     PaymentAccount buyerAccount = accounts.get(paymentProcessContext.buyerId());
 
     // 3. 결제 처리
-    if (paymentProcessContext.needsCharge()) {
+    if (paymentProcessContext.needsPgPayment()) {
       processWithCharge(holderAccount, buyerAccount, paymentProcessContext);
     } else {
       processWithoutCharge(holderAccount, buyerAccount, paymentProcessContext);
@@ -57,7 +57,7 @@ public class PaymentProcessUseCase {
         paymentAccountSupport.getPaymentAccountByMemberId(paymentProcessContext.buyerId());
 
     // 2. 결제 처리
-    if (paymentProcessContext.needsCharge()) {
+    if (paymentProcessContext.needsPgPayment()) {
       processWithCharge(holderAccount, buyerAccount, paymentProcessContext);
     } else {
       processWithoutCharge(holderAccount, buyerAccount, paymentProcessContext);

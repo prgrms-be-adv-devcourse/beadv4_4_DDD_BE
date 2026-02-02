@@ -10,6 +10,7 @@ import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentDomainException;
+import com.modeunsa.boundedcontext.payment.domain.types.ProviderType;
 import com.modeunsa.global.eventpublisher.EventPublisher;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
@@ -26,14 +27,18 @@ public class PaymentInProgressUseCase {
   private final PaymentAccountSupport paymentAccountSupport;
   private final EventPublisher eventPublisher;
 
-  public PaymentProcessContext execute(PaymentProcessContext context) {
+  public PaymentProcessContext executeForPaymentRequest(PaymentProcessContext context) {
     try {
+      return processForPaymentRequest(context);
+    } catch (PaymentDomainException e) {
+      handleFailure(context, e);
+      throw e;
+    }
+  }
 
-      if (!context.needsCharge()) {
-        return processWithoutPg(context);
-      } else {
-        return processWithPg(context);
-      }
+  public void executeForPaymentConfirm(PaymentProcessContext context) {
+    try {
+      processForPaymentConfirm(context);
     } catch (PaymentDomainException e) {
       handleFailure(context, e);
       throw e;
@@ -41,10 +46,13 @@ public class PaymentInProgressUseCase {
   }
 
   /*
-   * 결제 진행 가능 여부를 검증하고, 부족 금액을 계산하여 반환한다.
+   * 결제 진행 가능 여부를 검증하고, PG 충전 필요 시 부족/전액 금액을 계산하여 반환한다.
+   * - Request 경로(requestPayment): needsCharge=false 로 들어옴. ProviderType 에 따라 분기.
+   * - MODEUNSA_PAY: 잔액 부족분만 PG 결제 → shortAmount = 부족금액, needCharge = 부족 시 true.
+   * - TOSS_PAYMENTS(PG): 전액 PG 결제 → shortAmount = totalAmount, needCharge = true.
    * 결제 실패 시에는 PaymentFailedEvent를 발행하여 결제 실패 이력을 남긴다.
    */
-  private PaymentProcessContext processWithoutPg(PaymentProcessContext context) {
+  private PaymentProcessContext processForPaymentRequest(PaymentProcessContext context) {
 
     // 1. payment 상태를 IN_PROGRESS로 변경
     Payment payment = loadAndMarkInProgress(context);
@@ -52,21 +60,33 @@ public class PaymentInProgressUseCase {
     // 2. 구매자 검증
     PaymentMember buyer = loadAndValidateBuyer(context.buyerId());
 
-    // 3. 결제 계좌 조회
-    PaymentAccount paymentAccount = loadBuyerAccount(buyer.getId());
-
-    // 4. 부족 금액 계산
     BigDecimal totalAmount = context.totalAmount();
-    BigDecimal shortAmount = paymentAccount.calculateInsufficientAmount(totalAmount);
-    boolean needCharge = shortAmount.compareTo(BigDecimal.ZERO) > 0;
+    final BigDecimal requestPgAmount;
+    final boolean needPgPayment;
 
-    // 5. 충전 필요 여부, 부족 금액 정보 반영
-    payment.updateChargeInfo(needCharge, shortAmount);
+    if (context.providerType() == ProviderType.TOSS_PAYMENTS) {
+      // PG(토스) 전액 결제: 잔액 사용 없이 전액을 PG로 결제
+      requestPgAmount = totalAmount;
+      needPgPayment = true;
+    } else {
+      // 뭐든사페이: 잔액 부족분만 PG로 충전
+      PaymentAccount paymentAccount = loadBuyerAccount(buyer.getId());
+      requestPgAmount = paymentAccount.calculateInsufficientAmount(totalAmount);
+      needPgPayment = requestPgAmount.compareTo(BigDecimal.ZERO) > 0;
+    }
+
+    // 3. 충전 필요 여부, 부족/전액 금액 정보 반영
+    payment.updateChargeInfo(needPgPayment, requestPgAmount);
 
     return PaymentProcessContext.fromPaymentForInProgress(payment);
   }
 
-  private PaymentProcessContext processWithPg(PaymentProcessContext context) {
+  /*
+   * 결제 확인 요청에서 부족 금액과 PG 결제 금액이 일치하는지 검증하고,
+   * PG 결제 정보를 Payment 엔티티에 반영한다.
+   * 결제 실패 시에는 PaymentFailedEvent를 발행하여 결제 실패 이력을 남긴다.
+   */
+  private void processForPaymentConfirm(PaymentProcessContext context) {
 
     // 1. payment 상태를 IN_PROGRESS로 변경
     Payment payment = loadAndMarkInProgress(context);
@@ -82,8 +102,6 @@ public class PaymentInProgressUseCase {
 
     // 5. PG 결제 정보 반영
     payment.updatePgInfo(context);
-
-    return PaymentProcessContext.fromPaymentForInProgress(payment);
   }
 
   private Payment loadAndMarkInProgress(PaymentProcessContext context) {

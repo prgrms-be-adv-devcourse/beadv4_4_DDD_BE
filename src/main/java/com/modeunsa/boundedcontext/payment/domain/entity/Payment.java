@@ -75,10 +75,10 @@ public class Payment extends AuditedEntity {
   @Column(nullable = false, precision = 19, scale = 2)
   private BigDecimal totalAmount;
 
-  private boolean needCharge;
+  private boolean needPgPayment;
 
   @Column(precision = 19, scale = 2)
-  private BigDecimal shortAmount;
+  private BigDecimal requestPgAmount;
 
   @Column(nullable = false)
   private LocalDateTime paymentDeadlineAt;
@@ -192,23 +192,23 @@ public class Payment extends AuditedEntity {
     changeStatus(PaymentStatus.IN_PROGRESS);
   }
 
-  public void updateChargeInfo(boolean needCharge, BigDecimal shortAmount) {
-    this.needCharge = needCharge;
-    this.shortAmount = shortAmount;
+  public void updateChargeInfo(boolean needPgPayment, BigDecimal requestPgAmount) {
+    this.needPgPayment = needPgPayment;
+    this.requestPgAmount = requestPgAmount;
   }
 
   public void validateChargeAmount(BigDecimal chargeAmount) {
     if (chargeAmount == null) {
       throw new PaymentDomainException(
-          INVALID_CHARGE_AMOUNT, getId().getMemberId(), getId().getOrderNo(), this.shortAmount);
+          INVALID_CHARGE_AMOUNT, getId().getMemberId(), getId().getOrderNo(), this.requestPgAmount);
     }
 
-    if (shortAmount.compareTo(chargeAmount) != 0) {
+    if (requestPgAmount.compareTo(chargeAmount) != 0) {
       throw new PaymentDomainException(
           INVALID_CHARGE_AMOUNT,
           getId().getMemberId(),
           getId().getOrderNo(),
-          this.shortAmount,
+          this.requestPgAmount,
           chargeAmount);
     }
   }
