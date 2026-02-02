@@ -14,7 +14,7 @@ public class InventoryApiClient {
       @Value("${internal.api-key}") String internalApiKey) {
     this.restClient =
         RestClient.builder()
-            .baseUrl(internalBackUrl + "/api/v1/inventories")
+            .baseUrl(internalBackUrl + "/api/v2/inventories")
             .defaultHeader("X-INTERNAL-API-KEY", internalApiKey)
             .build();
   }
