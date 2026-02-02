@@ -52,12 +52,21 @@ public class KafkaResolver {
 
   // key 는 같은 topic 안에서 동일한 key 라면 같은 파티션에서 순차적으로 메시지가 처리된다.
   public String resolveKey(Object event) {
-    if (event instanceof MemberSignupEvent e) return "member-%d".formatted(e.memberId());
-    if (event instanceof MemberBasicInfoUpdatedEvent e) return "member-%d".formatted(e.memberId());
-    if (event instanceof MemberProfileCreatedEvent e) return "member-%d".formatted(e.memberId());
-    if (event instanceof SellerRegisteredEvent e) return "member-%d".formatted(e.memberId());
-    if (event instanceof MemberDeliveryAddressAddedEvent e)
+    if (event instanceof MemberSignupEvent e) {
       return "member-%d".formatted(e.memberId());
+    }
+    if (event instanceof MemberBasicInfoUpdatedEvent e) {
+      return "member-%d".formatted(e.memberId());
+    }
+    if (event instanceof MemberProfileCreatedEvent e) {
+      return "member-%d".formatted(e.memberId());
+    }
+    if (event instanceof SellerRegisteredEvent e) {
+      return "member-%d".formatted(e.memberId());
+    }
+    if (event instanceof MemberDeliveryAddressAddedEvent e) {
+      return "member-%d".formatted(e.memberId());
+    }
 
     if (event instanceof PaymentMemberCreatedEvent e) {
       return "payment-member-%d".formatted(e.memberId());
