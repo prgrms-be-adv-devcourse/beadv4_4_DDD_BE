@@ -1,6 +1,7 @@
 package com.modeunsa.global.aop;
 
 import com.modeunsa.global.event.TraceableEvent;
+import com.modeunsa.global.eventpublisher.topic.DomainEventEnvelope;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -33,7 +34,10 @@ public class EventListenerLogAspect {
   @Pointcut("@annotation(org.springframework.context.event.EventListener)")
   public void eventListener() {}
 
-  @Around("transactionalEventListener() || eventListener()")
+  @Pointcut("@annotation(org.springframework.kafka.annotation.KafkaListener)")
+  public void kafkaListener() {}
+
+  @Around("transactionalEventListener() || eventListener() || kafkaListener()")
   public Object logEventListener(ProceedingJoinPoint joinPoint) throws Throwable {
     StopWatch stopWatch = new StopWatch();
     stopWatch.start();
@@ -92,11 +96,18 @@ public class EventListenerLogAspect {
   }
 
   private String extractTraceIdFromEvent(Object[] args) {
-    if (args.length > 0 && args[0] instanceof TraceableEvent traceableEvent) {
-      String traceId = traceableEvent.traceId();
-      if (StringUtils.hasText(traceId)) {
-        return traceId;
-      }
+    if (args.length == 0) {
+      return UNKNOWN_TRACE_ID;
+    }
+
+    Object first = args[0];
+    if (first instanceof TraceableEvent traceableEvent
+        && StringUtils.hasText(traceableEvent.traceId())) {
+      return traceableEvent.traceId();
+    }
+
+    if (first instanceof DomainEventEnvelope envelope && StringUtils.hasText(envelope.traceId())) {
+      return envelope.traceId();
     }
 
     String traceId = MDC.get(TRACE_ID_MDC_KEY);

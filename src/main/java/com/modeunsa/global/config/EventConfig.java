@@ -4,12 +4,12 @@ import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.global.eventpublisher.KafkaDomainEventPublisher;
 import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
 import com.modeunsa.global.eventpublisher.topic.KafkaResolver;
+import com.modeunsa.global.json.JsonConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.KafkaTemplate;
-import tools.jackson.databind.ObjectMapper;
 
 @Configuration
 public class EventConfig {
@@ -20,10 +20,10 @@ public class EventConfig {
       ApplicationEventPublisher applicationEventPublisher,
       KafkaTemplate<String, Object> kafkaTemplate,
       KafkaResolver topicResolver,
-      ObjectMapper objectMapper) {
+      JsonConverter jsonConverter) {
 
     return "kafka".equalsIgnoreCase(type)
-        ? new KafkaDomainEventPublisher(kafkaTemplate, topicResolver, objectMapper)
+        ? new KafkaDomainEventPublisher(kafkaTemplate, topicResolver, jsonConverter)
         : new SpringDomainEventPublisher(applicationEventPublisher);
   }
 }
