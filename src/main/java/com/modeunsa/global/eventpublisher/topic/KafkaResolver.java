@@ -2,8 +2,12 @@ package com.modeunsa.global.eventpublisher.topic;
 
 import com.modeunsa.boundedcontext.payment.app.event.PaymentFailedEvent;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentMemberCreatedEvent;
+import com.modeunsa.shared.member.event.MemberBasicInfoUpdatedEvent;
 import com.modeunsa.shared.member.event.MemberSignupEvent;
+import com.modeunsa.shared.member.event.SellerRegisteredEvent;
 import com.modeunsa.shared.order.event.RefundRequestedEvent;
+import com.modeunsa.shared.product.event.ProductCreatedEvent;
+import com.modeunsa.shared.product.event.ProductUpdatedEvent;
 import com.modeunsa.shared.settlement.event.SettlementCompletedPayoutEvent;
 import org.springframework.stereotype.Component;
 
@@ -14,23 +18,45 @@ public class KafkaResolver {
   private static final String PAYMENT_EVENTS_TOPIC = "payment-events";
   private static final String ORDER_EVENTS_TOPIC = "order-events";
   private static final String SETTLEMENT_EVENTS_TOPIC = "settlement-events";
+  private static final String PRODUCT_EVENTS_TOPIC = "product-events";
 
   public String resolveTopic(Object event) {
 
+    // member
     if (event instanceof MemberSignupEvent) {
       return MEMBER_EVENTS_TOPIC;
     }
+    if (event instanceof MemberBasicInfoUpdatedEvent) {
+      return MEMBER_EVENTS_TOPIC;
+    }
+    if (event instanceof SellerRegisteredEvent) {
+      return MEMBER_EVENTS_TOPIC;
+    }
+
+    // payment
     if (event instanceof PaymentMemberCreatedEvent) {
       return PAYMENT_EVENTS_TOPIC;
     }
     if (event instanceof PaymentFailedEvent) {
       return PAYMENT_EVENTS_TOPIC;
     }
+
+    // order
     if (event instanceof RefundRequestedEvent) {
       return ORDER_EVENTS_TOPIC;
     }
+
+    // settlement
     if (event instanceof SettlementCompletedPayoutEvent) {
       return SETTLEMENT_EVENTS_TOPIC;
+    }
+
+    // product
+    if (event instanceof ProductCreatedEvent) {
+      return PRODUCT_EVENTS_TOPIC;
+    }
+    if (event instanceof ProductUpdatedEvent) {
+      return PRODUCT_EVENTS_TOPIC;
     }
 
     return "unexpected-events-topic";
@@ -40,6 +66,12 @@ public class KafkaResolver {
   public String resolveKey(Object event) {
     if (event instanceof MemberSignupEvent e) {
       return "member-%d".formatted(e.memberId());
+    }
+    if (event instanceof MemberBasicInfoUpdatedEvent e) {
+      return "member-%d".formatted(e.memberId());
+    }
+    if (event instanceof SellerRegisteredEvent e) {
+      return "member-%d-seller-%d".formatted(e.memberId(), e.memberSellerId());
     }
     if (event instanceof PaymentMemberCreatedEvent e) {
       return "payment-member-%d".formatted(e.memberId());
@@ -52,6 +84,12 @@ public class KafkaResolver {
     }
     if (event instanceof SettlementCompletedPayoutEvent e) {
       return "settlement";
+    }
+    if (event instanceof ProductCreatedEvent e) {
+      return "product-%d".formatted(e.productDto().getId());
+    }
+    if (event instanceof ProductUpdatedEvent e) {
+      return "product-%d".formatted(e.productDto().getId());
     }
 
     return "unexpected-key";
