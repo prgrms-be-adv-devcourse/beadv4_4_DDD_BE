@@ -10,10 +10,10 @@ const FASHION_CATEGORIES = [
   { label: '아우터', href: '/fashion?category=outer', value: 'outer' },
   { label: '상의', href: '/fashion?category=upper', value: 'upper' },
   { label: '하의', href: '/fashion?category=lower', value: 'lower' },
-  { label: '원피스/스커트', href: '/fashion?category=dress', value: 'dress' },
+  { label: '모자', href: '/fashion?category=cap', value: 'cap' },
   { label: '가방', href: '/fashion?category=bag', value: 'bag' },
   { label: '신발', href: '/fashion?category=shoes', value: 'shoes' },
-  { label: '액세서리', href: '/fashion?category=accessory', value: 'accessory' },
+  { label: '뷰티', href: '/fashion?category=beauty', value: 'beauty' },
 ] as const
 
 /** 프론트 category 쿼리 → 백엔드 ProductCategory (OUTER, UPPER, LOWER, CAP, SHOES, BAG, BEAUTY) */
@@ -23,22 +23,15 @@ function toApiCategory(value: string | null): string {
     outer: 'OUTER',
     upper: 'UPPER',
     lower: 'LOWER',
-    dress: 'UPPER',
+    cap: 'CAP',
     bag: 'BAG',
     shoes: 'SHOES',
-    accessory: 'CAP',
+    beauty: 'BEAUTY',
   }
-  return map[value] ?? 'UPPER'
+  return map[value] ?? 'OUTER'
 }
 
 const PAGE_SIZE = 12
-
-interface ProductImageDto {
-  id: number
-  imageUrl: string
-  isPrimary: boolean
-  sortOrder: number
-}
 
 interface ProductResponse {
   id: number
@@ -54,7 +47,7 @@ interface ProductResponse {
   saleStatus: string
   stock: number
   favoriteCount: number
-  images: ProductImageDto[]
+  primaryImageUrl: string
   createdAt: string
   updatedAt: string
   createdBy: number
@@ -91,6 +84,29 @@ export default function FashionPage() {
   const [pageInfo, setPageInfo] = useState<PageInfo | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  const HeartFilledIcon = () => (
+      <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="#e60023"
+          xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M12 21s-6.716-4.514-9.428-7.226C.78 11.98.78 8.993 2.69 7.083c1.91-1.91 4.897-1.91 6.807 0L12 9.586l2.503-2.503c1.91-1.91 4.897-1.91 6.807 0 1.91 1.91 1.91 4.897 0 6.807C18.716 16.486 12 21 12 21z" />
+      </svg>
+  );
+
+  const formatCount = (count: number): string => {
+    const format = (value: number, unit: string) =>
+        `${Number(value.toFixed(1))}${unit}`;
+
+    if (count < 1000) return count.toString();
+    if (count < 10_000) return format(count / 1000, '천');
+    if (count < 100_000_000) return format(count / 10_000, '만');
+    return format(count / 100_000_000, '억');
+  };
+
 
   const fetchProducts = useCallback(async () => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
@@ -219,20 +235,22 @@ export default function FashionPage() {
             <>
               <div className="products-grid">
                 {products.map((product) => {
-                  const primaryImage = product.images?.find((i) => i.isPrimary) ?? product.images?.[0]
+                  const primaryImageUrl = product.primaryImageUrl
                   return (
                     <Link key={product.id} href={`/products/${product.id}`} className="product-card">
                       <div className="product-image">
-                        {primaryImage?.imageUrl ? (
-                          <img
-                            src={primaryImage.imageUrl}
+                        <img
+                            src={product.primaryImageUrl}
                             alt={product.name}
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                          />
-                        ) : (
-                          <div className="image-placeholder">이미지</div>
-                        )}
+                        />
+
+                        {/* 하트 오버레이 */}
+                        <div className="favorite-overlay">
+                          <HeartFilledIcon />
+                            <span className="favorite-count">{formatCount(product.favoriteCount)}</span>
+                        </div>
                       </div>
+
                       <div className="product-info">
                         <div className="product-brand">{product.sellerBusinessName || '브랜드'}</div>
                         <div className="product-name">{product.name}</div>

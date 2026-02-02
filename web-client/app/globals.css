@@ -921,6 +921,10 @@ a {
   color: #999;
   font-size: 18px;
   font-weight: 500;
+  object-fit: cover;       /* 비율 유지하며 꽉 채움 */
+  width: 100%;
+  height: 100%;           /* 기존 placeholder 높이 */
+  border-radius: 8px;
 }
 
 .thumbnail-images {
@@ -947,6 +951,10 @@ a {
 .image-placeholder-small {
   color: #999;
   font-size: 12px;
+  object-fit: cover;       /* 비율 유지하며 꽉 채움 */
+  width: 100%;             /* 기존 placeholder 사이즈 */
+  height: 100%;
+  border-radius: 8px;
 }
 
 .product-info-section {
@@ -956,6 +964,11 @@ a {
 }
 
 .product-brand-name {
+  font-size: 16px;
+  color: #000000;
+}
+
+.product-category {
   font-size: 14px;
   color: #999;
 }
@@ -990,6 +1003,71 @@ a {
   font-weight: 700;
   color: #f44336;
 }
+
+.favorite-button {
+  background: #fafafa;
+  border: none;
+  padding: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 하트 클릭 영역 */
+.favorite-icon {
+  cursor: pointer;
+  display: flex;
+}
+
+/* SVG는 이벤트 차단 (wrapper가 받게) */
+.favorite-icon svg {
+  pointer-events: none;
+}
+
+/* 숫자는 클릭 불가 */
+.favorite-count {
+  pointer-events: none;
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+/*!* 활성화 상태 *!*/
+/*.favorite-button.active .favorite-count {*/
+/*  color: #e60023;*/
+/*}*/
+
+/* 이미지 */
+.product-image {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  display: block;
+}
+
+/* ❤️ 오른쪽 하단 고정 */
+.favorite-overlay {
+  position: absolute;
+  right: 8px;              /* 👉 오른쪽 */
+  bottom: 8px;             /* 👉 하단 */
+
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  padding: 4px 6px;
+  border-radius: 12px;
+
+  background: rgba(255, 255, 255, 0.9);
+
+  font-size: 12px;
+  font-weight: 600;
+  color: #111;
+
+  pointer-events: none;    /* 정보용 */
+}
+
 
 .product-divider {
   height: 1px;
