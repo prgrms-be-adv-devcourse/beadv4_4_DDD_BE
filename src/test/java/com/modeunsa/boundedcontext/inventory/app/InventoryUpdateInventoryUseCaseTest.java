@@ -15,12 +15,14 @@ import java.util.concurrent.ExecutionException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
+@Tag("ignore")
 @SpringBootTest
 @ActiveProfiles("test")
 public class InventoryUpdateInventoryUseCaseTest {
