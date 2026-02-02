@@ -31,7 +31,7 @@ class PaymentControllerTest extends BasePaymentControllerTest {
   void setUp() {
     super.setUpBase();
     setUpMockMvc(new V1PaymentController(paymentFacade));
-    setSecurityContext(1L, MemberRole.MEMBER);
+    setSecurityContext(1L, MemberRole.MEMBER, null);
   }
 
   @Test
