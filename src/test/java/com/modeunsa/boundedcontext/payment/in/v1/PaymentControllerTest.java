@@ -10,6 +10,8 @@ import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentResponse;
+import com.modeunsa.boundedcontext.payment.domain.types.PaymentPurpose;
+import com.modeunsa.boundedcontext.payment.domain.types.ProviderType;
 import com.modeunsa.boundedcontext.payment.in.BasePaymentControllerTest;
 import com.modeunsa.boundedcontext.payment.in.api.v1.V1PaymentController;
 import com.modeunsa.global.exception.GeneralException;
@@ -50,6 +52,8 @@ class PaymentControllerTest extends BasePaymentControllerTest {
             .orderNo(orderNo)
             .totalAmount(totalAmount)
             .paymentDeadlineAt(paymentDeadlineAt)
+            .providerType(ProviderType.MODEUNSA_PAY)
+            .paymentPurpose(PaymentPurpose.PRODUCT_PURCHASE)
             .build();
 
     PaymentResponse response =
@@ -88,6 +92,8 @@ class PaymentControllerTest extends BasePaymentControllerTest {
             .orderNo("ORDER12345")
             .totalAmount(BigDecimal.valueOf(50000))
             .paymentDeadlineAt(LocalDateTime.now().plusDays(1))
+            .providerType(ProviderType.MODEUNSA_PAY)
+            .paymentPurpose(PaymentPurpose.PRODUCT_PURCHASE)
             .build();
 
     // when, then
@@ -112,6 +118,8 @@ class PaymentControllerTest extends BasePaymentControllerTest {
             .orderNo("ORDER12345")
             .totalAmount(BigDecimal.ZERO)
             .paymentDeadlineAt(LocalDateTime.now().plusDays(1))
+            .providerType(ProviderType.MODEUNSA_PAY)
+            .paymentPurpose(PaymentPurpose.PRODUCT_PURCHASE)
             .build();
 
     // when, then
@@ -136,6 +144,8 @@ class PaymentControllerTest extends BasePaymentControllerTest {
             .orderNo("ORDER12345")
             .totalAmount(BigDecimal.valueOf(50000))
             .paymentDeadlineAt(LocalDateTime.now().plusDays(1))
+            .providerType(ProviderType.MODEUNSA_PAY)
+            .paymentPurpose(PaymentPurpose.PRODUCT_PURCHASE)
             .build();
 
     when(paymentFacade.requestPayment(any(), any()))
@@ -163,6 +173,8 @@ class PaymentControllerTest extends BasePaymentControllerTest {
             .orderNo("ORDER12345")
             .totalAmount(BigDecimal.valueOf(50000))
             .paymentDeadlineAt(LocalDateTime.now().plusDays(1))
+            .providerType(ProviderType.MODEUNSA_PAY)
+            .paymentPurpose(PaymentPurpose.PRODUCT_PURCHASE)
             .build();
 
     when(paymentFacade.requestPayment(any(), any()))
@@ -190,6 +202,8 @@ class PaymentControllerTest extends BasePaymentControllerTest {
             .orderNo("ORDER12345")
             .totalAmount(BigDecimal.valueOf(50000))
             .paymentDeadlineAt(LocalDateTime.now().plusDays(1))
+            .providerType(ProviderType.MODEUNSA_PAY)
+            .paymentPurpose(PaymentPurpose.PRODUCT_PURCHASE)
             .build();
 
     when(paymentFacade.requestPayment(any(), any()))
