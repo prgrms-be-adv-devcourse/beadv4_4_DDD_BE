@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ApiV1InventoryController {
   private final InventoryFacade inventoryFacade;
 
-  @Operation(summary = "재고 수정", description = "상품 실재고를 수정합니다.")
+  @Operation(summary = "재고 수정", description = "판매자가 상품 실재고를 수정합니다.")
   @PatchMapping("/{productId}")
   public ResponseEntity<ApiResponse> updateInventory(
       @AuthenticationPrincipal CustomUserDetails user,
@@ -28,7 +28,7 @@ public class ApiV1InventoryController {
       @Valid @RequestBody InventoryUpdateRequest inventoryUpdateRequest) {
 
     // TODO: CustomUserDetails에서 sellerId가져오기
-    Long sellerId = 7L;
+    Long sellerId = 1L;
     InventoryUpdateResponse response =
         inventoryFacade.updateInventory(sellerId, productId, inventoryUpdateRequest);
 
