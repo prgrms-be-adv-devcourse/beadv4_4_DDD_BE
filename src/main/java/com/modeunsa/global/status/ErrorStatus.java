@@ -171,7 +171,11 @@ public enum ErrorStatus {
   ELASTICSEARCH_INDEX_FAILED(HttpStatus.NOT_FOUND, "ELASTICSEARCH_400_002", "인덱싱에 실패하였습니다."),
   ELASTICSEARCH_DELETE_FAILED(HttpStatus.NOT_FOUND, "ELASTICSEARCH_400_003", "삭제에 실패하였습니다."),
   ELASTICSEARCH_BULKINDEX_FAILED(HttpStatus.NOT_FOUND, "ELASTICSEARCH_400_004", "대량 인덱싱에 실패하였습니다."),
-  ;
+
+  // Inventory
+  INVENTORY_NOT_FOUND(HttpStatus.NOT_FOUND, "INVENTORY_404_001", "상품 재고가 등록되지 않았습니다."),
+  INVENTORY_ACCESS_DENIED(HttpStatus.FORBIDDEN, "INVENTORY_403_001", "해당 재고에 대한 접근 권한이 없습니다."),
+  INVALID_STOCK_QUANTITY(HttpStatus.BAD_REQUEST, "INVENTORY_400_001", "현재 예약된 재고 수량보다 적을 수 없습니다.");
 
   private final HttpStatus httpStatus;
   private final String code;
