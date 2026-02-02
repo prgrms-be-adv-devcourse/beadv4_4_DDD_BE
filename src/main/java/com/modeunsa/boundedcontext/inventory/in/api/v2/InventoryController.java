@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.inventory.in;
+package com.modeunsa.boundedcontext.inventory.in.api.v2;
 
 import com.modeunsa.boundedcontext.inventory.app.InventoryFacade;
 import com.modeunsa.global.response.ApiResponse;
