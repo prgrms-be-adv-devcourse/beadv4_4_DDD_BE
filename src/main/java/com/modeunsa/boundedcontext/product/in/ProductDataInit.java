@@ -13,14 +13,13 @@ import java.util.List;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 
 @Profile("!test")
 @ConditionalOnProperty(name = "app.data-init.enabled", havingValue = "true", matchIfMissing = true)
-@Configuration
+// @Configuration
 public class ProductDataInit {
   private final ProductDataInit self;
   private final ProductRepository productRepository;
