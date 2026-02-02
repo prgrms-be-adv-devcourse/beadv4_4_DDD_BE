@@ -11,12 +11,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Getter
 public class CustomUserDetails implements UserDetails {
 
-  private final Long memberId;
   private final MemberRole role;
+  private final Long memberId;
+  private final Long sellerId; // nullable
 
-  public CustomUserDetails(Long memberId, MemberRole role) {
+  public CustomUserDetails(MemberRole role, Long memberId, Long sellerId) {
     this.memberId = memberId;
     this.role = role;
+    this.sellerId = sellerId;
   }
 
   @Override
@@ -52,5 +54,9 @@ public class CustomUserDetails implements UserDetails {
   @Override
   public boolean isEnabled() {
     return true;
+  }
+
+  public boolean isSeller() {
+    return MemberRole.SELLER.equals(this.role) && sellerId != null;
   }
 }
