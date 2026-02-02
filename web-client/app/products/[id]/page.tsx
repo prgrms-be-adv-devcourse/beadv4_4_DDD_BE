@@ -59,7 +59,7 @@ export default function ProductDetailPage() {
 
   const fetchProduct = useCallback(async () => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
-    if (!apiUrl) {
+    if (!apiUrl || !productId) {
       setProduct(null)
       return
     }
@@ -83,7 +83,7 @@ export default function ProductDetailPage() {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [productId])
   
   const [product, setProduct] = useState<ProductDetailResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -92,10 +92,13 @@ export default function ProductDetailPage() {
 
   useEffect(() => {
     fetchProduct()
+  }, [fetchProduct])
+
+  useEffect(() => {
     if (!selectedImageUrl && product?.images && product.images.length > 0) {
       setSelectedImageUrl(product.images[0].imageUrl);
     }
-  }, [fetchProduct, product?.images, selectedImageUrl])
+  }, [product, selectedImageUrl])
 
   const [quantity, setQuantity] = useState(1)
   const [isCreatingOrder, setIsCreatingOrder] = useState(false)
