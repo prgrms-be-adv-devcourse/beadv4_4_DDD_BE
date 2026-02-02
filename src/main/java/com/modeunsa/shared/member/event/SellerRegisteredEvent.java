@@ -1,7 +1,5 @@
 package com.modeunsa.shared.member.event;
 
-import com.modeunsa.boundedcontext.member.domain.types.SellerStatus;
-
 public record SellerRegisteredEvent(
     Long memberId,
     Long memberSellerId,

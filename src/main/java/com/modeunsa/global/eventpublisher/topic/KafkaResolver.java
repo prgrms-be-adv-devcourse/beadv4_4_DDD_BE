@@ -24,14 +24,14 @@ public class KafkaResolver {
 
   public String resolveTopic(Object event) {
 
-    if (event instanceof MemberSignupEvent ||
-        event instanceof MemberBasicInfoUpdatedEvent ||
-        event instanceof MemberProfileCreatedEvent ||
-        event instanceof MemberProfileUpdatedEvent ||
-        event instanceof MemberDeliveryAddressAddedEvent ||
-        event instanceof MemberDeliveryAddressUpdatedEvent ||
-        event instanceof MemberDeliveryAddressDeletedEvent ||
-        event instanceof SellerRegisteredEvent) {
+    if (event instanceof MemberSignupEvent
+        || event instanceof MemberBasicInfoUpdatedEvent
+        || event instanceof MemberProfileCreatedEvent
+        || event instanceof MemberProfileUpdatedEvent
+        || event instanceof MemberDeliveryAddressAddedEvent
+        || event instanceof MemberDeliveryAddressUpdatedEvent
+        || event instanceof MemberDeliveryAddressDeletedEvent
+        || event instanceof SellerRegisteredEvent) {
       return MEMBER_EVENTS_TOPIC;
     }
     if (event instanceof PaymentMemberCreatedEvent) {
@@ -56,7 +56,8 @@ public class KafkaResolver {
     if (event instanceof MemberBasicInfoUpdatedEvent e) return "member-%d".formatted(e.memberId());
     if (event instanceof MemberProfileCreatedEvent e) return "member-%d".formatted(e.memberId());
     if (event instanceof SellerRegisteredEvent e) return "member-%d".formatted(e.memberId());
-    if (event instanceof MemberDeliveryAddressAddedEvent e) return "member-%d".formatted(e.memberId());
+    if (event instanceof MemberDeliveryAddressAddedEvent e)
+      return "member-%d".formatted(e.memberId());
 
     if (event instanceof PaymentMemberCreatedEvent e) {
       return "payment-member-%d".formatted(e.memberId());
