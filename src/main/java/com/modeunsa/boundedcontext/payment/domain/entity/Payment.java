@@ -192,7 +192,7 @@ public class Payment extends AuditedEntity {
     changeStatus(PaymentStatus.IN_PROGRESS);
   }
 
-  public void updateChargeInfo(boolean needPgPayment, BigDecimal requestPgAmount) {
+  public void updatePgRequestInfo(boolean needPgPayment, BigDecimal requestPgAmount) {
     this.needPgPayment = needPgPayment;
     this.requestPgAmount = requestPgAmount;
   }

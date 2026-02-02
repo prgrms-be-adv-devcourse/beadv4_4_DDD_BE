@@ -76,7 +76,7 @@ public class PaymentInProgressUseCase {
     }
 
     // 3. 충전 필요 여부, 부족/전액 금액 정보 반영
-    payment.updateChargeInfo(needPgPayment, requestPgAmount);
+    payment.updatePgRequestInfo(needPgPayment, requestPgAmount);
 
     return PaymentProcessContext.fromPaymentForInProgress(payment);
   }
