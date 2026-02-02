@@ -47,9 +47,9 @@ public class PaymentInProgressUseCase {
 
   /*
    * 결제 진행 가능 여부를 검증하고, PG 충전 필요 시 부족/전액 금액을 계산하여 반환한다.
-   * - Request 경로(requestPayment): needsCharge=false 로 들어옴. ProviderType 에 따라 분기.
-   * - MODEUNSA_PAY: 잔액 부족분만 PG 결제 → shortAmount = 부족금액, needCharge = 부족 시 true.
-   * - TOSS_PAYMENTS(PG): 전액 PG 결제 → shortAmount = totalAmount, needCharge = true.
+   * - Request 경로(requestPayment): needPgPayment=false 로 들어옴. ProviderType 에 따라 분기.
+   * - MODEUNSA_PAY: 잔액 부족분만 PG 결제 → requestPgAmount = 부족금액, needPgPayment = 부족 시 true.
+   * - TOSS_PAYMENTS(PG): 전액 PG 결제 → requestPgAmount = totalAmount, needPgPayment = true.
    * 결제 실패 시에는 PaymentFailedEvent를 발행하여 결제 실패 이력을 남긴다.
    */
   private PaymentProcessContext processForPaymentRequest(PaymentProcessContext context) {
