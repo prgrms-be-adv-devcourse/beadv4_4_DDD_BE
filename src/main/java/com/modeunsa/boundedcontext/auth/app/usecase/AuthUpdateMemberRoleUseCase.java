@@ -1,5 +1,6 @@
 package com.modeunsa.boundedcontext.auth.app.usecase;
 
+import com.modeunsa.boundedcontext.member.app.support.MemberSupport;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthUpdateMemberRoleUseCase {
   private final MemberRepository memberRepository;
   private final JwtTokenProvider jwtTokenProvider;
+  private final MemberSupport memberSupport;
 
   @Transactional
   public MemberRoleUpdateResponse execute(Long memberId, MemberRole newRole) {
@@ -32,8 +34,11 @@ public class AuthUpdateMemberRoleUseCase {
     memberRepository.save(member);
 
     // 4. 변경된 Role을 바탕으로 새 토큰 세트 생성
-    String accessToken = jwtTokenProvider.createAccessToken(member.getId(), member.getRole());
-    String refreshToken = jwtTokenProvider.createRefreshToken(member.getId(), member.getRole());
+    Long sellerId = memberSupport.getSellerIdByMemberId(memberId);
+    String accessToken =
+        jwtTokenProvider.createAccessToken(member.getId(), member.getRole(), sellerId);
+    String refreshToken =
+        jwtTokenProvider.createRefreshToken(member.getId(), member.getRole(), sellerId);
 
     return new MemberRoleUpdateResponse(accessToken, refreshToken);
   }

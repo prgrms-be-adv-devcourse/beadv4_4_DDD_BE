@@ -18,9 +18,9 @@ public class AuthTokenIssueUseCase {
   private final JwtProperties jwtProperties;
 
   /** Access Token + Refresh Token 발급 및 Redis 저장 */
-  public JwtTokenResponse execute(Long memberId, MemberRole role) {
-    String accessToken = jwtTokenProvider.createAccessToken(memberId, role);
-    String refreshToken = jwtTokenProvider.createRefreshToken(memberId, role);
+  public JwtTokenResponse execute(Long memberId, MemberRole role, Long sellerId) {
+    String accessToken = jwtTokenProvider.createAccessToken(memberId, role, sellerId);
+    String refreshToken = jwtTokenProvider.createRefreshToken(memberId, role, sellerId);
 
     AuthRefreshToken tokenEntity =
         AuthRefreshToken.builder()

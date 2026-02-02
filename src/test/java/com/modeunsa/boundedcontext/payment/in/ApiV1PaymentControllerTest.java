@@ -29,7 +29,7 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
   void setUp() {
     super.setUpBase();
     setUpMockMvc(new ApiV1PaymentController(paymentFacade));
-    setSecurityContext(1L, MemberRole.MEMBER);
+    setSecurityContext(1L, MemberRole.MEMBER, null);
   }
 
   @Test

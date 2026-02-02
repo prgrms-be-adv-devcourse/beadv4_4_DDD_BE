@@ -42,8 +42,8 @@ public abstract class BasePaymentControllerTest {
   }
 
   /** 테스트용 SecurityContext 설정 헬퍼 메서드 */
-  protected void setSecurityContext(Long memberId, MemberRole role) {
-    CustomUserDetails userDetails = new CustomUserDetails(memberId, role);
+  protected void setSecurityContext(Long memberId, MemberRole role, Long sellerId) {
+    CustomUserDetails userDetails = new CustomUserDetails(memberId, role, sellerId);
     UsernamePasswordAuthenticationToken authentication =
         new UsernamePasswordAuthenticationToken(
             userDetails, null, List.of(new SimpleGrantedAuthority("ROLE_" + role.name())));

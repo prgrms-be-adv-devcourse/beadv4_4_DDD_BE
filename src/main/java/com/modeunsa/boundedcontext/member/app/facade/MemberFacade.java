@@ -131,7 +131,7 @@ public class MemberFacade {
     return s3Response;
   }
 
-  /** 판매자 사업자등록증 관련 */
+  /** 판매자 등록 관련 */
   @Transactional
   public SellerRegisterResponse registerSeller(Long memberId, SellerRegisterRequest request) {
     if (!StringUtils.hasText(request.licenseImageRawKey())
@@ -151,8 +151,12 @@ public class MemberFacade {
     sellerRegisterUseCase.execute(memberId, request, s3Response.presignedUrl());
 
     Member member = memberSupport.getMember(memberId);
-    String accessToken = jwtTokenProvider.createAccessToken(member.getId(), member.getRole());
-    String refreshToken = jwtTokenProvider.createRefreshToken(member.getId(), member.getRole());
+    Long sellerId = memberSupport.getSellerIdByMemberId(memberId);
+
+    String accessToken =
+        jwtTokenProvider.createAccessToken(member.getId(), member.getRole(), sellerId);
+    String refreshToken =
+        jwtTokenProvider.createRefreshToken(member.getId(), member.getRole(), sellerId);
 
     return new SellerRegisterResponse(accessToken, refreshToken);
   }

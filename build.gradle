@@ -101,6 +101,10 @@ jar {
 
 tasks.named('test') {
     useJUnitPlatform {
+        // 기본적으로 ignore 태그는 제외
+        excludeTags 'ignore'
+
+        // 필요하면 시스템 프로퍼티로 추가 제외
         def excluded = System.getProperty('junit.excludeTags')
         if (excluded) {
             excludeTags excluded.split(',')   // 예: "ignore,concurrency"
@@ -143,6 +147,14 @@ tasks.named('test') {
     }
 }
 
+tasks.withType(Test).configureEach {
+    systemProperty "file.encoding", "UTF-8"
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
 spotless {
     java {
         googleJavaFormat("1.33.0")
@@ -159,6 +171,9 @@ checkstyle {
     maxWarnings = 0 // 경고가 0개 이상이라면 빌드 시에 에러 발생
     configFile = file("config/checkstyle/google_checks.xml") // rule 적용
     ignoreFailures = false // 위반 시 실패(강제)
+    configProperties = [
+            'charset': 'UTF-8'
+    ]
 }
 
 tasks.withType(Checkstyle).configureEach {
