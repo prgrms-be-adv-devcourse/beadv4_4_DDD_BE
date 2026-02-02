@@ -170,8 +170,8 @@ public class MemberDataInit {
             member.getRealName(),
             member.getEmail(),
             member.getPhoneNumber(),
-            member.getRole(),
-            member.getStatus()));
+            member.getRole().name(),
+            member.getStatus().name()));
   }
 
   private void publishSellerRegisteredEvent(MemberSeller seller) {

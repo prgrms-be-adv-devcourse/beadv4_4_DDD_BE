@@ -50,8 +50,8 @@ public class OAuthMemberRegisterUseCase {
             member.getRealName(),
             member.getEmail(),
             member.getPhoneNumber(),
-            member.getRole(),
-            member.getStatus()));
+            member.getRole().name(),
+            member.getStatus().name()));
 
     return socialAccount;
   }
