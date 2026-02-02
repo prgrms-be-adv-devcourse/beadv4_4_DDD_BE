@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.payment.in;
+package com.modeunsa.boundedcontext.payment.in.v1;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -10,7 +10,8 @@ import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentResponse;
-import com.modeunsa.boundedcontext.payment.in.api.v1.PaymentController;
+import com.modeunsa.boundedcontext.payment.in.BasePaymentControllerTest;
+import com.modeunsa.boundedcontext.payment.in.api.v1.V1PaymentController;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import java.math.BigDecimal;
@@ -29,7 +30,7 @@ class PaymentControllerTest extends BasePaymentControllerTest {
   @BeforeEach
   void setUp() {
     super.setUpBase();
-    setUpMockMvc(new PaymentController(paymentFacade));
+    setUpMockMvc(new V1PaymentController(paymentFacade));
     setSecurityContext(1L, MemberRole.MEMBER);
   }
 

@@ -9,6 +9,7 @@ import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentDomainException;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentStatus;
+import com.modeunsa.boundedcontext.payment.domain.types.ProviderType;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;
@@ -28,7 +29,8 @@ class PaymentTest {
     LocalDateTime futureDeadline = LocalDateTime.now().plusDays(1); // 미래 날짜
 
     PaymentId paymentId = PaymentId.create(memberId, orderNo);
-    Payment payment = Payment.create(paymentId, orderId, totalAmount, futureDeadline);
+    Payment payment =
+        Payment.create(paymentId, orderId, totalAmount, futureDeadline, ProviderType.MODEUNSA_PAY);
 
     // when
     payment.changeInProgress();
@@ -78,7 +80,8 @@ class PaymentTest {
     LocalDateTime pastDeadline = LocalDateTime.now().minusDays(1); // 과거 날짜
 
     PaymentId paymentId = PaymentId.create(memberId, orderNo);
-    Payment payment = Payment.create(paymentId, orderId, totalAmount, pastDeadline);
+    Payment payment =
+        Payment.create(paymentId, orderId, totalAmount, pastDeadline, ProviderType.MODEUNSA_PAY);
 
     // when, then
     assertThatThrownBy(payment::changeInProgress)

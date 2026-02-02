@@ -85,16 +85,16 @@ public class Payment extends AuditedEntity {
 
   @Column(length = 20)
   @Enumerated(EnumType.STRING)
+  private ProviderType paymentProvider;
+
+  @Column(length = 20)
+  @Enumerated(EnumType.STRING)
   private PaymentErrorCode failedErrorCode;
 
   private LocalDateTime failedAt;
 
   @Column(precision = 19, scale = 2)
   private BigDecimal pgPaymentAmount;
-
-  @Column(length = 20)
-  @Enumerated(EnumType.STRING)
-  private ProviderType pgProvider;
 
   @Convert(converter = EncryptedStringConverter.class)
   private String pgPaymentKey;
@@ -121,13 +121,18 @@ public class Payment extends AuditedEntity {
       Set.of(PaymentStatus.PENDING, PaymentStatus.IN_PROGRESS);
 
   public static Payment create(
-      PaymentId id, Long orderId, BigDecimal totalAmount, LocalDateTime paymentDeadlineAt) {
+      PaymentId id,
+      Long orderId,
+      BigDecimal totalAmount,
+      LocalDateTime paymentDeadlineAt,
+      ProviderType providerType) {
     validateTotalAmount(totalAmount);
     return Payment.builder()
         .id(id)
         .orderId(orderId)
         .totalAmount(totalAmount)
         .paymentDeadlineAt(paymentDeadlineAt)
+        .paymentProvider(providerType)
         .status(PaymentStatus.PENDING)
         .build();
   }
@@ -209,7 +214,6 @@ public class Payment extends AuditedEntity {
   }
 
   public void updatePgInfo(PaymentProcessContext context) {
-    this.pgProvider = ProviderType.TOSS_PAYMENTS;
     this.pgPaymentKey = context.paymentKey();
     this.pgCustomerName = context.pgCustomerName();
     this.pgCustomerEmail = context.pgCustomerEmail();
