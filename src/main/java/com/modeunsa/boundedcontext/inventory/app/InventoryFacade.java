@@ -2,6 +2,7 @@ package com.modeunsa.boundedcontext.inventory.app;
 
 import com.modeunsa.boundedcontext.inventory.domain.InventoryProduct;
 import com.modeunsa.shared.inventory.dto.InventoryDto;
+import com.modeunsa.shared.inventory.dto.InventoryReserveRequest;
 import com.modeunsa.shared.inventory.dto.InventoryUpdateRequest;
 import com.modeunsa.shared.inventory.dto.InventoryUpdateResponse;
 import com.modeunsa.shared.product.dto.ProductDto;
@@ -44,7 +45,7 @@ public class InventoryFacade {
   }
 
   @Transactional
-  public void reserveInventory(Long productId, InventoryUpdateRequest inventoryUpdateRequest) {
-    inventoryReserveInventoryUseCase.reserveInventory(productId, inventoryUpdateRequest);
+  public void reserveInventory(Long productId, InventoryReserveRequest request) {
+    inventoryReserveInventoryUseCase.reserveInventory(productId, request);
   }
 }

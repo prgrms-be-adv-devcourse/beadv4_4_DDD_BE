@@ -5,6 +5,7 @@ import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.global.status.SuccessStatus;
 import com.modeunsa.shared.inventory.dto.InventoryDto;
+import com.modeunsa.shared.inventory.dto.InventoryReserveRequest;
 import com.modeunsa.shared.inventory.dto.InventoryUpdateRequest;
 import com.modeunsa.shared.inventory.dto.InventoryUpdateResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -52,9 +53,9 @@ public class InventoryController {
   }
 
   @Operation(summary = "예약재고 수정", description = "(내부 모듈) 회원이 주문한 상품의 예약재고를 수정합니다.")
-  @PostMapping("/{productId}/reserve")
+  @PostMapping("/reserve")
   public void reserveInventory(
-      Long productId, @Valid @RequestBody InventoryUpdateRequest inventoryUpdateRequest) {
-    inventoryFacade.reserveInventory(productId, inventoryUpdateRequest);
+      Long productId, @Valid @RequestBody InventoryReserveRequest request) {
+    inventoryFacade.reserveInventory(productId, request);
   }
 }

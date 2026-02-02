@@ -4,7 +4,11 @@ import com.modeunsa.boundedcontext.inventory.domain.Inventory;
 import com.modeunsa.boundedcontext.inventory.out.InventoryRepository;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
-import com.modeunsa.shared.inventory.dto.InventoryUpdateRequest;
+import com.modeunsa.shared.inventory.dto.InventoryReserveRequest;
+import com.modeunsa.shared.inventory.dto.InventoryReserveRequest.Item;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
@@ -18,16 +22,26 @@ public class InventoryReserveInventoryUseCase {
 
   @Retryable(
       retryFor = ObjectOptimisticLockingFailureException.class,
-      maxAttempts = 50,
-      backoff = @Backoff(delay = 10) // 0.01초 대기 후 재시도
-      )
-  public void reserveInventory(Long productId, InventoryUpdateRequest request) {
+      maxAttempts = 10, // TODO: 효율적인 동시성 처리
+      backoff = @Backoff(delay = 50, maxDelay = 100, random = true))
+  public void reserveInventory(Long productId, InventoryReserveRequest request) {
+    List<Item> items = new ArrayList<>(request.items());
+
+    // 데드락 방지
+    items.sort(Comparator.comparing(InventoryReserveRequest.Item::productId));
+
+    for (InventoryReserveRequest.Item item : items) {
+      processSingleReservation(item);
+    }
+  }
+
+  private void processSingleReservation(InventoryReserveRequest.Item item) {
     Inventory inventory =
         inventoryRepository
-            .findByProductId(productId)
+            .findByProductId(item.productId())
             .orElseThrow(() -> new GeneralException(ErrorStatus.INVENTORY_NOT_FOUND));
 
-    if (!inventory.reserve(request.quantity())) {
+    if (!inventory.reserve(item.quantity())) {
       throw new GeneralException(ErrorStatus.INSUFFICIENT_STOCK);
     }
 

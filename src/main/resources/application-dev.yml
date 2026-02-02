@@ -57,6 +57,10 @@ spring:
     uris:
       - http://localhost:9200
 
+#  kafka:
+#    listener:
+#      auto-startup: false
+
 custom:
   swagger:
     serverUrl: http://localhost:8080

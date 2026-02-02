@@ -4,20 +4,20 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import com.modeunsa.boundedcontext.inventory.domain.Inventory;
 import com.modeunsa.boundedcontext.inventory.out.InventoryRepository;
-import com.modeunsa.shared.inventory.dto.InventoryUpdateRequest;
+import com.modeunsa.shared.inventory.dto.InventoryReserveRequest;
+import com.modeunsa.shared.inventory.dto.InventoryReserveRequest.Item;
+import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-@Tag("ignore")
 @SpringBootTest
 @ActiveProfiles("test")
 public class InventoryReserveInventoryUseCaseTest {
@@ -33,13 +33,13 @@ public class InventoryReserveInventoryUseCaseTest {
 
   @Test
   @DisplayName("100명이 동시에 1개씩 주문(예약)하면, Retry 덕분에 정확히 100개가 예약되어야 한다.")
-  void concurrent_reservation_test() throws InterruptedException {
+  void concurrentReservationTest() throws InterruptedException {
     // [Given] 재고 1000개 세팅 (예약 0개)
     Inventory inventory =
         inventoryRepository.saveAndFlush(
             Inventory.builder()
                 .sellerId(1L)
-                .productId(100L)
+                .productId(1L)
                 .quantity(1000)
                 .reservedQuantity(0)
                 .build());
@@ -60,7 +60,9 @@ public class InventoryReserveInventoryUseCaseTest {
           () -> {
             try {
               // 동시에 예약 요청
-              reserveUseCase.reserveInventory(productId, new InventoryUpdateRequest(1));
+              reserveUseCase.reserveInventory(
+                  productId,
+                  new InventoryReserveRequest(Collections.singletonList(new Item(1L, 1))));
               successCount.getAndIncrement();
             } catch (Exception e) {
               System.out.println("❌ 실패 로그: " + e.getMessage());
