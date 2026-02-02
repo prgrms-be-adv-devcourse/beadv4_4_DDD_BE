@@ -61,4 +61,16 @@ public class Inventory extends GeneratedIdAndAuditedEntity {
     this.quantity = quantity;
     return true;
   }
+
+  public boolean canReserve(Integer quantity) {
+    return this.quantity - this.reservedQuantity >= quantity;
+  }
+
+  public boolean reserve(Integer quantity) {
+    if (canReserve(quantity)) {
+      this.reservedQuantity += quantity;
+      return true;
+    }
+    return false;
+  }
 }

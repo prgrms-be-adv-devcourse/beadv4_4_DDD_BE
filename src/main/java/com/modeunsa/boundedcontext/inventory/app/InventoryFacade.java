@@ -19,6 +19,7 @@ public class InventoryFacade {
   private final InventoryUpdateInventoryUseCase invertoryUpdateInventoryUseCase;
   private final InventorySupport inventorySupport;
   private final InventoryMapper inventoryMapper;
+  private final InventoryReserveInventoryUseCase inventoryReserveInventoryUseCase;
 
   @Transactional
   public void registerSeller(Long sellerId, String businessName, String representativeName) {
@@ -40,5 +41,10 @@ public class InventoryFacade {
 
   public InventoryDto getInventory(Long productId) {
     return inventoryMapper.toInventoryDto(inventorySupport.getInventory(productId));
+  }
+
+  @Transactional
+  public void reserveInventory(Long productId, InventoryUpdateRequest inventoryUpdateRequest) {
+    inventoryReserveInventoryUseCase.reserveInventory(productId, inventoryUpdateRequest);
   }
 }

@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -48,5 +49,12 @@ public class InventoryController {
     InventoryDto response = inventoryFacade.getInventory(productId);
 
     return ApiResponse.onSuccess(SuccessStatus.OK, response);
+  }
+
+  @Operation(summary = "예약재고 수정", description = "(내부 모듈) 회원이 주문한 상품의 예약재고를 수정합니다.")
+  @PostMapping("/{productId}/reserve")
+  public void reserveInventory(
+      Long productId, @Valid @RequestBody InventoryUpdateRequest inventoryUpdateRequest) {
+    inventoryFacade.reserveInventory(productId, inventoryUpdateRequest);
   }
 }
