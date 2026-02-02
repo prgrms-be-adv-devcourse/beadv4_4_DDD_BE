@@ -165,7 +165,6 @@ export default function ProductDetailPage() {
           width="24"
           height="24"
           viewBox="0 0 24 24"
-          // fill={active ? '#e60023' : 'none'}
           xmlns="http://www.w3.org/2000/svg"
       >
         <path
@@ -409,20 +408,6 @@ export default function ProductDetailPage() {
 
               {/* Action Buttons */}
               <div className="action-buttons">
-                {/*/!* Favorite (Heart) *!/*/}
-                {/*<button*/}
-                {/*    className={`favorite-button ${product.isFavorite ? 'active' : ''}`}*/}
-                {/*    aria-label="관심상품"*/}
-                {/*>*/}
-                {/*  <span*/}
-                {/*      className="favorite-icon"*/}
-                {/*      onClick={handleToggleFavorite}*/}
-                {/*  >*/}
-                {/*    <HeartIcon active={product.isFavorite} />*/}
-                {/*  </span>*/}
-
-                {/*  <span className="favorite-count">{formatCount(product.favoriteCount)}</span>*/}
-                {/*</button>*/}
                 <button
                     className={`favorite-button ${product.isFavorite ? 'active' : ''}`}
                     aria-label="관심상품"

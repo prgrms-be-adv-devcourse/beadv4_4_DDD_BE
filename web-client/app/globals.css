@@ -1051,11 +1051,6 @@ a {
   font-size: 12px;
 }
 
-/*!* 활성화 상태 *!*/
-/*.favorite-button.active .favorite-count {*/
-/*  color: #e60023;*/
-/*}*/
-
 /* 이미지 */
 .product-image {
   position: relative;
