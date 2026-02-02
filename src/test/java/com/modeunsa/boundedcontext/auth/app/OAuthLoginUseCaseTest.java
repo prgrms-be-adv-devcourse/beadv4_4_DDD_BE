@@ -16,6 +16,7 @@ import com.modeunsa.boundedcontext.auth.domain.entity.OAuthAccount;
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import com.modeunsa.boundedcontext.auth.out.client.OAuthClient;
 import com.modeunsa.boundedcontext.auth.out.client.OAuthClientFactory;
+import com.modeunsa.boundedcontext.member.app.support.MemberSupport;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.global.exception.GeneralException;
@@ -45,6 +46,7 @@ class OAuthLoginUseCaseTest {
   @Mock private StringRedisTemplate redisTemplate;
   @Mock private ValueOperations<String, String> valueOperations;
   @Mock private OAuthClient oauthClient;
+  @Mock private MemberSupport memberSupport;
 
   private final OAuthProvider provider = OAuthProvider.KAKAO;
   private final String code = "auth_code";
@@ -101,6 +103,7 @@ class OAuthLoginUseCaseTest {
       // given
       setupValidState();
       setupOAuthClient();
+      given(memberSupport.getSellerIdByMemberId(memberId)).willReturn(0L);
 
       Member member = createMemberWithId(memberId);
       OAuthAccount socialAccount = createSocialAccount(member);
@@ -109,7 +112,8 @@ class OAuthLoginUseCaseTest {
 
       given(oauthAccountResolveUseCase.execute(any(OAuthProvider.class), any(OAuthUserInfo.class)))
           .willReturn(socialAccount);
-      given(authTokenIssueUseCase.execute(memberId, MemberRole.MEMBER)).willReturn(expectedToken);
+      given(authTokenIssueUseCase.execute(memberId, MemberRole.MEMBER, 0L))
+          .willReturn(expectedToken);
 
       // when
       JwtTokenResponse result = oauthLoginUseCase.execute(provider, code, redirectUri, state);
@@ -118,7 +122,7 @@ class OAuthLoginUseCaseTest {
       assertThat(result).isEqualTo(expectedToken);
       verify(redisTemplate, times(1)).delete(stateKey);
       verify(oauthAccountResolveUseCase, times(1)).execute(any(), any());
-      verify(authTokenIssueUseCase, times(1)).execute(memberId, MemberRole.MEMBER);
+      verify(authTokenIssueUseCase, times(1)).execute(memberId, MemberRole.MEMBER, 0L);
     }
 
     @Test
@@ -127,6 +131,7 @@ class OAuthLoginUseCaseTest {
       // given
       setupValidState();
       setupOAuthClient();
+      given(memberSupport.getSellerIdByMemberId(memberId)).willReturn(0L);
 
       Member member = createMemberWithId(memberId);
       OAuthAccount socialAccount = createSocialAccount(member);
@@ -135,7 +140,8 @@ class OAuthLoginUseCaseTest {
 
       given(oauthAccountResolveUseCase.execute(any(OAuthProvider.class), any(OAuthUserInfo.class)))
           .willReturn(socialAccount);
-      given(authTokenIssueUseCase.execute(memberId, MemberRole.MEMBER)).willReturn(expectedToken);
+      given(authTokenIssueUseCase.execute(memberId, MemberRole.MEMBER, 0L))
+          .willReturn(expectedToken);
 
       // when
       JwtTokenResponse result = oauthLoginUseCase.execute(provider, code, redirectUri, state);
