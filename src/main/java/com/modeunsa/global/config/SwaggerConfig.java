@@ -35,8 +35,15 @@ public class SwaggerConfig {
             .in(SecurityScheme.In.HEADER)
             .name("Authorization");
 
+    SecurityScheme internalApiKey =
+        new SecurityScheme()
+            .type(SecurityScheme.Type.APIKEY)
+            .in(SecurityScheme.In.HEADER)
+            .name("X-INTERNAL-API-KEY");
+
     // SecurityRequirement 설정
-    SecurityRequirement securityRequirement = new SecurityRequirement().addList("bearerAuth");
+    SecurityRequirement securityRequirement =
+        new SecurityRequirement().addList("bearerAuth").addList("internalApiKey");
 
     Info info =
         new Info()
@@ -48,6 +55,9 @@ public class SwaggerConfig {
         .servers(List.of(server)) // 서버 목록에 현재 서버만 등록
         .info(info)
         .addSecurityItem(securityRequirement)
-        .components(new Components().addSecuritySchemes("bearerAuth", bearerAuth));
+        .components(
+            new Components()
+                .addSecuritySchemes("bearerAuth", bearerAuth)
+                .addSecuritySchemes("internalApiKey", internalApiKey));
   }
 }
