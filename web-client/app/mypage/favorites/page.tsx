@@ -3,6 +3,7 @@
 import {useEffect, useState} from 'react'
 import Link from 'next/link'
 import MypageLayout from '../../components/MypageLayout'
+import {useSearchParams} from "next/navigation";
 
 type TabKey = 'product' | 'snap'
 
@@ -13,6 +14,8 @@ interface FavoriteProduct {
   salePrice: number
   primaryImageUrl?: string
 }
+
+const PAGE_SIZE = 12
 
 export default function FavoritesPage() {
   const [activeTab, setActiveTab] = useState<TabKey>('product')
@@ -84,6 +87,10 @@ function ProductFavorites() {
   const [products, setProducts] = useState<FavoriteProduct[]>([])
   const [isLoading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const searchParams = useSearchParams()
+  const pageParam = searchParams.get('page')
+  const currentPage = Math.max(0, parseInt(pageParam ?? '0', 10) || 0)
+
 
   useEffect(() => {
     const fetchFavorites = async () => {
@@ -96,7 +103,7 @@ function ProductFavorites() {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
         if (!apiUrl) return
 
-        const res = await fetch(`${apiUrl}/api/v1/products/favorites?page=0&size=20`, {
+        const res = await fetch(`${apiUrl}/api/v1/products/favorites?page=${currentPage}&size=${PAGE_SIZE}`, {
           headers: { Authorization: `Bearer ${accessToken}` },
         })
 
