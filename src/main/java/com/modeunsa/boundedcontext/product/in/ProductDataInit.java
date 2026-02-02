@@ -20,7 +20,7 @@ import org.springframework.core.annotation.Order;
 
 @Profile("!test")
 @ConditionalOnProperty(name = "app.data-init.enabled", havingValue = "true", matchIfMissing = true)
-@Configuration
+//@Configuration
 public class ProductDataInit {
   private final ProductDataInit self;
   private final ProductRepository productRepository;

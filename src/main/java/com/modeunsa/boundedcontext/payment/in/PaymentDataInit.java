@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Profile("!test")
 @ConditionalOnProperty(name = "app.data-init.enabled", havingValue = "true", matchIfMissing = true)
-@Configuration
+//@Configuration
 public class PaymentDataInit {
 
   private final PaymentDataInit self;

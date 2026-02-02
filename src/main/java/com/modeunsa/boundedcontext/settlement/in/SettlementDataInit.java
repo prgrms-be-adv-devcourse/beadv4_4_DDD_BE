@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Profile("!test")
 @ConditionalOnProperty(name = "app.data-init.enabled", havingValue = "true", matchIfMissing = true)
-@Configuration
+//@Configuration
 @Slf4j
 public class SettlementDataInit {
   private static final Long SELLER_MEMBER_ID = 7L;
