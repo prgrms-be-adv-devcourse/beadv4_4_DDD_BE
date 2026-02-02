@@ -11,7 +11,7 @@ public record PaymentProcessContext(
     String orderNo,
     Long orderId,
     boolean needsPgPayment,
-    BigDecimal chargeAmount,
+    BigDecimal requestPgAmount,
     BigDecimal totalAmount,
     ProviderType providerType,
     String paymentKey,
@@ -38,7 +38,7 @@ public record PaymentProcessContext(
         .orderId(payment.getOrderId())
         .totalAmount(payment.getTotalAmount())
         .needsPgPayment(payment.isNeedPgPayment())
-        .chargeAmount(payment.getRequestPgAmount())
+        .requestPgAmount(payment.getRequestPgAmount())
         .providerType(payment.getPaymentProvider())
         .build();
   }
@@ -50,7 +50,7 @@ public record PaymentProcessContext(
         .orderId(Long.valueOf(confirmPaymentRequest.orderId()))
         .orderNo(orderNo)
         .needsPgPayment(true)
-        .chargeAmount(BigDecimal.valueOf(confirmPaymentRequest.amount()))
+        .requestPgAmount(BigDecimal.valueOf(confirmPaymentRequest.amount()))
         .paymentKey(confirmPaymentRequest.paymentKey())
         .pgCustomerEmail(confirmPaymentRequest.pgCustomerEmail())
         .pgCustomerName(confirmPaymentRequest.pgCustomerName())
@@ -65,7 +65,7 @@ public record PaymentProcessContext(
         .orderNo(payment.getId().getOrderNo())
         .orderId(payment.getOrderId())
         .needsPgPayment(payment.isNeedPgPayment())
-        .chargeAmount(payment.getPgPaymentAmount())
+        .requestPgAmount(payment.getPgPaymentAmount())
         .totalAmount(payment.getTotalAmount())
         .build();
   }

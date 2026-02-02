@@ -71,7 +71,7 @@ class PaymentProcessUseCaseTest {
             .orderNo("ORDER12345")
             .orderId(1L)
             .needsPgPayment(false)
-            .chargeAmount(BigDecimal.ZERO)
+            .requestPgAmount(BigDecimal.ZERO)
             .totalAmount(BigDecimal.valueOf(20000))
             .build();
 
@@ -124,7 +124,7 @@ class PaymentProcessUseCaseTest {
             .orderNo("ORDER12345")
             .orderId(1L)
             .needsPgPayment(true)
-            .chargeAmount(chargeAmount)
+            .requestPgAmount(chargeAmount)
             .totalAmount(totalAmount)
             .build();
 
@@ -181,7 +181,7 @@ class PaymentProcessUseCaseTest {
             .orderNo(orderNo)
             .orderId(orderId)
             .needsPgPayment(false)
-            .chargeAmount(BigDecimal.ZERO)
+            .requestPgAmount(BigDecimal.ZERO)
             .totalAmount(totalAmount)
             .build();
 

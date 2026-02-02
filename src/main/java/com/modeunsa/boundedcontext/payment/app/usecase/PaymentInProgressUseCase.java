@@ -98,7 +98,7 @@ public class PaymentInProgressUseCase {
     loadBuyerAccount(context.buyerId());
 
     // 4. 부족 금액과 PG 결제 금액 차이 검증
-    payment.validateChargeAmount(context.chargeAmount());
+    payment.validateChargeAmount(context.requestPgAmount());
 
     // 5. PG 결제 정보 반영
     payment.updatePgInfo(context);

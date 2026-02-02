@@ -10,7 +10,7 @@ public record PaymentResponse(
     Long orderId,
     BigDecimal totalAmount,
     boolean needsPgPayment,
-    BigDecimal pgPaymentAmount) {
+    BigDecimal requestPgAmount) {
 
   public static PaymentResponse needPgPayment(PaymentProcessContext result) {
     return PaymentResponse.builder()
@@ -19,7 +19,7 @@ public record PaymentResponse(
         .orderId(result.orderId())
         .totalAmount(result.totalAmount())
         .needsPgPayment(true)
-        .pgPaymentAmount(result.chargeAmount())
+        .requestPgAmount(result.requestPgAmount())
         .build();
   }
 
@@ -30,7 +30,7 @@ public record PaymentResponse(
         .orderId(result.orderId())
         .totalAmount(result.totalAmount())
         .needsPgPayment(false)
-        .pgPaymentAmount(BigDecimal.ZERO)
+        .requestPgAmount(BigDecimal.ZERO)
         .build();
   }
 }

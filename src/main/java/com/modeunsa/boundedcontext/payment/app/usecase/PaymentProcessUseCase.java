@@ -82,7 +82,7 @@ public class PaymentProcessUseCase {
   private void chargeFromPg(
       PaymentAccount buyerAccount, PaymentProcessContext paymentProcessContext) {
     buyerAccount.credit(
-        paymentProcessContext.chargeAmount(),
+        paymentProcessContext.requestPgAmount(),
         PaymentEventType.CHARGE_PG_TOSS_PAYMENTS,
         paymentProcessContext.orderId(),
         ReferenceType.ORDER);

@@ -30,8 +30,8 @@ interface RequestPaymentResponse {
   orderNo: string
   orderId: number
   totalAmount: number
-  needsCharge: boolean
-  chargeAmount: number
+  needsPgPayment: boolean
+  requestPgAmount: number
 }
 
 interface RequestPaymentApiResponse {
@@ -194,7 +194,7 @@ export default function OrderPage() {
 
       const result = data.result
 
-      if (!result.needsCharge) {
+      if (!result.needsPgPayment) {
         router.push(
           `/order/success?orderNo=${encodeURIComponent(result.orderNo)}&amount=${result.totalAmount}`
         )
@@ -209,10 +209,10 @@ export default function OrderPage() {
         return
       }
 
-      // 뭐든사페이: 부족한 금액만 PG 결제(chargeAmount). 토스페이먼츠: 전체 금액(chargeAmount === totalAmount)
-      const amount = result.chargeAmount
+      // 뭐든사페이: 부족한 금액만 PG 결제(requestPgAmount). 토스페이먼츠: 전체 금액(requestPgAmount === totalAmount)
+      const amount = result.requestPgAmount
       const origin = typeof window !== 'undefined' ? window.location.origin : ''
-      const successUrl = `${origin}/order/success?orderNo=${encodeURIComponent(result.orderNo)}&amount=${result.chargeAmount}&memberId=${result.buyerId}&pgCustomerName=${encodeURIComponent(memberInfo.customerName || '')}&pgCustomerEmail=${encodeURIComponent(memberInfo.customerEmail || '')}`
+      const successUrl = `${origin}/order/success?orderNo=${encodeURIComponent(result.orderNo)}&amount=${amount}&memberId=${result.buyerId}&pgCustomerName=${encodeURIComponent(memberInfo.customerName || '')}&pgCustomerEmail=${encodeURIComponent(memberInfo.customerEmail || '')}`
       const failUrl = `${origin}/order/failure?orderNo=${encodeURIComponent(result.orderNo)}&amount=${amount}`
 
       const tossClient = window.TossPayments?.(clientKey)

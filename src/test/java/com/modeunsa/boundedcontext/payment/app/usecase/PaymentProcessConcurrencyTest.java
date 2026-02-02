@@ -116,7 +116,7 @@ class PaymentProcessConcurrencyTest {
               .orderNo(orderNo)
               .orderId(orderId)
               .needsPgPayment(false)
-              .chargeAmount(BigDecimal.ZERO)
+              .requestPgAmount(BigDecimal.ZERO)
               .totalAmount(amount)
               .build();
 
