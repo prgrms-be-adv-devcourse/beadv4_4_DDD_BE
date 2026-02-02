@@ -2,10 +2,12 @@ package com.modeunsa.boundedcontext.inventory.app;
 
 import com.modeunsa.boundedcontext.inventory.domain.Inventory;
 import com.modeunsa.boundedcontext.inventory.out.InventoryRepository;
+import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.inventory.dto.InventoryUpdateRequest;
 import com.modeunsa.shared.inventory.dto.InventoryUpdateResponse;
+import com.modeunsa.shared.inventory.event.ProductSoldOutEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 public class InventoryUpdateInventoryUseCase {
   private final InventoryMapper inventoryMapper;
   private final InventoryRepository inventoryRepository;
+  private final EventPublisher eventPublisher;
 
   public InventoryUpdateResponse updateInventory(
       Long sellerId, Long productId, InventoryUpdateRequest inventoryUpdateRequest) {
@@ -29,6 +32,10 @@ public class InventoryUpdateInventoryUseCase {
     boolean isUpdated = inventory.updateInventory(inventoryUpdateRequest.quantity());
     if (!isUpdated) {
       throw new GeneralException(ErrorStatus.INVALID_STOCK_QUANTITY);
+    }
+
+    if (inventory.getQuantity() == 0) {
+      eventPublisher.publish(new ProductSoldOutEvent(productId));
     }
 
     return inventoryMapper.toInventoryUpdateResponse(inventory);
