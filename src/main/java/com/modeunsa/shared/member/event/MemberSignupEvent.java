@@ -8,5 +8,5 @@ public record MemberSignupEvent(
     String realName,
     String email,
     String phoneNumber,
-    MemberRole role, // TODO: enum들이 member와의 분리가 아직 안 되어있습니다.
-    MemberStatus status) {}
+    String role,
+    String status) {}

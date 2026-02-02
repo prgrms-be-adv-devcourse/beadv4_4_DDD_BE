@@ -9,4 +9,4 @@ public record SellerRegisteredEvent(
     String representativeName,
     String settlementBankName,
     String settlementBankAccount,
-    SellerStatus status) {}
+    String status) {}
