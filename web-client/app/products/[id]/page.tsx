@@ -57,6 +57,14 @@ export default function ProductDetailPage() {
   const router = useRouter()
   const productId = params.id as string
 
+  const [product, setProduct] = useState<ProductDetailResponse | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
+
+
+  const accessToken = localStorage.getItem('accessToken')
+
   const fetchProduct = useCallback(async () => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
     if (!apiUrl || !productId) {
@@ -65,7 +73,9 @@ export default function ProductDetailPage() {
     }
     try {
       const url = `${apiUrl}/api/v1/products/${productId}`
-      const res = await fetch(url)
+      const res = await fetch(url, {
+        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+      })
       const data: ApiResponse = await res.json()
       if (!res.ok) {
         setError(data.message || '상품 목록을 불러오지 못했습니다.')
@@ -84,11 +94,6 @@ export default function ProductDetailPage() {
       setIsLoading(false)
     }
   }, [productId])
-  
-  const [product, setProduct] = useState<ProductDetailResponse | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProduct()
@@ -178,9 +183,8 @@ export default function ProductDetailPage() {
   const handleToggleFavorite = async () => {
     // API 호출 or optimistic update
     if (!product || isTogglingFavorite) return
-    const accessToken = localStorage.getItem('accessToken')
     if (!accessToken?.trim()) {
-      setIsLoading(false)
+      alert('로그인이 필요합니다.')
       return
     }
 
