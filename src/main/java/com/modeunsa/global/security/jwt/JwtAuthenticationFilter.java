@@ -67,8 +67,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         Long memberId = jwtTokenProvider.getMemberIdFromToken(token);
         MemberRole role = jwtTokenProvider.getRoleFromToken(token);
+        Long sellerId = jwtTokenProvider.getSellerIdFromToken(token);
 
-        CustomUserDetails principal = new CustomUserDetails(memberId, role);
+        CustomUserDetails principal = new CustomUserDetails(memberId, role, sellerId);
 
         UsernamePasswordAuthenticationToken authentication =
             new UsernamePasswordAuthenticationToken(

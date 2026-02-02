@@ -2,7 +2,9 @@ package com.modeunsa.boundedcontext.member.app.support;
 
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.entity.MemberProfile;
+import com.modeunsa.boundedcontext.member.domain.entity.MemberSeller;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
+import com.modeunsa.boundedcontext.member.out.repository.MemberSellerRepository;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class MemberSupport {
   private final MemberRepository memberRepository;
+  private final MemberSellerRepository memberSellerRepository;
 
   // TODO: 성능 개선 - DTO로 변환 후 캐싱 처리 고려
   public Member getMember(Long memberId) {
@@ -34,5 +37,9 @@ public class MemberSupport {
     }
 
     return profile;
+  }
+
+  public Long getSellerIdByMemberId(Long memberId) {
+    return memberSellerRepository.findByMemberId(memberId).map(MemberSeller::getId).orElse(null);
   }
 }

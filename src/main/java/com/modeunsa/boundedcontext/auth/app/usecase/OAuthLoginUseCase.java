@@ -4,6 +4,7 @@ import com.modeunsa.boundedcontext.auth.domain.entity.OAuthAccount;
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import com.modeunsa.boundedcontext.auth.out.client.OAuthClient;
 import com.modeunsa.boundedcontext.auth.out.client.OAuthClientFactory;
+import com.modeunsa.boundedcontext.member.app.support.MemberSupport;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
@@ -24,6 +25,7 @@ public class OAuthLoginUseCase {
   private final OAuthAccountResolveUseCase oauthAccountResolveUseCase;
   private final AuthTokenIssueUseCase authTokenIssueUseCase;
   private final StringRedisTemplate redisTemplate;
+  private final MemberSupport memberSupport;
 
   public JwtTokenResponse execute(
       OAuthProvider provider, String code, String redirectUri, String state) {
@@ -42,9 +44,10 @@ public class OAuthLoginUseCase {
     OAuthAccount socialAccount = oauthAccountResolveUseCase.execute(provider, userInfo);
 
     Member member = socialAccount.getMember();
+    Long sellerId = memberSupport.getSellerIdByMemberId(member.getId());
 
     // 5. JWT 토큰 발급
-    return authTokenIssueUseCase.execute(member.getId(), member.getRole());
+    return authTokenIssueUseCase.execute(member.getId(), member.getRole(), sellerId);
   }
 
   private void validateState(String state, OAuthProvider provider) {
