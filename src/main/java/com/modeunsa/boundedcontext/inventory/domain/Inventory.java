@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(
-    name = "inventory",
+    name = "inventory_inventory",
     indexes = {
       // 판매자용
       @Index(name = "idx_inventory_seller_id", columnList = "seller_id")
