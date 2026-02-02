@@ -11,11 +11,13 @@ import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.annotation.Order;
 
+@ConditionalOnProperty(name = "app.data-init.enabled", havingValue = "true", matchIfMissing = true)
 @Configuration
 public class ProductDataInit {
   private final ProductDataInit self;

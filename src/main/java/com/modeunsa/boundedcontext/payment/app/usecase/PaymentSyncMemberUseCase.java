@@ -4,7 +4,7 @@ import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentMemberCreatedEvent;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.out.PaymentMemberRepository;
-import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
+import com.modeunsa.global.eventpublisher.EventPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PaymentSyncMemberUseCase {
 
   private final PaymentMemberRepository paymentMemberRepository;
-  private final SpringDomainEventPublisher eventPublisher;
+  private final EventPublisher eventPublisher;
 
   public void createPaymentMember(PaymentMemberDto member) {
 

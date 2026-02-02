@@ -7,11 +7,13 @@ import java.math.BigDecimal;
 import java.util.UUID;
 import org.slf4j.MDC;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Transactional;
 
+@ConditionalOnProperty(name = "app.data-init.enabled", havingValue = "true", matchIfMissing = true)
 @Configuration
 public class PaymentDataInit {
 
