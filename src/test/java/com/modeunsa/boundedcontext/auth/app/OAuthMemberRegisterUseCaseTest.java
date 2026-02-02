@@ -124,8 +124,8 @@ class OAuthMemberRegisterUseCaseTest {
     assertThat(event.realName()).isEqualTo(name);
     assertThat(event.email()).isEqualTo(email);
     assertThat(event.phoneNumber()).isEqualTo(phoneNumber);
-    assertThat(event.role()).isEqualTo(MemberRole.MEMBER);
-    assertThat(event.status()).isEqualTo(MemberStatus.ACTIVE);
+    assertThat(event.role()).isEqualTo(MemberRole.MEMBER.name());
+    assertThat(event.status()).isEqualTo(MemberStatus.ACTIVE.name());
   }
 
   @Test
