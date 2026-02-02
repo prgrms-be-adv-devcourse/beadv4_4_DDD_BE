@@ -96,6 +96,8 @@ public class Payment extends AuditedEntity {
   @Enumerated(EnumType.STRING)
   private PaymentErrorCode failedErrorCode;
 
+  private String failedReason;
+
   private LocalDateTime failedAt;
 
   @Column(precision = 19, scale = 2)
@@ -170,9 +172,11 @@ public class Payment extends AuditedEntity {
     changeStatus(PaymentStatus.APPROVED);
   }
 
-  public void failedPayment(PaymentErrorCode errorCode, Long memberId, String orderNo) {
+  public void failedPayment(
+      PaymentErrorCode errorCode, String failureMessage, Long memberId, String orderNo) {
     this.failedErrorCode = errorCode;
     this.failedAt = LocalDateTime.now();
+    this.failedReason = failureMessage;
     changeStatusByFailure(
         PaymentStatus.FAILED,
         errorCode.format(memberId, orderNo, this.status, PaymentStatus.FAILED));
@@ -188,7 +192,10 @@ public class Payment extends AuditedEntity {
   public void initPayment(LocalDateTime paymentDeadlineAt) {
     if (!isRetryable()) {
       throw new PaymentDomainException(
-          INVALID_PAYMENT, getId().getMemberId(), getId().getOrderNo());
+          INVALID_PAYMENT,
+          String.format(
+              "초기화 가능한 상태가 아닙니다. 회원 ID: %d, 주문 번호: %s, 현재 상태: %s",
+              getId().getMemberId(), getId().getOrderNo(), this.status));
     }
     this.paymentDeadlineAt = paymentDeadlineAt;
     changeStatus(PaymentStatus.PENDING);
@@ -207,16 +214,18 @@ public class Payment extends AuditedEntity {
   public void validateChargeAmount(BigDecimal chargeAmount) {
     if (chargeAmount == null) {
       throw new PaymentDomainException(
-          INVALID_CHARGE_AMOUNT, getId().getMemberId(), getId().getOrderNo(), this.requestPgAmount);
+          INVALID_CHARGE_AMOUNT,
+          String.format(
+              "PG 결제 금액이 null 입니다. 회원 ID: %d, 주문 번호: %s, 요청 PG 금액: %s",
+              getId().getMemberId(), getId().getOrderNo(), this.requestPgAmount));
     }
 
     if (requestPgAmount.compareTo(chargeAmount) != 0) {
       throw new PaymentDomainException(
           INVALID_CHARGE_AMOUNT,
-          getId().getMemberId(),
-          getId().getOrderNo(),
-          this.requestPgAmount,
-          chargeAmount);
+          String.format(
+              "부족한 금액과 PG 결제 금액이 다릅니다. 회원 ID: %d, 주문 번호: %s, 부족 금액: %s, PG 요청 금액: %s",
+              getId().getMemberId(), getId().getOrderNo(), this.requestPgAmount, chargeAmount));
     }
   }
 
@@ -239,7 +248,8 @@ public class Payment extends AuditedEntity {
 
   private static void validateTotalAmount(BigDecimal totalAmount) {
     if (totalAmount.compareTo(BigDecimal.ZERO) < 0) {
-      throw new PaymentDomainException(INVALID_PAYMENT, totalAmount);
+      throw new PaymentDomainException(
+          INVALID_PAYMENT, String.format("주문금액은 0원 이상이어야 합니다. 요청 금액: %s", totalAmount));
     }
   }
 
@@ -251,18 +261,17 @@ public class Payment extends AuditedEntity {
     if (!ALLOWED_FOR_IN_PROGRESS.contains(this.status)) {
       throw new PaymentDomainException(
           INVALID_PAYMENT_STATUS,
-          getId().getMemberId(),
-          getId().getOrderNo(),
-          this.status,
-          PaymentStatus.IN_PROGRESS);
+          String.format(
+              "결제 진행상태로 변경할 수 없는 상태입니다. 회원 ID: %d, 주문 번호: %s, 현재 상태: %s",
+              getId().getMemberId(), getId().getOrderNo(), this.status));
     }
 
     if (this.paymentDeadlineAt.isBefore(LocalDateTime.now())) {
       throw new PaymentDomainException(
           OVERDUE_PAYMENT_DEADLINE,
-          getId().getMemberId(),
-          getId().getOrderNo(),
-          this.paymentDeadlineAt);
+          String.format(
+              "결제 유효기간이 만료되어 결제 진행상태로 변경할 수 없습니다. 회원 ID: %d, 주문 번호: %s, 결제 마감일: %s",
+              getId().getMemberId(), getId().getOrderNo(), this.paymentDeadlineAt));
     }
   }
 }

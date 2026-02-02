@@ -122,6 +122,7 @@ public class PaymentInProgressUseCase {
   }
 
   private void handleFailure(PaymentProcessContext context, PaymentDomainException exception) {
-    eventPublisher.publish(PaymentFailedEvent.from(context, exception.getErrorCode()));
+    eventPublisher.publish(
+        PaymentFailedEvent.from(context, exception.getErrorCode(), exception.getMessage()));
   }
 }
