@@ -36,6 +36,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private static final String EXCEPTION_ATTRIBUTE = "exception";
 
   @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) {
+    return request.getRequestURI().contains("/internal/");
+  }
+
+  @Override
   protected void doFilterInternal(
       @NonNull HttpServletRequest request,
       @NonNull HttpServletResponse response,
