@@ -10,6 +10,7 @@ import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
 import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmResponse;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentDomainException;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode;
+import com.modeunsa.boundedcontext.payment.domain.types.PaymentPurpose;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentStatus;
 import com.modeunsa.boundedcontext.payment.domain.types.ProviderType;
 import com.modeunsa.global.jpa.converter.EncryptedStringConverter;
@@ -69,6 +70,10 @@ public class Payment extends AuditedEntity {
   @Enumerated(EnumType.STRING)
   private PaymentStatus status = PaymentStatus.PENDING;
 
+  @Column(nullable = false, length = 20)
+  @Enumerated(EnumType.STRING)
+  private PaymentPurpose paymentPurpose;
+
   @Column(nullable = false)
   private Long orderId;
 
@@ -125,7 +130,8 @@ public class Payment extends AuditedEntity {
       Long orderId,
       BigDecimal totalAmount,
       LocalDateTime paymentDeadlineAt,
-      ProviderType providerType) {
+      ProviderType providerType,
+      PaymentPurpose paymentPurpose) {
     validateTotalAmount(totalAmount);
     return Payment.builder()
         .id(id)
@@ -133,6 +139,7 @@ public class Payment extends AuditedEntity {
         .totalAmount(totalAmount)
         .paymentDeadlineAt(paymentDeadlineAt)
         .paymentProvider(providerType)
+        .paymentPurpose(paymentPurpose)
         .status(PaymentStatus.PENDING)
         .build();
   }

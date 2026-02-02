@@ -169,6 +169,7 @@ export default function OrderPage() {
           totalAmount,
           paymentDeadlineAt,
           providerType,
+          paymentPurpose: 'PRODUCT_PURCHASE',
         }),
       })
       const data: RequestPaymentApiResponse = await res.json()

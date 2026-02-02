@@ -1,5 +1,6 @@
 package com.modeunsa.boundedcontext.payment.app.dto;
 
+import com.modeunsa.boundedcontext.payment.domain.types.PaymentPurpose;
 import com.modeunsa.boundedcontext.payment.domain.types.ProviderType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -14,4 +15,5 @@ public record PaymentRequest(
     @NotBlank String orderNo,
     @NotNull @Positive BigDecimal totalAmount,
     @NotNull LocalDateTime paymentDeadlineAt,
-    @NotNull ProviderType providerType) {}
+    @NotNull ProviderType providerType,
+    @NotNull PaymentPurpose paymentPurpose) {}

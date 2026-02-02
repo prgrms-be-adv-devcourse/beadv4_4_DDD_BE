@@ -41,7 +41,8 @@ public class PaymentInitializeUseCase {
             paymentRequest.orderId(),
             paymentRequest.totalAmount(),
             paymentRequest.paymentDeadlineAt(),
-            paymentRequest.providerType());
+            paymentRequest.providerType(),
+            paymentRequest.paymentPurpose());
     return savePayment(payment);
   }
 

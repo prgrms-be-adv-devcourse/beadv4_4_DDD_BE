@@ -9,6 +9,7 @@ import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
+import com.modeunsa.boundedcontext.payment.domain.types.PaymentPurpose;
 import com.modeunsa.boundedcontext.payment.domain.types.ProviderType;
 import com.modeunsa.boundedcontext.payment.out.PaymentAccountLogRepository;
 import com.modeunsa.boundedcontext.payment.out.PaymentAccountRepository;
@@ -106,7 +107,8 @@ class PaymentProcessConcurrencyTest {
               orderId,
               BigDecimal.valueOf(20_000),
               LocalDateTime.now().plusDays(1),
-              ProviderType.MODEUNSA_PAY);
+              ProviderType.MODEUNSA_PAY,
+              PaymentPurpose.PRODUCT_PURCHASE);
       paymentRepository.save(payment);
 
       // PaymentProcessContext 생성

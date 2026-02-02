@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentDomainException;
+import com.modeunsa.boundedcontext.payment.domain.types.PaymentPurpose;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentStatus;
 import com.modeunsa.boundedcontext.payment.domain.types.ProviderType;
 import java.math.BigDecimal;
@@ -30,7 +31,13 @@ class PaymentTest {
 
     PaymentId paymentId = PaymentId.create(memberId, orderNo);
     Payment payment =
-        Payment.create(paymentId, orderId, totalAmount, futureDeadline, ProviderType.MODEUNSA_PAY);
+        Payment.create(
+            paymentId,
+            orderId,
+            totalAmount,
+            futureDeadline,
+            ProviderType.MODEUNSA_PAY,
+            PaymentPurpose.PRODUCT_PURCHASE);
 
     // when
     payment.changeInProgress();
@@ -81,7 +88,13 @@ class PaymentTest {
 
     PaymentId paymentId = PaymentId.create(memberId, orderNo);
     Payment payment =
-        Payment.create(paymentId, orderId, totalAmount, pastDeadline, ProviderType.MODEUNSA_PAY);
+        Payment.create(
+            paymentId,
+            orderId,
+            totalAmount,
+            pastDeadline,
+            ProviderType.MODEUNSA_PAY,
+            PaymentPurpose.PRODUCT_PURCHASE);
 
     // when, then
     assertThatThrownBy(payment::changeInProgress)
