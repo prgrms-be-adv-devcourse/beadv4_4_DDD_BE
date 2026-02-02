@@ -2,6 +2,7 @@ package com.modeunsa.boundedcontext.product.app;
 
 import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
+import com.modeunsa.boundedcontext.product.domain.ProductFavorite;
 import com.modeunsa.boundedcontext.product.domain.ProductMember;
 import com.modeunsa.boundedcontext.product.domain.ProductMemberSeller;
 import com.modeunsa.boundedcontext.product.domain.ProductPolicy;
@@ -103,5 +104,9 @@ public class ProductSupport {
     return productMemberSellerRepository
         .findByMemberId(memberId)
         .orElseThrow(() -> new GeneralException(ErrorStatus.PRODUCT_SELLER_NOT_FOUND));
+  }
+
+  public Page<ProductFavorite> getProductFavorites(Long memberId, Pageable pageable) {
+    return productFavoriteRepository.findAllByMemberId(memberId, pageable);
   }
 }

@@ -10,12 +10,14 @@ import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
 import com.modeunsa.shared.payment.dto.PaymentDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Transactional;
 
+@ConditionalOnProperty(name = "app.data-init.enabled", havingValue = "true", matchIfMissing = true)
 @Slf4j
-// @Component
+// @Configuration
 public class OrderDataInit {
 
   private final OrderDataInit self;

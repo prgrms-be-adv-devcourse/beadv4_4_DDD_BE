@@ -11,10 +11,11 @@ export default function Header() {
   const profileRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
-    // localStorage에서 로그인 상태 확인
+    // localStorage에서 로그인 상태 확인 (토큰이 있고 비어있지 않을 때만 로그인으로 간주)
     const checkLoginStatus = () => {
+      if (typeof window === 'undefined') return
       const accessToken = localStorage.getItem('accessToken')
-      setIsLoggedIn(!!accessToken)
+      setIsLoggedIn(!!(accessToken && accessToken.trim().length > 0))
     }
 
     checkLoginStatus()

@@ -2,12 +2,31 @@
 
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import {useCallback, useEffect, useState} from 'react'
 import Header from '../../components/Header'
+
+const FASHION_CATEGORIES = [
+  { label: '아우터', value: 'outer' },
+  { label: '상의', value: 'upper' },
+  { label: '하의', value: 'lower' },
+  { label: '모자', value: 'cap' },
+  { label: '가방', value: 'bag' },
+  { label: '신발', value: 'shoes' },
+  { label: '뷰티', value: 'beauty' },
+] as const
+
+
+interface ProductImageDto {
+  id: number
+  imageUrl: string
+  isPrimary: boolean
+  sortOrder: number
+}
 
 interface ProductDetailResponse {
   id: number
   sellerId: number
+  sellerBusinessName: string
   name: string
   category: string
   description: string
@@ -19,6 +38,7 @@ interface ProductDetailResponse {
   stock: number
   isFavorite: boolean
   favoriteCount: number
+  images: ProductImageDto[]
   createdAt: string
   updatedAt: string
   createdBy: number
@@ -36,42 +56,58 @@ export default function ProductDetailPage() {
   const params = useParams()
   const router = useRouter()
   const productId = params.id as string
+
+  const fetchProduct = useCallback(async () => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+    if (!apiUrl) {
+      setProduct(null)
+      return
+    }
+    try {
+      const url = `${apiUrl}/api/v1/products/${productId}`
+      const res = await fetch(url)
+      const data: ApiResponse = await res.json()
+      if (!res.ok) {
+        setError(data.message || '상품 목록을 불러오지 못했습니다.')
+        setProduct(null)
+        return
+      }
+      if (data.isSuccess && data.result) {
+        setProduct(data.result)
+      } else {
+        setProduct(null)
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '상품 목록을 불러오지 못했습니다.')
+      setProduct(null)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
   
   const [product, setProduct] = useState<ProductDetailResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    // Mock 데이터로 상품 정보 표시
-    const mockProduct: ProductDetailResponse = {
-      id: parseInt(productId) || 1,
-      sellerId: 1,
-      name: '베이직 레더 가방 130004',
-      category: '지오다노',
-      description: '고급 가죽으로 제작된 베이직 레더 가방입니다. 실용적이면서도 세련된 디자인으로 일상생활과 여행 모두에 적합합니다. 넉넉한 수납공간과 내구성이 뛰어난 소재를 사용하여 오래 사용하실 수 있습니다.',
-      price: 25000,
-      salePrice: 19800,
-      currency: 'KRW',
-      productStatus: 'ACTIVE',
-      saleStatus: 'ON_SALE',
-      stock: 10,
-      isFavorite: false,
-      favoriteCount: 0,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      createdBy: 1,
-      updatedBy: 1,
+    fetchProduct()
+    if (!selectedImageUrl && product?.images && product.images.length > 0) {
+      setSelectedImageUrl(product.images[0].imageUrl);
     }
-    
-    setTimeout(() => {
-      setProduct(mockProduct)
-      setIsLoading(false)
-    }, 300) // 로딩 효과를 위한 약간의 지연
-  }, [productId])
+  }, [fetchProduct, product?.images, selectedImageUrl])
 
   const [quantity, setQuantity] = useState(1)
   const [isCreatingOrder, setIsCreatingOrder] = useState(false)
   const [isAddingToCart, setIsAddingToCart] = useState(false)
+
+  const getCategoryLabel = (category: string): string => {
+    const found = FASHION_CATEGORIES.find(
+        (item) => item.value.toUpperCase() === category
+    );
+
+    return found?.label ?? category;
+  };
 
   const handleOrder = async () => {
     if (!product) return
@@ -103,6 +139,37 @@ export default function ProductDetailPage() {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('ko-KR').format(price)
   }
+
+  const formatCount = (count: number): string => {
+    const format = (value: number, unit: string) =>
+        `${Number(value.toFixed(1))}${unit}`;
+
+    if (count < 1000) return count.toString();
+    if (count < 10_000) return format(count / 1000, '천');
+    if (count < 100_000_000) return format(count / 10_000, '만');
+    return format(count / 100_000_000, '억');
+  };
+
+  const HeartIcon = ({ active }: { active: boolean }) => (
+      <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill={active ? '#e60023' : 'none'}
+          xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+            d="M12 21s-6.716-4.514-9.428-7.226C.78 11.98.78 8.993 2.69 7.083c1.91-1.91 4.897-1.91 6.807 0L12 9.586l2.503-2.503c1.91-1.91 4.897-1.91 6.807 0 1.91 1.91 1.91 4.897 0 6.807C18.716 16.486 12 21 12 21z"
+            stroke={active ? '#e60023' : '#999'}
+            strokeWidth="1.6"
+        />
+      </svg>
+  );
+
+  const handleToggleFavorite = () => {
+    // API 호출 or optimistic update
+    console.log('관심상품 토글');
+  };
 
   const handleAddToCart = async () => {
     if (!product) return
@@ -176,21 +243,50 @@ export default function ProductDetailPage() {
           <div className="product-detail-content">
             {/* Product Images */}
             <div className="product-images">
+              {/* Main Image */}
               <div className="main-image">
-                <div className="image-placeholder-large">상품 이미지</div>
+                {selectedImageUrl ? (
+                    <img
+                        src={selectedImageUrl ?? product.images[0]?.imageUrl}
+                        alt="상품 이미지"
+                        className="image-placeholder-large"
+                    />
+                ) : (
+                    <div className="image-placeholder-large">상품 이미지</div>
+                )}
               </div>
+
+              {/* Thumbnail Images */}
               <div className="thumbnail-images">
-                {[1, 2, 3, 4].map((item) => (
-                  <div key={item} className="thumbnail">
-                    <div className="image-placeholder-small">이미지 {item}</div>
-                  </div>
+                {product.images.map((image) => (
+                    <div
+                        key={image.id}
+                        className="thumbnail"
+                        onClick={() => setSelectedImageUrl(image.imageUrl)}
+                    >
+                      <img
+                          src={image.imageUrl}
+                          alt=""
+                          className="image-placeholder-small"
+                      />
+                    </div>
                 ))}
               </div>
             </div>
 
             {/* Product Info */}
             <div className="product-info-section">
-              <div className="product-brand-name">{product.category}</div>
+
+            {/* Brand + Favorite */}
+            <div className="product-header">
+              <div className="product-brand-name">{product.sellerBusinessName}</div>
+              {/*<div className="product-favorite">*/}
+              {/*  ♡ <span>{formatCount(product.favoriteCount)}</span>*/}
+              {/*</div>*/}
+            </div>
+
+              {/* Category */}
+              <div className="product-category">{getCategoryLabel(product.category)}</div>
               <h1 className="product-title">{product.name}</h1>
               <div className="product-price-section">
                 {product.salePrice < product.price ? (
@@ -250,6 +346,40 @@ export default function ProductDetailPage() {
 
               {/* Action Buttons */}
               <div className="action-buttons">
+                {/*/!* Favorite (Heart) *!/*/}
+                {/*<button*/}
+                {/*    className={`favorite-button ${product.isFavorite ? 'active' : ''}`}*/}
+                {/*    aria-label="관심상품"*/}
+                {/*>*/}
+                {/*  <span*/}
+                {/*      className="favorite-icon"*/}
+                {/*      onClick={handleToggleFavorite}*/}
+                {/*  >*/}
+                {/*    <HeartIcon active={product.isFavorite} />*/}
+                {/*  </span>*/}
+
+                {/*  <span className="favorite-count">{formatCount(product.favoriteCount)}</span>*/}
+                {/*</button>*/}
+                <button
+                    className={`favorite-button ${product.isFavorite ? 'active' : ''}`}
+                    aria-label="관심상품"
+                >
+                  {/* 클릭 영역 */}
+                  <span
+                      className="favorite-icon"
+                      onClick={(e) => {
+                        e.stopPropagation(); // 버튼 이벤트 차단
+                        handleToggleFavorite();
+                      }}
+                  >
+    <HeartIcon active={product.isFavorite} />
+  </span>
+
+                  {/* 숫자는 클릭 안 됨 */}
+                  <span className="favorite-count">
+    {formatCount(product.favoriteCount)}
+  </span>
+                </button>
                 <button 
                   className="cart-button" 
                   onClick={handleAddToCart}

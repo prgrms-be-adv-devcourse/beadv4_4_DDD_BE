@@ -1,13 +1,10 @@
 package com.modeunsa.shared.product.dto;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import java.math.BigDecimal;
 
-@Getter
-@RequiredArgsConstructor
-public class ProductFavoriteResponse {
-  private final Long memberId;
-  private final Long productId;
-  private final Long productName;
-  private final boolean isFavorite;
-}
+public record ProductFavoriteResponse(
+    Long memberId,
+    Long productId,
+    String productName,
+    String primaryImageUrl,
+    BigDecimal salePrice) {}
