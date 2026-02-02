@@ -25,7 +25,7 @@ interface PaymentMemberApiResponse {
   result: PaymentMemberResponse
 }
 
-interface PaymentResponse {
+interface RequestPaymentResponse {
   buyerId: number
   orderNo: string
   orderId: number
@@ -34,11 +34,11 @@ interface PaymentResponse {
   chargeAmount: number
 }
 
-interface ApiResponse<T> {
+interface RequestPaymentApiResponse {
   isSuccess: boolean
   code: string
   message: string
-  result: T
+  result: RequestPaymentResponse
 }
 
 export default function OrderPage() {
@@ -49,6 +49,7 @@ export default function OrderPage() {
   const [memberError, setMemberError] = useState<string | null>(null)
   const [selectedMethod, setSelectedMethod] = useState<'modeunsa' | 'toss'>('modeunsa')
   const [isAuthChecked, setIsAuthChecked] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   // 로그인 여부 확인: 비로그인 시 로그인 페이지로 이동
   useEffect(() => {
@@ -128,12 +129,100 @@ export default function OrderPage() {
       alert('회원 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.')
       return
     }
+    const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+    if (!accessToken?.trim() || !apiUrl) {
+      alert('로그인 또는 API 설정을 확인해주세요.')
+      return
+    }
 
-    const amount = 19800
+    const totalAmount = 19800
     const orderNo = `ORD-${Date.now()}`
-    
-    // Mock 데이터로 결제 성공 페이지로 이동
-    router.push(`/order/success?orderNo=${orderNo}&amount=${amount}`)
+    const orderId = Date.now()
+    const deadline = new Date(Date.now() + 10 * 60 * 1000)
+    const paymentDeadlineAt =
+      deadline.getFullYear() +
+      '-' +
+      String(deadline.getMonth() + 1).padStart(2, '0') +
+      '-' +
+      String(deadline.getDate()).padStart(2, '0') +
+      'T' +
+      String(deadline.getHours()).padStart(2, '0') +
+      ':' +
+      String(deadline.getMinutes()).padStart(2, '0') +
+      ':' +
+      String(deadline.getSeconds()).padStart(2, '0')
+
+    setIsSubmitting(true)
+    try {
+      const res = await fetch(`${apiUrl}/api/v1/payments`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          orderId,
+          orderNo,
+          totalAmount,
+          paymentDeadlineAt,
+        }),
+      })
+      const data: RequestPaymentApiResponse = await res.json()
+
+      if (!res.ok) {
+        alert(data.message || '결제 요청에 실패했습니다.')
+        setIsSubmitting(false)
+        return
+      }
+      if (!data.isSuccess || !data.result) {
+        alert(data.message || '결제 요청에 실패했습니다.')
+        setIsSubmitting(false)
+        return
+      }
+
+      const result = data.result
+
+      if (!result.needsCharge) {
+        router.push(
+          `/order/success?orderNo=${encodeURIComponent(result.orderNo)}&amount=${result.totalAmount}`
+        )
+        return
+      }
+
+      // PG(토스) 결제 필요
+      const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY
+      if (!clientKey) {
+        alert('토스페이먼츠 설정이 없습니다. 결제를 진행할 수 없습니다.')
+        setIsSubmitting(false)
+        return
+      }
+
+      const amount = Number(result.chargeAmount ?? result.totalAmount)
+      const origin = typeof window !== 'undefined' ? window.location.origin : ''
+      const successUrl = `${origin}/order/success?orderNo=${encodeURIComponent(result.orderNo)}&amount=${result.totalAmount}&memberId=${result.buyerId}&pgCustomerName=${encodeURIComponent(memberInfo.customerName || '')}&pgCustomerEmail=${encodeURIComponent(memberInfo.customerEmail || '')}`
+      const failUrl = `${origin}/order/failure?orderNo=${encodeURIComponent(result.orderNo)}&amount=${amount}`
+
+      const tossClient = window.TossPayments?.(clientKey)
+      if (tossClient?.requestPayment) {
+        await tossClient.requestPayment('카드', {
+          amount,
+          orderId: String(result.orderId),
+          orderName: '뭐든사 주문 결제',
+          successUrl,
+          failUrl,
+          customerName: memberInfo.customerName,
+          customerEmail: memberInfo.customerEmail,
+        })
+      } else {
+        alert('토스 페이먼츠 결제 창을 열 수 없습니다. 결제 SDK를 확인해주세요.')
+      }
+    } catch (err) {
+      console.error('결제 요청 실패:', err)
+      alert(err instanceof Error ? err.message : '결제 요청 중 오류가 발생했습니다.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   if (!isAuthChecked) {
@@ -269,9 +358,11 @@ export default function OrderPage() {
         <button 
           className="order-payment-button" 
           onClick={handlePayment}
-          disabled={isLoadingMember || !memberInfo}
+          disabled={isLoadingMember || !memberInfo || isSubmitting}
         >
-          {isLoadingMember || !memberInfo
+          {isSubmitting
+            ? '처리 중...'
+            : isLoadingMember || !memberInfo
             ? '로딩 중...'
             : (() => {
                 const totalAmount = 19800

@@ -90,12 +90,45 @@ function SuccessContent() {
       })
 
       try {
-        // API 통신 제거됨
-        setPaymentInfo({ orderNo: orderNo || 'N/A' })
-        setConfirmError(null)
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+        const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
+        if (!apiUrl || !accessToken?.trim()) {
+          setConfirmError('API 설정 또는 로그인을 확인해주세요.')
+          setIsConfirming(false)
+          return
+        }
+        const res = await fetch(
+          `${apiUrl}/api/v1/payments/${encodeURIComponent(orderNo!)}/payment/confirm/by/tossPayments`,
+          {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              paymentKey,
+              orderId,
+              amount: Number(amount),
+              pgCustomerName: pgCustomerName || '',
+              pgCustomerEmail: pgCustomerEmail || '',
+            }),
+          }
+        )
+        const data = await res.json()
+        if (!res.ok) {
+          setConfirmError(data?.message || '결제 승인에 실패했습니다.')
+          setIsConfirming(false)
+          return
+        }
+        if (data?.isSuccess && data?.result) {
+          setPaymentInfo({ orderNo: data.result.orderNo ?? orderNo ?? 'N/A' })
+          setConfirmError(null)
+        } else {
+          setConfirmError(data?.message || '결제 승인에 실패했습니다.')
+        }
       } catch (error) {
         console.error('[결제 승인] 예외 발생', { error, orderNo, orderId, paymentKey }, error)
-        router.push(`/order/failure?orderNo=${orderNo || ''}&amount=${amount || ''}`)
+        setConfirmError(error instanceof Error ? error.message : '결제 승인 중 오류가 발생했습니다.')
       } finally {
         setIsConfirming(false)
       }

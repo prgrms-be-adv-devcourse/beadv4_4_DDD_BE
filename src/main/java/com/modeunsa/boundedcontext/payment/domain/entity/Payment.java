@@ -29,6 +29,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -115,6 +116,9 @@ public class Payment extends AuditedEntity {
   private Integer pgStatusCode;
 
   @Lob private String pgFailureReason;
+
+  private static final Set<PaymentStatus> ALLOWED_FOR_IN_PROGRESS =
+      Set.of(PaymentStatus.PENDING, PaymentStatus.IN_PROGRESS);
 
   public static Payment create(
       PaymentId id, Long orderId, BigDecimal totalAmount, LocalDateTime paymentDeadlineAt) {
@@ -231,7 +235,7 @@ public class Payment extends AuditedEntity {
   }
 
   private void validateCanChangeToInProgress() {
-    if (this.status != PaymentStatus.PENDING) {
+    if (!ALLOWED_FOR_IN_PROGRESS.contains(this.status)) {
       throw new PaymentDomainException(
           INVALID_PAYMENT_STATUS,
           getId().getMemberId(),
