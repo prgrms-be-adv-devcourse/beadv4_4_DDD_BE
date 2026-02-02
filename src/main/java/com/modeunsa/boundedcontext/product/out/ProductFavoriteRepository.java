@@ -2,6 +2,8 @@ package com.modeunsa.boundedcontext.product.out;
 
 import com.modeunsa.boundedcontext.product.domain.ProductFavorite;
 import io.lettuce.core.dynamic.annotation.Param;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -20,4 +22,6 @@ public interface ProductFavoriteRepository extends JpaRepository<ProductFavorite
   int deleteByMemberIdAndProductId(Long memberId, Long productId);
 
   boolean existsByMemberIdAndProductId(Long memberId, Long productId);
+
+  Page<ProductFavorite> findAllByMemberId(Long memberId, Pageable pageable);
 }

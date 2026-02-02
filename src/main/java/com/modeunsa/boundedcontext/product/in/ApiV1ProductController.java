@@ -10,6 +10,7 @@ import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.global.status.SuccessStatus;
 import com.modeunsa.shared.product.dto.ProductCreateRequest;
 import com.modeunsa.shared.product.dto.ProductDetailResponse;
+import com.modeunsa.shared.product.dto.ProductFavoriteResponse;
 import com.modeunsa.shared.product.dto.ProductOrderResponse;
 import com.modeunsa.shared.product.dto.ProductOrderValidateRequest;
 import com.modeunsa.shared.product.dto.ProductResponse;
@@ -129,6 +130,21 @@ public class ApiV1ProductController {
     }
     productFacade.deleteProductFavorite(memberId, productId);
     return ApiResponse.onSuccess(SuccessStatus.OK);
+  }
+
+  @Operation(summary = "관심상품 내역 조회", description = "마이페이지 > 관심상품 내역을 조회합니다.")
+  @GetMapping("/favorites")
+  public ResponseEntity<ApiResponse> getProductFavorites(
+      @AuthenticationPrincipal CustomUserDetails user,
+      @RequestParam(name = "page") int page,
+      @RequestParam(name = "size") int size) {
+    Pageable pageable =
+        PageRequest.of(
+            page, size, Sort.by(Sort.Direction.DESC, "createdAt") // 정렬 고정
+            );
+    Page<ProductFavoriteResponse> productFavoriteResponses =
+        productFacade.getProductFavorites(user.getMemberId(), pageable);
+    return ApiResponse.onSuccess(SuccessStatus.OK, productFavoriteResponses);
   }
 
   @Operation(summary = "주문 상품 검증용 상품 리스트 조회", description = "주문 직전 상품의 유효성 검증을 위해 상품 리스트를 조회합니다.")

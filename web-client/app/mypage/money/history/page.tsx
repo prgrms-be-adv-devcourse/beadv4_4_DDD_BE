@@ -1,7 +1,21 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import MypageLayout from '../../../components/MypageLayout'
+
+interface PaymentMemberResponse {
+  customerKey: string
+  customerName: string
+  customerEmail: string
+  balance: number
+}
+
+interface PaymentAccountApiResponse {
+  isSuccess: boolean
+  code: string
+  message: string
+  result: PaymentMemberResponse
+}
 
 const mockHistory = [
   {
@@ -59,6 +73,51 @@ export default function MoneyHistoryPage() {
   const [startDate, setStartDate] = useState('2024-01-01')
   const [endDate, setEndDate] = useState('2024-01-31')
   const [currentPage, setCurrentPage] = useState(1)
+  const [balance, setBalance] = useState<number | null>(null)
+  const [balanceLoading, setBalanceLoading] = useState(true)
+  const [balanceError, setBalanceError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      if (typeof window === 'undefined') return
+      const accessToken = localStorage.getItem('accessToken')
+      if (!accessToken?.trim()) {
+        setBalanceLoading(false)
+        return
+      }
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+      if (!apiUrl) {
+        setBalanceLoading(false)
+        return
+      }
+      try {
+        const res = await fetch(`${apiUrl}/api/v1/payments/accounts`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        })
+        const data: PaymentAccountApiResponse = await res.json()
+        if (res.ok && data.isSuccess && data.result != null) {
+          setBalance(Number(data.result.balance))
+          setBalanceError(null)
+        } else {
+          setBalanceError(data.message || '잔액을 불러오지 못했습니다.')
+        }
+      } catch {
+        setBalanceError('잔액을 불러오지 못했습니다.')
+      } finally {
+        setBalanceLoading(false)
+      }
+    }
+    fetchBalance()
+  }, [])
+
+  const balanceDisplay =
+    balanceLoading && balance === null
+      ? '조회 중...'
+      : balanceError
+        ? balanceError
+        : balance != null
+          ? `${new Intl.NumberFormat('ko-KR').format(balance)}원`
+          : '-'
 
   const handlePreset = (key: PresetKey) => {
     setPreset(key)
@@ -114,7 +173,15 @@ export default function MoneyHistoryPage() {
           }}
         >
           <span style={{ fontSize: '14px', color: '#666', fontWeight: 500 }}>현재 보유 머니</span>
-          <span style={{ fontSize: '22px', fontWeight: 700, color: '#333' }}>50,000원</span>
+          <span
+            style={{
+              fontSize: '22px',
+              fontWeight: 700,
+              color: balanceError ? '#dc3545' : '#333',
+            }}
+          >
+            {balanceDisplay}
+          </span>
         </div>
 
         {/* 기간 검색 */}

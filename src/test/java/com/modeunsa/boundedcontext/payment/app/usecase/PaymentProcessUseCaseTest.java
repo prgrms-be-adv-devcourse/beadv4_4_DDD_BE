@@ -15,7 +15,7 @@ import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentStatus;
 import com.modeunsa.global.config.PaymentAccountConfig;
-import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
+import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.shared.payment.dto.PaymentDto;
 import com.modeunsa.shared.payment.event.PaymentSuccessEvent;
 import java.math.BigDecimal;
@@ -35,7 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class PaymentProcessUseCaseTest {
 
   @Mock private PaymentSupport paymentSupport;
-  @Mock private SpringDomainEventPublisher eventPublisher;
+  @Mock private EventPublisher eventPublisher;
   @Mock private PaymentAccountConfig paymentAccountConfig;
   @Mock private PaymentAccountLockManager paymentAccountLockManager;
 

@@ -4,7 +4,7 @@ import com.modeunsa.boundedcontext.order.domain.Order;
 import com.modeunsa.boundedcontext.order.domain.OrderMapper;
 import com.modeunsa.boundedcontext.order.domain.OrderPolicy;
 import com.modeunsa.boundedcontext.order.out.OrderRepository;
-import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
+import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.order.dto.OrderResponseDto;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 public class OrderRefundOrderUseCase {
   private final OrderRepository orderRepository;
   private final OrderMapper orderMapper;
-  private final SpringDomainEventPublisher eventPublisher;
+  private final EventPublisher eventPublisher;
   private final OrderPolicy orderPolicy;
 
   public OrderResponseDto refundOrder(Long memberId, Long orderId) {

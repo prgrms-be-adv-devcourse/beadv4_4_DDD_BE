@@ -3,7 +3,7 @@ package com.modeunsa.boundedcontext.auth.app.usecase;
 import com.modeunsa.boundedcontext.auth.domain.entity.OAuthAccount;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
-import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
+import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.shared.auth.dto.OAuthUserInfo;
 import com.modeunsa.shared.member.event.MemberSignupEvent;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class OAuthMemberRegisterUseCase {
 
   private final MemberRepository memberRepository;
-  private final SpringDomainEventPublisher eventPublisher;
+  private final EventPublisher eventPublisher;
 
   @Transactional
   public OAuthAccount execute(OAuthUserInfo userInfo) {
