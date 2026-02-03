@@ -24,7 +24,7 @@ public class InventoryReserveInventoryUseCase {
       retryFor = ObjectOptimisticLockingFailureException.class,
       maxAttempts = 10, // TODO: 효율적인 동시성 처리
       backoff = @Backoff(delay = 50, maxDelay = 100, random = true))
-  public void reserveInventory(Long productId, InventoryReserveRequest request) {
+  public void reserveInventory(InventoryReserveRequest request) {
     List<Item> items = new ArrayList<>(request.items());
 
     // 데드락 방지

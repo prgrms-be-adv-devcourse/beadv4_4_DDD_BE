@@ -61,7 +61,6 @@ public class InventoryReserveInventoryUseCaseTest {
             try {
               // 동시에 예약 요청
               reserveUseCase.reserveInventory(
-                  productId,
                   new InventoryReserveRequest(Collections.singletonList(new Item(1L, 1))));
               successCount.getAndIncrement();
             } catch (Exception e) {

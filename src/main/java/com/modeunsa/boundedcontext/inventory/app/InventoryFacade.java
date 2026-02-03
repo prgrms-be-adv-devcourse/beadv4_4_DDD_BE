@@ -45,7 +45,7 @@ public class InventoryFacade {
   }
 
   @Transactional
-  public void reserveInventory(Long productId, InventoryReserveRequest request) {
-    inventoryReserveInventoryUseCase.reserveInventory(productId, request);
+  public void reserveInventory(InventoryReserveRequest request) {
+    inventoryReserveInventoryUseCase.reserveInventory(request);
   }
 }
