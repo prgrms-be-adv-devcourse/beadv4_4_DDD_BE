@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.payment.in;
+package com.modeunsa.boundedcontext.payment.in.api.v1;
 
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositRequest;
@@ -20,10 +20,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Payment Account", description = "결제 계좌 도메인 API")
-@RestController
+@RestController("PaymentAccountControllerV1")
 @RequestMapping("/api/v1/payments/accounts")
 @RequiredArgsConstructor
-public class ApiV1PaymentAccountController {
+public class PaymentAccountController {
 
   private final PaymentFacade paymentFacade;
 

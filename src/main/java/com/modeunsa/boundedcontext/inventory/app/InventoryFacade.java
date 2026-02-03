@@ -2,6 +2,7 @@ package com.modeunsa.boundedcontext.inventory.app;
 
 import com.modeunsa.boundedcontext.inventory.domain.InventoryProduct;
 import com.modeunsa.shared.inventory.dto.InventoryDto;
+import com.modeunsa.shared.inventory.dto.InventoryReserveRequest;
 import com.modeunsa.shared.inventory.dto.InventoryUpdateRequest;
 import com.modeunsa.shared.inventory.dto.InventoryUpdateResponse;
 import com.modeunsa.shared.product.dto.ProductDto;
@@ -19,6 +20,7 @@ public class InventoryFacade {
   private final InventoryUpdateInventoryUseCase invertoryUpdateInventoryUseCase;
   private final InventorySupport inventorySupport;
   private final InventoryMapper inventoryMapper;
+  private final InventoryReserveInventoryUseCase inventoryReserveInventoryUseCase;
 
   @Transactional
   public void registerSeller(Long sellerId, String businessName, String representativeName) {
@@ -40,5 +42,10 @@ public class InventoryFacade {
 
   public InventoryDto getInventory(Long productId) {
     return inventoryMapper.toInventoryDto(inventorySupport.getInventory(productId));
+  }
+
+  @Transactional
+  public void reserveInventory(InventoryReserveRequest request) {
+    inventoryReserveInventoryUseCase.reserveInventory(request);
   }
 }

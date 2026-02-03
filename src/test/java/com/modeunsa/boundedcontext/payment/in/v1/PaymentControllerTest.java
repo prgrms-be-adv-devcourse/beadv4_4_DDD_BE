@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.payment.in;
+package com.modeunsa.boundedcontext.payment.in.v1;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -10,6 +10,10 @@ import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentResponse;
+import com.modeunsa.boundedcontext.payment.domain.types.PaymentPurpose;
+import com.modeunsa.boundedcontext.payment.domain.types.ProviderType;
+import com.modeunsa.boundedcontext.payment.in.BasePaymentControllerTest;
+import com.modeunsa.boundedcontext.payment.in.api.v1.PaymentController;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import java.math.BigDecimal;
@@ -21,14 +25,14 @@ import org.mockito.Mock;
 import org.springframework.http.MediaType;
 
 @DisplayName("PaymentController 테스트")
-class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
+class PaymentControllerTest extends BasePaymentControllerTest {
 
   @Mock private PaymentFacade paymentFacade;
 
   @BeforeEach
   void setUp() {
     super.setUpBase();
-    setUpMockMvc(new ApiV1PaymentController(paymentFacade));
+    setUpMockMvc(new PaymentController(paymentFacade));
     setSecurityContext(1L, MemberRole.MEMBER, null);
   }
 
@@ -48,6 +52,8 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
             .orderNo(orderNo)
             .totalAmount(totalAmount)
             .paymentDeadlineAt(paymentDeadlineAt)
+            .providerType(ProviderType.MODEUNSA_PAY)
+            .paymentPurpose(PaymentPurpose.PRODUCT_PURCHASE)
             .build();
 
     PaymentResponse response =
@@ -56,8 +62,8 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
             .orderNo(orderNo)
             .orderId(orderId)
             .totalAmount(totalAmount)
-            .needsCharge(false)
-            .chargeAmount(BigDecimal.ZERO)
+            .needsPgPayment(false)
+            .requestPgAmount(BigDecimal.ZERO)
             .build();
 
     when(paymentFacade.requestPayment(any(), any())).thenReturn(response);
@@ -86,6 +92,8 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
             .orderNo("ORDER12345")
             .totalAmount(BigDecimal.valueOf(50000))
             .paymentDeadlineAt(LocalDateTime.now().plusDays(1))
+            .providerType(ProviderType.MODEUNSA_PAY)
+            .paymentPurpose(PaymentPurpose.PRODUCT_PURCHASE)
             .build();
 
     // when, then
@@ -110,6 +118,8 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
             .orderNo("ORDER12345")
             .totalAmount(BigDecimal.ZERO)
             .paymentDeadlineAt(LocalDateTime.now().plusDays(1))
+            .providerType(ProviderType.MODEUNSA_PAY)
+            .paymentPurpose(PaymentPurpose.PRODUCT_PURCHASE)
             .build();
 
     // when, then
@@ -134,6 +144,8 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
             .orderNo("ORDER12345")
             .totalAmount(BigDecimal.valueOf(50000))
             .paymentDeadlineAt(LocalDateTime.now().plusDays(1))
+            .providerType(ProviderType.MODEUNSA_PAY)
+            .paymentPurpose(PaymentPurpose.PRODUCT_PURCHASE)
             .build();
 
     when(paymentFacade.requestPayment(any(), any()))
@@ -161,6 +173,8 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
             .orderNo("ORDER12345")
             .totalAmount(BigDecimal.valueOf(50000))
             .paymentDeadlineAt(LocalDateTime.now().plusDays(1))
+            .providerType(ProviderType.MODEUNSA_PAY)
+            .paymentPurpose(PaymentPurpose.PRODUCT_PURCHASE)
             .build();
 
     when(paymentFacade.requestPayment(any(), any()))
@@ -188,6 +202,8 @@ class ApiV1PaymentControllerTest extends BasePaymentControllerTest {
             .orderNo("ORDER12345")
             .totalAmount(BigDecimal.valueOf(50000))
             .paymentDeadlineAt(LocalDateTime.now().plusDays(1))
+            .providerType(ProviderType.MODEUNSA_PAY)
+            .paymentPurpose(PaymentPurpose.PRODUCT_PURCHASE)
             .build();
 
     when(paymentFacade.requestPayment(any(), any()))

@@ -3,13 +3,13 @@ package com.modeunsa.boundedcontext.payment.domain.types;
 import lombok.Getter;
 
 @Getter
-public enum ProviderType {
-  MODEUNSA_PAY("뭐든사 페이"),
-  TOSS_PAYMENTS("토스 페이먼츠");
+public enum PaymentPurpose {
+  DEPOSIT_CHARGE("예치금 충전"),
+  PRODUCT_PURCHASE("상품 결제");
 
   private final String description;
 
-  ProviderType(String description) {
+  PaymentPurpose(String description) {
     this.description = description;
   }
 }

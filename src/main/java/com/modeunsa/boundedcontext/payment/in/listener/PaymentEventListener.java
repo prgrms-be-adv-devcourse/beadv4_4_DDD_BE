@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.payment.in;
+package com.modeunsa.boundedcontext.payment.in.listener;
 
 import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;

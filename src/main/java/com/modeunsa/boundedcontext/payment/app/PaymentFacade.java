@@ -104,10 +104,10 @@ public class PaymentFacade {
         paymentInitializeUseCase.execute(user.getMemberId(), paymentRequest);
 
     // 2. 결제 진행 상태로 변경 및 검증
-    context = paymentInProgressUseCase.execute(context);
-    if (context.needsCharge()) {
+    context = paymentInProgressUseCase.executeForPaymentRequest(context);
+    if (context.needsPgPayment()) {
       // 3-1. 충전 필요 시 결제 요청까지만 처리하고 반환
-      return PaymentResponse.needCharge(context);
+      return PaymentResponse.needPgPayment(context);
     }
     // 3-2. 결제 완료로 계좌에서 입출금 처리
     paymentProcessUseCase.execute(context);
@@ -132,7 +132,7 @@ public class PaymentFacade {
             user.getMemberId(), orderNo, confirmPaymentRequest);
 
     // 1. 결제 진행 상태로 변경 및 검증
-    paymentInProgressUseCase.execute(context);
+    paymentInProgressUseCase.executeForPaymentConfirm(context);
 
     // 2. 토스페이먼츠 결제 승인 요청 및 결과 저장
     context = paymentConfirmTossPaymentUseCase.execute(context);
