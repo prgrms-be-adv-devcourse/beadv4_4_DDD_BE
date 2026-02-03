@@ -26,7 +26,22 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
       Collection<ProductStatus> productStatus,
       Pageable pageable);
 
-  Page<Product> findAllBySeller(ProductMemberSeller seller, Pageable pageable);
+  // TODO: LIKE 검색 추후 개선 예정
+  @Query(
+      """
+      SELECT p
+      FROM Product p
+      WHERE p.seller = :seller
+        AND (:name IS NULL OR p.name LIKE CONCAT('%', :name, '%'))
+        AND (:category IS NULL OR p.category = :category)
+        AND (:saleStatus IS NULL OR p.saleStatus = :saleStatus)
+      """)
+  Page<Product> findAllBySeller(
+      @Param("seller") ProductMemberSeller seller,
+      @Param("name") String name,
+      @Param("category") ProductCategory category,
+      @Param("saleStatus") SaleStatus saleStatus,
+      Pageable pageable);
 
   @Modifying
   @Query(

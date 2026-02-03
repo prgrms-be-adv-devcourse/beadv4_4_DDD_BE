@@ -5,7 +5,7 @@ import {useCallback, useEffect, useState} from 'react'
 import MypageLayout from '../../components/MypageLayout'
 
 const CATEGORY_OPTIONS = [
-  { value: '', label: '전체 카테고리' },
+  { value: '', label: '전체' },
   { value: 'OUTER', label: '아우터' },
   { value: 'UPPER', label: '상의' },
   { value: 'LOWER', label: '하의' },
@@ -23,6 +23,7 @@ const PRODUCT_STATUS_OPTIONS = [
 
 
 const SALE_STATUS_OPTIONS = [
+  { value: '', label: '전체' },
   { value: 'SALE', label: '판매중' },
   { value: 'SOLD_OUT', label: '품절' },
   { value: 'NOT_SALE', label: '판매중지' },
@@ -67,18 +68,55 @@ interface ProductsApiResponse {
 
 const PAGE_SIZE = 10
 const PAGE_WINDOW = 5
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+
 
 export default function ProductsPage() {
   const [keyword, setKeyword] = useState('')
   const [category, setCategory] = useState('')
-  const [status, setStatus] = useState('')
+  const [saleStatus, setSaleStatus] = useState('')
   const [currentPage, setCurrentPage] = useState(0)
 
   const accessToken = localStorage.getItem('accessToken')
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     setCurrentPage(0)
-    alert(`상품 검색: ${keyword || '(전체)'} / ${category || '전체'} / ${status || '전체'}\n(데모 화면입니다.)`)
+
+    const params = new URLSearchParams()
+    if (keyword) params.append('name', keyword)
+    if (category) params.append('category', category)
+    if (saleStatus) params.append('saleStatus', saleStatus)
+    params.append('page', String(currentPage))
+    params.append('size', String(PAGE_SIZE))
+
+    try {
+      const url = `${apiUrl}/api/v1/products/sellers?${params.toString()}`
+      const res = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      })
+      const data: ProductsApiResponse = await res.json()
+      if (!res.ok) {
+        setError(data.message || '상품 목록을 불러오지 못했습니다.')
+        setProducts([])
+        setPageInfo(null)
+        return
+      }
+      if (data.isSuccess && data.result) {
+        setProducts(data.result)
+        setPageInfo(data.pageInfo ?? null)
+      } else {
+        setProducts([])
+        setPageInfo(null)
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '상품 목록을 불러오지 못했습니다.')
+      setProducts([])
+      setPageInfo(null)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const [products, setProducts] = useState<ProductResponse[]>([])
@@ -94,7 +132,6 @@ export default function ProductsPage() {
   }
 
   const fetchProducts = useCallback(async () => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
     if (!apiUrl) {
       setProducts([])
       setPageInfo(null)
@@ -104,6 +141,7 @@ export default function ProductsPage() {
     setIsLoading(true)
     setError(null)
     try {
+
       const url = `${apiUrl}/api/v1/products/sellers?page=${currentPage}&size=${PAGE_SIZE}`
       const res = await fetch(url, {
         headers: { Authorization: `Bearer ${accessToken}` },
@@ -135,13 +173,6 @@ export default function ProductsPage() {
     fetchProducts()
   }, [fetchProducts])
 
-  // const filteredProducts = mockProducts.filter((p) => {
-  //   const matchKeyword = !keyword || p.name.toLowerCase().includes(keyword.toLowerCase())
-  //   const matchCategory = !category || p.categoryValue === category
-  //   const matchStatus = !status || p.statusValue === status
-  //   return matchKeyword && matchCategory && matchStatus
-  // })
-  //
   const totalPages = pageInfo?.totalPages ?? 0
 
   const currentBlock = Math.floor(currentPage / PAGE_WINDOW)
@@ -238,9 +269,9 @@ export default function ProductsPage() {
               ))}
             </select>
             <select
-              value={status}
+              value={saleStatus}
               onChange={(e) => {
-                setStatus(e.target.value)
+                setSaleStatus(e.target.value)
                 setCurrentPage(0)
               }}
               style={{
