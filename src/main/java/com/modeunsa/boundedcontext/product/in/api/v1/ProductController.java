@@ -127,6 +127,7 @@ public class ProductController {
       @RequestParam(name = "name", required = false) String name,
       @RequestParam(name = "category", required = false) ProductCategory category,
       @RequestParam(name = "saleStatus", required = false) SaleStatus saleStatus,
+      @RequestParam(name = "productStatus", required = false) ProductStatus productStatus,
       @RequestParam(name = "page") int page,
       @RequestParam(name = "size") int size) {
     Pageable pageable =
@@ -134,7 +135,8 @@ public class ProductController {
             page, size, Sort.by(Sort.Direction.DESC, "createdAt") // 정렬 고정
             );
     Page<ProductResponse> productResponses =
-        productFacade.getProducts(user.getMemberId(), name, category, saleStatus, pageable);
+        productFacade.getProducts(
+            user.getMemberId(), name, category, saleStatus, productStatus, pageable);
     return ApiResponse.onSuccess(SuccessStatus.OK, productResponses);
   }
 }

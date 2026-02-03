@@ -6,6 +6,7 @@ import com.modeunsa.boundedcontext.product.domain.ProductFavorite;
 import com.modeunsa.boundedcontext.product.domain.ProductMember;
 import com.modeunsa.boundedcontext.product.domain.ProductMemberSeller;
 import com.modeunsa.boundedcontext.product.domain.ProductPolicy;
+import com.modeunsa.boundedcontext.product.domain.ProductStatus;
 import com.modeunsa.boundedcontext.product.domain.SaleStatus;
 import com.modeunsa.boundedcontext.product.out.ProductFavoriteRepository;
 import com.modeunsa.boundedcontext.product.out.ProductMemberRepository;
@@ -61,9 +62,11 @@ public class ProductSupport {
       String name,
       ProductCategory category,
       SaleStatus saleStatus,
+      ProductStatus productStatus,
       Pageable pageable) {
     ProductMemberSeller seller = this.getProductMemberSellerByMemberId(memberId);
-    return productRepository.findAllBySeller(seller, name, category, saleStatus, pageable);
+    return productRepository.findAllBySeller(
+        seller, name, category, saleStatus, productStatus, pageable);
   }
 
   public List<Product> getProducts(List<Long> productIds) {

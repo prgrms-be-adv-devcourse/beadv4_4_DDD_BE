@@ -35,12 +35,14 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         AND (:name IS NULL OR p.name LIKE CONCAT('%', :name, '%'))
         AND (:category IS NULL OR p.category = :category)
         AND (:saleStatus IS NULL OR p.saleStatus = :saleStatus)
+        AND (:productStatus IS NULL OR p.productStatus = :productStatus)
       """)
   Page<Product> findAllBySeller(
       @Param("seller") ProductMemberSeller seller,
       @Param("name") String name,
       @Param("category") ProductCategory category,
       @Param("saleStatus") SaleStatus saleStatus,
+      @Param("productStatus") ProductStatus productStatus,
       Pageable pageable);
 
   @Modifying

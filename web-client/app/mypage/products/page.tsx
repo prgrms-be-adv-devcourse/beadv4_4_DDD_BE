@@ -5,7 +5,7 @@ import {useCallback, useEffect, useState} from 'react'
 import MypageLayout from '../../components/MypageLayout'
 
 const CATEGORY_OPTIONS = [
-  { value: '', label: '전체' },
+  { value: '', label: '카테고리 전체' },
   { value: 'OUTER', label: '아우터' },
   { value: 'UPPER', label: '상의' },
   { value: 'LOWER', label: '하의' },
@@ -16,14 +16,14 @@ const CATEGORY_OPTIONS = [
 ]
 
 const PRODUCT_STATUS_OPTIONS = [
+  { value: '', label: '등록 상태 전체' },
   { value: 'DRAFT', label: '임시저장' },
   { value: 'COMPLETED', label: '완료' },
   { value: 'CANCELED', label: '취소' },
 ]
 
-
 const SALE_STATUS_OPTIONS = [
-  { value: '', label: '전체' },
+  { value: '', label: '판매상태 전체' },
   { value: 'SALE', label: '판매중' },
   { value: 'SOLD_OUT', label: '품절' },
   { value: 'NOT_SALE', label: '판매중지' },
@@ -75,6 +75,7 @@ export default function ProductsPage() {
   const [keyword, setKeyword] = useState('')
   const [category, setCategory] = useState('')
   const [saleStatus, setSaleStatus] = useState('')
+  const [productStatus, setProductStatus] = useState('')
   const [currentPage, setCurrentPage] = useState(0)
 
   const accessToken = localStorage.getItem('accessToken')
@@ -86,6 +87,7 @@ export default function ProductsPage() {
     if (keyword) params.append('name', keyword)
     if (category) params.append('category', category)
     if (saleStatus) params.append('saleStatus', saleStatus)
+    if (productStatus) params.append('productStatus', productStatus)
     params.append('page', String(currentPage))
     params.append('size', String(PAGE_SIZE))
 
@@ -287,6 +289,27 @@ export default function ProductsPage() {
                 <option key={opt.value} value={opt.value}>
                   {opt.label}
                 </option>
+              ))}
+            </select>
+            <select
+                value={productStatus}
+                onChange={(e) => {
+                  setProductStatus(e.target.value)
+                  setCurrentPage(0)
+                }}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  border: '1px solid #e0e0e0',
+                  fontSize: '14px',
+                  background: 'white',
+                  minWidth: '100px',
+                }}
+            >
+              {PRODUCT_STATUS_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
               ))}
             </select>
             <button

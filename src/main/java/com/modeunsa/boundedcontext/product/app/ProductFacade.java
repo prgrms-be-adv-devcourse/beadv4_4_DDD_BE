@@ -71,9 +71,10 @@ public class ProductFacade {
       String name,
       ProductCategory category,
       SaleStatus saleStatus,
+      ProductStatus productStatus,
       Pageable pageable) {
     Page<Product> products =
-        productSupport.getProducts(memberId, name, category, saleStatus, pageable);
+        productSupport.getProducts(memberId, name, category, saleStatus, productStatus, pageable);
     return products.map(product -> productMapper.toResponse(product));
   }
 
