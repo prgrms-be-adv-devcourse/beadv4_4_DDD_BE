@@ -18,7 +18,10 @@ export default function Header() {
     const cookies = document.cookie;
     const hasToken = cookies.includes('accessToken=');
 
-    console.log("현재 쿠키 상태:", cookies); // 디버깅용 콘솔
+    if (process.env.NODE_ENV === 'development') {
+      console.log("현재 쿠키 상태:", cookies); // 디버깅용 콘솔
+    }
+
     setIsLoggedIn(hasToken);
   }
 
