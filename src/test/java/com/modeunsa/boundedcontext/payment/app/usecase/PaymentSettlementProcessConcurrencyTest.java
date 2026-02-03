@@ -4,6 +4,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
+import com.modeunsa.boundedcontext.payment.app.usecase.settlement.PaymentSettlementOrderCompleteUseCase;
 import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
@@ -37,9 +38,9 @@ import org.springframework.test.context.ActiveProfiles;
 @Tag("ignore")
 @SpringBootTest
 @ActiveProfiles("test")
-class PaymentProcessConcurrencyTest {
+class PaymentSettlementProcessConcurrencyTest {
 
-  @Autowired private PaymentProcessUseCase paymentProcessUseCase;
+  @Autowired private PaymentSettlementOrderCompleteUseCase paymentOrderCompleteUseCase;
 
   @Autowired private PaymentRepository paymentRepository;
 
@@ -145,7 +146,7 @@ class PaymentProcessConcurrencyTest {
               // 모든 준비될 때까지 대기
               startLatch.await();
 
-              paymentProcessUseCase.executeWithoutLock(ctx);
+              paymentOrderCompleteUseCase.executeWithoutLock(ctx);
             } catch (Exception e) {
               fail("동시성 작업 중 예외 발생", e);
             } finally {
@@ -207,7 +208,7 @@ class PaymentProcessConcurrencyTest {
               // 모든 준비될 때까지 대기
               startLatch.await();
 
-              paymentProcessUseCase.execute(ctx);
+              paymentOrderCompleteUseCase.execute(ctx);
             } catch (Exception e) {
               fail("동시성 작업 중 예외 발생", e);
             } finally {

@@ -22,9 +22,10 @@ import com.modeunsa.boundedcontext.payment.app.usecase.PaymentFailureUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentInProgressUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentInitializeUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentPayoutCompleteUseCase;
-import com.modeunsa.boundedcontext.payment.app.usecase.PaymentProcessUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentRefundUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.PaymentSettlementUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentSyncMemberUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.settlement.PaymentSettlementOrderCompleteUseCase;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
@@ -46,10 +47,11 @@ public class PaymentFacade {
   private final PaymentInitializeUseCase paymentInitializeUseCase;
   private final PaymentInProgressUseCase paymentInProgressUseCase;
   private final PaymentFailureUseCase paymentFailureUseCase;
-  private final PaymentProcessUseCase paymentProcessUseCase;
+  private final PaymentSettlementOrderCompleteUseCase paymentOrderCompleteUseCase;
   private final PaymentRefundUseCase paymentRefundUseCase;
   private final PaymentPayoutCompleteUseCase paymentPayoutCompleteUseCase;
   private final PaymentConfirmTossPaymentUseCase paymentConfirmTossPaymentUseCase;
+  private final PaymentSettlementUseCase paymentSettlementUseCase;
 
   private final PaymentMemberSupport paymentMemberSupport;
   private final PaymentAccountSupport paymentAccountSupport;
@@ -110,7 +112,7 @@ public class PaymentFacade {
       return PaymentResponse.needPgPayment(context);
     }
     // 3-2. 결제 완료로 계좌에서 입출금 처리
-    paymentProcessUseCase.execute(context);
+    paymentOrderCompleteUseCase.execute(context);
     return PaymentResponse.complete(context);
   }
 
@@ -138,7 +140,7 @@ public class PaymentFacade {
     context = paymentConfirmTossPaymentUseCase.execute(context);
 
     // 3. 결제 완료 처리 (계좌 입출금, 이벤트 발행)
-    paymentProcessUseCase.execute(context);
+    paymentSettlementUseCase.execute(context);
 
     return ConfirmPaymentResponse.complete(context.orderNo());
   }
