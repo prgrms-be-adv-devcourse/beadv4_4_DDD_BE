@@ -110,5 +110,5 @@ management:
 app:
   cookie:
     secure: true
-    http-only: true
+    http-only: false # TODO: false로 하는 대신 로그인 상태를 물어보는 백엔드 엔드포인트 추가 예정
     same-site: Lax
