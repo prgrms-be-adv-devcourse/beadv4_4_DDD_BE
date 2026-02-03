@@ -45,6 +45,23 @@ const cardStyle = {
 }
 
 export default function MypageNav() {
+  const getUserRoleFromToken = () => {
+    if (typeof window === 'undefined') return null
+
+    const token = localStorage.getItem('accessToken')
+    if (!token) return null
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]))
+      console.log("role: " + payload.role)
+      return payload.role ?? null
+    } catch {
+      return null
+    }
+  }
+
+  const isSeller = getUserRoleFromToken() === 'SELLER'
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '220px', flexShrink: 0 }}>
       <aside style={cardStyle}>
@@ -100,15 +117,17 @@ export default function MypageNav() {
         </nav>
       </aside>
 
-      <aside style={cardStyle}>
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '14px' }}>
-          <div style={{ fontSize: '12px', color: '#999', margin: '8px 0 4px' }}>판매</div>
-          <NavLink href="/mypage/seller-request">판매자정보</NavLink>
-          <NavLink href="/mypage/products">상품 관리</NavLink>
-          <NavLink href="/mypage/stock">재고 관리</NavLink>
-          <NavLink href="/mypage/settlement">정산 내역</NavLink>
-        </nav>
-      </aside>
+      {isSeller && (
+        <aside style={cardStyle}>
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '14px' }}>
+            <div style={{ fontSize: '12px', color: '#999', margin: '8px 0 4px' }}>판매</div>
+            <NavLink href="/mypage/seller-request">판매자정보</NavLink>
+            <NavLink href="/mypage/products">상품 관리</NavLink>
+            <NavLink href="/mypage/stock">재고 관리</NavLink>
+            <NavLink href="/mypage/settlement">정산 내역</NavLink>
+          </nav>
+        </aside>
+      )}
     </div>
   )
 }
