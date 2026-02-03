@@ -57,7 +57,7 @@ public class ApiV1AuthController {
         authFacade.oauthLogin(oauthProvider, code, redirectUri, state);
 
     ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", jwtTokenResponse.accessToken())
-        .httpOnly(true)
+        .httpOnly(false)   // TODO: true로 변경
         .secure(false)     // 로컬 테스트 시 false, 배포 시 true
         .path("/")
         .maxAge(jwtTokenResponse.accessTokenExpiresIn())
