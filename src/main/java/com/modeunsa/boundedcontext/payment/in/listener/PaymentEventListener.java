@@ -16,13 +16,11 @@ import com.modeunsa.shared.order.event.RefundRequestedEvent;
 import com.modeunsa.shared.settlement.event.SettlementCompletedPayoutEvent;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
-@ConditionalOnProperty(name = "app.event-publisher.type", havingValue = "spring")
 @RequiredArgsConstructor
 public class PaymentEventListener {
 
