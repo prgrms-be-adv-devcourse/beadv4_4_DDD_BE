@@ -13,7 +13,7 @@ import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositResponse
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberResponse;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.boundedcontext.payment.in.BasePaymentControllerTest;
-import com.modeunsa.boundedcontext.payment.in.api.v1.V1PaymentAccountController;
+import com.modeunsa.boundedcontext.payment.in.api.v1.PaymentAccountController;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import java.math.BigDecimal;
@@ -31,7 +31,7 @@ class PaymentAccountControllerTest extends BasePaymentControllerTest {
   @BeforeEach
   void setUp() {
     super.setUpBase();
-    setUpMockMvc(new V1PaymentAccountController(paymentFacade));
+    setUpMockMvc(new PaymentAccountController(paymentFacade));
     setSecurityContext(1L, MemberRole.MEMBER, null);
   }
 
