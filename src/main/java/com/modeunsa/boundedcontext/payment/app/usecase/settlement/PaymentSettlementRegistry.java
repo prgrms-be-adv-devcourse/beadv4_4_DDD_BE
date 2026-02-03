@@ -1,5 +1,7 @@
 package com.modeunsa.boundedcontext.payment.app.usecase.settlement;
 
+import com.modeunsa.boundedcontext.payment.domain.exception.PaymentDomainException;
+import com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentPurpose;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +22,8 @@ public class PaymentSettlementRegistry {
   public PaymentSettlementProcess get(PaymentPurpose purpose) {
     PaymentSettlementProcess process = paymentProcesses.get(purpose);
     if (process == null) {
-      throw new IllegalArgumentException("PaymentPurpose is not supported.");
+      throw new PaymentDomainException(
+          PaymentErrorCode.INVALID_PAYMENT_PURPOSE, "invalid payment purpose : %s", purpose);
     }
     return process;
   }
