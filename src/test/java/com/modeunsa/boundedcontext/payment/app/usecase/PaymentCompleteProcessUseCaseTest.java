@@ -9,7 +9,7 @@ import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
 import com.modeunsa.boundedcontext.payment.app.lock.LockedPaymentAccounts;
 import com.modeunsa.boundedcontext.payment.app.lock.PaymentAccountLockManager;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentSupport;
-import com.modeunsa.boundedcontext.payment.app.usecase.settlement.PaymentSettlementOrderCompleteUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.complete.PaymentCompleteOrderCompleteUseCase;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
@@ -33,14 +33,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("PaymentProcessUseCase 테스트")
-class PaymentSettlementProcessUseCaseTest {
+class PaymentCompleteProcessUseCaseTest {
 
   @Mock private PaymentSupport paymentSupport;
   @Mock private EventPublisher eventPublisher;
   @Mock private PaymentAccountConfig paymentAccountConfig;
   @Mock private PaymentAccountLockManager paymentAccountLockManager;
 
-  @InjectMocks private PaymentSettlementOrderCompleteUseCase paymentOrderCompleteUseCase;
+  @InjectMocks private PaymentCompleteOrderCompleteUseCase paymentOrderCompleteUseCase;
 
   private static final Long HOLDER_ID = 2L;
   private PaymentAccount holderAccount;

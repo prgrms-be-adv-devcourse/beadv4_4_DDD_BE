@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.payment.app.usecase.settlement;
+package com.modeunsa.boundedcontext.payment.app.usecase.complete;
 
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentDomainException;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode;
@@ -9,18 +9,18 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PaymentSettlementRegistry {
+public class PaymentCompleteRegistry {
 
-  private final Map<PaymentPurpose, PaymentSettlementProcess> paymentProcesses;
+  private final Map<PaymentPurpose, PaymentCompleteProcess> paymentProcesses;
 
-  public PaymentSettlementRegistry(List<PaymentSettlementProcess> processes) {
+  public PaymentCompleteRegistry(List<PaymentCompleteProcess> processes) {
     this.paymentProcesses =
         processes.stream()
-            .collect(Collectors.toMap(PaymentSettlementProcess::purpose, process -> process));
+            .collect(Collectors.toMap(PaymentCompleteProcess::purpose, process -> process));
   }
 
-  public PaymentSettlementProcess get(PaymentPurpose purpose) {
-    PaymentSettlementProcess process = paymentProcesses.get(purpose);
+  public PaymentCompleteProcess get(PaymentPurpose purpose) {
+    PaymentCompleteProcess process = paymentProcesses.get(purpose);
     if (process == null) {
       throw new PaymentDomainException(
           PaymentErrorCode.INVALID_PAYMENT_PURPOSE, "invalid payment purpose : %s", purpose);

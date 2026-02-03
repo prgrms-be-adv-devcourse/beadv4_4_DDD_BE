@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.payment.app.usecase.settlement;
+package com.modeunsa.boundedcontext.payment.app.usecase.complete;
 
 import co.elastic.clients.util.VisibleForTesting;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class PaymentSettlementOrderCompleteUseCase implements PaymentSettlementProcess {
+public class PaymentCompleteOrderCompleteUseCase implements PaymentCompleteProcess {
 
   private final PaymentSupport paymentSupport;
   private final PaymentAccountSupport paymentAccountSupport;

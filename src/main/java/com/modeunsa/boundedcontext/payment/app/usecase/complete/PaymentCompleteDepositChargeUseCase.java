@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.payment.app.usecase.settlement;
+package com.modeunsa.boundedcontext.payment.app.usecase.complete;
 
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
@@ -12,11 +12,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** 토스페이먼츠 예치금 충전 완료 처리. buyer 계좌에 PG 결제 금액만 입금하고 결제 상태를 COMPLETED로 변경한다. */
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class PaymentSettlementDepositChargeUseCase implements PaymentSettlementProcess {
+public class PaymentCompleteDepositChargeUseCase implements PaymentCompleteProcess {
 
   private final PaymentAccountSupport paymentAccountSupport;
   private final PaymentSupport paymentSupport;

@@ -4,7 +4,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
-import com.modeunsa.boundedcontext.payment.app.usecase.settlement.PaymentSettlementOrderCompleteUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.complete.PaymentCompleteOrderCompleteUseCase;
 import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
@@ -38,9 +38,9 @@ import org.springframework.test.context.ActiveProfiles;
 @Tag("ignore")
 @SpringBootTest
 @ActiveProfiles("test")
-class PaymentSettlementProcessConcurrencyTest {
+class PaymentCompleteProcessConcurrencyTest {
 
-  @Autowired private PaymentSettlementOrderCompleteUseCase paymentOrderCompleteUseCase;
+  @Autowired private PaymentCompleteOrderCompleteUseCase paymentOrderCompleteUseCase;
 
   @Autowired private PaymentRepository paymentRepository;
 
