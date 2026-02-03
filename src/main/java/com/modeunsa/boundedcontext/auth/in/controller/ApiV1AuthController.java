@@ -12,6 +12,7 @@ import com.modeunsa.shared.auth.dto.JwtTokenResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.time.Duration;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -63,7 +64,7 @@ public class ApiV1AuthController {
             .httpOnly(cookieProperties.isHttpOnly())
             .secure(cookieProperties.isSecure())
             .path(cookieProperties.getPath())
-            .maxAge(jwtTokenResponse.accessTokenExpiresIn())
+            .maxAge(Duration.ofMillis(jwtTokenResponse.accessTokenExpiresIn()))
             .sameSite(cookieProperties.getSameSite())
             .build();
 
