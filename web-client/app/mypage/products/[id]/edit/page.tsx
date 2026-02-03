@@ -147,6 +147,9 @@ export default function ProductEditPage() {
   const [errorMessage, setErrorMessage] = useState('')
   const [submitAction, setSubmitAction] = useState<ProductStatus | null>(null)
 
+  const isCompleted = product?.productStatus === 'COMPLETED'
+
+
   const buildUpdatePayload = () => {
     if (!originalProduct) return {}
 
@@ -326,9 +329,7 @@ export default function ProductEditPage() {
           alert('상품 등록 취소가 완료되었습니다.')
           router.push('/mypage/products')
         }
-      }
-
-      if (submitAction === 'DRAFT') {
+      } else if (submitAction === 'DRAFT') {
         // 임시저장 || 저장
         const payload = buildUpdatePayload()
         if (Object.keys(payload).length === 0) {
@@ -355,20 +356,23 @@ export default function ProductEditPage() {
         }
         alert('상품 수정이 완료되었습니다.')
         router.push('/mypage/products')
-      }
-
-      // 등록 완료
-      if (submitAction === 'COMPLETED') {
+      } else if (submitAction === 'COMPLETED') {
+        // 등록 완료
+        const payload = buildUpdatePayload()
+        if (Object.keys(payload).length === 0) {
+          alert('변경된 내용이 없습니다.')
+          return
+        }
         if (formData.price < 0 || formData.salePrice < 0) {
-          alert('가격은 0 이상이어야 합니다.')
+          alert('가격은 0 이상이어야 합니다.');
+          return;
+        }
+        if (formData.salePrice < formData.price) {
+          alert('판매가는 정가보다 크거나 같아야 합니다.')
           return
         }
         if (formData.stock < 0) {
           alert('재고는 0 이상이어야 합니다.')
-          return
-        }
-        if (formData.salePrice < formData.price) {
-          alert('판매가는 정가보다 크거나 같아야 합니다.')
           return
         }
         const completeResponse = await fetch(statusChangeUrl, {
@@ -455,6 +459,7 @@ export default function ProductEditPage() {
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
               required
+              disabled={isCompleted}
             />
           </div>
 
@@ -468,6 +473,7 @@ export default function ProductEditPage() {
               value={formData.category}
               onChange={(e) => handleInputChange('category', e.target.value as ProductCategory)}
               required
+              disabled={isCompleted}
             >
               {categoryOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -524,6 +530,7 @@ export default function ProductEditPage() {
                 onChange={(e) => handleInputChange('price', parseFloat(e.target.value) || 0)}
                 min={0}
                 step={1}
+                disabled={isCompleted}
               />
             </div>
             <div className="form-group">
@@ -539,6 +546,7 @@ export default function ProductEditPage() {
                 onChange={(e) => handleInputChange('salePrice', parseFloat(e.target.value) || 0)}
                 min={0}
                 step={1}
+                disabled={isCompleted}
               />
             </div>
           </div>
@@ -668,9 +676,7 @@ export default function ProductEditPage() {
                   disabled={
                       isSubmitting ||
                       uploadingImageIndex.size > 0 ||
-                      !formData.name.trim() ||
-                      formData.price <= 0 ||
-                      formData.salePrice <= 0
+                      !formData.name.trim()
                   }
                   onClick={() => setSubmitAction('COMPLETED')}
               >

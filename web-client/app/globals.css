@@ -2753,6 +2753,15 @@ a {
   background: #f8f9fa;
 }
 
+.form-input:disabled,
+.form-select:disabled {
+  background: #f8f9fa;
+  color: #777;
+  border-color: #e0e0e0;
+  cursor: not-allowed;
+}
+
+
 .write-textarea {
   width: 100%;
   padding: 16px;
