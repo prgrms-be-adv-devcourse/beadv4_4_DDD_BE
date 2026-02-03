@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,11 +46,8 @@ public class InventoryController {
 
   @Operation(summary = "실재고 조회", description = "내부모듈에서 사용하는 상품별 실재고 조회 기능입니다.")
   @GetMapping("/internal/{productId}")
-  public ResponseEntity<ApiResponse> getInventory(Long productId) {
-
-    InventoryDto response = inventoryFacade.getInventory(productId);
-
-    return ApiResponse.onSuccess(SuccessStatus.OK, response);
+  public InventoryDto getInventory(@PathVariable Long productId) {
+    return inventoryFacade.getInventory(productId);
   }
 
   @Operation(summary = "예약재고 수정", description = "(내부 모듈) 회원이 주문한 상품의 예약재고를 수정합니다.")

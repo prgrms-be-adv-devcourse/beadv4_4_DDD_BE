@@ -5,13 +5,13 @@ import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.global.status.SuccessStatus;
 import com.modeunsa.shared.order.dto.CartItemsResponseDto;
-import com.modeunsa.shared.order.dto.CreateCartItemRequestDto;
-import com.modeunsa.shared.order.dto.CreateCartItemResponseDto;
 import com.modeunsa.shared.order.dto.CreateCartOrderRequestDto;
 import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
 import com.modeunsa.shared.order.dto.OrderDto;
 import com.modeunsa.shared.order.dto.OrderListResponseDto;
 import com.modeunsa.shared.order.dto.OrderResponseDto;
+import com.modeunsa.shared.order.dto.SyncCartItemRequestDto;
+import com.modeunsa.shared.order.dto.SyncCartItemResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -40,12 +40,12 @@ public class ApiV1OrderController {
 
   @Operation(summary = "장바구니에 상품 추가 기능", description = "장바구니에 상품을 추가하는 기능입니다.")
   @PostMapping("/cart/item")
-  public ResponseEntity<ApiResponse> createCartItem(
+  public ResponseEntity<ApiResponse> syncCartItem(
       @AuthenticationPrincipal CustomUserDetails user,
-      @RequestBody @Valid CreateCartItemRequestDto requestDto) {
+      @RequestBody @Valid SyncCartItemRequestDto requestDto) {
 
     Long memberId = user.getMemberId();
-    CreateCartItemResponseDto dto = orderFacade.createCartItem(memberId, requestDto);
+    SyncCartItemResponseDto dto = orderFacade.syncCartItem(memberId, requestDto);
 
     return ApiResponse.onSuccess(SuccessStatus.OK, dto);
   }
