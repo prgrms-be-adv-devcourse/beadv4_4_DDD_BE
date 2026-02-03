@@ -105,7 +105,7 @@ public class ProductController {
   }
 
   @Operation(summary = "주문 상품 검증용 상품 리스트 조회", description = "주문 직전 상품의 유효성 검증을 위해 상품 리스트를 조회합니다.")
-  @PostMapping("/validate-order")
+  @PostMapping("/internal/validate-order")
   public List<ProductOrderResponse> validateOrderProducts(
       @Valid @RequestBody ProductOrderValidateRequest productOrderValidateRequest) {
     return productFacade.getProducts(productOrderValidateRequest.productIds());

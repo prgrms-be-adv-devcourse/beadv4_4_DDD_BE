@@ -62,9 +62,11 @@ public class OrderCreateOrderUseCase {
             .findFirst()
             .orElseThrow(() -> new GeneralException(ErrorStatus.PRODUCT_NOT_FOUND));
 
+    /* TODO: 상품 api수정 후 해제
     if (!product.isAvailable()) {
       throw new GeneralException(ErrorStatus.PRODUCT_NOT_ON_SALE);
     }
+     */
 
     return product;
   }

@@ -53,7 +53,7 @@ public class InventoryController {
   }
 
   @Operation(summary = "예약재고 수정", description = "(내부 모듈) 회원이 주문한 상품의 예약재고를 수정합니다.")
-  @PostMapping("/reserve")
+  @PostMapping("/internal/reserve")
   public void reserveInventory(@Valid @RequestBody InventoryReserveRequest request) {
     inventoryFacade.reserveInventory(request);
   }
