@@ -25,7 +25,7 @@ public abstract class BasePaymentControllerTest {
   protected ObjectMapper objectMapper;
 
   @BeforeEach
-  void setUpBase() {
+  protected void setUpBase() {
     SecurityContextHolder.clearContext();
     objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
   }

@@ -30,8 +30,8 @@ interface RequestPaymentResponse {
   orderNo: string
   orderId: number
   totalAmount: number
-  needsCharge: boolean
-  chargeAmount: number
+  needsPgPayment: boolean
+  requestPgAmount: number
 }
 
 interface RequestPaymentApiResponse {
@@ -153,6 +153,8 @@ export default function OrderPage() {
       ':' +
       String(deadline.getSeconds()).padStart(2, '0')
 
+    const providerType = selectedMethod === 'modeunsa' ? 'MODEUNSA_PAY' : 'TOSS_PAYMENTS'
+
     setIsSubmitting(true)
     try {
       const res = await fetch(`${apiUrl}/api/v1/payments`, {
@@ -166,24 +168,34 @@ export default function OrderPage() {
           orderNo,
           totalAmount,
           paymentDeadlineAt,
+          providerType,
+          paymentPurpose: 'PRODUCT_PURCHASE',
         }),
       })
       const data: RequestPaymentApiResponse = await res.json()
 
       if (!res.ok) {
-        alert(data.message || '결제 요청에 실패했습니다.')
+        const code = data.code || ''
+        const message = data.message || '결제 요청에 실패했습니다.'
+        router.replace(
+          `/order/failure?orderNo=${encodeURIComponent(orderNo)}&amount=${totalAmount}&code=${encodeURIComponent(code)}&message=${encodeURIComponent(message)}`
+        )
         setIsSubmitting(false)
         return
       }
       if (!data.isSuccess || !data.result) {
-        alert(data.message || '결제 요청에 실패했습니다.')
+        const code = data.code || ''
+        const message = data.message || '결제 요청에 실패했습니다.'
+        router.replace(
+          `/order/failure?orderNo=${encodeURIComponent(orderNo)}&amount=${totalAmount}&code=${encodeURIComponent(code)}&message=${encodeURIComponent(message)}`
+        )
         setIsSubmitting(false)
         return
       }
 
       const result = data.result
 
-      if (!result.needsCharge) {
+      if (!result.needsPgPayment) {
         router.push(
           `/order/success?orderNo=${encodeURIComponent(result.orderNo)}&amount=${result.totalAmount}`
         )
@@ -198,9 +210,10 @@ export default function OrderPage() {
         return
       }
 
-      const amount = Number(result.chargeAmount ?? result.totalAmount)
+      // 뭐든사페이: 부족한 금액만 PG 결제(requestPgAmount). 토스페이먼츠: 전체 금액(requestPgAmount === totalAmount)
+      const amount = result.requestPgAmount
       const origin = typeof window !== 'undefined' ? window.location.origin : ''
-      const successUrl = `${origin}/order/success?orderNo=${encodeURIComponent(result.orderNo)}&amount=${result.totalAmount}&memberId=${result.buyerId}&pgCustomerName=${encodeURIComponent(memberInfo.customerName || '')}&pgCustomerEmail=${encodeURIComponent(memberInfo.customerEmail || '')}`
+      const successUrl = `${origin}/order/success?orderNo=${encodeURIComponent(result.orderNo)}&amount=${amount}&memberId=${result.buyerId}&pgCustomerName=${encodeURIComponent(memberInfo.customerName || '')}&pgCustomerEmail=${encodeURIComponent(memberInfo.customerEmail || '')}`
       const failUrl = `${origin}/order/failure?orderNo=${encodeURIComponent(result.orderNo)}&amount=${amount}`
 
       const tossClient = window.TossPayments?.(clientKey)

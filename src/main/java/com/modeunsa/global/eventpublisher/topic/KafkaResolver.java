@@ -15,9 +15,11 @@ import com.modeunsa.shared.order.event.RefundRequestedEvent;
 import com.modeunsa.shared.product.event.ProductCreatedEvent;
 import com.modeunsa.shared.product.event.ProductUpdatedEvent;
 import com.modeunsa.shared.settlement.event.SettlementCompletedPayoutEvent;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
+@ConditionalOnProperty(name = "app.event-publisher.type", havingValue = "kafka")
 public class KafkaResolver {
 
   private static final String MEMBER_EVENTS_TOPIC = "member-events";

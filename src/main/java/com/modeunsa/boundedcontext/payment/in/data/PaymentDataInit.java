@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.payment.in;
+package com.modeunsa.boundedcontext.payment.in.data;
 
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositRequest;
