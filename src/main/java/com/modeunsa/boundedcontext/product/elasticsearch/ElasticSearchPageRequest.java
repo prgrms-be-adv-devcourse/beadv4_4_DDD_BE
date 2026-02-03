@@ -1,6 +1,6 @@
-package com.modeunsa.global.elasticsearch;
+package com.modeunsa.boundedcontext.product.elasticsearch;
 
-import com.modeunsa.global.elasticsearch.sort.ElasticSearchSort;
+import com.modeunsa.boundedcontext.product.elasticsearch.sort.ElasticSearchSort;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

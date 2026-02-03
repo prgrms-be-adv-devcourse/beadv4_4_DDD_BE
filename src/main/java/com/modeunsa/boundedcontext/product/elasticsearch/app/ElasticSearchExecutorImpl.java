@@ -1,4 +1,4 @@
-package com.modeunsa.global.elasticsearch.app;
+package com.modeunsa.boundedcontext.product.elasticsearch.app;
 
 import static com.modeunsa.global.status.ErrorStatus.ELASTICSEARCH_BULKINDEX_FAILED;
 import static com.modeunsa.global.status.ErrorStatus.ELASTICSEARCH_DELETE_FAILED;
@@ -13,11 +13,11 @@ import co.elastic.clients.elasticsearch.core.BulkRequest;
 import co.elastic.clients.elasticsearch.core.DeleteRequest;
 import co.elastic.clients.elasticsearch.core.IndexRequest;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
-import com.modeunsa.global.elasticsearch.ElasticSearchPageRequest;
-import com.modeunsa.global.elasticsearch.model.ElasticSearchHit;
-import com.modeunsa.global.elasticsearch.model.ElasticSearchPage;
-import com.modeunsa.global.elasticsearch.sort.ElasticSearchSort;
-import com.modeunsa.global.elasticsearch.sort.ElasticSearchSortOrder;
+import com.modeunsa.boundedcontext.product.elasticsearch.ElasticSearchPageRequest;
+import com.modeunsa.boundedcontext.product.elasticsearch.model.ElasticSearchHit;
+import com.modeunsa.boundedcontext.product.elasticsearch.model.ElasticSearchPage;
+import com.modeunsa.boundedcontext.product.elasticsearch.sort.ElasticSearchSort;
+import com.modeunsa.boundedcontext.product.elasticsearch.sort.ElasticSearchSortOrder;
 import com.modeunsa.global.exception.GeneralException;
 import java.io.IOException;
 import java.util.List;
@@ -28,6 +28,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ElasticSearchExecutorImpl implements ElasticSearchExecutor {
 
+  private static final String PRODUCT_INDEX = "product_index_v1";
   private final ElasticsearchClient client;
 
   public ElasticSearchExecutorImpl(ElasticsearchClient client) {
@@ -36,13 +37,13 @@ public class ElasticSearchExecutorImpl implements ElasticSearchExecutor {
 
   @Override
   public <T> ElasticSearchPage<T> search(
-      String index, Query query, ElasticSearchPageRequest pageRequest, Class<T> clazz) {
+      Query query, ElasticSearchPageRequest pageRequest, Class<T> clazz) {
     try {
       SearchRequest request =
           SearchRequest.of(
               builder ->
                   builder
-                      .index(index)
+                      .index(PRODUCT_INDEX)
                       .query(query)
                       .from(pageRequest.getFrom())
                       .size(pageRequest.getSize())
