@@ -15,6 +15,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 public class EventConfig {
 
   @Bean
+  @ConditionalOnProperty(name = "app.event-publisher.type", havingValue = "spring")
   public EventPublisher springEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
     return new SpringDomainEventPublisher(applicationEventPublisher);
   }
