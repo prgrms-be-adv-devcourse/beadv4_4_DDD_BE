@@ -66,12 +66,13 @@ interface ProductsApiResponse {
 }
 
 const PAGE_SIZE = 10
+const PAGE_WINDOW = 5
 
 export default function ProductsPage() {
   const [keyword, setKeyword] = useState('')
   const [category, setCategory] = useState('')
   const [status, setStatus] = useState('')
-  const [currentPage, setCurrentPage] = useState(1)
+  const [currentPage, setCurrentPage] = useState(0)
 
   const accessToken = localStorage.getItem('accessToken')
 
@@ -103,8 +104,7 @@ export default function ProductsPage() {
     setIsLoading(true)
     setError(null)
     try {
-      // const category = toApiCategory(currentCategory)
-      const url = `${apiUrl}/api/v1/products/sellers?page=0&size=${PAGE_SIZE}`
+      const url = `${apiUrl}/api/v1/products/sellers?page=${currentPage}&size=${PAGE_SIZE}`
       const res = await fetch(url, {
         headers: { Authorization: `Bearer ${accessToken}` },
       })
@@ -142,11 +142,19 @@ export default function ProductsPage() {
   //   return matchKeyword && matchCategory && matchStatus
   // })
   //
-  const totalPages = Math.max(0, Math.ceil(products.length / PAGE_SIZE))
-  // const paginatedProducts = filteredProducts.slice(
-  //   (currentPage - 1) * PAGE_SIZE,
-  //   currentPage * PAGE_SIZE
-  // )
+  const totalPages = pageInfo?.totalPages ?? 0
+
+  const currentBlock = Math.floor(currentPage / PAGE_WINDOW)
+
+  const startPage = currentBlock * PAGE_WINDOW
+  const endPage = Math.min(
+      startPage + PAGE_WINDOW - 1,
+      totalPages - 1
+  )
+
+  const canGoPrevBlock = startPage > 0
+  const canGoNextBlock = endPage < totalPages - 1
+
 
   return (
     <MypageLayout>
@@ -364,71 +372,98 @@ export default function ProductsPage() {
             </table>
           </div>
 
-          {products.length > 0 && totalPages > 0 && (
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: '4px',
-                padding: '16px',
-                borderTop: '1px solid #f0f0f0',
-              }}
-            >
-              <button
-                type="button"
-                // onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                style={{
-                  padding: '8px 12px',
-                  borderRadius: '8px',
-                  border: '1px solid #e0e0e0',
-                  background: currentPage === 1 ? '#f5f5f5' : '#fff',
-                  color: currentPage === 1 ? '#999' : '#333',
-                  fontSize: '14px',
-                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                }}
-              >
-                이전
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <button
-                  key={page}
-                  type="button"
-                  onClick={() => setCurrentPage(page)}
+          {/* 페이징 */}
+          {products.length > 0 && totalPages > 1 && (
+              <div
                   style={{
-                    minWidth: '36px',
-                    padding: '8px',
-                    borderRadius: '8px',
-                    border: currentPage === page ? '2px solid #667eea' : '1px solid #e0e0e0',
-                    background: currentPage === page ? '#f8f8ff' : '#fff',
-                    color: currentPage === page ? '#667eea' : '#333',
-                    fontSize: '14px',
-                    fontWeight: currentPage === page ? 600 : 400,
-                    cursor: 'pointer',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '16px',
+                    borderTop: '1px solid #f0f0f0',
+                    flexWrap: 'wrap',
                   }}
-                >
-                  {page}
-                </button>
-              ))}
-              <button
-                type="button"
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                style={{
-                  padding: '8px 12px',
-                  borderRadius: '8px',
-                  border: '1px solid #e0e0e0',
-                  background: currentPage === totalPages ? '#f5f5f5' : '#fff',
-                  color: currentPage === totalPages ? '#999' : '#333',
-                  fontSize: '14px',
-                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                }}
               >
-                다음
-              </button>
-            </div>
+                {/* 이전 블록 */}
+                <button
+                    type="button"
+                    onClick={() =>
+                        setCurrentPage(Math.max(0, startPage - PAGE_WINDOW))
+                    }
+                    disabled={!canGoPrevBlock}
+                    style={{
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      border: '1px solid #e0e0e0',
+                      background: canGoPrevBlock ? '#fff' : '#f5f5f5',
+                      color: canGoPrevBlock ? '#333' : '#999',
+                      fontSize: '14px',
+                      cursor: canGoPrevBlock ? 'pointer' : 'not-allowed',
+                      fontWeight: 500,
+                    }}
+                >
+                  이전
+                </button>
+
+                {/* 페이지 번호 (블록 단위) */}
+                {Array.from(
+                    { length: endPage - startPage + 1 },
+                    (_, i) => {
+                      const pageIndex = startPage + i
+                      const pageNumber = pageIndex + 1
+                      const isActive = currentPage === pageIndex
+
+                      return (
+                          <button
+                              key={pageNumber}
+                              type="button"
+                              onClick={() => setCurrentPage(pageIndex)}
+                              style={{
+                                minWidth: '36px',
+                                padding: '8px',
+                                borderRadius: '8px',
+                                border: isActive
+                                    ? '2px solid #667eea'
+                                    : '1px solid #e0e0e0',
+                                background: isActive ? '#f8f8ff' : '#fff',
+                                color: isActive ? '#667eea' : '#333',
+                                fontSize: '14px',
+                                fontWeight: isActive ? 600 : 400,
+                                cursor: 'pointer',
+                              }}
+                          >
+                            {pageNumber}
+                          </button>
+                      )
+                    }
+                )}
+
+                {/* 다음 블록 */}
+                <button
+                    type="button"
+                    onClick={() =>
+                        setCurrentPage(
+                            Math.min(totalPages - 1, startPage + PAGE_WINDOW)
+                        )
+                    }
+                    disabled={!canGoNextBlock}
+                    style={{
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      border: '1px solid #e0e0e0',
+                      background: canGoNextBlock ? '#fff' : '#f5f5f5',
+                      color: canGoNextBlock ? '#333' : '#999',
+                      fontSize: '14px',
+                      cursor: canGoNextBlock ? 'pointer' : 'not-allowed',
+                      fontWeight: 500,
+                    }}
+                >
+                  다음
+                </button>
+              </div>
           )}
+
 
           {products.length === 0 && (
             <div
