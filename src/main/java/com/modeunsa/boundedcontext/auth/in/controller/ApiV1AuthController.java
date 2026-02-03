@@ -3,6 +3,7 @@ package com.modeunsa.boundedcontext.auth.in.controller;
 import com.modeunsa.boundedcontext.auth.app.facade.AuthFacade;
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import com.modeunsa.boundedcontext.auth.in.util.AuthRequestUtils;
+import com.modeunsa.global.config.CookieProperties;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.status.ErrorStatus;
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ApiV1AuthController {
 
   private final AuthFacade authFacade;
+  private final CookieProperties cookieProperties;
 
   @Operation(summary = "OAuth2 로그인 URL 조회", description = "OAuth2 로그인 URL을 반환합니다.")
   @GetMapping("/oauth/{provider}/url")
@@ -57,11 +59,11 @@ public class ApiV1AuthController {
         authFacade.oauthLogin(oauthProvider, code, redirectUri, state);
 
     ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", jwtTokenResponse.accessToken())
-        .httpOnly(false)   // TODO: true로 변경
-        .secure(false)     // 로컬 테스트 시 false, 배포 시 true
-        .path("/")
+        .httpOnly(cookieProperties.isHttpOnly())
+        .secure(cookieProperties.isSecure())
+        .path(cookieProperties.getPath())
         .maxAge(jwtTokenResponse.accessTokenExpiresIn())
-        .sameSite("Lax")
+        .sameSite(cookieProperties.getSameSite())
         .build();
 
     return ResponseEntity.ok()
