@@ -53,7 +53,6 @@ export default function MypageNav() {
 
     try {
       const payload = JSON.parse(atob(token.split('.')[1]))
-      console.log("role: " + payload.role)
       return payload.role ?? null
     } catch {
       return null

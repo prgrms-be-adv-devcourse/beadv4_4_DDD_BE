@@ -298,6 +298,9 @@ export default function ProductsPage() {
               <thead>
                 <tr style={{ background: '#f8f9fa', borderBottom: '2px solid #eee' }}>
                   <th style={{ padding: '14px 12px', textAlign: 'left', fontWeight: 600, color: '#333' }}>
+                    상품번호
+                  </th>
+                  <th style={{ padding: '14px 12px', textAlign: 'left', fontWeight: 600, color: '#333' }}>
                     상품명
                   </th>
                   <th style={{ padding: '14px 12px', textAlign: 'center', fontWeight: 600, color: '#333' }}>
@@ -329,6 +332,7 @@ export default function ProductsPage() {
               <tbody>
                 {products.map((product) => (
                   <tr key={product.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
+                    <td style={{ padding: '14px 12px', color: '#333'}}>{product.id}</td>
                     <td style={{ padding: '14px 12px', color: '#333', fontWeight: 500 }}>{product.name}</td>
                     <td style={{ padding: '14px 12px', textAlign: 'center', color: '#666' }}>
                       {getLabel(CATEGORY_OPTIONS, product.category)}
