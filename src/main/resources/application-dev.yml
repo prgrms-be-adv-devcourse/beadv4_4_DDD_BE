@@ -105,3 +105,9 @@ jwt:
 springdoc:
   swagger-ui:
     persistAuthorization: true
+
+app:
+  cookie:
+    secure: false
+    http-only: false
+    same-site: Lax

@@ -3,6 +3,7 @@ package com.modeunsa.boundedcontext.auth.in.controller;
 import com.modeunsa.boundedcontext.auth.app.facade.AuthFacade;
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import com.modeunsa.boundedcontext.auth.in.util.AuthRequestUtils;
+import com.modeunsa.global.config.CookieProperties;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.status.ErrorStatus;
@@ -11,8 +12,11 @@ import com.modeunsa.shared.auth.dto.JwtTokenResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.time.Duration;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ApiV1AuthController {
 
   private final AuthFacade authFacade;
+  private final CookieProperties cookieProperties;
 
   @Operation(summary = "OAuth2 로그인 URL 조회", description = "OAuth2 로그인 URL을 반환합니다.")
   @GetMapping("/oauth/{provider}/url")
@@ -54,7 +59,18 @@ public class ApiV1AuthController {
     JwtTokenResponse jwtTokenResponse =
         authFacade.oauthLogin(oauthProvider, code, redirectUri, state);
 
-    return ApiResponse.onSuccess(SuccessStatus.AUTH_LOGIN_SUCCESS, jwtTokenResponse);
+    ResponseCookie accessTokenCookie =
+        ResponseCookie.from("accessToken", jwtTokenResponse.accessToken())
+            .httpOnly(cookieProperties.isHttpOnly())
+            .secure(cookieProperties.isSecure())
+            .path(cookieProperties.getPath())
+            .maxAge(Duration.ofMillis(jwtTokenResponse.accessTokenExpiresIn()))
+            .sameSite(cookieProperties.getSameSite())
+            .build();
+
+    return ResponseEntity.ok()
+        .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
+        .body(ApiResponse.onSuccess(SuccessStatus.AUTH_LOGIN_SUCCESS, jwtTokenResponse).getBody());
   }
 
   @Operation(summary = "토큰 재발급", description = "Refresh Token을 사용하여 Access Token을 재발급합니다.")
