@@ -58,13 +58,14 @@ public class ApiV1AuthController {
     JwtTokenResponse jwtTokenResponse =
         authFacade.oauthLogin(oauthProvider, code, redirectUri, state);
 
-    ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", jwtTokenResponse.accessToken())
-        .httpOnly(cookieProperties.isHttpOnly())
-        .secure(cookieProperties.isSecure())
-        .path(cookieProperties.getPath())
-        .maxAge(jwtTokenResponse.accessTokenExpiresIn())
-        .sameSite(cookieProperties.getSameSite())
-        .build();
+    ResponseCookie accessTokenCookie =
+        ResponseCookie.from("accessToken", jwtTokenResponse.accessToken())
+            .httpOnly(cookieProperties.isHttpOnly())
+            .secure(cookieProperties.isSecure())
+            .path(cookieProperties.getPath())
+            .maxAge(jwtTokenResponse.accessTokenExpiresIn())
+            .sameSite(cookieProperties.getSameSite())
+            .build();
 
     return ResponseEntity.ok()
         .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
