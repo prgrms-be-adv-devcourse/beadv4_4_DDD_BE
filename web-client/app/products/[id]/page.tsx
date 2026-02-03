@@ -57,6 +57,14 @@ export default function ProductDetailPage() {
   const router = useRouter()
   const productId = params.id as string
 
+  const [product, setProduct] = useState<ProductDetailResponse | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
+
+
+  const accessToken = localStorage.getItem('accessToken')
+
   const fetchProduct = useCallback(async () => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
     if (!apiUrl || !productId) {
@@ -65,7 +73,9 @@ export default function ProductDetailPage() {
     }
     try {
       const url = `${apiUrl}/api/v1/products/${productId}`
-      const res = await fetch(url)
+      const res = await fetch(url, {
+        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+      })
       const data: ApiResponse = await res.json()
       if (!res.ok) {
         setError(data.message || '상품 목록을 불러오지 못했습니다.')
@@ -84,11 +94,6 @@ export default function ProductDetailPage() {
       setIsLoading(false)
     }
   }, [productId])
-  
-  const [product, setProduct] = useState<ProductDetailResponse | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProduct()
@@ -103,6 +108,8 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1)
   const [isCreatingOrder, setIsCreatingOrder] = useState(false)
   const [isAddingToCart, setIsAddingToCart] = useState(false)
+  const [isTogglingFavorite, setIsTogglingFavorite] = useState(false)
+
 
   const getCategoryLabel = (category: string): string => {
     const found = FASHION_CATEGORIES.find(
@@ -158,19 +165,71 @@ export default function ProductDetailPage() {
           width="24"
           height="24"
           viewBox="0 0 24 24"
-          fill={active ? '#e60023' : 'none'}
           xmlns="http://www.w3.org/2000/svg"
       >
         <path
             d="M12 21s-6.716-4.514-9.428-7.226C.78 11.98.78 8.993 2.69 7.083c1.91-1.91 4.897-1.91 6.807 0L12 9.586l2.503-2.503c1.91-1.91 4.897-1.91 6.807 0 1.91 1.91 1.91 4.897 0 6.807C18.716 16.486 12 21 12 21z"
-            stroke={active ? '#e60023' : '#999'}
+            fill={active ? '#e60023' : 'none'}
+            stroke={active ? 'none' : '#999'}
             strokeWidth="1.6"
+            style={{
+              fillOpacity: active ? 1 : 0,
+            }}
         />
       </svg>
   );
 
-  const handleToggleFavorite = () => {
+  const handleToggleFavorite = async () => {
     // API 호출 or optimistic update
+    if (!product || isTogglingFavorite) return
+    if (!accessToken?.trim()) {
+      alert('로그인이 필요합니다.')
+      return
+    }
+
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+    if (!apiUrl) return
+
+    const prevIsFavorite = product.isFavorite
+    const prevCount = product.favoriteCount
+
+    // ✅ optimistic update
+    setProduct({
+      ...product,
+      isFavorite: !prevIsFavorite,
+      favoriteCount: prevIsFavorite
+          ? prevCount - 1
+          : prevCount + 1,
+    })
+
+    setIsTogglingFavorite(true)
+
+    try {
+      const method = prevIsFavorite ? 'DELETE' : 'POST'
+      const res = await fetch(
+          `${apiUrl}/api/v1/products/favorites/${product.id}`,
+          {
+            method,
+            headers: { Authorization: `Bearer ${accessToken}` },
+          }
+      )
+
+      if (!res.ok) {
+        throw new Error('관심상품 처리 실패')
+      }
+    } catch (e) {
+      // ❌ rollback
+      setProduct({
+        ...product,
+        isFavorite: prevIsFavorite,
+        favoriteCount: prevCount,
+      })
+
+      alert('관심상품 처리 중 오류가 발생했습니다.')
+    } finally {
+      setIsTogglingFavorite(false)
+    }
+
     console.log('관심상품 토글');
   };
 
@@ -349,20 +408,6 @@ export default function ProductDetailPage() {
 
               {/* Action Buttons */}
               <div className="action-buttons">
-                {/*/!* Favorite (Heart) *!/*/}
-                {/*<button*/}
-                {/*    className={`favorite-button ${product.isFavorite ? 'active' : ''}`}*/}
-                {/*    aria-label="관심상품"*/}
-                {/*>*/}
-                {/*  <span*/}
-                {/*      className="favorite-icon"*/}
-                {/*      onClick={handleToggleFavorite}*/}
-                {/*  >*/}
-                {/*    <HeartIcon active={product.isFavorite} />*/}
-                {/*  </span>*/}
-
-                {/*  <span className="favorite-count">{formatCount(product.favoriteCount)}</span>*/}
-                {/*</button>*/}
                 <button
                     className={`favorite-button ${product.isFavorite ? 'active' : ''}`}
                     aria-label="관심상품"

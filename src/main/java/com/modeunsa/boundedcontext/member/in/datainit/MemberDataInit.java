@@ -17,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
@@ -25,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Profile("!test")
 @ConditionalOnProperty(name = "app.data-init.enabled", havingValue = "true", matchIfMissing = true)
-@Configuration
+// @Configuration
 @Slf4j
 public class MemberDataInit {
 
@@ -170,8 +169,8 @@ public class MemberDataInit {
             member.getRealName(),
             member.getEmail(),
             member.getPhoneNumber(),
-            member.getRole(),
-            member.getStatus()));
+            member.getRole().name(),
+            member.getStatus().name()));
   }
 
   private void publishSellerRegisteredEvent(MemberSeller seller) {
@@ -183,7 +182,7 @@ public class MemberDataInit {
             seller.getRepresentativeName(),
             seller.getSettlementBankName(),
             seller.getSettlementBankAccount(),
-            seller.getStatus()));
+            seller.getStatus().name()));
   }
 
   private Member createMember(String email, String realName, String phoneNumber, MemberRole role) {
