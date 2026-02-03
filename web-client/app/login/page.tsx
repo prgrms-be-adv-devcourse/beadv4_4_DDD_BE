@@ -12,6 +12,13 @@ export default function LoginPage() {
   // 카카오나 네이버 버튼을 눌렀을 때 실행되는 함수입니다.
   const handleSocialLogin = async (provider: 'kakao' | 'naver') => {
     try {
+      // 0. API_URL 환경 변수 확인
+      if (!API_URL) {
+        console.error('NEXT_PUBLIC_API_URL 환경 변수가 설정되지 않았습니다. (.env 확인 필요)')
+        alert('서버 설정에 문제가 있습니다. 관리자에게 문의해주세요.')
+        return
+      }
+
       // 1. 리다이렉트 주소를 준비합니다.
       const redirectUri = `${window.location.origin}/login/oauth2/code/${provider}`
 
@@ -20,6 +27,15 @@ export default function LoginPage() {
           `${API_URL}/api/v1/auths/oauth/${provider}/url?redirectUri=${encodeURIComponent(redirectUri)}`,
           { credentials: 'include' }
       )
+
+      // HTTP 레벨 에러 먼저 처리
+      if (!response.ok) {
+        console.error('HTTP 에러:', response.status, response.statusText)
+        alert('로그인 요청 중 서버 오류가 발생했습니다.')
+        return
+      }
+
+      // 성공 응답일 때만 JSON 파싱
       const data = await response.json()
 
       if (data.isSuccess) {
