@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import {useCallback, useEffect, useState} from 'react'
 import MypageLayout from '../../components/MypageLayout'
 
 const CATEGORY_OPTIONS = [
@@ -15,63 +15,55 @@ const CATEGORY_OPTIONS = [
   { value: 'BEAUTY', label: '뷰티' },
 ]
 
-const STATUS_OPTIONS = [
-  { value: '', label: '전체 상태' },
-  { value: 'ON_SALE', label: '판매중' },
-  { value: 'SOLD_OUT', label: '품절' },
-  { value: 'HIDDEN', label: '숨김' },
+const PRODUCT_STATUS_OPTIONS = [
+  { value: 'DRAFT', label: '임시저장' },
+  { value: 'COMPLETED', label: '완료' },
+  { value: 'CANCELED', label: '취소' },
 ]
 
-const mockProducts = [
-  {
-    id: 1,
-    name: '데일리 베이직 티셔츠',
-    category: '상의',
-    categoryValue: 'UPPER',
-    price: '29,000원',
-    stock: 50,
-    status: '판매중',
-    statusValue: 'ON_SALE',
-    statusStyle: { color: '#22c55e', fontWeight: 600 },
-    registeredAt: '2024.01.15',
-  },
-  {
-    id: 2,
-    name: '루즈핏 오버코트',
-    category: '아우터',
-    categoryValue: 'OUTER',
-    price: '89,000원',
-    stock: 12,
-    status: '판매중',
-    statusValue: 'ON_SALE',
-    statusStyle: { color: '#22c55e', fontWeight: 600 },
-    registeredAt: '2024.01.12',
-  },
-  {
-    id: 3,
-    name: '니트 풀오버 세트',
-    category: '상의',
-    categoryValue: 'UPPER',
-    price: '44,000원',
-    stock: 0,
-    status: '품절',
-    statusValue: 'SOLD_OUT',
-    statusStyle: { color: '#f59e0b', fontWeight: 600 },
-    registeredAt: '2024.01.08',
-  },
-  {
-    id: 4,
-    name: '미니 크로스백',
-    category: '가방',
-    categoryValue: 'BAG',
-    price: '35,000원',
-    stock: 8,
-    status: '판매중',
-    statusValue: 'ON_SALE',
-    statusStyle: { color: '#22c55e', fontWeight: 600 },
-    registeredAt: '2024.01.05',
-  },
+
+const SALE_STATUS_OPTIONS = [
+  { value: 'SALE', label: '판매중' },
+  { value: 'SOLD_OUT', label: '품절' },
+  { value: 'NOT_SALE', label: '판매중지' },
 ]
+
+interface ProductResponse {
+  id: number
+  sellerId: number
+  sellerBusinessName: string
+  name: string
+  category: string
+  description: string
+  price: number
+  salePrice: number
+  currency: string
+  productStatus: string
+  saleStatus: string
+  stock: number
+  favoriteCount: number
+  primaryImageUrl: string
+  createdAt: string
+  updatedAt: string
+  createdBy: number
+  updatedBy: number
+}
+
+interface PageInfo {
+  page: number
+  size: number
+  hasNext: boolean
+  totalElements: number
+  totalPages: number
+}
+
+interface ProductsApiResponse {
+  isSuccess: boolean
+  code: string
+  message: string
+  pageInfo: PageInfo | null
+  result: ProductResponse[] | null
+}
 
 const PAGE_SIZE = 10
 
@@ -81,23 +73,80 @@ export default function ProductsPage() {
   const [status, setStatus] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
 
+  const accessToken = localStorage.getItem('accessToken')
+
   const handleSearch = () => {
-    setCurrentPage(1)
+    setCurrentPage(0)
     alert(`상품 검색: ${keyword || '(전체)'} / ${category || '전체'} / ${status || '전체'}\n(데모 화면입니다.)`)
   }
 
-  const filteredProducts = mockProducts.filter((p) => {
-    const matchKeyword = !keyword || p.name.toLowerCase().includes(keyword.toLowerCase())
-    const matchCategory = !category || p.categoryValue === category
-    const matchStatus = !status || p.statusValue === status
-    return matchKeyword && matchCategory && matchStatus
-  })
+  const [products, setProducts] = useState<ProductResponse[]>([])
+  const [pageInfo, setPageInfo] = useState<PageInfo | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE))
-  const paginatedProducts = filteredProducts.slice(
-    (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE
-  )
+  type Option = { value: string; label: string }
+
+  const getLabel = (options: Option[], value?: string) => {
+    if (!value) return '-'
+    return options.find((opt) => opt.value === value)?.label ?? value
+  }
+
+  const fetchProducts = useCallback(async () => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+    if (!apiUrl) {
+      setProducts([])
+      setPageInfo(null)
+      setIsLoading(false)
+      return
+    }
+    setIsLoading(true)
+    setError(null)
+    try {
+      // const category = toApiCategory(currentCategory)
+      const url = `${apiUrl}/api/v1/products/sellers?page=0&size=${PAGE_SIZE}`
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+      const data: ProductsApiResponse = await res.json()
+      if (!res.ok) {
+        setError(data.message || '상품 목록을 불러오지 못했습니다.')
+        setProducts([])
+        setPageInfo(null)
+        return
+      }
+      if (data.isSuccess && data.result) {
+        setProducts(data.result)
+        setPageInfo(data.pageInfo ?? null)
+      } else {
+        setProducts([])
+        setPageInfo(null)
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '상품 목록을 불러오지 못했습니다.')
+      setProducts([])
+      setPageInfo(null)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [currentPage])
+
+  useEffect(() => {
+    fetchProducts()
+  }, [fetchProducts])
+
+  // const filteredProducts = mockProducts.filter((p) => {
+  //   const matchKeyword = !keyword || p.name.toLowerCase().includes(keyword.toLowerCase())
+  //   const matchCategory = !category || p.categoryValue === category
+  //   const matchStatus = !status || p.statusValue === status
+  //   return matchKeyword && matchCategory && matchStatus
+  // })
+  //
+  const totalPages = Math.max(0, Math.ceil(products.length / PAGE_SIZE))
+  // const paginatedProducts = filteredProducts.slice(
+  //   (currentPage - 1) * PAGE_SIZE,
+  //   currentPage * PAGE_SIZE
+  // )
 
   return (
     <MypageLayout>
@@ -148,7 +197,7 @@ export default function ProductsPage() {
               value={keyword}
               onChange={(e) => {
                 setKeyword(e.target.value)
-                setCurrentPage(1)
+                setCurrentPage(0)
               }}
               style={{
                 padding: '8px 12px',
@@ -163,7 +212,7 @@ export default function ProductsPage() {
               value={category}
               onChange={(e) => {
                 setCategory(e.target.value)
-                setCurrentPage(1)
+                setCurrentPage(0)
               }}
               style={{
                 padding: '8px 12px',
@@ -175,7 +224,7 @@ export default function ProductsPage() {
               }}
             >
               {CATEGORY_OPTIONS.map((opt) => (
-                <option key={opt.value || 'all'} value={opt.value}>
+                <option key={opt.value} value={opt.value}>
                   {opt.label}
                 </option>
               ))}
@@ -184,7 +233,7 @@ export default function ProductsPage() {
               value={status}
               onChange={(e) => {
                 setStatus(e.target.value)
-                setCurrentPage(1)
+                setCurrentPage(0)
               }}
               style={{
                 padding: '8px 12px',
@@ -195,8 +244,8 @@ export default function ProductsPage() {
                 minWidth: '100px',
               }}
             >
-              {STATUS_OPTIONS.map((opt) => (
-                <option key={opt.value || 'all'} value={opt.value}>
+              {SALE_STATUS_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
                   {opt.label}
                 </option>
               ))}
@@ -247,16 +296,22 @@ export default function ProductsPage() {
                     카테고리
                   </th>
                   <th style={{ padding: '14px 12px', textAlign: 'right', fontWeight: 600, color: '#333' }}>
+                    정가
+                  </th>
+                  <th style={{ padding: '14px 12px', textAlign: 'right', fontWeight: 600, color: '#333' }}>
                     판매가
                   </th>
                   <th style={{ padding: '14px 12px', textAlign: 'center', fontWeight: 600, color: '#333' }}>
                     재고
                   </th>
                   <th style={{ padding: '14px 12px', textAlign: 'center', fontWeight: 600, color: '#333' }}>
+                    판매상태
+                  </th>
+                  <th style={{ padding: '14px 12px', textAlign: 'center', fontWeight: 600, color: '#333' }}>
                     상태
                   </th>
                   <th style={{ padding: '14px 12px', textAlign: 'left', fontWeight: 600, color: '#333' }}>
-                    등록일
+                    등록일시
                   </th>
                   <th style={{ padding: '14px 12px', textAlign: 'center', fontWeight: 600, color: '#333' }}>
                     관리
@@ -264,22 +319,32 @@ export default function ProductsPage() {
                 </tr>
               </thead>
               <tbody>
-                {paginatedProducts.map((product) => (
+                {products.map((product) => (
                   <tr key={product.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
                     <td style={{ padding: '14px 12px', color: '#333', fontWeight: 500 }}>{product.name}</td>
                     <td style={{ padding: '14px 12px', textAlign: 'center', color: '#666' }}>
-                      {product.category}
+                      {getLabel(CATEGORY_OPTIONS, product.category)}
                     </td>
                     <td style={{ padding: '14px 12px', textAlign: 'right', fontWeight: 600, color: '#333' }}>
-                      {product.price}
+                      {product.price != null
+                          ? `₩${product.price.toLocaleString()}`
+                          : ''}
+                    </td>
+                    <td style={{ padding: '14px 12px', textAlign: 'right', fontWeight: 600, color: '#333' }}>
+                      {product.salePrice != null
+                          ? `₩${product.salePrice.toLocaleString()}`
+                          : ''}
                     </td>
                     <td style={{ padding: '14px 12px', textAlign: 'center', color: '#333' }}>
                       {product.stock}개
                     </td>
                     <td style={{ padding: '14px 12px', textAlign: 'center' }}>
-                      <span style={product.statusStyle}>{product.status}</span>
+                      {getLabel(SALE_STATUS_OPTIONS, product.saleStatus)}
                     </td>
-                    <td style={{ padding: '14px 12px', color: '#666' }}>{product.registeredAt}</td>
+                    <td style={{ padding: '14px 12px', textAlign: 'center' }}>
+                      {getLabel(PRODUCT_STATUS_OPTIONS, product.productStatus)}
+                    </td>
+                    <td style={{ padding: '14px 12px', color: '#666' }}>{product.createdAt}</td>
                     <td style={{ padding: '14px 12px', textAlign: 'center' }}>
                       <Link
                         href={`/mypage/products/${product.id}/edit`}
@@ -299,7 +364,7 @@ export default function ProductsPage() {
             </table>
           </div>
 
-          {filteredProducts.length > 0 && totalPages > 0 && (
+          {products.length > 0 && totalPages > 0 && (
             <div
               style={{
                 display: 'flex',
@@ -312,7 +377,7 @@ export default function ProductsPage() {
             >
               <button
                 type="button"
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                // onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
                 style={{
                   padding: '8px 12px',
@@ -365,7 +430,7 @@ export default function ProductsPage() {
             </div>
           )}
 
-          {filteredProducts.length === 0 && (
+          {products.length === 0 && (
             <div
               style={{
                 padding: '48px 24px',
