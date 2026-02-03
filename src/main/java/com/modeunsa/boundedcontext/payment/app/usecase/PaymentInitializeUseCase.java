@@ -40,7 +40,9 @@ public class PaymentInitializeUseCase {
             paymentId,
             paymentRequest.orderId(),
             paymentRequest.totalAmount(),
-            paymentRequest.paymentDeadlineAt());
+            paymentRequest.paymentDeadlineAt(),
+            paymentRequest.providerType(),
+            paymentRequest.paymentPurpose());
     return savePayment(payment);
   }
 

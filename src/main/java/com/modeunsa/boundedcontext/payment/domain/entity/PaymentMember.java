@@ -56,7 +56,8 @@ public class PaymentMember extends ManualIdAndAuditedEntity {
   public void validateCanOrder() {
     if (!canOrder()) {
       throw new PaymentDomainException(
-          PaymentErrorCode.MEMBER_IN_ACTIVE, this.getId(), this.status);
+          PaymentErrorCode.MEMBER_IN_ACTIVE,
+          String.format("유효한 회원 상태가 아닙니다. 회원 ID: %d, 회원 상태 : %s", this.getId(), this.status));
     }
   }
 

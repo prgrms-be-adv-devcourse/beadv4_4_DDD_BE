@@ -1,6 +1,7 @@
 package com.modeunsa.boundedcontext.payment.app.dto;
 
 import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
+import com.modeunsa.boundedcontext.payment.domain.types.ProviderType;
 import java.math.BigDecimal;
 import lombok.Builder;
 
@@ -9,9 +10,10 @@ public record PaymentProcessContext(
     Long buyerId,
     String orderNo,
     Long orderId,
-    boolean needsCharge,
-    BigDecimal chargeAmount,
+    boolean needsPgPayment,
+    BigDecimal requestPgAmount,
     BigDecimal totalAmount,
+    ProviderType providerType,
     String paymentKey,
     String pgCustomerName,
     String pgCustomerEmail,
@@ -24,7 +26,8 @@ public record PaymentProcessContext(
         .orderNo(payment.getId().getOrderNo())
         .orderId(payment.getOrderId())
         .totalAmount(payment.getTotalAmount())
-        .needsCharge(false)
+        .needsPgPayment(false)
+        .providerType(payment.getPaymentProvider())
         .build();
   }
 
@@ -34,8 +37,9 @@ public record PaymentProcessContext(
         .orderNo(payment.getId().getOrderNo())
         .orderId(payment.getOrderId())
         .totalAmount(payment.getTotalAmount())
-        .needsCharge(payment.isNeedCharge())
-        .chargeAmount(payment.getShortAmount())
+        .needsPgPayment(payment.isNeedPgPayment())
+        .requestPgAmount(payment.getRequestPgAmount())
+        .providerType(payment.getPaymentProvider())
         .build();
   }
 
@@ -45,8 +49,8 @@ public record PaymentProcessContext(
         .buyerId(memberId)
         .orderId(Long.valueOf(confirmPaymentRequest.orderId()))
         .orderNo(orderNo)
-        .needsCharge(true)
-        .chargeAmount(BigDecimal.valueOf(confirmPaymentRequest.amount()))
+        .needsPgPayment(true)
+        .requestPgAmount(BigDecimal.valueOf(confirmPaymentRequest.amount()))
         .paymentKey(confirmPaymentRequest.paymentKey())
         .pgCustomerEmail(confirmPaymentRequest.pgCustomerEmail())
         .pgCustomerName(confirmPaymentRequest.pgCustomerName())
@@ -60,8 +64,8 @@ public record PaymentProcessContext(
         .buyerId(payment.getId().getMemberId())
         .orderNo(payment.getId().getOrderNo())
         .orderId(payment.getOrderId())
-        .needsCharge(payment.isNeedCharge())
-        .chargeAmount(payment.getPgPaymentAmount())
+        .needsPgPayment(payment.isNeedPgPayment())
+        .requestPgAmount(payment.getPgPaymentAmount())
         .totalAmount(payment.getTotalAmount())
         .build();
   }

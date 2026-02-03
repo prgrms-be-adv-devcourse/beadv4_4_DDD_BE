@@ -9,6 +9,8 @@ import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
+import com.modeunsa.boundedcontext.payment.domain.types.PaymentPurpose;
+import com.modeunsa.boundedcontext.payment.domain.types.ProviderType;
 import com.modeunsa.boundedcontext.payment.out.PaymentAccountLogRepository;
 import com.modeunsa.boundedcontext.payment.out.PaymentAccountRepository;
 import com.modeunsa.boundedcontext.payment.out.PaymentMemberRepository;
@@ -101,7 +103,12 @@ class PaymentProcessConcurrencyTest {
       PaymentId paymentId = PaymentId.create(buyerId, orderNo);
       Payment payment =
           Payment.create(
-              paymentId, orderId, BigDecimal.valueOf(20_000), LocalDateTime.now().plusDays(1));
+              paymentId,
+              orderId,
+              BigDecimal.valueOf(20_000),
+              LocalDateTime.now().plusDays(1),
+              ProviderType.MODEUNSA_PAY,
+              PaymentPurpose.PRODUCT_PURCHASE);
       paymentRepository.save(payment);
 
       // PaymentProcessContext 생성
@@ -110,8 +117,8 @@ class PaymentProcessConcurrencyTest {
               .buyerId(buyerId)
               .orderNo(orderNo)
               .orderId(orderId)
-              .needsCharge(false)
-              .chargeAmount(BigDecimal.ZERO)
+              .needsPgPayment(false)
+              .requestPgAmount(BigDecimal.ZERO)
               .totalAmount(amount)
               .build();
 
