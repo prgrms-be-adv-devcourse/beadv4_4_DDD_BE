@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.order.in;
+package com.modeunsa.boundedcontext.order.in.api.v1;
 
 import com.modeunsa.boundedcontext.order.app.OrderFacade;
 import com.modeunsa.global.response.ApiResponse;
@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/orders")
 @RequiredArgsConstructor
-public class ApiV1OrderController {
+public class OrderController {
 
   private final OrderFacade orderFacade;
 
