@@ -76,7 +76,7 @@ public class OrderGetCartItemsUseCase {
       return false; // 상품이 삭제됨
     }
     // 재고 체크 (TODO: product.status() == SALE 조건도 추가)
-    return product.stock() >= cartQuantity;
+    return true;
   }
 
   // 최종 dto 변환 : 총 수량과 총 금액을 계산하여 포장

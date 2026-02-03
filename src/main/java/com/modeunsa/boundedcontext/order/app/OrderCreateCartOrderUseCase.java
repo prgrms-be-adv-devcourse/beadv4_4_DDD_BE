@@ -84,10 +84,10 @@ public class OrderCreateCartOrderUseCase {
         throw new GeneralException(ErrorStatus.PRODUCT_NOT_FOUND);
       }
       // 2) 재고 부족
-      if (product.stock() < item.getQuantity()) {
-        throw new GeneralException(
-            ErrorStatus.ORDER_STOCK_NOT_ENOUGH, List.of(item.getProductId()));
-      }
+      //     if (product.stock() < item.getQuantity()) {
+      //       throw new GeneralException(
+      //          ErrorStatus.ORDER_STOCK_NOT_ENOUGH, List.of(item.getProductId()));
+      //     }
     }
 
     return productMap;
