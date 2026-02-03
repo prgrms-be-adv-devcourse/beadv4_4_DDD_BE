@@ -109,7 +109,7 @@ public class ApiV1AuthController {
         .body(ApiResponse.onSuccess(SuccessStatus.AUTH_LOGOUT_SUCCESS).getBody());
   }
 
-  @Operation(summary = "[테스트용] 인증 확인", description = "Access Token 유효성을 확인하고 인증된 사용자 정보를 반환합니다.")
+  @Operation(summary = "인증 확인", description = "Access Token 유효성을 확인하고 인증된 사용자 정보를 반환합니다.")
   @GetMapping("/me")
   public ResponseEntity<ApiResponse> checkAuth() {
     // SecurityContext에서 인증 정보 가져오기

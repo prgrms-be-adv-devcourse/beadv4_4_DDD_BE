@@ -16,38 +16,33 @@ function LoginCallbackContent() {
     const redirectUri = window.location.href.split('?')[0]
 
     if (!code || !state) {
-      setMessage('잘못된 로그인 요청입니다. 다시 시도해주세요.')
+      setMessage('잘못된 로그인 요청입니다.')
       setTimeout(() => router.replace('/login'), 1500)
       return
     }
 
     api.post(`/api/v1/auths/login/${provider}`, null, {
-      params: {
-        code: code,
-        state: state,
-        redirectUri: redirectUri
-      }
+      params: { code, state, redirectUri }
     })
     .then((response) => {
-      const data = response.data;
-      if (data.isSuccess) {
-        setMessage('로그인 성공! 잠시 후 이동합니다.')
+      if (response.data.isSuccess) {
+        setMessage('로그인 성공!')
+        // 헤더의 checkLoginStatus를 깨우는 이벤트
         window.dispatchEvent(new Event('loginStatusChanged'))
         setTimeout(() => router.push('/'), 1000)
       } else {
-        setMessage(`로그인 실패: ${data.message}`)
+        setMessage(`실패: ${response.data.message}`)
         setTimeout(() => router.replace('/login'), 1500)
       }
     })
-    .catch((error) => {
-      console.error('콜백 처리 중 에러:', error)
-      setMessage('서버 연결에 실패했습니다.')
+    .catch(() => {
+      setMessage('서버 연결 실패')
       setTimeout(() => router.replace('/login'), 1500)
     })
   }, [searchParams, router])
 
   return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '20px' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         {message}
       </div>
   )
