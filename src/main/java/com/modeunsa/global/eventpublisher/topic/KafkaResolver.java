@@ -3,6 +3,12 @@ package com.modeunsa.global.eventpublisher.topic;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentFailedEvent;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentMemberCreatedEvent;
 import com.modeunsa.shared.member.event.MemberBasicInfoUpdatedEvent;
+import com.modeunsa.shared.member.event.MemberDeliveryAddressAddedEvent;
+import com.modeunsa.shared.member.event.MemberDeliveryAddressDeletedEvent;
+import com.modeunsa.shared.member.event.MemberDeliveryAddressSetAsDefaultEvent;
+import com.modeunsa.shared.member.event.MemberDeliveryAddressUpdatedEvent;
+import com.modeunsa.shared.member.event.MemberProfileCreatedEvent;
+import com.modeunsa.shared.member.event.MemberProfileUpdatedEvent;
 import com.modeunsa.shared.member.event.MemberSignupEvent;
 import com.modeunsa.shared.member.event.SellerRegisteredEvent;
 import com.modeunsa.shared.order.event.RefundRequestedEvent;
@@ -22,14 +28,15 @@ public class KafkaResolver {
 
   public String resolveTopic(Object event) {
 
-    // member
-    if (event instanceof MemberSignupEvent) {
-      return MEMBER_EVENTS_TOPIC;
-    }
-    if (event instanceof MemberBasicInfoUpdatedEvent) {
-      return MEMBER_EVENTS_TOPIC;
-    }
-    if (event instanceof SellerRegisteredEvent) {
+    if (event instanceof MemberSignupEvent
+        || event instanceof MemberBasicInfoUpdatedEvent
+        || event instanceof MemberProfileCreatedEvent
+        || event instanceof MemberProfileUpdatedEvent
+        || event instanceof MemberDeliveryAddressAddedEvent
+        || event instanceof MemberDeliveryAddressUpdatedEvent
+        || event instanceof MemberDeliveryAddressDeletedEvent
+        || event instanceof MemberDeliveryAddressSetAsDefaultEvent
+        || event instanceof SellerRegisteredEvent) {
       return MEMBER_EVENTS_TOPIC;
     }
 
@@ -68,6 +75,24 @@ public class KafkaResolver {
       return "member-%d".formatted(e.memberId());
     }
     if (event instanceof MemberBasicInfoUpdatedEvent e) {
+      return "member-%d".formatted(e.memberId());
+    }
+    if (event instanceof MemberProfileCreatedEvent e) {
+      return "member-%d".formatted(e.memberId());
+    }
+    if (event instanceof MemberProfileUpdatedEvent e) {
+      return "member-%d".formatted(e.memberId());
+    }
+    if (event instanceof MemberDeliveryAddressAddedEvent e) {
+      return "member-%d".formatted(e.memberId());
+    }
+    if (event instanceof MemberDeliveryAddressUpdatedEvent e) {
+      return "member-%d".formatted(e.memberId());
+    }
+    if (event instanceof MemberDeliveryAddressDeletedEvent e) {
+      return "member-%d".formatted(e.memberId());
+    }
+    if (event instanceof MemberDeliveryAddressSetAsDefaultEvent e) {
       return "member-%d".formatted(e.memberId());
     }
     if (event instanceof SellerRegisteredEvent e) {

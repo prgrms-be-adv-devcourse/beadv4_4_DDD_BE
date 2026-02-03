@@ -4,6 +4,7 @@ import com.modeunsa.boundedcontext.inventory.app.InventoryFacade;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.global.status.SuccessStatus;
+import com.modeunsa.shared.inventory.dto.InventoryDto;
 import com.modeunsa.shared.inventory.dto.InventoryUpdateRequest;
 import com.modeunsa.shared.inventory.dto.InventoryUpdateResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,6 +37,15 @@ public class InventoryController {
     Long sellerId = 1L;
     InventoryUpdateResponse response =
         inventoryFacade.updateInventory(sellerId, productId, inventoryUpdateRequest);
+
+    return ApiResponse.onSuccess(SuccessStatus.OK, response);
+  }
+
+  @Operation(summary = "실재고 조회", description = "내부모듈에서 사용하는 상품별 실재고 조회 기능입니다.")
+  @GetMapping("/internal/{productId}")
+  public ResponseEntity<ApiResponse> getInventory(Long productId) {
+
+    InventoryDto response = inventoryFacade.getInventory(productId);
 
     return ApiResponse.onSuccess(SuccessStatus.OK, response);
   }

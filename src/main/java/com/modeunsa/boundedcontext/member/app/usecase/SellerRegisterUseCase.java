@@ -89,6 +89,6 @@ public class SellerRegisterUseCase {
             seller.getRepresentativeName(),
             seller.getSettlementBankName(),
             seller.getSettlementBankAccount(),
-            seller.getStatus()));
+            seller.getStatus().name()));
   }
 }
