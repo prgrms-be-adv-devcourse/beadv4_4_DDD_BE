@@ -3,6 +3,8 @@
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useEffect, useState, Suspense } from 'react'
 
+const API_URL = process.env.API_URL
+
 function LoginCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -15,11 +17,11 @@ function LoginCallbackContent() {
 
     // 2. 현재 주소가 kakao인지 naver인지 확인합니다.
     const provider = window.location.pathname.includes('kakao') ? 'kakao' : 'naver'
-    const redirectUri = window.location.href.split('?')[0] // 현재 페이지 주소 (쿼리제외)
+    const redirectUri = window.location.href.split('?')[0]
 
     if (code && state) {
       // 3. 백엔드의 실제 로그인 API(@PostMapping("/login/{provider}"))를 호출합니다.
-      fetch(`http://localhost:8080/api/v1/auths/login/${provider}?code=${code}&state=${state}&redirectUri=${encodeURIComponent(redirectUri)}`, {
+      fetch(`${API_URL}/api/v1/auths/login/${provider}?code=${code}&state=${state}&redirectUri=${encodeURIComponent(redirectUri)}`, {
         method: 'POST',
         credentials: 'include'
       })

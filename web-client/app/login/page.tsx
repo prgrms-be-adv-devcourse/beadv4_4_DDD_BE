@@ -4,18 +4,21 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Header from '../components/Header'
 
+const API_URL = process.env.API_URL
+
 export default function LoginPage() {
   const router = useRouter()
 
   // 카카오나 네이버 버튼을 눌렀을 때 실행되는 함수입니다.
   const handleSocialLogin = async (provider: 'kakao' | 'naver') => {
     try {
-      // 1. 이미지에 등록된 리다이렉트 주소를 준비합니다. (포트 3000번 확인)
+      // 1. 리다이렉트 주소를 준비합니다.
       const redirectUri = `${window.location.origin}/login/oauth2/code/${provider}`
 
       // 2. 백엔드에 "로그인 페이지 주소(URL)"를 달라고 요청합니다.
       const response = await fetch(
-          `http://localhost:8080/api/v1/auths/oauth/${provider}/url?redirectUri=${encodeURIComponent(redirectUri)}`
+          `${API_URL}/api/v1/auths/oauth/${provider}/url?redirectUri=${encodeURIComponent(redirectUri)}`,
+          { credentials: 'include' }
       )
       const data = await response.json()
 
