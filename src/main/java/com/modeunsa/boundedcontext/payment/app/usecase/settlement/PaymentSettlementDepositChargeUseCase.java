@@ -29,12 +29,12 @@ public class PaymentSettlementDepositChargeUseCase implements PaymentSettlementP
   @Override
   public void execute(PaymentProcessContext context) {
     PaymentAccount buyerAccount =
-        paymentAccountSupport.getPaymentAccountByMemberId(context.buyerId());
+        paymentAccountSupport.getPaymentAccountByMemberIdForUpdate(context.buyerId());
 
     buyerAccount.credit(
         context.requestPgAmount(),
         PaymentEventType.CHARGE_PG_TOSS_PAYMENTS,
-        context.orderId(),
+        context.buyerId(),
         ReferenceType.PAYMENT_MEMBER);
 
     paymentSupport.changePaymentStatus(
