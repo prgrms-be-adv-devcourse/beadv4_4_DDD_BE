@@ -47,6 +47,7 @@ public abstract class ProductMapper {
   @Mapping(source = "product.id", target = "productId")
   @Mapping(source = "product.name", target = "productName")
   @Mapping(source = "product.salePrice", target = "salePrice")
+  @Mapping(source = "product.seller.businessName", target = "sellerBusinessName")
   @Mapping(
       source = "product.images",
       target = "primaryImageUrl",
