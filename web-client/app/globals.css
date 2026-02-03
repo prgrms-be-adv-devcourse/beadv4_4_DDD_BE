@@ -2742,6 +2742,17 @@ a {
   color: #333;
 }
 
+.form-readonly {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid #e5e5e5;
+  border-radius: 8px;
+  font-size: 15px;
+  font-family: inherit;
+  color: #555;
+  background: #f8f9fa;
+}
+
 .write-textarea {
   width: 100%;
   padding: 16px;
