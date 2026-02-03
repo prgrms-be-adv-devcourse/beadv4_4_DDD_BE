@@ -1,9 +1,8 @@
 'use client'
 
+import api from '../../../../lib/axios';
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useEffect, useState, Suspense } from 'react'
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 function LoginCallbackContent() {
   const router = useRouter()
@@ -13,7 +12,6 @@ function LoginCallbackContent() {
   useEffect(() => {
     const code = searchParams.get('code')
     const state = searchParams.get('state')
-
     const provider = window.location.pathname.includes('kakao') ? 'kakao' : 'naver'
     const redirectUri = window.location.href.split('?')[0]
 
@@ -23,21 +21,15 @@ function LoginCallbackContent() {
       return
     }
 
-    fetch(
-        `${API_URL}/api/v1/auths/login/${provider}` +
-        `?code=${encodeURIComponent(code)}` +
-        `&state=${encodeURIComponent(state)}` +
-        `&redirectUri=${encodeURIComponent(redirectUri)}`,
-        {
-          method: 'POST',
-          credentials: 'include'
-        }
-    )
-    .then((res) => {
-      if (!res.ok) throw new Error('HTTP error')
-      return res.json()
+    api.post(`/api/v1/auths/login/${provider}`, null, {
+      params: {
+        code: code,
+        state: state,
+        redirectUri: redirectUri
+      }
     })
-    .then((data) => {
+    .then((response) => {
+      const data = response.data;
       if (data.isSuccess) {
         setMessage('로그인 성공! 잠시 후 이동합니다.')
         window.dispatchEvent(new Event('loginStatusChanged'))
@@ -47,7 +39,8 @@ function LoginCallbackContent() {
         setTimeout(() => router.replace('/login'), 1500)
       }
     })
-    .catch(() => {
+    .catch((error) => {
+      console.error('콜백 처리 중 에러:', error)
       setMessage('서버 연결에 실패했습니다.')
       setTimeout(() => router.replace('/login'), 1500)
     })
