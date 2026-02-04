@@ -3,7 +3,8 @@ package com.modeunsa.boundedcontext.payment.app.usecase;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentMemberSupport;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
-import com.modeunsa.boundedcontext.payment.out.PaymentAccountRepository;
+import com.modeunsa.boundedcontext.payment.out.PaymentAccountReader;
+import com.modeunsa.boundedcontext.payment.out.PaymentAccountStore;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
@@ -16,11 +17,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class PaymentCreateAccountUseCase {
 
   private final PaymentMemberSupport paymentMemberSupport;
-  private final PaymentAccountRepository paymentAccountRepository;
+  private final PaymentAccountReader paymentAccountReader;
+  private final PaymentAccountStore paymentAccountStore;
 
   public void createPaymentAccount(Long memberId) {
 
-    boolean exist = paymentAccountRepository.existsByMemberId(memberId);
+    boolean exist = paymentAccountReader.existsByMemberId(memberId);
     if (exist) {
       throw new GeneralException(ErrorStatus.PAYMENT_ACCOUNT_DUPLICATE);
     }
@@ -29,6 +31,6 @@ public class PaymentCreateAccountUseCase {
 
     PaymentAccount paymentAccount = PaymentAccount.create(paymentMember);
 
-    paymentAccountRepository.save(paymentAccount);
+    paymentAccountStore.store(paymentAccount);
   }
 }
