@@ -78,12 +78,12 @@ public class OrderKafkaEventListener {
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void handlePaymentEvent(DomainEventEnvelope eventEnvelope) {
     switch (eventEnvelope.eventType()) {
-      case "PaymentSuccessEvent" -> {
+      case PaymentSuccessEvent.EVENT_NAME -> {
         PaymentSuccessEvent event =
             jsonConverter.deserialize(eventEnvelope.payload(), PaymentSuccessEvent.class);
         orderFacade.approveOrder(event.payment());
       }
-      case "PaymentFinalFailureEvent" -> {
+      case PaymentFinalFailureEvent.EVENT_NAME -> {
         PaymentFinalFailureEvent event =
             jsonConverter.deserialize(eventEnvelope.payload(), PaymentFinalFailureEvent.class);
         orderFacade.rejectOrder(event.payment());
