@@ -3,7 +3,7 @@ package com.modeunsa.boundedcontext.payment.app.support;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentPayoutDto;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.types.ReferenceType;
-import com.modeunsa.boundedcontext.payment.out.PaymentAccountLogRepository;
+import com.modeunsa.boundedcontext.payment.out.persistence.PaymentAccountLogReader;
 import com.modeunsa.boundedcontext.payment.out.persistence.PaymentAccountReader;
 import com.modeunsa.global.config.PaymentAccountConfig;
 import com.modeunsa.global.exception.GeneralException;
@@ -17,7 +17,7 @@ public class PaymentAccountSupport {
 
   private final PaymentAccountConfig paymentAccountConfig;
   private final PaymentAccountReader paymentAccountReader;
-  private final PaymentAccountLogRepository paymentAccountLogRepository;
+  private final PaymentAccountLogReader paymentAccountLogReader;
 
   public PaymentAccount getPaymentAccountByMemberId(Long memberId) {
     return paymentAccountReader
@@ -60,6 +60,6 @@ public class PaymentAccountSupport {
   }
 
   public long countAccountLog() {
-    return paymentAccountLogRepository.countByReferenceType(ReferenceType.PAYMENT_MEMBER);
+    return paymentAccountLogReader.countByReferenceType(ReferenceType.PAYMENT_MEMBER);
   }
 }
