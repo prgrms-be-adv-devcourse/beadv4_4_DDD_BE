@@ -3,6 +3,8 @@ package com.modeunsa.boundedcontext.order.app;
 import com.modeunsa.boundedcontext.order.domain.CartItem;
 import com.modeunsa.boundedcontext.order.domain.OrderMapper;
 import com.modeunsa.boundedcontext.order.out.OrderCartItemRepository;
+import com.modeunsa.global.exception.GeneralException;
+import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.order.dto.CartItemDto;
 import com.modeunsa.shared.order.dto.CartItemsResponseDto;
 import com.modeunsa.shared.product.dto.ProductOrderResponse;
@@ -64,19 +66,23 @@ public class OrderGetCartItemsUseCase {
         .map(
             cartItem -> {
               ProductOrderResponse product = productMap.get(cartItem.getProductId());
-              boolean isAvailable = isProductAvailable(product, cartItem.getQuantity());
+              boolean isAvailable = isProductAvailable(product);
               return orderMapper.toCartItemDto(cartItem, product, isAvailable);
             })
         .toList();
   }
 
   // 가용성 판단 메서드
-  private boolean isProductAvailable(ProductOrderResponse product, int cartQuantity) {
+  private boolean isProductAvailable(ProductOrderResponse product) {
     if (product == null) {
       return false; // 상품이 삭제됨
     }
-    // 재고 체크 (TODO: product.status() == SALE 조건도 추가)
-    return product.stock() >= cartQuantity;
+    // 상품 상태 체크
+    if (!product.isAvailable()) {
+      throw new GeneralException(ErrorStatus.PRODUCT_NOT_ON_SALE);
+    }
+
+    return true;
   }
 
   // 최종 dto 변환 : 총 수량과 총 금액을 계산하여 포장

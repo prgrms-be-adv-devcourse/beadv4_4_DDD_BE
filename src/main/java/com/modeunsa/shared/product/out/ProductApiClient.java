@@ -15,14 +15,20 @@ public class ProductApiClient {
 
   private final RestClient restClient;
 
-  public ProductApiClient(@Value("${custom.global.internalBackUrl}") String internalBackUrl) {
-    this.restClient = RestClient.builder().baseUrl(internalBackUrl + "/api/v1/products").build();
+  public ProductApiClient(
+      @Value("${custom.global.internalBackUrl}") String internalBackUrl,
+      @Value("${internal.api-key}") String internalApiKey) {
+    this.restClient =
+        RestClient.builder()
+            .baseUrl(internalBackUrl + "/api/v1/products")
+            .defaultHeader("X-INTERNAL-API-KEY", internalApiKey)
+            .build();
   }
 
   public List<ProductOrderResponse> validateOrderProducts(ProductOrderValidateRequest request) {
     return restClient
         .post()
-        .uri("/validate-order")
+        .uri("/internal/validate-order")
         .body(request)
         .retrieve()
         .body(new ParameterizedTypeReference<>() {});
