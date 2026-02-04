@@ -12,6 +12,7 @@ import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -90,7 +91,7 @@ public class OrderSupport {
     return orderCartItemRepository.count();
   }
 
-  public List<Long> getRecentCartItems(Long memberId) {
-    return orderCartItemRepository.findTop10ProductIdsByMemberIdOrderByCreatedAtDesc(memberId);
+  public List<Long> getRecentCartItems(Long memberId, int cartItemSize) {
+    return orderCartItemRepository.getRecentCartItems(memberId, PageRequest.of(0, cartItemSize));
   }
 }

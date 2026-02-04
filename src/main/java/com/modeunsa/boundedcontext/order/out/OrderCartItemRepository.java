@@ -3,6 +3,7 @@ package com.modeunsa.boundedcontext.order.out;
 import com.modeunsa.boundedcontext.order.domain.CartItem;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,5 +22,5 @@ public interface OrderCartItemRepository extends JpaRepository<CartItem, Long> {
           where c.memberId = :memberId
           order by c.createdAt desc
       """)
-  List<Long> findTop10ProductIdsByMemberIdOrderByCreatedAtDesc(@Param("memberId") Long memberId);
+  List<Long> getRecentCartItems(@Param("memberId") Long memberId, Pageable pageable);
 }

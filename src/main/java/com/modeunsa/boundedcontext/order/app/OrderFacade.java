@@ -156,7 +156,7 @@ public class OrderFacade {
         memberId, recipientName, recipientPhone, zipCode, address, addressDetail, addressName);
   }
 
-  public List<Long> getRecentCartItems(Long memberId) {
-    return orderSupport.getRecentCartItems(memberId);
+  public List<Long> getRecentCartItems(Long memberId, int cartItemSize) {
+    return orderSupport.getRecentCartItems(memberId, cartItemSize);
   }
 }
