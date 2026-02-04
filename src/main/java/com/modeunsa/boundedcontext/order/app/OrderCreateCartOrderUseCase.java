@@ -83,10 +83,10 @@ public class OrderCreateCartOrderUseCase {
       if (product == null) {
         throw new GeneralException(ErrorStatus.PRODUCT_NOT_FOUND);
       }
-      // TODO:  2) 판매상태 여부
-      //     if (!product.isAvailable()) {
-      //       throw new GeneralException(ErrorStatus.PRODUCT_NOT_ON_SALE);
-      //     }
+      // 2) 판매상태 여부
+      if (!product.isAvailable()) {
+        throw new GeneralException(ErrorStatus.PRODUCT_NOT_ON_SALE);
+      }
     }
 
     return productMap;
