@@ -1,4 +1,4 @@
-package com.modeunsa.global.elasticsearch.model;
+package com.modeunsa.boundedcontext.product.elasticsearch.model;
 
 public class ElasticSearchHit<T> {
 

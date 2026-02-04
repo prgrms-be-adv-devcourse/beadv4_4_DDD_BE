@@ -12,7 +12,6 @@ import com.modeunsa.shared.inventory.dto.InventoryReserveRequest;
 import com.modeunsa.shared.inventory.out.InventoryApiClient;
 import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
 import com.modeunsa.shared.order.dto.OrderResponseDto;
-import com.modeunsa.shared.order.event.OrderCreatedEvent;
 import com.modeunsa.shared.product.dto.ProductOrderResponse;
 import com.modeunsa.shared.product.dto.ProductOrderValidateRequest;
 import com.modeunsa.shared.product.out.ProductApiClient;
@@ -42,8 +41,6 @@ public class OrderCreateOrderUseCase {
 
     // 재고 차감 및 검증
     requestReserveInventory(order);
-
-    eventPublisher.publish(new OrderCreatedEvent(orderMapper.toOrderDto(order)));
 
     return orderMapper.toOrderResponseDto(order);
   }

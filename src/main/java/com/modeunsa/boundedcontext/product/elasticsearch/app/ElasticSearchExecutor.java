@@ -1,15 +1,13 @@
-package com.modeunsa.global.elasticsearch.app;
+package com.modeunsa.boundedcontext.product.elasticsearch.app;
 
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
-import com.modeunsa.global.elasticsearch.ElasticSearchPageRequest;
-import com.modeunsa.global.elasticsearch.model.ElasticSearchPage;
+import com.modeunsa.boundedcontext.product.elasticsearch.ElasticSearchPageRequest;
+import com.modeunsa.boundedcontext.product.elasticsearch.model.ElasticSearchPage;
 import java.util.Map;
 
 public interface ElasticSearchExecutor {
 
   <T> ElasticSearchPage<T> search(
-      String index,
-      // 검색 조건
       Query query,
       // page, size, sort
       ElasticSearchPageRequest pageRequest,

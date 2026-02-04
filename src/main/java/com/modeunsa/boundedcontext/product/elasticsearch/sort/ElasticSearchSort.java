@@ -1,4 +1,4 @@
-package com.modeunsa.global.elasticsearch.sort;
+package com.modeunsa.boundedcontext.product.elasticsearch.sort;
 
 import lombok.Getter;
 
