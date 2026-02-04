@@ -1,7 +1,7 @@
 package com.modeunsa.boundedcontext.payment.app.support;
 
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
-import com.modeunsa.boundedcontext.payment.out.persistence.PaymentMemberReader;
+import com.modeunsa.boundedcontext.payment.out.port.PaymentMemberReader;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;

@@ -13,7 +13,7 @@ import com.modeunsa.boundedcontext.payment.app.dto.PaymentResponse;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentPurpose;
 import com.modeunsa.boundedcontext.payment.domain.types.ProviderType;
 import com.modeunsa.boundedcontext.payment.in.BasePaymentControllerTest;
-import com.modeunsa.boundedcontext.payment.in.api.v1.PaymentController;
+import com.modeunsa.boundedcontext.payment.in.adapter.api.v1.PaymentController;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import java.math.BigDecimal;
