@@ -4,6 +4,7 @@ import com.modeunsa.boundedcontext.inventory.app.InventoryFacade;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.global.status.SuccessStatus;
+import com.modeunsa.shared.inventory.dto.InventoryAvailableQuantityResponse;
 import com.modeunsa.shared.inventory.dto.InventoryDto;
 import com.modeunsa.shared.inventory.dto.InventoryReserveRequest;
 import com.modeunsa.shared.inventory.dto.InventoryUpdateRequest;
@@ -48,6 +49,15 @@ public class InventoryController {
   public ResponseEntity<ApiResponse> getInventory(Long productId) {
 
     InventoryDto response = inventoryFacade.getInventory(productId);
+
+    return ApiResponse.onSuccess(SuccessStatus.OK, response);
+  }
+
+  @Operation(summary = "구매 가능 재고 조회", description = "상품별 구매 가능 재고 수량 조회 기능입니다.")
+  @GetMapping("/{productId}/available")
+  public ResponseEntity<ApiResponse> getAvailableQuantity(Long productId) {
+
+    InventoryAvailableQuantityResponse response = inventoryFacade.getAvailableQuantity(productId);
 
     return ApiResponse.onSuccess(SuccessStatus.OK, response);
   }
