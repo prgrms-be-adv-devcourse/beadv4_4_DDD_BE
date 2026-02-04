@@ -7,4 +7,6 @@ public interface PaymentAccountReader {
   Optional<PaymentAccount> findByMemberId(Long memberId);
 
   Optional<PaymentAccount> findByMemberIdWithLock(Long memberId);
+
+  boolean existsByMemberId(Long memberId);
 }

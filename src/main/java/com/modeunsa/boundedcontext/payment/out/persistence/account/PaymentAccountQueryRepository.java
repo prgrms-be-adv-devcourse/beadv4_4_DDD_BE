@@ -31,4 +31,15 @@ public class PaymentAccountQueryRepository {
             .setLockMode(PESSIMISTIC_WRITE)
             .fetchOne());
   }
+
+  public boolean existsByMemberId(Long memberId) {
+    Integer fetchOne =
+        this.queryFactory
+            .selectOne()
+            .from(paymentAccount)
+            .where(paymentAccount.member.id.eq(memberId))
+            .fetchFirst();
+
+    return fetchOne != null;
+  }
 }

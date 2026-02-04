@@ -21,4 +21,9 @@ public class JpaPaymentAccountReader implements PaymentAccountReader {
   public Optional<PaymentAccount> findByMemberIdWithLock(Long memberId) {
     return queryRepository.findByMemberIdWithLock(memberId);
   }
+
+  @Override
+  public boolean existsByMemberId(Long memberId) {
+    return queryRepository.existsByMemberId(memberId);
+  }
 }
