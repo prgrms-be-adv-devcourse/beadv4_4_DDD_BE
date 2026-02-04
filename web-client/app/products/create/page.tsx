@@ -82,85 +82,50 @@ export default function ProductCreatePage() {
     if (!files) return
 
     const newFiles: File[] = []
-    const newPreviews: string[] = []
-    const startIndex = imageFiles.length
 
     // 파일 검증 및 미리보기 생성
     Array.from(files).forEach((file) => {
-      if (file.type.startsWith('image/')) {
-        if (imageFiles.length + newFiles.length < 10) {
-          newFiles.push(file)
-          const reader = new FileReader()
-          reader.onloadend = () => {
-            const result = reader.result as string
-            setImagePreviews(prev => [...prev, result])
-          }
-          reader.readAsDataURL(file)
-        } else {
-          alert('이미지는 최대 5개까지 추가할 수 있습니다.')
-        }
-      } else {
+      if (!file.type.startsWith('image/')) {
         alert(`${file.name}은(는) 이미지 파일이 아닙니다.`)
+        return
       }
+
+      if (imageFiles.length + newFiles.length >= 5) {
+        alert('이미지는 최대 5개까지 추가할 수 있습니다.')
+        return
+      }
+      newFiles.push(file)
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        const result = reader.result as string
+        setImagePreviews(prev => [...prev, result])
+      }
+      reader.readAsDataURL(file)
     })
+
+    if (newFiles.length === 0) return
 
     // 파일 추가
     setImageFiles(prev => [...prev, ...newFiles])
 
-    newFiles.forEach(async (file, relativeIndex) => {
-      const absoluteIndex = startIndex + relativeIndex
-      setUploadingImageIndex(prev => new Set(prev).add(absoluteIndex))
+    newFiles.forEach(async (file, i) => {
+      const uploadIndex = imageFiles.length + i
+      setUploadingImageIndex(prev => new Set(prev).add(uploadIndex))
 
       try {
-        console.log(`이미지 ${absoluteIndex + 1} 업로드 시작:`, file.name)
         const downloadUrl = await uploadImageToS3(file)
-        setUploadedImageUrls(prev => {
-          const next = [...prev]
-          next[absoluteIndex] = downloadUrl
-          return next
-        })
+        setUploadedImageUrls(prev => [...prev, downloadUrl])
       } catch (e) {
-        handleRemoveImage(absoluteIndex)
+        handleRemoveImage(uploadIndex)
         alert(`이미지 업로드 실패: ${file.name}`)
       } finally {
         setUploadingImageIndex(prev => {
           const s = new Set(prev)
-          s.delete(absoluteIndex)
+          s.delete(uploadIndex)
           return s
         })
       }
     })
-
-    // 각 파일을 즉시 업로드
-    // newFiles.forEach(async (file, relativeIndex) => {
-    //   const absoluteIndex = startIndex + relativeIndex
-    //   setUploadingImageIndex(prev => new Set(prev).add(absoluteIndex))
-    //
-    //   try {
-    //     console.log(`이미지 ${absoluteIndex + 1} 업로드 시작:`, file.name)
-    //     const publicUrl = await uploadImageToS3(file, 0)
-    //
-    //     // 업로드된 public URL 저장
-    //     setUploadedImageUrls(prev => {
-    //       const newUrls = [...prev]
-    //       newUrls[absoluteIndex] = publicUrl
-    //       return newUrls
-    //     })
-    //
-    //     console.log(`이미지 ${absoluteIndex + 1} 업로드 완료:`, publicUrl)
-    //   } catch (error) {
-    //     console.error(`이미지 ${absoluteIndex + 1} 업로드 실패:`, error)
-    //     alert(`이미지 "${file.name}" 업로드에 실패했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`)
-    //     // 업로드 실패 시 해당 이미지 제거
-    //     handleRemoveImage(absoluteIndex)
-    //   } finally {
-    //     setUploadingImageIndex(prev => {
-    //       const newSet = new Set(prev)
-    //       newSet.delete(absoluteIndex)
-    //       return newSet
-    //     })
-    //   }
-    // })
   }
 
   const handleRemoveImage = (index: number) => {
@@ -237,7 +202,6 @@ export default function ProductCreatePage() {
     }
 
     const downloadData: PublicUrlApiResponse = await downloadRes.json()
-
 
     return downloadData.result.imageUrl
   }
@@ -416,7 +380,7 @@ export default function ProductCreatePage() {
 
                 <div className="form-group">
                   <label htmlFor="salePrice" className="form-label">
-                    할인가
+                    판매가
                   </label>
                   <input
                     type="number"

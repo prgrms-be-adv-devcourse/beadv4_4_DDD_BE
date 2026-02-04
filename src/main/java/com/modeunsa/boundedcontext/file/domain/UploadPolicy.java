@@ -13,7 +13,7 @@ public class UploadPolicy {
   public static final int EXPIRATION_TIME = 5;
 
   public static final Set<String> ALLOWED_CONTENT_TYPES =
-      Set.of("image/png", "image/jpeg", "application/pdf");
+      Set.of("image/png", "image/jpeg", "image/webp", "application/pdf");
 
   public static String buildRawKey(DomainType domainType, String ext, String profile) {
     return String.format(
