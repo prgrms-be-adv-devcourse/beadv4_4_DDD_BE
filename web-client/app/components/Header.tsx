@@ -43,12 +43,13 @@ export default function Header() {
     return () => {
       window.removeEventListener('loginStatusChanged', checkLoginStatus);
       document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [])
+    };
+  }, []);
 
 // 2. 서버 로그아웃 API 호출
   const handleLogout = async () => {
     try {
+      // HttpOnly 쿠키 제거
       const response = await api.post('/api/v1/auths/logout');
       if (response.data.isSuccess) {
         setIsLoggedIn(false);
