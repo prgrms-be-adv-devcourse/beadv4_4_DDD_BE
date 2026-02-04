@@ -22,7 +22,7 @@ public class ProductEventListener {
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Transactional(propagation = REQUIRES_NEW)
   public void handleOrderCanceledEvent(OrderCancelRequestEvent event) {
-    productFacade.restoreStock(event.getOrderDto());
+    productFacade.restoreStock(event.orderDto());
   }
 
   @TransactionalEventListener(phase = AFTER_COMMIT)
