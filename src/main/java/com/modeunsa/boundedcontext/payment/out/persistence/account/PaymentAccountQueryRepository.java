@@ -7,7 +7,9 @@ import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
 
+@Repository
 @RequiredArgsConstructor
 public class PaymentAccountQueryRepository {
 
