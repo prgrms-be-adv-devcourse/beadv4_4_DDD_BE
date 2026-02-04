@@ -31,7 +31,6 @@ public class OrderSyncCartItemUseCase {
     OrderProduct product = orderSupport.findByProductId(syncCartItemRequestDto.productId());
 
     // 재고 확인
-    System.out.println("productId : " + syncCartItemRequestDto.productId());
     InventoryDto inventory = inventoryApiClient.getInventory(syncCartItemRequestDto.productId());
     if (inventory.quantity() - inventory.reservedQuantity() < syncCartItemRequestDto.quantity()) {
       throw new GeneralException(ErrorStatus.ORDER_STOCK_NOT_ENOUGH);
