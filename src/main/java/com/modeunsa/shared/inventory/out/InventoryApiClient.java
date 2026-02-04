@@ -31,7 +31,7 @@ public class InventoryApiClient {
   public InventoryAvailableQuantityResponse getAvailableQuantity(Long productId) {
     return restClient
         .get()
-        .uri("/{productId}/available-quantity", productId)
+        .uri("/{productId}/available", productId)
         .retrieve()
         .body(InventoryAvailableQuantityResponse.class);
   }

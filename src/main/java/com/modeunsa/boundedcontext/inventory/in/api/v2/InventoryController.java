@@ -54,7 +54,7 @@ public class InventoryController {
   }
 
   @Operation(summary = "구매 가능 재고 조회", description = "상품별 구매 가능 재고 수량 조회 기능입니다.")
-  @GetMapping("/{productId}/available-quantity")
+  @GetMapping("/{productId}/available")
   public ResponseEntity<ApiResponse> getAvailableQuantity(Long productId) {
 
     InventoryAvailableQuantityResponse response = inventoryFacade.getAvailableQuantity(productId);
