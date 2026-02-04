@@ -2,15 +2,15 @@ package com.modeunsa.boundedcontext.content.app.usecase;
 
 import static com.modeunsa.global.status.ErrorStatus.CONTENT_NOT_FOUND;
 
-import com.modeunsa.boundedcontext.content.app.mapper.ContentMapper;
+import com.modeunsa.boundedcontext.content.app.ContentMapper;
 import com.modeunsa.boundedcontext.content.domain.entity.Content;
 import com.modeunsa.boundedcontext.content.domain.entity.ContentComment;
 import com.modeunsa.boundedcontext.content.domain.entity.ContentMember;
 import com.modeunsa.boundedcontext.content.out.ContentCommentRepository;
 import com.modeunsa.boundedcontext.content.out.ContentRepository;
 import com.modeunsa.global.exception.GeneralException;
-import com.modeunsa.shared.content.ContentCommentRequest;
-import com.modeunsa.shared.content.ContentCommentResponse;
+import com.modeunsa.shared.content.dto.ContentCommentRequest;
+import com.modeunsa.shared.content.dto.ContentCommentResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

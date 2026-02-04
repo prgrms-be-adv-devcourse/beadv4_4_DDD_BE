@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import api from '../lib/axios'
 
 export default function Header() {
   const router = useRouter()
@@ -10,25 +11,26 @@ export default function Header() {
   const [showProfileMenu, setShowProfileMenu] = useState(false)
   const profileRef = useRef<HTMLDivElement | null>(null)
 
-  // 1. 쿠키에서 accessToken이 존재하는지 확인하는 함수
-  const checkLoginStatus = () => {
-    if (typeof window === 'undefined') return
-
-    // document.cookie에서 accessToken이라는 글자가 포함되어 있는지 확인
-    const cookies = document.cookie;
-    const hasToken = cookies.includes('accessToken=');
-
-    if (process.env.NODE_ENV === 'development') {
-      console.log("현재 쿠키 상태:", cookies); // 디버깅용 콘솔
+  // 1. 서버에 내 정보를 물어봐서 로그인 상태를 확인하는 함수
+  const checkLoginStatus = async () => {
+    try {
+      // HttpOnly 쿠키가 자동으로 전송됩니다.
+      const response = await api.get('/api/v1/auths/me');
+      if (response.data.isSuccess) {
+        setIsLoggedIn(true);
+      } else {
+        setIsLoggedIn(false);
+      }
+    } catch (error) {
+      // 401 에러 등이 발생하면 비로그인 상태로 간주
+      setIsLoggedIn(false);
     }
-
-    setIsLoggedIn(hasToken);
   }
 
   useEffect(() => {
     checkLoginStatus();
 
-    // 로그인 완료 시 발생하는 커스텀 이벤트 감지
+    // 로그인 완료 커스텀 이벤트 감지 시에도 API로 재확인
     window.addEventListener('loginStatusChanged', checkLoginStatus);
 
     const handleClickOutside = (event: MouseEvent) => {
@@ -41,18 +43,25 @@ export default function Header() {
     return () => {
       window.removeEventListener('loginStatusChanged', checkLoginStatus);
       document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [])
+    };
+  }, []);
 
-  // 2. 로그아웃 처리 (쿠키 삭제)
-  const handleLogout = () => {
-    // 쿠키 삭제 (Path=/ 설정을 해주어야 정확히 삭제됩니다)
-    document.cookie = "accessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    setIsLoggedIn(false);
-    setShowProfileMenu(false);
-    alert('로그아웃 되었습니다.');
-    router.push('/');
-  }
+// 2. 서버 로그아웃 API 호출
+  const handleLogout = async () => {
+    try {
+      // HttpOnly 쿠키 제거
+      const response = await api.post('/api/v1/auths/logout');
+      if (response.data.isSuccess) {
+        setIsLoggedIn(false);
+        setShowProfileMenu(false);
+        alert('로그아웃 되었습니다.');
+        router.push('/');
+      }
+    } catch (error) {
+      console.error("로그아웃 실패:", error);
+      alert('로그아웃 처리 중 오류가 발생했습니다.');
+    }
+  };
 
   return (
       <header className="header">

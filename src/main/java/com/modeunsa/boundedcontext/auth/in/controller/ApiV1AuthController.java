@@ -20,6 +20,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -78,7 +79,6 @@ public class ApiV1AuthController {
   public ResponseEntity<ApiResponse> reissue(
       @Parameter(description = "Refresh Token", required = true) @RequestHeader("RefreshToken")
           String refreshToken) {
-    // TODO: 실제로는 Refresh Token 내부의 정보나 DB 조회를 통해 Role을 가져와야 할 수 있습니다.
     JwtTokenResponse jwtTokenResponse = authFacade.reissueToken(refreshToken);
 
     return ApiResponse.onSuccess(SuccessStatus.AUTH_TOKEN_REFRESH_SUCCESS, jwtTokenResponse);
@@ -87,20 +87,33 @@ public class ApiV1AuthController {
   @Operation(summary = "로그아웃", description = "Access Token을 블랙리스트에 등록하고 Refresh Token을 삭제합니다.")
   @PostMapping("/logout")
   public ResponseEntity<ApiResponse> logout(
-      @Parameter(description = "Access Token", required = true) @RequestHeader("Authorization")
-          String authorizationHeader) {
+      @Parameter(description = "Access Token") @CookieValue(value = "accessToken", required = false)
+          String accessToken) {
 
-    String accessToken = AuthRequestUtils.resolveToken(authorizationHeader);
+    // 1. 쿠키에 토큰이 없는 경우 처리
     if (accessToken == null) {
       throw new GeneralException(ErrorStatus.AUTH_INVALID_TOKEN_FORMAT);
     }
 
+    // 2. 비즈니스 로직 수행 (블랙리스트 등록 등)
     authFacade.logout(accessToken);
 
-    return ApiResponse.onSuccess(SuccessStatus.AUTH_LOGOUT_SUCCESS);
+    // 3. 브라우저 쿠키 삭제를 위한 ResponseCookie 생성
+    ResponseCookie cookie =
+        ResponseCookie.from("accessToken", "")
+            .httpOnly(cookieProperties.isHttpOnly())
+            .secure(cookieProperties.isSecure())
+            .path(cookieProperties.getPath())
+            .sameSite(cookieProperties.getSameSite())
+            .maxAge(0) // 즉시 만료시켜 삭제
+            .build();
+
+    return ResponseEntity.ok()
+        .header(HttpHeaders.SET_COOKIE, cookie.toString())
+        .body(ApiResponse.onSuccess(SuccessStatus.AUTH_LOGOUT_SUCCESS).getBody());
   }
 
-  @Operation(summary = "[테스트용] 인증 확인", description = "Access Token 유효성을 확인하고 인증된 사용자 정보를 반환합니다.")
+  @Operation(summary = "인증 확인", description = "Access Token 유효성을 확인하고 인증된 사용자 정보를 반환합니다.")
   @GetMapping("/me")
   public ResponseEntity<ApiResponse> checkAuth() {
     // SecurityContext에서 인증 정보 가져오기
