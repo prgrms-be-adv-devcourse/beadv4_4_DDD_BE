@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Order", description = "주문 도메인 API")
-@RestController
+@RestController("orderV1Controller")
 @RequestMapping("/api/v1/orders")
 @RequiredArgsConstructor
 public class OrderController {

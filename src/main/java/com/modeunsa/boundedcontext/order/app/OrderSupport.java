@@ -89,4 +89,8 @@ public class OrderSupport {
   public long countCartItem() {
     return orderCartItemRepository.count();
   }
+
+  public List<Long> getRecentCartItems(Long memberId) {
+    return orderCartItemRepository.findTop10ProductIdsByMemberIdOrderByCreatedAtDesc(memberId);
+  }
 }
