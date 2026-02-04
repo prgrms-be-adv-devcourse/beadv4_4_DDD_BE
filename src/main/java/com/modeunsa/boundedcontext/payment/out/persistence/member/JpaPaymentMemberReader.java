@@ -1,7 +1,7 @@
 package com.modeunsa.boundedcontext.payment.out.persistence.member;
 
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
-import com.modeunsa.boundedcontext.payment.out.PaymentMemberReader;
+import com.modeunsa.boundedcontext.payment.out.persistence.PaymentMemberReader;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
