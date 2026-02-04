@@ -15,6 +15,7 @@ import com.modeunsa.boundedcontext.payment.app.event.PaymentFailedEvent;
 import com.modeunsa.boundedcontext.payment.app.mapper.PaymentMapper;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentMemberSupport;
+import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCompleteUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentConfirmTossPaymentUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreateAccountUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreditAccountUseCase;
@@ -22,9 +23,9 @@ import com.modeunsa.boundedcontext.payment.app.usecase.PaymentFailureUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentInProgressUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentInitializeUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentPayoutCompleteUseCase;
-import com.modeunsa.boundedcontext.payment.app.usecase.PaymentProcessUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentRefundUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentSyncMemberUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.complete.PaymentCompleteOrderCompleteUseCase;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
@@ -46,10 +47,11 @@ public class PaymentFacade {
   private final PaymentInitializeUseCase paymentInitializeUseCase;
   private final PaymentInProgressUseCase paymentInProgressUseCase;
   private final PaymentFailureUseCase paymentFailureUseCase;
-  private final PaymentProcessUseCase paymentProcessUseCase;
+  private final PaymentCompleteOrderCompleteUseCase paymentOrderCompleteUseCase;
   private final PaymentRefundUseCase paymentRefundUseCase;
   private final PaymentPayoutCompleteUseCase paymentPayoutCompleteUseCase;
   private final PaymentConfirmTossPaymentUseCase paymentConfirmTossPaymentUseCase;
+  private final PaymentCompleteUseCase paymentCompleteUseCase;
 
   private final PaymentMemberSupport paymentMemberSupport;
   private final PaymentAccountSupport paymentAccountSupport;
@@ -104,13 +106,13 @@ public class PaymentFacade {
         paymentInitializeUseCase.execute(user.getMemberId(), paymentRequest);
 
     // 2. 결제 진행 상태로 변경 및 검증
-    context = paymentInProgressUseCase.execute(context);
-    if (context.needsCharge()) {
+    context = paymentInProgressUseCase.executeForPaymentRequest(context);
+    if (context.needsPgPayment()) {
       // 3-1. 충전 필요 시 결제 요청까지만 처리하고 반환
-      return PaymentResponse.needCharge(context);
+      return PaymentResponse.needPgPayment(context);
     }
     // 3-2. 결제 완료로 계좌에서 입출금 처리
-    paymentProcessUseCase.execute(context);
+    paymentOrderCompleteUseCase.execute(context);
     return PaymentResponse.complete(context);
   }
 
@@ -132,13 +134,13 @@ public class PaymentFacade {
             user.getMemberId(), orderNo, confirmPaymentRequest);
 
     // 1. 결제 진행 상태로 변경 및 검증
-    paymentInProgressUseCase.execute(context);
+    paymentInProgressUseCase.executeForPaymentConfirm(context);
 
     // 2. 토스페이먼츠 결제 승인 요청 및 결과 저장
     context = paymentConfirmTossPaymentUseCase.execute(context);
 
     // 3. 결제 완료 처리 (계좌 입출금, 이벤트 발행)
-    paymentProcessUseCase.execute(context);
+    paymentCompleteUseCase.execute(context);
 
     return ConfirmPaymentResponse.complete(context.orderNo());
   }

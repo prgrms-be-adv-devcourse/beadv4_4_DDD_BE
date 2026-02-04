@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
@@ -18,7 +19,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(
-    name = "inventory",
+    name = "inventory_inventory",
     indexes = {
       // 판매자용
       @Index(name = "idx_inventory_seller_id", columnList = "seller_id")
@@ -38,9 +39,42 @@ public class Inventory extends GeneratedIdAndAuditedEntity {
 
   // 예약재고
   @Builder.Default
+  @Setter // 테스트용 TODO: 주문 연결 후 삭제
   @Column(name = "reserved_quantity", nullable = false)
   private int reservedQuantity = 0;
 
   // 동시성 제어를 위한 낙관적 락 버전
   @Version private Long version;
+
+  // ----- 메서드 -----
+  public boolean isOwner(Long requestSellerId) {
+    if (requestSellerId == null || !this.sellerId.equals(requestSellerId)) {
+      return false;
+    }
+    return true;
+  }
+
+  public boolean updateInventory(Integer quantity) {
+    if (quantity < reservedQuantity) {
+      return false;
+    }
+    this.quantity = quantity;
+    return true;
+  }
+
+  public boolean canReserve(Integer quantity) {
+    return this.quantity - this.reservedQuantity >= quantity;
+  }
+
+  public boolean reserve(Integer quantity) {
+    if (canReserve(quantity)) {
+      this.reservedQuantity += quantity;
+      return true;
+    }
+    return false;
+  }
+
+  public int getAvailableQuantity() {
+    return Math.max(this.quantity - this.reservedQuantity, 0);
+  }
 }

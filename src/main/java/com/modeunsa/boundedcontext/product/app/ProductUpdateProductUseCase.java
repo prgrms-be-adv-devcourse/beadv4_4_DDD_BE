@@ -5,7 +5,7 @@ import com.modeunsa.boundedcontext.product.domain.ProductImage;
 import com.modeunsa.boundedcontext.product.domain.ProductMemberSeller;
 import com.modeunsa.boundedcontext.product.domain.ProductPolicy;
 import com.modeunsa.boundedcontext.product.out.ProductRepository;
-import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
+import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.shared.product.dto.ProductDto;
 import com.modeunsa.shared.product.dto.ProductUpdateRequest;
 import com.modeunsa.shared.product.event.ProductUpdatedEvent;
@@ -20,7 +20,7 @@ public class ProductUpdateProductUseCase {
   private final ProductRepository productRepository;
   private final ProductSupport productSupport;
   private final ProductMapper productMapper;
-  private final SpringDomainEventPublisher eventPublisher;
+  private final EventPublisher eventPublisher;
   private final ProductPolicy productPolicy;
 
   public Product updateProduct(Long memberId, Long productId, ProductUpdateRequest request) {
@@ -33,14 +33,10 @@ public class ProductUpdateProductUseCase {
 
     List<String> images = request.getImages();
     product.clearImages();
-    ProductImage primaryImage = null;
     if (images != null && !images.isEmpty()) {
       for (int i = 0; i < images.size(); i++) {
         ProductImage image = ProductImage.create(product, images.get(i), i == 0, i + 1);
         product.addImage(image);
-        if (i == 0) {
-          primaryImage = image;
-        }
       }
     }
 
@@ -53,10 +49,7 @@ public class ProductUpdateProductUseCase {
         request.getSalePrice(),
         request.getStock());
 
-    ProductDto productDto =
-        productMapper.toDto(
-            productRepository.save(product),
-            primaryImage != null ? primaryImage.getImageUrl() : null);
+    ProductDto productDto = productMapper.toDto(productRepository.save(product));
     eventPublisher.publish(new ProductUpdatedEvent(productDto));
 
     return product;

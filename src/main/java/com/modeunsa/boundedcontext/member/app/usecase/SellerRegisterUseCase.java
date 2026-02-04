@@ -6,7 +6,7 @@ import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.boundedcontext.member.domain.types.SellerStatus;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
 import com.modeunsa.boundedcontext.member.out.repository.MemberSellerRepository;
-import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
+import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.member.dto.request.SellerRegisterRequest;
@@ -24,7 +24,7 @@ public class SellerRegisterUseCase {
 
   private final MemberRepository memberRepository;
   private final MemberSellerRepository memberSellerRepository;
-  private final SpringDomainEventPublisher eventPublisher;
+  private final EventPublisher eventPublisher;
 
   public void execute(Long memberId, SellerRegisterRequest request, String finalLicenseUrl) {
     // 1. 회원 조회
@@ -89,6 +89,6 @@ public class SellerRegisterUseCase {
             seller.getRepresentativeName(),
             seller.getSettlementBankName(),
             seller.getSettlementBankAccount(),
-            seller.getStatus()));
+            seller.getStatus().name()));
   }
 }

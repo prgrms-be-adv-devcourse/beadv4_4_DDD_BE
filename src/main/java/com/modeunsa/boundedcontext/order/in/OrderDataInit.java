@@ -5,17 +5,21 @@ import com.modeunsa.boundedcontext.order.app.OrderSupport;
 import com.modeunsa.boundedcontext.order.domain.Order;
 import com.modeunsa.boundedcontext.order.domain.OrderMember;
 import com.modeunsa.boundedcontext.order.domain.OrderProduct;
-import com.modeunsa.shared.order.dto.CreateCartItemRequestDto;
 import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
+import com.modeunsa.shared.order.dto.SyncCartItemRequestDto;
 import com.modeunsa.shared.payment.dto.PaymentDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.annotation.Transactional;
 
+@Profile("!test")
+@ConditionalOnProperty(name = "app.data-init.enabled", havingValue = "true", matchIfMissing = true)
 @Slf4j
-// @Component
+// @Configuration
 public class OrderDataInit {
 
   private final OrderDataInit self;
@@ -49,12 +53,12 @@ public class OrderDataInit {
     OrderMember user2 = orderFacade.findByMemberId(5L);
 
     // Facade를 통해 비즈니스 로직 실행
-    orderFacade.createCartItem(user1.getId(), new CreateCartItemRequestDto(1L, 1));
-    orderFacade.createCartItem(user1.getId(), new CreateCartItemRequestDto(2L, 2));
-    orderFacade.createCartItem(user1.getId(), new CreateCartItemRequestDto(3L, 1));
-    orderFacade.createCartItem(user1.getId(), new CreateCartItemRequestDto(4L, 1));
+    orderFacade.syncCartItem(user1.getId(), new SyncCartItemRequestDto(1L, 1));
+    orderFacade.syncCartItem(user1.getId(), new SyncCartItemRequestDto(2L, 2));
+    orderFacade.syncCartItem(user1.getId(), new SyncCartItemRequestDto(3L, 1));
+    orderFacade.syncCartItem(user1.getId(), new SyncCartItemRequestDto(4L, 1));
 
-    orderFacade.createCartItem(user2.getId(), new CreateCartItemRequestDto(1L, 1));
+    orderFacade.syncCartItem(user2.getId(), new SyncCartItemRequestDto(1L, 1));
 
     log.info("Test CartItems Initialized via Facade");
   }

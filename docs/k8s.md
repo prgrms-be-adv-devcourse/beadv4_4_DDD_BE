@@ -17,41 +17,26 @@
 
 ## 사전 준비
 
-### 1. Docker Desktop 설치
-
-https://www.docker.com/products/docker-desktop/
-
-### 2. Kubernetes 활성화
-
-Docker Desktop > Settings > Kubernetes > **Enable Kubernetes** > Apply & Restart
-
-### 3. kubectl 설치
-
-Docker Desktop에서 K8s 활성화 시 자동 설치됩니다. 설치되지 않은 경우:
+### 1. Colima 및 Docker CLI 설치
 
 ```bash
-# Mac
-brew install kubectl
-
-# Windows
-winget install Kubernetes.kubectl
+brew install colima docker
 ```
 
-### 4. Helm 설치
+> Colima가 Docker 런타임 + k3s를 모두 제공하므로 Docker Desktop은 불필요합니다.
+
+### 2. k3s 모드로 Colima 시작
 
 ```bash
-# Mac
-brew install helm
-
-# Windows
-winget install Helm.Helm
+colima start --kubernetes --kubernetes-distribution k3s \
+  --cpu 4 --memory 6 --disk 30
 ```
 
-### 5. Windows 사용자 참고
+### 3. kubectl, Helm 설치
 
-IntelliJ 터미널을 Git Bash로 변경 후 스크립트 실행:
-
-> IntelliJ > Settings > Tools > Terminal > Shell path를 `C:\Program Files\Git\bin\bash.exe`로 변경
+```bash
+brew install kubectl helm
+```
 
 ---
 

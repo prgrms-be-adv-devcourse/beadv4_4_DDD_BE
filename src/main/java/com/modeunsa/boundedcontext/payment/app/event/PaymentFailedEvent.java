@@ -11,26 +11,37 @@ public record PaymentFailedEvent(
     Long orderId,
     String orderNo,
     BigDecimal amount,
-    PaymentErrorCode failureReason,
+    PaymentErrorCode errorCode,
+    String failureMessage,
     String traceId)
     implements TraceableEvent {
+
+  public static final String EVENT_NAME = "PaymentFailedEvent";
 
   public PaymentFailedEvent(
       Long memberId,
       Long orderId,
       String orderNo,
       BigDecimal amount,
-      PaymentErrorCode failureReason) {
-    this(memberId, orderId, orderNo, amount, failureReason, EventUtils.extractTraceId());
+      PaymentErrorCode errorCode,
+      String failureMessage) {
+    this(
+        memberId, orderId, orderNo, amount, errorCode, failureMessage, EventUtils.extractTraceId());
   }
 
   public static PaymentFailedEvent from(
-      PaymentProcessContext context, PaymentErrorCode failureReason) {
+      PaymentProcessContext context, PaymentErrorCode errorCode, String failureMessage) {
     return new PaymentFailedEvent(
         context.buyerId(),
         context.orderId(),
         context.orderNo(),
         context.totalAmount(),
-        failureReason);
+        errorCode,
+        failureMessage);
+  }
+
+  @Override
+  public String eventName() {
+    return EVENT_NAME;
   }
 }

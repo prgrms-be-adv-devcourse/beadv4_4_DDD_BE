@@ -9,32 +9,35 @@ import com.modeunsa.boundedcontext.member.domain.entity.MemberSeller;
 import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
 import com.modeunsa.boundedcontext.member.out.repository.MemberSellerRepository;
-import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
+import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.shared.member.event.MemberSignupEvent;
 import com.modeunsa.shared.member.event.SellerRegisteredEvent;
 import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.transaction.annotation.Transactional;
 
-@Configuration
+@Profile("!test")
+@ConditionalOnProperty(name = "app.data-init.enabled", havingValue = "true", matchIfMissing = true)
+// @Configuration
 @Slf4j
 public class MemberDataInit {
 
   private final MemberDataInit self;
   private final MemberRepository memberRepository;
   private final MemberSellerRepository memberSellerRepository;
-  private final SpringDomainEventPublisher eventPublisher;
+  private final EventPublisher eventPublisher;
 
   public MemberDataInit(
       @Lazy MemberDataInit self,
       MemberRepository memberRepository,
       MemberSellerRepository memberSellerRepository,
-      SpringDomainEventPublisher eventPublisher) {
+      EventPublisher eventPublisher) {
     this.self = self;
     this.memberRepository = memberRepository;
     this.memberSellerRepository = memberSellerRepository;
@@ -166,8 +169,8 @@ public class MemberDataInit {
             member.getRealName(),
             member.getEmail(),
             member.getPhoneNumber(),
-            member.getRole(),
-            member.getStatus()));
+            member.getRole().name(),
+            member.getStatus().name()));
   }
 
   private void publishSellerRegisteredEvent(MemberSeller seller) {
@@ -179,7 +182,7 @@ public class MemberDataInit {
             seller.getRepresentativeName(),
             seller.getSettlementBankName(),
             seller.getSettlementBankAccount(),
-            seller.getStatus()));
+            seller.getStatus().name()));
   }
 
   private Member createMember(String email, String realName, String phoneNumber, MemberRole role) {

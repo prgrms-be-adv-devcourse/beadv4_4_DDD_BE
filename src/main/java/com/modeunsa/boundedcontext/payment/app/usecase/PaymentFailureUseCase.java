@@ -5,7 +5,7 @@ import com.modeunsa.boundedcontext.payment.app.support.PaymentSupport;
 import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode;
-import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
+import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.shared.payment.dto.PaymentDto;
 import com.modeunsa.shared.payment.event.PaymentFinalFailureEvent;
 import lombok.RequiredArgsConstructor;
@@ -17,15 +17,16 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class PaymentFailureUseCase {
 
-  private final SpringDomainEventPublisher eventPublisher;
+  private final EventPublisher eventPublisher;
   private final PaymentSupport paymentSupport;
 
   public void execute(PaymentFailedEvent event) {
     PaymentId paymentId = PaymentId.create(event.memberId(), event.orderNo());
     Payment payment = paymentSupport.getPaymentById(paymentId);
-    payment.failedPayment(event.failureReason(), event.memberId(), event.orderNo());
+    payment.failedPayment(
+        event.errorCode(), event.failureMessage(), event.memberId(), event.orderNo());
 
-    PaymentErrorCode error = event.failureReason();
+    PaymentErrorCode error = event.errorCode();
     if (error.isFinalFailure()) {
       publishFinalFailureEvent(event);
     }

@@ -1,14 +1,74 @@
 'use client'
 
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import Header from '../components/Header'
 import MypageNav from '../components/MypageNav'
 
+interface PaymentMemberResponse {
+  customerKey: string
+  customerName: string
+  customerEmail: string
+  balance: number
+}
+
+interface PaymentAccountApiResponse {
+  isSuccess: boolean
+  code: string
+  message: string
+  result: PaymentMemberResponse
+}
+
 export default function MyPage() {
+  const [balance, setBalance] = useState<number | null>(null)
+  const [balanceLoading, setBalanceLoading] = useState(true)
+  const [balanceError, setBalanceError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      if (typeof window === 'undefined') return
+      const accessToken = localStorage.getItem('accessToken')
+      if (!accessToken?.trim()) {
+        setBalanceLoading(false)
+        return
+      }
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+      if (!apiUrl) {
+        setBalanceLoading(false)
+        return
+      }
+      try {
+        const res = await fetch(`${apiUrl}/api/v1/payments/accounts`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        })
+        const data: PaymentAccountApiResponse = await res.json()
+        if (res.ok && data.isSuccess && data.result != null) {
+          setBalance(Number(data.result.balance))
+        } else {
+          setBalanceError(data.message || '잔액을 불러오지 못했습니다.')
+        }
+      } catch {
+        setBalanceError('잔액을 불러오지 못했습니다.')
+      } finally {
+        setBalanceLoading(false)
+      }
+    }
+    fetchBalance()
+  }, [])
+
+  const balanceDisplay =
+    balanceLoading && balance === null
+      ? '조회 중...'
+      : balanceError
+        ? balanceError
+        : balance != null
+          ? `${new Intl.NumberFormat('ko-KR').format(balance)}원`
+          : '-'
+
   return (
     <div className="home-page">
       <Header />
-      
+
       <div style={{ padding: '40px 20px', minHeight: '60vh' }}>
         <div className="container" style={{ maxWidth: '1000px', margin: '0 auto' }}>
           <h1 style={{ fontSize: '32px', fontWeight: '700', marginBottom: '32px' }}>마이페이지</h1>
@@ -52,7 +112,15 @@ export default function MyPage() {
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ fontSize: '13px', color: '#666', marginBottom: '2px' }}>보유 머니</div>
-                    <div style={{ fontSize: '20px', fontWeight: '700', color: '#333' }}>50,000원</div>
+                    <div
+                      style={{
+                        fontSize: '20px',
+                        fontWeight: '700',
+                        color: balanceError ? '#dc3545' : '#333',
+                      }}
+                    >
+                      {balanceDisplay}
+                    </div>
                   </div>
                 </div>
               </div>

@@ -52,6 +52,30 @@ spring:
     connect-timeout: 3s
     socket-timeout: 10s
 
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
+      acks: all # 모든 레플리카 확인
+      retries: 3
+      properties:
+        "enable.idempotence": true # 중복 방지
+        "spring.json.add.type.headers": true # 타입 헤더 추가 / consumer 가 해당 타입으로 역직렬화 가능
+        "spring.json.trusted.packages": com.modeunsa.*
+        "delivery.timeout.ms": 120000 # 전송 타임아웃
+    consumer:
+      group-id: modeunsa-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: earliest
+      properties:
+        "spring.json.trusted.packages": com.modeunsa.*
+        "spring.json.use.type.headers": true
+        "max.poll.records": 20 # 폴링 레코드 수
+        "fetch.max.wait.ms": 500 # 최대 대기 시간
+        "max.poll.interval.ms": 300000 # 최대 풀 대기 시간
+
 settlement:
   scheduler:
     daily-03: "0 0 3 * * *"
@@ -95,7 +119,13 @@ encryption:
   enabled: true
   master-key: ${ENCRYPTION_MASTER_KEY}
 
-
 app:
   simulation:
     enabled: true
+  event-publisher:
+    type: ${EVENT_PUBLISHER_TYPE:spring}
+  data-init:
+    enabled: ${DATA_INIT:true}
+
+internal:
+  api-key: ${INTERNAL_API_KEY}

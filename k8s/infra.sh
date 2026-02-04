@@ -2,24 +2,19 @@
 #
 # Modeunsa 인프라 관리 스크립트
 
-# 사용하기 전 세팅:
+# 사용하기 전 세팅 (Colima + k3s):
 #
-#   1. Docker Desktop 설치
-#      https://www.docker.com/products/docker-desktop/
+#   1. Colima 및 Docker CLI 설치
+#      brew install colima docker
 #
-#   2. Docker Desktop에서 Kubernetes 활성화
-#      Docker Desktop > Settings > Kubernetes > Enable Kubernetes > Apply & Restart
+#   2. k3s 모드로 Colima 시작
+#      colima start --kubernetes --kubernetes-distribution k3s \
+#        --cpu 4 --memory 6 --disk 30
 #
-#   3. kubectl 설치 (Docker Desktop K8s 활성화 시 자동 설치됨, 안 되어있으면 아래 실행)
-#      Mac:     brew install kubectl
-#      Windows: winget install Kubernetes.kubectl
+#   3. kubectl, helm 설치
+#      brew install kubectl helm
 #
-#   4. helm 설치
-#      Mac:     brew install helm
-#      Windows: winget install Helm.Helm
-#
-#   * Windows에서는 IntelliJ 터미널을 Git Bash로 변경 후 이 스크립트 실행
-#     IntelliJ > Settings > Tools > Terminal > Shell path를 "C:\Program Files\Git\bin\bash.exe"로 변경
+#   * Colima가 Docker 런타임 + k3s를 모두 제공하므로 Docker Desktop 불필요
 #
 # !!!!!!!!!!!!!!!!!!!!!!사용법!!!!!!!!!!!!!!!!!!!!!!
 #   ./k8s/infra.sh up        인프라 시작 (helm 설치)

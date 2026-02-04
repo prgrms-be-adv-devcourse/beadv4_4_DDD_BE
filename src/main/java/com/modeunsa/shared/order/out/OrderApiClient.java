@@ -9,8 +9,14 @@ import org.springframework.web.client.RestClient;
 public class OrderApiClient {
   private final RestClient restClient;
 
-  public OrderApiClient(@Value("${custom.global.internalBackUrl}") String internalBackUrl) {
-    this.restClient = RestClient.builder().baseUrl(internalBackUrl + "/api/v1/orders").build();
+  public OrderApiClient(
+      @Value("${custom.global.internalBackUrl}") String internalBackUrl,
+      @Value("${internal.api-key}") String internalApiKey) {
+    this.restClient =
+        RestClient.builder()
+            .baseUrl(internalBackUrl + "/api/v1/orders")
+            .defaultHeader("X-INTERNAL-API-KEY", internalApiKey)
+            .build();
   }
 
   public OrderDto getOrder(Long id) {

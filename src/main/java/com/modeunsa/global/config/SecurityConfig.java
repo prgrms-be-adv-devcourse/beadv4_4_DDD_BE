@@ -1,5 +1,6 @@
 package com.modeunsa.global.config;
 
+import com.modeunsa.global.security.InternalApiKeyFilter;
 import com.modeunsa.global.security.jwt.JwtAccessDeniedHandler;
 import com.modeunsa.global.security.jwt.JwtAuthenticationEntryPoint;
 import com.modeunsa.global.security.jwt.JwtAuthenticationFilter;
@@ -35,6 +36,7 @@ public class SecurityConfig {
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
   private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
   private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+  private final InternalApiKeyFilter internalApiKeyFilter;
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -56,7 +58,9 @@ public class SecurityConfig {
 
       http.authorizeHttpRequests(
           auth ->
-              auth
+              auth.requestMatchers("/api/*/*/internal/**")
+                  .permitAll()
+
                   // ========================================
                   // 1. 공개 URL (yml에서 관리)
                   // ========================================
@@ -71,6 +75,9 @@ public class SecurityConfig {
                   .requestMatchers(HttpMethod.GET, "/api/v1/products/{id}")
                   .permitAll()
 
+                  // 재고
+                  .requestMatchers(HttpMethod.GET, "/api/v2/inventories/*/available-quantity")
+                  .permitAll()
                   // ========================================
                   // 3. 관리자 전용
                   // ========================================
@@ -128,8 +135,8 @@ public class SecurityConfig {
                   .anyRequest()
                   .authenticated());
     }
-
-    http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+    http.addFilterBefore(internalApiKeyFilter, UsernamePasswordAuthenticationFilter.class);
+    http.addFilterBefore(jwtAuthenticationFilter, InternalApiKeyFilter.class);
     return http.build();
   }
 

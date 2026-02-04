@@ -1,11 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import {useCallback, useEffect, useState} from 'react'
 import MypageLayout from '../../components/MypageLayout'
 
 const CATEGORY_OPTIONS = [
-  { value: '', label: '전체 카테고리' },
+  { value: '', label: '카테고리 전체' },
   { value: 'OUTER', label: '아우터' },
   { value: 'UPPER', label: '상의' },
   { value: 'LOWER', label: '하의' },
@@ -15,89 +15,179 @@ const CATEGORY_OPTIONS = [
   { value: 'BEAUTY', label: '뷰티' },
 ]
 
-const STATUS_OPTIONS = [
-  { value: '', label: '전체 상태' },
-  { value: 'ON_SALE', label: '판매중' },
-  { value: 'SOLD_OUT', label: '품절' },
-  { value: 'HIDDEN', label: '숨김' },
+const PRODUCT_STATUS_OPTIONS = [
+  { value: '', label: '등록 상태 전체' },
+  { value: 'DRAFT', label: '임시저장' },
+  { value: 'COMPLETED', label: '완료' },
+  { value: 'CANCELED', label: '취소' },
 ]
 
-const mockProducts = [
-  {
-    id: 1,
-    name: '데일리 베이직 티셔츠',
-    category: '상의',
-    categoryValue: 'UPPER',
-    price: '29,000원',
-    stock: 50,
-    status: '판매중',
-    statusValue: 'ON_SALE',
-    statusStyle: { color: '#22c55e', fontWeight: 600 },
-    registeredAt: '2024.01.15',
-  },
-  {
-    id: 2,
-    name: '루즈핏 오버코트',
-    category: '아우터',
-    categoryValue: 'OUTER',
-    price: '89,000원',
-    stock: 12,
-    status: '판매중',
-    statusValue: 'ON_SALE',
-    statusStyle: { color: '#22c55e', fontWeight: 600 },
-    registeredAt: '2024.01.12',
-  },
-  {
-    id: 3,
-    name: '니트 풀오버 세트',
-    category: '상의',
-    categoryValue: 'UPPER',
-    price: '44,000원',
-    stock: 0,
-    status: '품절',
-    statusValue: 'SOLD_OUT',
-    statusStyle: { color: '#f59e0b', fontWeight: 600 },
-    registeredAt: '2024.01.08',
-  },
-  {
-    id: 4,
-    name: '미니 크로스백',
-    category: '가방',
-    categoryValue: 'BAG',
-    price: '35,000원',
-    stock: 8,
-    status: '판매중',
-    statusValue: 'ON_SALE',
-    statusStyle: { color: '#22c55e', fontWeight: 600 },
-    registeredAt: '2024.01.05',
-  },
+const SALE_STATUS_OPTIONS = [
+  { value: '', label: '판매상태 전체' },
+  { value: 'SALE', label: '판매중' },
+  { value: 'SOLD_OUT', label: '품절' },
+  { value: 'NOT_SALE', label: '판매중지' },
 ]
+
+interface ProductResponse {
+  id: number
+  sellerId: number
+  sellerBusinessName: string
+  name: string
+  category: string
+  description: string
+  price: number
+  salePrice: number
+  currency: string
+  productStatus: string
+  saleStatus: string
+  stock: number
+  favoriteCount: number
+  primaryImageUrl: string
+  createdAt: string
+  updatedAt: string
+  createdBy: number
+  updatedBy: number
+}
+
+interface PageInfo {
+  page: number
+  size: number
+  hasNext: boolean
+  totalElements: number
+  totalPages: number
+}
+
+interface ProductsApiResponse {
+  isSuccess: boolean
+  code: string
+  message: string
+  pageInfo: PageInfo | null
+  result: ProductResponse[] | null
+}
 
 const PAGE_SIZE = 10
+const PAGE_WINDOW = 5
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+
 
 export default function ProductsPage() {
   const [keyword, setKeyword] = useState('')
   const [category, setCategory] = useState('')
-  const [status, setStatus] = useState('')
-  const [currentPage, setCurrentPage] = useState(1)
+  const [saleStatus, setSaleStatus] = useState('')
+  const [productStatus, setProductStatus] = useState('')
+  const [currentPage, setCurrentPage] = useState(0)
 
-  const handleSearch = () => {
-    setCurrentPage(1)
-    alert(`상품 검색: ${keyword || '(전체)'} / ${category || '전체'} / ${status || '전체'}\n(데모 화면입니다.)`)
+  const accessToken = localStorage.getItem('accessToken')
+
+  const handleSearch = async () => {
+    setCurrentPage(0)
+
+    const params = new URLSearchParams()
+    if (keyword) params.append('name', keyword)
+    if (category) params.append('category', category)
+    if (saleStatus) params.append('saleStatus', saleStatus)
+    if (productStatus) params.append('productStatus', productStatus)
+    params.append('page', String(currentPage))
+    params.append('size', String(PAGE_SIZE))
+
+    try {
+      const url = `${apiUrl}/api/v1/products/sellers?${params.toString()}`
+      const res = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      })
+      const data: ProductsApiResponse = await res.json()
+      if (!res.ok) {
+        setError(data.message || '상품 목록을 불러오지 못했습니다.')
+        setProducts([])
+        setPageInfo(null)
+        return
+      }
+      if (data.isSuccess && data.result) {
+        setProducts(data.result)
+        setPageInfo(data.pageInfo ?? null)
+      } else {
+        setProducts([])
+        setPageInfo(null)
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '상품 목록을 불러오지 못했습니다.')
+      setProducts([])
+      setPageInfo(null)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const filteredProducts = mockProducts.filter((p) => {
-    const matchKeyword = !keyword || p.name.toLowerCase().includes(keyword.toLowerCase())
-    const matchCategory = !category || p.categoryValue === category
-    const matchStatus = !status || p.statusValue === status
-    return matchKeyword && matchCategory && matchStatus
-  })
+  const [products, setProducts] = useState<ProductResponse[]>([])
+  const [pageInfo, setPageInfo] = useState<PageInfo | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE))
-  const paginatedProducts = filteredProducts.slice(
-    (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE
+  type Option = { value: string; label: string }
+
+  const getLabel = (options: Option[], value?: string) => {
+    if (!value) return '-'
+    return options.find((opt) => opt.value === value)?.label ?? value
+  }
+
+  const fetchProducts = useCallback(async () => {
+    if (!apiUrl) {
+      setProducts([])
+      setPageInfo(null)
+      setIsLoading(false)
+      return
+    }
+    setIsLoading(true)
+    setError(null)
+    try {
+
+      const url = `${apiUrl}/api/v1/products/sellers?page=${currentPage}&size=${PAGE_SIZE}`
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+      const data: ProductsApiResponse = await res.json()
+      if (!res.ok) {
+        setError(data.message || '상품 목록을 불러오지 못했습니다.')
+        setProducts([])
+        setPageInfo(null)
+        return
+      }
+      if (data.isSuccess && data.result) {
+        setProducts(data.result)
+        setPageInfo(data.pageInfo ?? null)
+      } else {
+        setProducts([])
+        setPageInfo(null)
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '상품 목록을 불러오지 못했습니다.')
+      setProducts([])
+      setPageInfo(null)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [currentPage])
+
+  useEffect(() => {
+    fetchProducts()
+  }, [fetchProducts])
+
+  const totalPages = pageInfo?.totalPages ?? 0
+
+  const currentBlock = Math.floor(currentPage / PAGE_WINDOW)
+
+  const startPage = currentBlock * PAGE_WINDOW
+  const endPage = Math.min(
+      startPage + PAGE_WINDOW - 1,
+      totalPages - 1
   )
+
+  const canGoPrevBlock = startPage > 0
+  const canGoNextBlock = endPage < totalPages - 1
+
 
   return (
     <MypageLayout>
@@ -148,7 +238,7 @@ export default function ProductsPage() {
               value={keyword}
               onChange={(e) => {
                 setKeyword(e.target.value)
-                setCurrentPage(1)
+                setCurrentPage(0)
               }}
               style={{
                 padding: '8px 12px',
@@ -163,7 +253,7 @@ export default function ProductsPage() {
               value={category}
               onChange={(e) => {
                 setCategory(e.target.value)
-                setCurrentPage(1)
+                setCurrentPage(0)
               }}
               style={{
                 padding: '8px 12px',
@@ -175,16 +265,16 @@ export default function ProductsPage() {
               }}
             >
               {CATEGORY_OPTIONS.map((opt) => (
-                <option key={opt.value || 'all'} value={opt.value}>
+                <option key={opt.value} value={opt.value}>
                   {opt.label}
                 </option>
               ))}
             </select>
             <select
-              value={status}
+              value={saleStatus}
               onChange={(e) => {
-                setStatus(e.target.value)
-                setCurrentPage(1)
+                setSaleStatus(e.target.value)
+                setCurrentPage(0)
               }}
               style={{
                 padding: '8px 12px',
@@ -195,10 +285,31 @@ export default function ProductsPage() {
                 minWidth: '100px',
               }}
             >
-              {STATUS_OPTIONS.map((opt) => (
-                <option key={opt.value || 'all'} value={opt.value}>
+              {SALE_STATUS_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
                   {opt.label}
                 </option>
+              ))}
+            </select>
+            <select
+                value={productStatus}
+                onChange={(e) => {
+                  setProductStatus(e.target.value)
+                  setCurrentPage(0)
+                }}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  border: '1px solid #e0e0e0',
+                  fontSize: '14px',
+                  background: 'white',
+                  minWidth: '100px',
+                }}
+            >
+              {PRODUCT_STATUS_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
               ))}
             </select>
             <button
@@ -241,10 +352,16 @@ export default function ProductsPage() {
               <thead>
                 <tr style={{ background: '#f8f9fa', borderBottom: '2px solid #eee' }}>
                   <th style={{ padding: '14px 12px', textAlign: 'left', fontWeight: 600, color: '#333' }}>
+                    상품번호
+                  </th>
+                  <th style={{ padding: '14px 12px', textAlign: 'left', fontWeight: 600, color: '#333' }}>
                     상품명
                   </th>
                   <th style={{ padding: '14px 12px', textAlign: 'center', fontWeight: 600, color: '#333' }}>
                     카테고리
+                  </th>
+                  <th style={{ padding: '14px 12px', textAlign: 'right', fontWeight: 600, color: '#333' }}>
+                    정가
                   </th>
                   <th style={{ padding: '14px 12px', textAlign: 'right', fontWeight: 600, color: '#333' }}>
                     판매가
@@ -253,10 +370,13 @@ export default function ProductsPage() {
                     재고
                   </th>
                   <th style={{ padding: '14px 12px', textAlign: 'center', fontWeight: 600, color: '#333' }}>
+                    판매상태
+                  </th>
+                  <th style={{ padding: '14px 12px', textAlign: 'center', fontWeight: 600, color: '#333' }}>
                     상태
                   </th>
                   <th style={{ padding: '14px 12px', textAlign: 'left', fontWeight: 600, color: '#333' }}>
-                    등록일
+                    등록일시
                   </th>
                   <th style={{ padding: '14px 12px', textAlign: 'center', fontWeight: 600, color: '#333' }}>
                     관리
@@ -264,22 +384,33 @@ export default function ProductsPage() {
                 </tr>
               </thead>
               <tbody>
-                {paginatedProducts.map((product) => (
+                {products.map((product) => (
                   <tr key={product.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
+                    <td style={{ padding: '14px 12px', color: '#333'}}>{product.id}</td>
                     <td style={{ padding: '14px 12px', color: '#333', fontWeight: 500 }}>{product.name}</td>
                     <td style={{ padding: '14px 12px', textAlign: 'center', color: '#666' }}>
-                      {product.category}
+                      {getLabel(CATEGORY_OPTIONS, product.category)}
                     </td>
                     <td style={{ padding: '14px 12px', textAlign: 'right', fontWeight: 600, color: '#333' }}>
-                      {product.price}
+                      {product.price != null
+                          ? `₩${product.price.toLocaleString()}`
+                          : ''}
+                    </td>
+                    <td style={{ padding: '14px 12px', textAlign: 'right', fontWeight: 600, color: '#333' }}>
+                      {product.salePrice != null
+                          ? `₩${product.salePrice.toLocaleString()}`
+                          : ''}
                     </td>
                     <td style={{ padding: '14px 12px', textAlign: 'center', color: '#333' }}>
                       {product.stock}개
                     </td>
                     <td style={{ padding: '14px 12px', textAlign: 'center' }}>
-                      <span style={product.statusStyle}>{product.status}</span>
+                      {getLabel(SALE_STATUS_OPTIONS, product.saleStatus)}
                     </td>
-                    <td style={{ padding: '14px 12px', color: '#666' }}>{product.registeredAt}</td>
+                    <td style={{ padding: '14px 12px', textAlign: 'center' }}>
+                      {getLabel(PRODUCT_STATUS_OPTIONS, product.productStatus)}
+                    </td>
+                    <td style={{ padding: '14px 12px', color: '#666' }}>{product.createdAt}</td>
                     <td style={{ padding: '14px 12px', textAlign: 'center' }}>
                       <Link
                         href={`/mypage/products/${product.id}/edit`}
@@ -299,73 +430,100 @@ export default function ProductsPage() {
             </table>
           </div>
 
-          {filteredProducts.length > 0 && totalPages > 0 && (
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: '4px',
-                padding: '16px',
-                borderTop: '1px solid #f0f0f0',
-              }}
-            >
-              <button
-                type="button"
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                style={{
-                  padding: '8px 12px',
-                  borderRadius: '8px',
-                  border: '1px solid #e0e0e0',
-                  background: currentPage === 1 ? '#f5f5f5' : '#fff',
-                  color: currentPage === 1 ? '#999' : '#333',
-                  fontSize: '14px',
-                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                }}
-              >
-                이전
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <button
-                  key={page}
-                  type="button"
-                  onClick={() => setCurrentPage(page)}
+          {/* 페이징 */}
+          {products.length > 0 && totalPages > 1 && (
+              <div
                   style={{
-                    minWidth: '36px',
-                    padding: '8px',
-                    borderRadius: '8px',
-                    border: currentPage === page ? '2px solid #667eea' : '1px solid #e0e0e0',
-                    background: currentPage === page ? '#f8f8ff' : '#fff',
-                    color: currentPage === page ? '#667eea' : '#333',
-                    fontSize: '14px',
-                    fontWeight: currentPage === page ? 600 : 400,
-                    cursor: 'pointer',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '16px',
+                    borderTop: '1px solid #f0f0f0',
+                    flexWrap: 'wrap',
                   }}
-                >
-                  {page}
-                </button>
-              ))}
-              <button
-                type="button"
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                style={{
-                  padding: '8px 12px',
-                  borderRadius: '8px',
-                  border: '1px solid #e0e0e0',
-                  background: currentPage === totalPages ? '#f5f5f5' : '#fff',
-                  color: currentPage === totalPages ? '#999' : '#333',
-                  fontSize: '14px',
-                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                }}
               >
-                다음
-              </button>
-            </div>
+                {/* 이전 블록 */}
+                <button
+                    type="button"
+                    onClick={() =>
+                        setCurrentPage(Math.max(0, startPage - PAGE_WINDOW))
+                    }
+                    disabled={!canGoPrevBlock}
+                    style={{
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      border: '1px solid #e0e0e0',
+                      background: canGoPrevBlock ? '#fff' : '#f5f5f5',
+                      color: canGoPrevBlock ? '#333' : '#999',
+                      fontSize: '14px',
+                      cursor: canGoPrevBlock ? 'pointer' : 'not-allowed',
+                      fontWeight: 500,
+                    }}
+                >
+                  이전
+                </button>
+
+                {/* 페이지 번호 (블록 단위) */}
+                {Array.from(
+                    { length: endPage - startPage + 1 },
+                    (_, i) => {
+                      const pageIndex = startPage + i
+                      const pageNumber = pageIndex + 1
+                      const isActive = currentPage === pageIndex
+
+                      return (
+                          <button
+                              key={pageNumber}
+                              type="button"
+                              onClick={() => setCurrentPage(pageIndex)}
+                              style={{
+                                minWidth: '36px',
+                                padding: '8px',
+                                borderRadius: '8px',
+                                border: isActive
+                                    ? '2px solid #667eea'
+                                    : '1px solid #e0e0e0',
+                                background: isActive ? '#f8f8ff' : '#fff',
+                                color: isActive ? '#667eea' : '#333',
+                                fontSize: '14px',
+                                fontWeight: isActive ? 600 : 400,
+                                cursor: 'pointer',
+                              }}
+                          >
+                            {pageNumber}
+                          </button>
+                      )
+                    }
+                )}
+
+                {/* 다음 블록 */}
+                <button
+                    type="button"
+                    onClick={() =>
+                        setCurrentPage(
+                            Math.min(totalPages - 1, startPage + PAGE_WINDOW)
+                        )
+                    }
+                    disabled={!canGoNextBlock}
+                    style={{
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      border: '1px solid #e0e0e0',
+                      background: canGoNextBlock ? '#fff' : '#f5f5f5',
+                      color: canGoNextBlock ? '#333' : '#999',
+                      fontSize: '14px',
+                      cursor: canGoNextBlock ? 'pointer' : 'not-allowed',
+                      fontWeight: 500,
+                    }}
+                >
+                  다음
+                </button>
+              </div>
           )}
 
-          {filteredProducts.length === 0 && (
+
+          {products.length === 0 && (
             <div
               style={{
                 padding: '48px 24px',

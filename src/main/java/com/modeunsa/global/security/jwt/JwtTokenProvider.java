@@ -25,6 +25,7 @@ public class JwtTokenProvider {
   private static final String KEY_TYPE = "type";
   private static final String TYPE_ACCESS = "access";
   private static final String TYPE_REFRESH = "refresh";
+  private static final String KEY_SELLER_ID = "sellerId";
 
   private SecretKey secretKey;
 
@@ -41,7 +42,7 @@ public class JwtTokenProvider {
   }
 
   /** Access Token 생성 */
-  public String createAccessToken(Long memberId, MemberRole role) {
+  public String createAccessToken(Long memberId, MemberRole role, Long sellerId) {
     Date now = new Date();
     Date expiry = new Date(now.getTime() + jwtProperties.accessTokenExpiration());
 
@@ -49,6 +50,7 @@ public class JwtTokenProvider {
         .subject(String.valueOf(memberId))
         .claim(KEY_ROLE, role.name())
         .claim(KEY_TYPE, TYPE_ACCESS)
+        .claim(KEY_SELLER_ID, sellerId)
         .issuedAt(now)
         .expiration(expiry)
         .signWith(secretKey)
@@ -56,7 +58,7 @@ public class JwtTokenProvider {
   }
 
   /** Refresh Token 생성 */
-  public String createRefreshToken(Long memberId, MemberRole role) {
+  public String createRefreshToken(Long memberId, MemberRole role, Long sellerId) {
     Date now = new Date();
     Date expiry = new Date(now.getTime() + jwtProperties.refreshTokenExpiration());
 
@@ -64,6 +66,7 @@ public class JwtTokenProvider {
         .subject(String.valueOf(memberId))
         .claim(KEY_ROLE, role.name())
         .claim(KEY_TYPE, TYPE_REFRESH)
+        .claim(KEY_SELLER_ID, sellerId)
         .issuedAt(now)
         .expiration(expiry)
         .signWith(secretKey)
@@ -127,6 +130,18 @@ public class JwtTokenProvider {
     } catch (IllegalArgumentException e) {
       throw new GeneralException(ErrorStatus.AUTH_INVALID_TOKEN);
     }
+  }
+
+  /** 토큰에서 sellerId 추출 */
+  public Long getSellerIdFromToken(String token) {
+    Claims claims = parseClaims(token);
+    Object sellerIdObj = claims.get(KEY_SELLER_ID);
+
+    if (sellerIdObj == null) {
+      return null;
+    }
+
+    return Long.valueOf(String.valueOf(sellerIdObj));
   }
 
   /** Claims 파싱 */
