@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class JpaPaymentAccountLogReader implements PaymentAccountLogReader {
 
-  private final PaymentAccountQueryRepository queryRepository;
+  private final PaymentAccountLogQueryRepository queryRepository;
 
   @Override
   public long countByReferenceType(ReferenceType referenceType) {

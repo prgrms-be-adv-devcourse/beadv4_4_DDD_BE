@@ -7,9 +7,9 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-@Repository
+@Repository("paymentAccountLogQueryRepository")
 @RequiredArgsConstructor
-public class PaymentAccountQueryRepository {
+public class PaymentAccountLogQueryRepository {
 
   private final JPAQueryFactory queryFactory;
 
