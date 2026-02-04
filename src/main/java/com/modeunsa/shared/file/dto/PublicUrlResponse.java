@@ -1,3 +1,3 @@
-package com.modeunsa.global.file.dto;
+package com.modeunsa.shared.file.dto;
 
 public record PublicUrlResponse(String imageUrl, String key) {}

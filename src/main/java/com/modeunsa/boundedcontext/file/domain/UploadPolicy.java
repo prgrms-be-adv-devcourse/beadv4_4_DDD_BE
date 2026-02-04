@@ -1,8 +1,8 @@
 package com.modeunsa.boundedcontext.file.domain;
 
 import com.modeunsa.global.exception.GeneralException;
-import com.modeunsa.global.file.dto.UploadPathInfo;
 import com.modeunsa.global.status.ErrorStatus;
+import com.modeunsa.shared.file.dto.UploadPathInfo;
 import java.util.Set;
 import java.util.UUID;
 import org.springframework.stereotype.Service;

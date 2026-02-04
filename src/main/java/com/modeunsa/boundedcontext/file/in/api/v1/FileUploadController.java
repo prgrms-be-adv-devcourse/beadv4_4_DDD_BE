@@ -2,12 +2,12 @@ package com.modeunsa.boundedcontext.file.in.api.v1;
 
 import com.modeunsa.boundedcontext.file.app.S3UploadService;
 import com.modeunsa.boundedcontext.file.domain.DomainType;
-import com.modeunsa.global.file.dto.PresignedUrlRequest;
-import com.modeunsa.global.file.dto.PresignedUrlResponse;
-import com.modeunsa.global.file.dto.PublicUrlRequest;
-import com.modeunsa.global.file.dto.PublicUrlResponse;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.status.SuccessStatus;
+import com.modeunsa.shared.file.dto.PresignedUrlRequest;
+import com.modeunsa.shared.file.dto.PresignedUrlResponse;
+import com.modeunsa.shared.file.dto.PublicUrlRequest;
+import com.modeunsa.shared.file.dto.PublicUrlResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;

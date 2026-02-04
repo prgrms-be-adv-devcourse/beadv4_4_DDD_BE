@@ -1,4 +1,4 @@
-package com.modeunsa.global.file.dto;
+package com.modeunsa.shared.file.dto;
 
 import com.modeunsa.boundedcontext.file.domain.DomainType;
 
