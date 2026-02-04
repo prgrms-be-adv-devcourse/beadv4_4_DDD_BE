@@ -1,4 +1,4 @@
-package com.modeunsa.global.elasticsearch.model;
+package com.modeunsa.boundedcontext.product.elasticsearch.model;
 
 import java.util.Collections;
 import java.util.List;
