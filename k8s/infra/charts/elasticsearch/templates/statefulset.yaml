@@ -1,0 +1,52 @@
+{{- if .Values.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "elasticsearch.fullname" . }}
+  labels:
+    {{- include "elasticsearch.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "elasticsearch.fullname" . }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "elasticsearch.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "elasticsearch.fullname" . }}
+    spec:
+      initContainers:
+        - name: install-plugins
+          image: "elasticsearch:{{ .Values.image.tag }}"
+          command: ["sh", "-c", "elasticsearch-plugin install --batch {{ .Values.plugins }}"]
+          volumeMounts:
+            - name: es-plugins
+              mountPath: /usr/share/elasticsearch/plugins
+      containers:
+        - name: elasticsearch
+          image: "elasticsearch:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: 9200
+            - containerPort: 9300
+          env:
+            - name: discovery.type
+              value: "single-node"
+            - name: xpack.security.enabled
+              value: "false"
+            - name: ES_JAVA_OPTS
+              value: {{ .Values.javaOpts | quote }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: es-data
+              mountPath: /usr/share/elasticsearch/data
+            - name: es-plugins
+              mountPath: /usr/share/elasticsearch/plugins
+      volumes:
+        - name: es-data
+          persistentVolumeClaim:
+            claimName: {{ include "elasticsearch.fullname" . }}-pvc
+        - name: es-plugins
+          emptyDir: {}
+{{- end }}

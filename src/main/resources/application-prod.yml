@@ -48,7 +48,7 @@ spring:
 
   elasticsearch:
     uris:
-      - http://elasticsearch:9200
+      - http://${ES_HOST:elasticsearch}:${ES_PORT:9200}
 
 custom:
   swagger:

@@ -1,0 +1,16 @@
+enabled: true
+image:
+  tag: "9.2.2"
+javaOpts: "-Xms1g -Xmx1g"
+plugins: "analysis-nori"
+service:
+  nodePort: 30920
+storage:
+  size: 5Gi
+resources:
+  requests:
+    cpu: 250m
+    memory: 1Gi
+  limits:
+    cpu: "1"
+    memory: 2Gi

@@ -1,0 +1,16 @@
+enabled: true
+image:
+  tag: "7-alpine"
+auth:
+  password: ""
+service:
+  nodePort: 30379
+storage:
+  size: 1Gi
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 250m
+    memory: 256Mi

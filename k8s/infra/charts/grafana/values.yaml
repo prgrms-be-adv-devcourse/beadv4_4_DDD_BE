@@ -1,0 +1,15 @@
+enabled: true
+image:
+  tag: "latest"
+auth:
+  adminUser: ""
+  adminPassword: ""
+server:
+  rootUrl: "http://localhost:30300/grafana"
+  serveFromSubPath: true
+storage:
+  size: 2Gi
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
