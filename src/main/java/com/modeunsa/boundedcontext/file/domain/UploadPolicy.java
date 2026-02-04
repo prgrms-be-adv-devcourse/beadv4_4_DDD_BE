@@ -1,8 +1,7 @@
-package com.modeunsa.global.s3;
+package com.modeunsa.boundedcontext.file.domain;
 
 import com.modeunsa.global.exception.GeneralException;
-import com.modeunsa.global.s3.dto.DomainType;
-import com.modeunsa.global.s3.dto.UploadPathInfo;
+import com.modeunsa.global.file.dto.UploadPathInfo;
 import com.modeunsa.global.status.ErrorStatus;
 import java.util.Set;
 import java.util.UUID;

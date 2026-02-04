@@ -1,13 +1,15 @@
-package com.modeunsa.global.s3;
+package com.modeunsa.boundedcontext.file.app;
 
-import com.modeunsa.global.config.S3Properties;
+import com.modeunsa.boundedcontext.file.domain.DomainType;
+import com.modeunsa.boundedcontext.file.domain.UploadPolicy;
+import com.modeunsa.boundedcontext.file.out.s3.S3Properties;
+import com.modeunsa.boundedcontext.file.out.s3.S3UploadExecutor;
 import com.modeunsa.global.exception.GeneralException;
-import com.modeunsa.global.s3.dto.DomainType;
-import com.modeunsa.global.s3.dto.PresignedUrlRequest;
-import com.modeunsa.global.s3.dto.PresignedUrlResponse;
-import com.modeunsa.global.s3.dto.PublicUrlRequest;
-import com.modeunsa.global.s3.dto.PublicUrlResponse;
-import com.modeunsa.global.s3.dto.UploadPathInfo;
+import com.modeunsa.global.file.dto.PresignedUrlRequest;
+import com.modeunsa.global.file.dto.PresignedUrlResponse;
+import com.modeunsa.global.file.dto.PublicUrlRequest;
+import com.modeunsa.global.file.dto.PublicUrlResponse;
+import com.modeunsa.global.file.dto.UploadPathInfo;
 import com.modeunsa.global.status.ErrorStatus;
 import java.io.IOException;
 import java.time.Duration;
@@ -29,6 +31,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequ
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
+// TODO: service 분해 & 이동. usecase 분리 및 s3 의존성 out으로 이동
 @Component
 public class S3UploadService {
 

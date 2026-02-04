@@ -1,5 +1,7 @@
 package com.modeunsa.boundedcontext.member.app.facade;
 
+import com.modeunsa.boundedcontext.file.app.S3UploadService;
+import com.modeunsa.boundedcontext.file.domain.DomainType;
 import com.modeunsa.boundedcontext.member.app.support.MemberSupport;
 import com.modeunsa.boundedcontext.member.app.usecase.AdminApproveSellerUseCase;
 import com.modeunsa.boundedcontext.member.app.usecase.MemberBasicInfoUpdateUseCase;
@@ -14,12 +16,10 @@ import com.modeunsa.boundedcontext.member.app.usecase.SellerRegisterUseCase;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.entity.MemberProfile;
 import com.modeunsa.global.exception.GeneralException;
-import com.modeunsa.global.s3.S3UploadService;
-import com.modeunsa.global.s3.dto.DomainType;
-import com.modeunsa.global.s3.dto.PresignedUrlRequest;
-import com.modeunsa.global.s3.dto.PresignedUrlResponse;
-import com.modeunsa.global.s3.dto.PublicUrlRequest;
-import com.modeunsa.global.s3.dto.PublicUrlResponse;
+import com.modeunsa.global.file.dto.PresignedUrlRequest;
+import com.modeunsa.global.file.dto.PresignedUrlResponse;
+import com.modeunsa.global.file.dto.PublicUrlRequest;
+import com.modeunsa.global.file.dto.PublicUrlResponse;
 import com.modeunsa.global.security.jwt.JwtTokenProvider;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.member.dto.request.MemberBasicInfoUpdateRequest;

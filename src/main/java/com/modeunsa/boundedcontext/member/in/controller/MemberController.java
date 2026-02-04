@@ -1,11 +1,11 @@
 package com.modeunsa.boundedcontext.member.in.controller;
 
+import com.modeunsa.boundedcontext.file.app.S3UploadService;
+import com.modeunsa.boundedcontext.file.domain.DomainType;
 import com.modeunsa.boundedcontext.member.app.facade.MemberFacade;
+import com.modeunsa.global.file.dto.PublicUrlRequest;
+import com.modeunsa.global.file.dto.PublicUrlResponse;
 import com.modeunsa.global.response.ApiResponse;
-import com.modeunsa.global.s3.S3UploadService;
-import com.modeunsa.global.s3.dto.DomainType;
-import com.modeunsa.global.s3.dto.PublicUrlRequest;
-import com.modeunsa.global.s3.dto.PublicUrlResponse;
 import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.global.status.SuccessStatus;
 import com.modeunsa.shared.member.dto.request.MemberBasicInfoUpdateRequest;

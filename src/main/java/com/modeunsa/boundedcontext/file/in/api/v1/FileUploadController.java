@@ -1,12 +1,12 @@
-package com.modeunsa.shared.file.in;
+package com.modeunsa.boundedcontext.file.in.api.v1;
 
+import com.modeunsa.boundedcontext.file.app.S3UploadService;
+import com.modeunsa.boundedcontext.file.domain.DomainType;
+import com.modeunsa.global.file.dto.PresignedUrlRequest;
+import com.modeunsa.global.file.dto.PresignedUrlResponse;
+import com.modeunsa.global.file.dto.PublicUrlRequest;
+import com.modeunsa.global.file.dto.PublicUrlResponse;
 import com.modeunsa.global.response.ApiResponse;
-import com.modeunsa.global.s3.S3UploadService;
-import com.modeunsa.global.s3.dto.DomainType;
-import com.modeunsa.global.s3.dto.PresignedUrlRequest;
-import com.modeunsa.global.s3.dto.PresignedUrlResponse;
-import com.modeunsa.global.s3.dto.PublicUrlRequest;
-import com.modeunsa.global.s3.dto.PublicUrlResponse;
 import com.modeunsa.global.status.SuccessStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,11 +23,11 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-@Tag(name = "FileUpload", description = "파일 업로드 API")
+@Tag(name = "File Upload", description = "파일 업로드 API")
 @RestController
-@RequestMapping("/api/v1/file-uploads")
+@RequestMapping("/api/v1/files")
 @RequiredArgsConstructor
-public class ApiV1FileUploadController {
+public class FileUploadController {
 
   private final S3UploadService s3UploadService;
 
@@ -50,10 +50,11 @@ public class ApiV1FileUploadController {
     return ApiResponse.onSuccess(SuccessStatus.OK, response);
   }
 
+  @Deprecated
   @Operation(
-      summary = "파일 업로드",
+      summary = "파일 s3에 직접 업로드",
       description = "s3에 직접 파일을 업로드하고 public url을 반환합니다. 되도록이면 presigned url 방식을 사용해 주세요.")
-  @PostMapping("/upload")
+  @PostMapping
   public ResponseEntity<ApiResponse> upload(
       @RequestPart MultipartFile file,
       @RequestParam DomainType domainType,
@@ -72,7 +73,7 @@ public class ApiV1FileUploadController {
     return ApiResponse.onSuccess(SuccessStatus.OK, response);
   }
 
-  @Operation(summary = "파일 삭제", description = "s3에서 파일을 삭제합니다.")
+  @Operation(summary = "파일 s3에서 삭제", description = "s3에서 파일을 삭제합니다.")
   @DeleteMapping
   public void delete(@RequestParam(name = "objectKey") String objectKey) {
     s3UploadService.delete(objectKey);
