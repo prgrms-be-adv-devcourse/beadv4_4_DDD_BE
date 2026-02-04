@@ -1,5 +1,6 @@
 package com.modeunsa.shared.product.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
 import com.modeunsa.boundedcontext.product.domain.ProductCurrency;
 import com.modeunsa.boundedcontext.product.domain.ProductStatus;
@@ -24,7 +25,7 @@ public record ProductDetailResponse(
     boolean isFavorite,
     int favoriteCount,
     List<ProductImageDto> images,
-    LocalDateTime createdAt,
-    LocalDateTime updatedAt,
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul") LocalDateTime createdAt,
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul") LocalDateTime updatedAt,
     Long createdBy,
     Long updatedBy) {}
