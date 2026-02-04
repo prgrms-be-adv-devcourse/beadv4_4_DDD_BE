@@ -6,7 +6,7 @@ import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmRespo
 import com.modeunsa.boundedcontext.payment.app.support.PaymentSupport;
 import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
-import com.modeunsa.boundedcontext.payment.out.adapter.client.TossPaymentClient;
+import com.modeunsa.boundedcontext.payment.out.client.TossPaymentClient;
 import com.modeunsa.global.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
