@@ -1,7 +1,7 @@
-package com.modeunsa.boundedcontext.payment.out.persistence;
+package com.modeunsa.boundedcontext.payment.out.persistence.payment;
 
 import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
-import com.modeunsa.boundedcontext.payment.out.PaymentStore;
+import com.modeunsa.boundedcontext.payment.out.persistence.PaymentStore;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

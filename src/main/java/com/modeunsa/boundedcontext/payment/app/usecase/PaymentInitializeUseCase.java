@@ -4,9 +4,10 @@ import static com.modeunsa.global.status.ErrorStatus.PAYMENT_DUPLICATE;
 
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequest;
+import com.modeunsa.boundedcontext.payment.app.support.PaymentSupport;
 import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
-import com.modeunsa.boundedcontext.payment.out.persistence.PaymentRepository;
+import com.modeunsa.boundedcontext.payment.out.persistence.PaymentStore;
 import com.modeunsa.global.exception.GeneralException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class PaymentInitializeUseCase {
 
-  private final PaymentRepository paymentRepository;
+  private final PaymentSupport paymentSupport;
+  private final PaymentStore paymentStore;
 
   /*
    * 결제 초기화 : 기존 결제 건이 있으면 재시도, 없으면 신규 생성
@@ -28,7 +30,7 @@ public class PaymentInitializeUseCase {
   public PaymentProcessContext execute(Long memberId, PaymentRequest paymentRequest) {
     PaymentId paymentId = PaymentId.create(memberId, paymentRequest.orderNo());
 
-    Optional<Payment> findPayment = paymentRepository.findById(paymentId);
+    Optional<Payment> findPayment = paymentSupport.getOptPaymentById(paymentId);
     if (findPayment.isPresent()) {
       Payment payment = findPayment.get();
       payment.initPayment(paymentRequest.paymentDeadlineAt());
@@ -54,7 +56,7 @@ public class PaymentInitializeUseCase {
 
     try {
       // 복합키 저장을 위해 Payment 를 먼저 저장 후 로그를 추가
-      Payment saved = paymentRepository.save(payment);
+      Payment saved = paymentStore.store(payment);
       saved.addInitialLog(saved);
       return PaymentProcessContext.fromPaymentForInitialize(saved);
     } catch (DataIntegrityViolationException e) {

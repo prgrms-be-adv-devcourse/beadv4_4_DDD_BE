@@ -3,9 +3,7 @@ package com.modeunsa.boundedcontext.payment.out.persistence;
 import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
 import java.util.Optional;
-import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface PaymentRepository extends JpaRepository<Payment, Long> {
-
+public interface PaymentReader {
   Optional<Payment> findById(PaymentId paymentId);
 }
