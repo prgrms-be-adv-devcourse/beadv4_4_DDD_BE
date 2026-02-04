@@ -22,7 +22,7 @@ public class InventoryFacade {
   private final InventorySupport inventorySupport;
   private final InventoryMapper inventoryMapper;
   private final InventoryReserveInventoryUseCase inventoryReserveInventoryUseCase;
-  private final InventoryGetAvailableQuantityUseCase inventoryGetAvailavleQuantityUseCase;
+  private final InventoryGetAvailableQuantityUseCase inventoryGetAvailableQuantityUseCase;
 
   @Transactional
   public void registerSeller(Long sellerId, String businessName, String representativeName) {
@@ -52,6 +52,6 @@ public class InventoryFacade {
   }
 
   public InventoryAvailableQuantityResponse getAvailableQuantity(Long productId) {
-    return inventoryGetAvailavleQuantityUseCase.getAvailalbeQuantity(productId);
+    return inventoryGetAvailableQuantityUseCase.getAvailableQuantity(productId);
   }
 }

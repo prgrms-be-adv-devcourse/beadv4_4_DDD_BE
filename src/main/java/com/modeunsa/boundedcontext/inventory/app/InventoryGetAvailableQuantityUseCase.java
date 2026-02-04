@@ -13,13 +13,13 @@ import org.springframework.stereotype.Service;
 public class InventoryGetAvailableQuantityUseCase {
   private final InventoryRepository inventoryRepository;
 
-  public InventoryAvailableQuantityResponse getAvailalbeQuantity(Long productId) {
+  public InventoryAvailableQuantityResponse getAvailableQuantity(Long productId) {
     Inventory inventory =
         inventoryRepository
             .findByProductId(productId)
             .orElseThrow(() -> new GeneralException(ErrorStatus.INVENTORY_NOT_FOUND));
 
-    int availableQuantity = Math.max(inventory.getQuantity() - inventory.getReservedQuantity(), 0);
+    int availableQuantity = inventory.getAvailableQuantity();
 
     return new InventoryAvailableQuantityResponse(availableQuantity);
   }
