@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  k6:
+    image: grafana/k6:latest
+    container_name: k6
+    environment:
+      - TARGET_URL=${TARGET_URL}
+      - K6_WEB_DASHBOARD=true
+    volumes:
+      - ./scripts:/scripts
+    tty: true
+    ports:
+      - "6565:6565"

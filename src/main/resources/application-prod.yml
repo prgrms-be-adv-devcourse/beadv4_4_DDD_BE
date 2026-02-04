@@ -71,6 +71,7 @@ custom:
       - /api/v1/auths/oauth/*/url
       - /api/v1/auths/login/**
       - /api/v1/auths/reissue
+      - /api/v1/auths/dev/**
       - /api/v1/test/roles/**
       - /login/oauth2/code/**
 

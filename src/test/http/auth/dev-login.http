@@ -1,0 +1,7 @@
+### 환경 변수 설정
+@baseUrl = http://localhost:8080
+@memberId = 4
+
+### dev 로그인
+POST {{baseUrl}}/api/v1/auths/dev/login?memberId={{memberId}}
+Accept: application/json
