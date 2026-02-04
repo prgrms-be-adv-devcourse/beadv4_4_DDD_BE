@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 @Builder
-public class CreateCartItemResponseDto {
+public class SyncCartItemResponseDto {
   private long id;
   private long memberId;
   private long productId;

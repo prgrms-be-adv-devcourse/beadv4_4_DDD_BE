@@ -3,17 +3,6 @@
 import { useState } from 'react'
 import MypageLayout from '../../components/MypageLayout'
 
-const CATEGORY_OPTIONS = [
-  { value: '', label: '전체 카테고리' },
-  { value: 'OUTER', label: '아우터' },
-  { value: 'UPPER', label: '상의' },
-  { value: 'LOWER', label: '하의' },
-  { value: 'CAP', label: '모자' },
-  { value: 'SHOES', label: '신발' },
-  { value: 'BAG', label: '가방' },
-  { value: 'BEAUTY', label: '뷰티' },
-]
-
 const mockStockList = [
   {
     id: 1,
@@ -63,20 +52,33 @@ const mockStockList = [
 
 const PAGE_SIZE = 10
 
+function getTotalStockEdit(edits: Record<number, string>, id: number, totalStock: number): string {
+  return edits[id] ?? String(totalStock)
+}
+
 export default function StockPage() {
-  const [keyword, setKeyword] = useState('')
-  const [category, setCategory] = useState('')
+  const [productId, setProductId] = useState('')
+  const [productName, setProductName] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
+  const [stockEdits, setStockEdits] = useState<Record<number, string>>({})
 
   const handleSearch = () => {
     setCurrentPage(1)
-    alert(`재고 검색: ${keyword || '(전체)'} / ${category || '전체'}\n(데모 화면입니다.)`)
+  }
+
+  const handleTotalStockChange = (itemId: number, value: string) => {
+    setStockEdits((prev) => ({ ...prev, [itemId]: value }))
+  }
+
+  const handleSave = (item: (typeof mockStockList)[0]) => {
+    const totalStockEdit = getTotalStockEdit(stockEdits, item.id, item.totalStock)
+    alert(`수정: ${item.name}\n총재고: ${totalStockEdit}, 예약재고: ${item.reservedStock}개\n(데모 화면입니다.)`)
   }
 
   const filteredList = mockStockList.filter((p) => {
-    const matchKeyword = !keyword || p.name.toLowerCase().includes(keyword.toLowerCase())
-    const matchCategory = !category || p.categoryValue === category
-    return matchKeyword && matchCategory
+    const matchId = !productId.trim() || p.id.toString().includes(productId.trim())
+    const matchName = !productName.trim() || p.name.toLowerCase().includes(productName.trim().toLowerCase())
+    return matchId && matchName
   })
 
   const totalPages = Math.max(1, Math.ceil(filteredList.length / PAGE_SIZE))
@@ -110,10 +112,10 @@ export default function StockPage() {
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px' }}>
             <input
               type="text"
-              placeholder="상품명 검색"
-              value={keyword}
+              placeholder="상품 ID 검색"
+              value={productId}
               onChange={(e) => {
-                setKeyword(e.target.value)
+                setProductId(e.target.value)
                 setCurrentPage(1)
               }}
               style={{
@@ -125,10 +127,12 @@ export default function StockPage() {
                 minWidth: '120px',
               }}
             />
-            <select
-              value={category}
+            <input
+              type="text"
+              placeholder="상품명 검색"
+              value={productName}
               onChange={(e) => {
-                setCategory(e.target.value)
+                setProductName(e.target.value)
                 setCurrentPage(1)
               }}
               style={{
@@ -136,16 +140,10 @@ export default function StockPage() {
                 borderRadius: '8px',
                 border: '1px solid #e0e0e0',
                 fontSize: '14px',
-                background: 'white',
+                width: '180px',
                 minWidth: '120px',
               }}
-            >
-              {CATEGORY_OPTIONS.map((opt) => (
-                <option key={opt.value || 'all'} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+            />
             <button
               type="button"
               onClick={handleSearch}
@@ -204,48 +202,65 @@ export default function StockPage() {
                     재고 상태
                   </th>
                   <th style={{ padding: '14px 12px', textAlign: 'center', fontWeight: 600, color: '#333' }}>
-                    재고 조정
+                    수정
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {paginatedList.map((item) => (
-                  <tr key={item.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
-                    <td style={{ padding: '14px 12px', textAlign: 'center', color: '#666' }}>
-                      {item.category}
-                    </td>
-                    <td style={{ padding: '14px 12px', textAlign: 'center', color: '#666', fontSize: '13px' }}>
-                      {item.orderNo}
-                    </td>
-                    <td style={{ padding: '14px 12px', color: '#333', fontWeight: 500 }}>{item.name}</td>
-                    <td style={{ padding: '14px 12px', textAlign: 'center', fontWeight: 600, color: '#333' }}>
-                      {item.totalStock}개
-                    </td>
-                    <td style={{ padding: '14px 12px', textAlign: 'center', color: '#666' }}>
-                      {item.reservedStock}개
-                    </td>
-                    <td style={{ padding: '14px 12px', textAlign: 'center' }}>
-                      <span style={item.stockStatusStyle}>{item.stockStatus}</span>
-                    </td>
-                    <td style={{ padding: '14px 12px', textAlign: 'center' }}>
-                      <button
-                        type="button"
-                        onClick={() => alert(`재고 조정: ${item.name}\n(데모 화면입니다.)`)}
-                        style={{
-                          fontSize: '13px',
-                          color: '#667eea',
-                          fontWeight: 500,
-                          background: 'none',
-                          border: 'none',
-                          cursor: 'pointer',
-                          textDecoration: 'underline',
-                        }}
-                      >
-                        조정하기
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {paginatedList.map((item) => {
+                  const totalStockValue = getTotalStockEdit(stockEdits, item.id, item.totalStock)
+                  return (
+                    <tr key={item.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
+                      <td style={{ padding: '14px 12px', textAlign: 'center', color: '#666' }}>
+                        {item.category}
+                      </td>
+                      <td style={{ padding: '14px 12px', textAlign: 'center', color: '#666', fontSize: '13px' }}>
+                        {item.orderNo}
+                      </td>
+                      <td style={{ padding: '14px 12px', color: '#333', fontWeight: 500 }}>{item.name}</td>
+                      <td style={{ padding: '8px 12px', textAlign: 'center' }}>
+                        <input
+                          type="number"
+                          min={0}
+                          value={totalStockValue}
+                          onChange={(e) => handleTotalStockChange(item.id, e.target.value)}
+                          style={{
+                            width: '72px',
+                            padding: '6px 8px',
+                            borderRadius: '6px',
+                            border: '1px solid #e0e0e0',
+                            fontSize: '14px',
+                            textAlign: 'center',
+                          }}
+                        />
+                      </td>
+                      <td style={{ padding: '14px 12px', textAlign: 'center', color: '#666' }}>
+                        {item.reservedStock}개
+                      </td>
+                      <td style={{ padding: '14px 12px', textAlign: 'center' }}>
+                        <span style={item.stockStatusStyle}>{item.stockStatus}</span>
+                      </td>
+                      <td style={{ padding: '14px 12px', textAlign: 'center' }}>
+                        <button
+                          type="button"
+                          onClick={() => handleSave(item)}
+                          style={{
+                            padding: '6px 12px',
+                            borderRadius: '6px',
+                            border: 'none',
+                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            color: 'white',
+                            fontSize: '13px',
+                            fontWeight: 500,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          수정
+                        </button>
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>
