@@ -73,4 +73,8 @@ public class Inventory extends GeneratedIdAndAuditedEntity {
     }
     return false;
   }
+
+  public int getAvailableQuantity() {
+    return Math.max(this.quantity - this.reservedQuantity, 0);
+  }
 }

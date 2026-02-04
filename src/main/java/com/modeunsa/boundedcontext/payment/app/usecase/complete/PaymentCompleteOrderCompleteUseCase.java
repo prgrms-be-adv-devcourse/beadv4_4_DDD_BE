@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.payment.app.usecase;
+package com.modeunsa.boundedcontext.payment.app.usecase.complete;
 
 import co.elastic.clients.util.VisibleForTesting;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
@@ -8,6 +8,7 @@ import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentSupport;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
+import com.modeunsa.boundedcontext.payment.domain.types.PaymentPurpose;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentStatus;
 import com.modeunsa.boundedcontext.payment.domain.types.ReferenceType;
 import com.modeunsa.global.config.PaymentAccountConfig;
@@ -21,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class PaymentProcessUseCase {
+public class PaymentCompleteOrderCompleteUseCase implements PaymentCompleteProcess {
 
   private final PaymentSupport paymentSupport;
   private final PaymentAccountSupport paymentAccountSupport;
@@ -29,6 +30,12 @@ public class PaymentProcessUseCase {
   private final EventPublisher eventPublisher;
   private final PaymentAccountConfig paymentAccountConfig;
 
+  @Override
+  public PaymentPurpose purpose() {
+    return PaymentPurpose.PRODUCT_PURCHASE;
+  }
+
+  @Override
   public void execute(PaymentProcessContext paymentProcessContext) {
 
     // 1. 결제 계좌에 대한 Lock 획득

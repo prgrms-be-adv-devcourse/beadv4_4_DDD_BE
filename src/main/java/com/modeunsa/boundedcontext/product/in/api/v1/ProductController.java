@@ -3,6 +3,7 @@ package com.modeunsa.boundedcontext.product.in.api.v1;
 import com.modeunsa.boundedcontext.product.app.ProductFacade;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
 import com.modeunsa.boundedcontext.product.domain.ProductStatus;
+import com.modeunsa.boundedcontext.product.domain.SaleStatus;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.security.CustomUserDetails;
@@ -105,7 +106,7 @@ public class ProductController {
   }
 
   @Operation(summary = "주문 상품 검증용 상품 리스트 조회", description = "주문 직전 상품의 유효성 검증을 위해 상품 리스트를 조회합니다.")
-  @PostMapping("/validate-order")
+  @PostMapping("/internal/validate-order")
   public List<ProductOrderResponse> validateOrderProducts(
       @Valid @RequestBody ProductOrderValidateRequest productOrderValidateRequest) {
     return productFacade.getProducts(productOrderValidateRequest.productIds());
@@ -123,6 +124,10 @@ public class ProductController {
   @GetMapping("/sellers")
   public ResponseEntity<ApiResponse> getProductsForSeller(
       @AuthenticationPrincipal CustomUserDetails user,
+      @RequestParam(name = "name", required = false) String name,
+      @RequestParam(name = "category", required = false) ProductCategory category,
+      @RequestParam(name = "saleStatus", required = false) SaleStatus saleStatus,
+      @RequestParam(name = "productStatus", required = false) ProductStatus productStatus,
       @RequestParam(name = "page") int page,
       @RequestParam(name = "size") int size) {
     Pageable pageable =
@@ -130,7 +135,8 @@ public class ProductController {
             page, size, Sort.by(Sort.Direction.DESC, "createdAt") // 정렬 고정
             );
     Page<ProductResponse> productResponses =
-        productFacade.getProducts(user.getMemberId(), pageable);
+        productFacade.getProducts(
+            user.getMemberId(), name, category, saleStatus, productStatus, pageable);
     return ApiResponse.onSuccess(SuccessStatus.OK, productResponses);
   }
 }

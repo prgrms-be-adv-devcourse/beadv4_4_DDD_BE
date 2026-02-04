@@ -6,6 +6,7 @@ import com.modeunsa.boundedcontext.product.domain.ProductCategory;
 import com.modeunsa.boundedcontext.product.domain.ProductFavorite;
 import com.modeunsa.boundedcontext.product.domain.ProductMember;
 import com.modeunsa.boundedcontext.product.domain.ProductStatus;
+import com.modeunsa.boundedcontext.product.domain.SaleStatus;
 import com.modeunsa.shared.order.dto.OrderDto;
 import com.modeunsa.shared.product.dto.ProductCreateRequest;
 import com.modeunsa.shared.product.dto.ProductDetailResponse;
@@ -65,8 +66,15 @@ public class ProductFacade {
     return products.map(product -> productMapper.toResponse(product));
   }
 
-  public Page<ProductResponse> getProducts(Long memberId, Pageable pageable) {
-    Page<Product> products = productSupport.getProducts(memberId, pageable);
+  public Page<ProductResponse> getProducts(
+      Long memberId,
+      String name,
+      ProductCategory category,
+      SaleStatus saleStatus,
+      ProductStatus productStatus,
+      Pageable pageable) {
+    Page<Product> products =
+        productSupport.getProducts(memberId, name, category, saleStatus, productStatus, pageable);
     return products.map(product -> productMapper.toResponse(product));
   }
 
