@@ -10,7 +10,9 @@ group = 'com'
 version = '0.0.1-SNAPSHOT'
 description = 'modeunsa'
 
-ext.querydslVersion = '5.1.0'
+// CVE-2024-49203 (SQL/HQL Injection, CVSS 9.8) 패치 반영
+// 원본 com.querydsl은 5.1.0이 최신이므로, 패치된 OpenFeign 포크 사용
+ext.querydslVersion = '5.6.1'
 
 java {
     toolchain {
@@ -27,17 +29,6 @@ configurations {
 repositories {
     mavenCentral()
 }
-
-def querydslDir = "$buildDir/generated/querydsl"
-
-sourceSets {
-    main.java.srcDirs += querydslDir
-}
-
-tasks.withType(JavaCompile).configureEach {
-    options.generatedSourceOutputDirectory = file(querydslDir)
-}
-
 
 dependencies {
     // spring boot
@@ -82,7 +73,7 @@ dependencies {
 
     // dotenv for loading .env file in tests
     testImplementation 'io.github.cdimascio:dotenv-java:3.0.0'
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.3'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1'
 
     // MySQL Connector
     runtimeOnly 'com.mysql:mysql-connector-j'
@@ -100,9 +91,9 @@ dependencies {
     // prometheus
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 
-    // querydsl
-    implementation "com.querydsl:querydsl-jpa:${querydslVersion}:jakarta"
-    annotationProcessor "com.querydsl:querydsl-apt:${querydslVersion}:jakarta"
+    // querydsl (CVE-2024-49203 패치 버전: OpenFeign 포크 5.6.1)
+    implementation "io.github.openfeign.querydsl:querydsl-jpa:${querydslVersion}:jakarta"
+    annotationProcessor "io.github.openfeign.querydsl:querydsl-apt:${querydslVersion}:jakarta"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
 
@@ -184,7 +175,7 @@ spotless {
         targetExclude(
             "**/OAuthUserInfo.java",
             "**/MemberSellerController.java",
-            "**/generated/querydsl/**"  // QueryDSL Q 클래스 제외
+            "**/generated/querydsl/**",
         )
         // diff 안정화를 위해 하기 옵션 추가
         trimTrailingWhitespace() // 줄 끝 공백 제거
@@ -216,7 +207,3 @@ tasks.named('check') {
 
 // TODO 추후 suppressions 파일로 분리
 checkstyleMain.source = fileTree('src/main/java')
-
-clean {
-    delete file(querydslDir)
-}
