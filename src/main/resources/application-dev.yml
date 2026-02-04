@@ -109,5 +109,5 @@ springdoc:
 app:
   cookie:
     secure: false
-    http-only: false
+    http-only: true
     same-site: Lax

@@ -110,5 +110,5 @@ management:
 app:
   cookie:
     secure: true
-    http-only: false # TODO: true로 변경 예정 (issue 412번)
+    http-only: true
     same-site: Lax
