@@ -1,6 +1,7 @@
 package com.modeunsa.boundedcontext.payment.app.dto;
 
 import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
+import com.modeunsa.boundedcontext.payment.domain.types.PaymentPurpose;
 import com.modeunsa.boundedcontext.payment.domain.types.ProviderType;
 import java.math.BigDecimal;
 import lombok.Builder;
@@ -14,6 +15,7 @@ public record PaymentProcessContext(
     BigDecimal requestPgAmount,
     BigDecimal totalAmount,
     ProviderType providerType,
+    PaymentPurpose paymentPurpose,
     String paymentKey,
     String pgCustomerName,
     String pgCustomerEmail,
@@ -28,6 +30,7 @@ public record PaymentProcessContext(
         .totalAmount(payment.getTotalAmount())
         .needsPgPayment(false)
         .providerType(payment.getPaymentProvider())
+        .paymentPurpose(payment.getPaymentPurpose())
         .build();
   }
 
@@ -40,6 +43,7 @@ public record PaymentProcessContext(
         .needsPgPayment(payment.isNeedPgPayment())
         .requestPgAmount(payment.getRequestPgAmount())
         .providerType(payment.getPaymentProvider())
+        .paymentPurpose(payment.getPaymentPurpose())
         .build();
   }
 
@@ -67,6 +71,7 @@ public record PaymentProcessContext(
         .needsPgPayment(payment.isNeedPgPayment())
         .requestPgAmount(payment.getPgPaymentAmount())
         .totalAmount(payment.getTotalAmount())
+        .paymentPurpose(payment.getPaymentPurpose())
         .build();
   }
 }
