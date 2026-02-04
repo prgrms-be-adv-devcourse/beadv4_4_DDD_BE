@@ -1,4 +1,3 @@
 package com.modeunsa.global.s3.dto;
 
-public record PublicUrlRequest(
-    String rawKey, DomainType domainType, Long domainId, String contentType) {}
+public record PublicUrlRequest(String rawKey, DomainType domainType, String contentType) {}

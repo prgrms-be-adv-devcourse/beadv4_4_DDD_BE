@@ -172,7 +172,7 @@ public class MemberController {
 
     Long memberId = user.getMemberId();
     PublicUrlRequest secureRequest =
-        new PublicUrlRequest(request.rawKey(), DomainType.MEMBER, memberId, request.contentType());
+        new PublicUrlRequest(request.rawKey(), DomainType.MEMBER, request.contentType());
 
     PublicUrlResponse response = memberFacade.updateProfileImage(memberId, secureRequest);
     return ApiResponse.onSuccess(SuccessStatus.MEMBER_PROFILE_UPDATE_SUCCESS, response);

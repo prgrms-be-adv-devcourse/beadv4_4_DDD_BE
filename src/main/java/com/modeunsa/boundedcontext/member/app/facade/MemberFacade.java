@@ -141,10 +141,7 @@ public class MemberFacade {
 
     PresignedUrlRequest presignedUrlRequest =
         new PresignedUrlRequest(
-            memberId,
-            DomainType.SELLER,
-            request.licenseImageRawKey(),
-            request.licenseContentType());
+            DomainType.SELLER, request.licenseImageRawKey(), request.licenseContentType());
 
     PresignedUrlResponse s3Response = s3UploadService.getPresignedUrl(request.licenseImageRawKey());
 

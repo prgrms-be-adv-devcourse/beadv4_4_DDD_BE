@@ -56,8 +56,7 @@ public class S3UploadService {
 
   /** 업로드용 presignedUrl 발급 */
   public PresignedUrlResponse issuePresignedUrl(PresignedUrlRequest request) {
-    String rawKey =
-        UploadPolicy.buildRawKey(request.domainType(), request.domainId(), request.ext(), profile);
+    String rawKey = UploadPolicy.buildRawKey(request.domainType(), request.ext(), profile);
 
     PutObjectRequest putObjectRequest =
         PutObjectRequest.builder()
@@ -99,8 +98,7 @@ public class S3UploadService {
     this.validateRequest(request, head, uploadPathInfo);
 
     String publicKey =
-        UploadPolicy.buildPublicKey(
-            profile, request.domainType(), request.domainId(), uploadPathInfo.filename());
+        UploadPolicy.buildPublicKey(profile, request.domainType(), uploadPathInfo.filename());
 
     // 3. CopyObject
     this.copyObject(request.rawKey(), publicKey, request.contentType());
@@ -113,10 +111,9 @@ public class S3UploadService {
   }
 
   /** s3에 직접 업로드 (되도록이면 presignedUrl 사용해주세요) */
-  public PublicUrlResponse upload(
-      MultipartFile file, DomainType domainType, Long domainId, String filename)
+  public PublicUrlResponse upload(MultipartFile file, DomainType domainType, String filename)
       throws IOException {
-    String publicKey = UploadPolicy.buildPublicKey(profile, domainType, domainId, filename);
+    String publicKey = UploadPolicy.buildPublicKey(profile, domainType, filename);
     PutObjectRequest request =
         PutObjectRequest.builder()
             .bucket(bucket)
@@ -187,8 +184,7 @@ public class S3UploadService {
       throw new GeneralException(ErrorStatus.IMAGE_FILE_EXTENSION_NOT_SUPPORTED);
     }
     if (!uploadPathInfo.profile().equals(profile)
-        || !uploadPathInfo.domainType().equals(request.domainType())
-        || !uploadPathInfo.domainId().equals(request.domainId())) {
+        || !uploadPathInfo.domainType().equals(request.domainType())) {
       throw new GeneralException(ErrorStatus.IMAGE_RAW_KEY_INVALID);
     }
   }

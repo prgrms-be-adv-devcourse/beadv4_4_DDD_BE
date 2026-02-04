@@ -57,11 +57,9 @@ public class ApiV1FileUploadController {
   public ResponseEntity<ApiResponse> upload(
       @RequestPart MultipartFile file,
       @RequestParam DomainType domainType,
-      @RequestParam Long domainId,
       @RequestParam String filename)
       throws IOException {
-
-    PublicUrlResponse response = s3UploadService.upload(file, domainType, domainId, filename);
+    PublicUrlResponse response = s3UploadService.upload(file, domainType, filename);
     return ApiResponse.onSuccess(SuccessStatus.OK, response);
   }
 
