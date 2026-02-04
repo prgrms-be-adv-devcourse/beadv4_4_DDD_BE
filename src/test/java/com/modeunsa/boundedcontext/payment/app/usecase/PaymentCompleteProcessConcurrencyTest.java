@@ -15,7 +15,7 @@ import com.modeunsa.boundedcontext.payment.domain.types.ProviderType;
 import com.modeunsa.boundedcontext.payment.out.PaymentAccountLogRepository;
 import com.modeunsa.boundedcontext.payment.out.PaymentAccountRepository;
 import com.modeunsa.boundedcontext.payment.out.PaymentMemberRepository;
-import com.modeunsa.boundedcontext.payment.out.PaymentRepository;
+import com.modeunsa.boundedcontext.payment.out.persistence.PaymentRepository;
 import com.modeunsa.global.config.PaymentAccountConfig;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

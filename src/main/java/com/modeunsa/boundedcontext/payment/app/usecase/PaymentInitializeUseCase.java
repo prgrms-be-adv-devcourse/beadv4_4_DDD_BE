@@ -6,7 +6,7 @@ import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequest;
 import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
-import com.modeunsa.boundedcontext.payment.out.PaymentRepository;
+import com.modeunsa.boundedcontext.payment.out.persistence.PaymentRepository;
 import com.modeunsa.global.exception.GeneralException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;

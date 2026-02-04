@@ -3,7 +3,7 @@ package com.modeunsa.boundedcontext.payment.app.support;
 import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentStatus;
-import com.modeunsa.boundedcontext.payment.out.PaymentRepository;
+import com.modeunsa.boundedcontext.payment.out.persistence.PaymentRepository;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;

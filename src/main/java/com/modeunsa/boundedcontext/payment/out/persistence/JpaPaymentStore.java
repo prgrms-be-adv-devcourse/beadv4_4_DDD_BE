@@ -1,0 +1,18 @@
+package com.modeunsa.boundedcontext.payment.out.persistence;
+
+import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
+import com.modeunsa.boundedcontext.payment.out.PaymentStore;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+@Component
+@RequiredArgsConstructor
+public class JpaPaymentStore implements PaymentStore {
+
+  private final PaymentRepository paymentRepository;
+
+  @Override
+  public Payment store(Payment newPayment) {
+    return paymentRepository.save(newPayment);
+  }
+}
