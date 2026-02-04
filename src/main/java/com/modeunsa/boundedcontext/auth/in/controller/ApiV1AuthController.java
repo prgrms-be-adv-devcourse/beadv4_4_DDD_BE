@@ -87,8 +87,8 @@ public class ApiV1AuthController {
   @Operation(summary = "로그아웃", description = "Access Token을 블랙리스트에 등록하고 Refresh Token을 삭제합니다.")
   @PostMapping("/logout")
   public ResponseEntity<ApiResponse> logout(
-      @Parameter(description = "Access Token")
-      @CookieValue(value = "accessToken", required = false) String accessToken) {
+      @Parameter(description = "Access Token") @CookieValue(value = "accessToken", required = false)
+          String accessToken) {
 
     // 1. 쿠키에 토큰이 없는 경우 처리
     if (accessToken == null) {
@@ -99,13 +99,14 @@ public class ApiV1AuthController {
     authFacade.logout(accessToken);
 
     // 3. 브라우저 쿠키 삭제를 위한 ResponseCookie 생성
-    ResponseCookie cookie = ResponseCookie.from("accessToken", "")
-        .httpOnly(cookieProperties.isHttpOnly())
-        .secure(cookieProperties.isSecure())
-        .path(cookieProperties.getPath())
-        .sameSite(cookieProperties.getSameSite())
-        .maxAge(0) // 즉시 만료시켜 삭제
-        .build();
+    ResponseCookie cookie =
+        ResponseCookie.from("accessToken", "")
+            .httpOnly(cookieProperties.isHttpOnly())
+            .secure(cookieProperties.isSecure())
+            .path(cookieProperties.getPath())
+            .sameSite(cookieProperties.getSameSite())
+            .maxAge(0) // 즉시 만료시켜 삭제
+            .build();
 
     return ResponseEntity.ok()
         .header(HttpHeaders.SET_COOKIE, cookie.toString())
