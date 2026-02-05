@@ -14,6 +14,8 @@ import com.modeunsa.boundedcontext.payment.app.dto.accountlog.PaymentAccountSear
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.boundedcontext.payment.in.BasePaymentControllerTest;
 import com.modeunsa.boundedcontext.payment.in.api.v2.PaymentAccountLogController;
+import com.modeunsa.global.exception.GeneralException;
+import com.modeunsa.global.status.ErrorStatus;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -85,6 +87,12 @@ class PaymentAccountLogControllerTest extends BasePaymentControllerTest {
     // given
     String from = "2024-01-10T00:00:00";
     String to = "2024-01-01T00:00:00";
+
+    Long memberId = 1L;
+
+    when(paymentFacade.getAccountLogPageListBySearch(
+            eq(memberId), any(PaymentAccountSearchRequest.class)))
+        .thenThrow(new GeneralException(ErrorStatus.PAYMENT_INVALID_DATE_REQUEST));
 
     // when & then
     mockMvc
