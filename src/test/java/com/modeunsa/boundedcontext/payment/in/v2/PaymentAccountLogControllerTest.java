@@ -39,7 +39,7 @@ class PaymentAccountLogControllerTest extends BasePaymentControllerTest {
 
   @Test
   @DisplayName("결제 계좌 입출금 내역 조회 성공")
-  void getAccountLedgerPage_success() throws Exception {
+  void getAccountLedgerPageSuccess() throws Exception {
     // given
     Long memberId = 1L;
 
@@ -64,7 +64,7 @@ class PaymentAccountLogControllerTest extends BasePaymentControllerTest {
         .andExpect(jsonPath("$.isSuccess").value(true))
         .andExpect(jsonPath("$.result[0].isDeposit").value(true))
         .andExpect(
-            jsonPath("$.resultgi[0].content")
+            jsonPath("$.result[0].content")
                 .value(PaymentEventType.CHARGE_BANK_TRANSFER.getDescription()))
         .andExpect(jsonPath("$.result[0].amount").value(5000))
         .andExpect(jsonPath("$.result[0].balance").value(10000))
@@ -72,5 +72,26 @@ class PaymentAccountLogControllerTest extends BasePaymentControllerTest {
         .andExpect(jsonPath("$.pageInfo.size").value(10))
         .andExpect(jsonPath("$.pageInfo.totalElements").value(1))
         .andExpect(jsonPath("$.pageInfo.totalPages").value(1));
+  }
+
+  @Test
+  @DisplayName("from > to 이면 컨트롤러에서 5xx 에러 응답")
+  void getAccountLedgerFailedFromAfterTo() throws Exception {
+    // given
+    String from = "2024-01-10T00:00:00";
+    String to = "2024-01-01T00:00:00";
+
+    // when & then
+    mockMvc
+        .perform(
+            get("/api/v1/payments/accounts/logs")
+                .param("page", "0")
+                .param("size", "10")
+                .param("from", from)
+                .param("to", to))
+        .andExpect(status().is5xxServerError())
+        .andExpect(jsonPath("$.isSuccess").value(false))
+        .andExpect(jsonPath("$.code").exists())
+        .andExpect(jsonPath("$.message").exists());
   }
 }
