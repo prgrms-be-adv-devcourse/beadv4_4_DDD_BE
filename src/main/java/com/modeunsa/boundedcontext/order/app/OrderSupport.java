@@ -100,4 +100,8 @@ public class OrderSupport {
       throw new GeneralException(ErrorStatus.ORDER_CARTITEM_EMPTY);
     }
   }
+
+  public void softDeleteAllCartItems(Long memberId) {
+    orderCartItemRepository.softDeleteAllByMemberId(memberId);
+  }
 }

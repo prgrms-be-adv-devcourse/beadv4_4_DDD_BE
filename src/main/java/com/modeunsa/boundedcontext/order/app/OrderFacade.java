@@ -165,4 +165,9 @@ public class OrderFacade {
   public void deleteCartItems(Long memberId, DeleteCartItemsRequestDto request) {
     orderSupport.softDeleteCartItems(memberId, request.cartItemIds());
   }
+
+  @Transactional
+  public void deleteAllCartItems(Long memberId) {
+    orderSupport.softDeleteAllCartItems(memberId);
+  }
 }

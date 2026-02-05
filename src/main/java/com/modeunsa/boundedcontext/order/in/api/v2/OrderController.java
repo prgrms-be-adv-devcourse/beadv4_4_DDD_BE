@@ -44,4 +44,13 @@ public class OrderController {
     orderFacade.deleteCartItems(memberId, request);
     return ApiResponse.onSuccess(SuccessStatus.NO_CONTENT);
   }
+
+  @Operation(summary = "장바구니 아이템 전체 삭제 기능", description = "장바구니에 있는 모든 아이템을 삭제되는 기능입니다.")
+  @DeleteMapping("/api/v1/orders/cart-items/all")
+  public ResponseEntity<ApiResponse> deleteAllCartItems(
+      @AuthenticationPrincipal CustomUserDetails user) {
+    Long memberId = user.getMemberId();
+    orderFacade.deleteAllCartItems(memberId);
+    return ApiResponse.onSuccess(SuccessStatus.NO_CONTENT);
+  }
 }
