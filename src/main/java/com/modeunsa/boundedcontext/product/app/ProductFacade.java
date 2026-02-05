@@ -1,6 +1,5 @@
 package com.modeunsa.boundedcontext.product.app;
 
-import com.modeunsa.boundedcontext.product.ProductCreateMemberUseCase;
 import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
 import com.modeunsa.boundedcontext.product.domain.ProductFavorite;

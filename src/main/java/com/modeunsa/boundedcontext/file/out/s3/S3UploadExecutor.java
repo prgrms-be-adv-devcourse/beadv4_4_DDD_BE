@@ -1,7 +1,7 @@
-package com.modeunsa.global.s3;
+package com.modeunsa.boundedcontext.file.out.s3;
 
-import com.modeunsa.global.s3.exception.S3FileNotFoundException;
-import com.modeunsa.global.s3.exception.S3OperationException;
+import com.modeunsa.global.file.exception.S3FileNotFoundException;
+import com.modeunsa.global.file.exception.S3OperationException;
 import java.util.function.Supplier;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;

@@ -1,6 +1,5 @@
-package com.modeunsa.boundedcontext.product;
+package com.modeunsa.boundedcontext.product.app;
 
-import com.modeunsa.boundedcontext.product.app.ProductSupport;
 import com.modeunsa.boundedcontext.product.domain.ProductMember;
 import com.modeunsa.boundedcontext.product.out.ProductMemberRepository;
 import lombok.RequiredArgsConstructor;
