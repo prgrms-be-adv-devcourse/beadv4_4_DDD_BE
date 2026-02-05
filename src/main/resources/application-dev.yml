@@ -3,9 +3,9 @@ spring:
     activate:
       on-profile: dev
   datasource:
-    url: jdbc:mysql://localhost:30306/modeunsa
-    username: root
-    password: ${MYSQL_ROOT_PASSWORD:}
+    url: jdbc:mysql://${DB_HOST:127.0.0.1}:${DB_PORT:30306}/${DB_NAME:modeunsa}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:${MYSQL_ROOT_PASSWORD:}}
     driver-class-name: com.mysql.cj.jdbc.Driver
   h2:
     console:
@@ -23,8 +23,8 @@ spring:
         use_sql_comments: true
   data:
     redis:
-      host: localhost
-      port: 30379
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:30379}
       password: ${REDIS_PASSWORD:}
   security:
     oauth2:
@@ -55,11 +55,11 @@ spring:
 
   elasticsearch:
     uris:
-      - http://localhost:30920
+      - ${SPRING_ELASTICSEARCH_URIS:http://127.0.0.1:30920}
 
 custom:
   swagger:
-    serverUrl: http://localhost:8080
+    serverUrl: ${SWAGGER_SERVER_URL:http://127.0.0.1:8080}
     description: "Local Server"
   security:
     permit-all: false
@@ -79,6 +79,10 @@ custom:
       - /login/oauth2/code/**
       - /api/v1/test/roles/**
 
+      # ========== 헬스체크 ==========
+      - /actuator/health
+      - /actuator/prometheus
+
       # ========== 콘텐츠 ==========
       - /api/v1/contents/**
     oauth2:
@@ -92,3 +96,4 @@ custom:
       - http://127.0.0.1:3000
       - http://localhost:8080
       - http://127.0.0.1:8080
+      - http://localhost:30080

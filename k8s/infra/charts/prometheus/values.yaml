@@ -1,6 +1,9 @@
 enabled: true
 image:
   tag: "latest"
+service:
+  type: NodePort
+  nodePort: 30090
 scrapeInterval: "15s"
 scrapeConfigs:
   - jobName: "modeunsa-app"

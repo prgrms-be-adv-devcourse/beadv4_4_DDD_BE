@@ -34,10 +34,10 @@ print_status() {
 case "$1" in
   up)
     print_status "Starting Infrastructure..."
-    "$SCRIPT_DIR/infra.sh" up
-    
+    "$SCRIPT_DIR/infra.sh" up || exit 1
+
     print_status "Starting Application..."
-    "$SCRIPT_DIR/app.sh" up
+    "$SCRIPT_DIR/app.sh" up || exit 1
     
     print_status "All services started!"
     echo "  API Server     → localhost:30080"
@@ -69,8 +69,16 @@ case "$1" in
     ;;
 
   status)
-    print_status "Kubernetes Status"
-    kubectl get all,pvc -n modeunsa
+    NS="modeunsa"
+    case "$2" in
+      pod|pods|"")  kubectl get pods -n $NS ;;
+      deploy*)      kubectl get deployments -n $NS ;;
+      sts|statefulset*) kubectl get statefulsets -n $NS ;;
+      svc|service*) kubectl get svc -n $NS ;;
+      pvc)          kubectl get pvc -n $NS ;;
+      all)          kubectl get all,pvc -n $NS ;;
+      *)            echo "Usage: $0 status [pod|deploy|sts|svc|pvc|all]" ;;
+    esac
     ;;
 
   restart)

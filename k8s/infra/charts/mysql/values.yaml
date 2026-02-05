@@ -5,6 +5,7 @@ auth:
   rootPassword: ""
   database: ""
 service:
+  type: NodePort
   nodePort: 30306
 storage:
   size: 5Gi

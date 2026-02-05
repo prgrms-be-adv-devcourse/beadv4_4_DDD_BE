@@ -4,6 +4,7 @@ image:
 auth:
   password: ""
 service:
+  type: NodePort
   nodePort: 30379
 storage:
   size: 1Gi

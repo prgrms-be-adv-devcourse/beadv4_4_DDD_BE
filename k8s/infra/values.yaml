@@ -1,6 +1,9 @@
-# 부모 values.yaml — 서브차트에 전달할 값
-# 서브차트 이름을 키로 사용하여 값을 전달합니다.
-# 여기의 값은 각 서브차트의 values.yaml 기본값을 덮어씁니다.
+# 공통 기본 설정 (환경 공통)
+# 환경별 리소스/서비스 설정은 values-local.yaml 또는 values-prod.yaml 참조
+#
+# 사용법:
+#   helm upgrade --install ... -f values.yaml -f values-local.yaml   (로컬)
+#   helm upgrade --install ... -f values.yaml -f values-prod.yaml    (프로덕션)
 
 mysql:
   enabled: true
@@ -9,17 +12,6 @@ mysql:
   auth:
     rootPassword: ""    # .env에서 주입
     database: ""        # .env에서 주입
-  service:
-    nodePort: 30306     # 외부 접근 포트
-  storage:
-    size: 5Gi
-  resources:
-    requests:
-      cpu: 100m
-      memory: 256Mi
-    limits:
-      cpu: 200m
-      memory: 512Mi
 
 redis:
   enabled: true
@@ -27,17 +19,6 @@ redis:
     tag: "7-alpine"
   auth:
     password: ""        # .env에서 주입
-  service:
-    nodePort: 30379     # 외부 접근 포트
-  storage:
-    size: 1Gi
-  resources:
-    requests:
-      cpu: 50m
-      memory: 64Mi
-    limits:
-      cpu: 250m
-      memory: 256Mi
 
 elasticsearch:
   enabled: true
@@ -45,17 +26,6 @@ elasticsearch:
     tag: "9.2.2"
   javaOpts: "-Xms1g -Xmx1g"
   plugins: "analysis-nori"
-  service:
-    nodePort: 30920     # 외부 접근 포트
-  storage:
-    size: 5Gi
-  resources:
-    requests:
-      cpu: 250m
-      memory: 1Gi
-    limits:
-      cpu: "1"
-      memory: 2Gi
 
 prometheus:
   enabled: true
@@ -69,10 +39,6 @@ prometheus:
       scrapeTimeout: "10s"
       targets:
         - "modeunsa-app:8080"
-  resources:
-    limits:
-      cpu: 500m
-      memory: 512Mi
 
 grafana:
   enabled: true
@@ -82,15 +48,7 @@ grafana:
     adminUser: ""       # .env에서 주입
     adminPassword: ""   # .env에서 주입
   server:
-    rootUrl: "http://localhost:30300/grafana"
     serveFromSubPath: true
-  storage:
-    size: 2Gi
-  resources:
-    limits:
-      cpu: 500m
-      memory: 512Mi
 
-# Traefik 비활성화 - 각 서비스가 NodePort로 직접 노출됨
 traefik:
   enabled: false

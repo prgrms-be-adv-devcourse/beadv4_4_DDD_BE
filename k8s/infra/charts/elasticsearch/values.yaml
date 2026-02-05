@@ -4,6 +4,7 @@ image:
 javaOpts: "-Xms1g -Xmx1g"
 plugins: "analysis-nori"
 service:
+  type: NodePort
   nodePort: 30920
 storage:
   size: 5Gi

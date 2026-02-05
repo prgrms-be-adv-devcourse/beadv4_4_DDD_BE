@@ -49,6 +49,16 @@ case "$1" in
     IMAGE_REPO="${DOCKER_IMAGE%:*}"
     IMAGE_TAG="${DOCKER_IMAGE##*:}"
 
+    # ARM Mac에서 x86 이미지 사용 시 k3s에 직접 import
+    if colima status &>/dev/null; then
+      echo "Docker 이미지를 k3s에 import 합니다... ($DOCKER_IMAGE)"
+      docker pull --platform linux/amd64 "$DOCKER_IMAGE" 2>&1 | tail -1
+      docker save "$DOCKER_IMAGE" | \
+        colima ssh -- sudo ctr -a /run/containerd/containerd.sock -n k8s.io images import --no-unpack - \
+        && echo "이미지 import 완료" \
+        || { echo "이미지 import 실패"; exit 1; }
+    fi
+
     # helm 설치 또는 업그레이드
     helm upgrade --install $RELEASE $CHART_DIR -n $NAMESPACE \
       --set api.image.repository="$IMAGE_REPO" \
@@ -64,7 +74,8 @@ case "$1" in
       --set api.secrets.awsAccessKey="$AWS_ACCESS_KEY" \
       --set api.secrets.awsSecretKey="$AWS_SECRET_KEY" \
       --set api.secrets.encryptionMasterKey="$ENCRYPTION_MASTER_KEY" \
-      --set api.secrets.tossPaymentsSecretKey="$TOSS_PAYMENTS_SECRET_KEY"
+      --set api.secrets.tossPaymentsSecretKey="$TOSS_PAYMENTS_SECRET_KEY" \
+      --set api.secrets.internalApiKey="$INTERNAL_API_KEY"
 
     # Pod가 Ready 될 때까지 대기
     echo "Waiting for API pod to be ready..."
@@ -81,11 +92,14 @@ case "$1" in
     ;;
 
   status)
-    echo "=== Pods ==="
-    kubectl get pods -n $NAMESPACE -l "app.kubernetes.io/instance=$RELEASE"
-    echo ""
-    echo "=== Services ==="
-    kubectl get svc -n $NAMESPACE -l "app.kubernetes.io/instance=$RELEASE"
+    LABEL="app.kubernetes.io/instance=$RELEASE"
+    case "$2" in
+      pod|pods|"")  kubectl get pods -n $NAMESPACE -l "$LABEL" ;;
+      deploy*)      kubectl get deployments -n $NAMESPACE -l "$LABEL" ;;
+      svc|service*) kubectl get svc -n $NAMESPACE -l "$LABEL" ;;
+      all)          kubectl get all -n $NAMESPACE -l "$LABEL" ;;
+      *)            echo "Usage: $0 status [pod|deploy|svc|all]" ;;
+    esac
     ;;
 
   restart)

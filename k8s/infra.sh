@@ -2,19 +2,16 @@
 #
 # Modeunsa 인프라 관리 스크립트
 
-# 사용하기 전 세팅 (Colima + k3s):
+# 사용하기 전 세팅:
 #
 #   1. Colima 및 Docker CLI 설치
 #      brew install colima docker
 #
-#   2. k3s 모드로 Colima 시작
-#      colima start --kubernetes --kubernetes-distribution k3s \
-#        --cpu 4 --memory 6 --disk 30
-#
-#   3. kubectl, helm 설치
+#   2. kubectl, helm 설치
 #      brew install kubectl helm
 #
-#   * Colima가 Docker 런타임 + k3s를 모두 제공하므로 Docker Desktop 불필요
+#   * Colima(k3s)는 infra.sh up 시 자동 시작됩니다.
+#   * Docker Desktop은 불필요합니다.
 #
 # !!!!!!!!!!!!!!!!!!!!!!사용법!!!!!!!!!!!!!!!!!!!!!!
 #   ./k8s/infra.sh up        인프라 시작 (helm 설치)
@@ -37,8 +34,26 @@ RELEASE="modeunsa-infra"
 CHART_DIR="$(dirname "$0")/infra"
 ENV_FILE="$(dirname "$0")/../.env"
 
+ensure_colima() {
+  # colima status 종료 코드로 판단 (0=실행중, 1=중지)
+  if ! colima status &>/dev/null; then
+    echo "Colima가 실행 중이 아닙니다. k3s 모드로 시작합니다..."
+    colima start --kubernetes \
+      --vz-rosetta \
+      --cpu 4 --memory 6 --disk 30 || { echo "Colima 시작 실패"; exit 1; }
+  fi
+
+  # k8s 클러스터가 완전히 준비될 때까지 대기 (coredns 기준)
+  echo "Kubernetes 클러스터 준비 대기..."
+  until kubectl wait --for=condition=ready pod -l k8s-app=kube-dns -n kube-system --timeout=120s &>/dev/null; do
+    sleep 3
+  done
+  echo "Kubernetes 클러스터 준비 완료"
+}
+
 case "$1" in
   up)
+    ensure_colima
     # .env 로드
     if [ -f "$ENV_FILE" ]; then
       source "$ENV_FILE"
@@ -82,6 +97,7 @@ case "$1" in
   down)
     # helm 삭제 (PVC는 유지 → 데이터 보존)
     helm uninstall $RELEASE -n $NAMESPACE 2>/dev/null
+    colima stop 2>/dev/null
 
     echo "=== Infrastructure stopped (데이터 유지됨) ==="
     ;;
@@ -92,12 +108,21 @@ case "$1" in
 
     # PVC 삭제 (데이터 완전 삭제)
     kubectl delete pvc --all -n $NAMESPACE 2>/dev/null
+    colima stop 2>/dev/null
 
     echo "=== Infrastructure stopped (데이터 삭제됨) ==="
     ;;
 
   status)
-    kubectl get all,pvc -n $NAMESPACE
+    case "$2" in
+      pod|pods|"")  kubectl get pods -n $NAMESPACE ;;
+      deploy*)      kubectl get deployments -n $NAMESPACE ;;
+      sts|statefulset*) kubectl get statefulsets -n $NAMESPACE ;;
+      svc|service*) kubectl get svc -n $NAMESPACE ;;
+      pvc)          kubectl get pvc -n $NAMESPACE ;;
+      all)          kubectl get all,pvc -n $NAMESPACE ;;
+      *)            echo "Usage: $0 status [pod|deploy|sts|svc|pvc|all]" ;;
+    esac
     ;;
 
   restart)

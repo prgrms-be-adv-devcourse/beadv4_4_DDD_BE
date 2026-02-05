@@ -1,6 +1,9 @@
 enabled: true
 image:
   tag: "latest"
+service:
+  type: NodePort
+  nodePort: 30300
 auth:
   adminUser: ""
   adminPassword: ""
