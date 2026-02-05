@@ -5,8 +5,10 @@ import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
+@RequiredArgsConstructor
 public class PaymentAccountLogDto {
 
   private final Long id;
