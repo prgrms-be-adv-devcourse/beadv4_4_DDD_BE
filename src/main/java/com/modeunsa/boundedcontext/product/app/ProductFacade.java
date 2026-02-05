@@ -43,8 +43,8 @@ public class ProductFacade {
 
   @Transactional
   public ProductDetailResponse createProduct(
-      Long memberId, ProductCreateRequest productCreateRequest) {
-    Product product = productCreateProductUseCase.createProduct(memberId, productCreateRequest);
+      Long sellerId, ProductCreateRequest productCreateRequest) {
+    Product product = productCreateProductUseCase.createProduct(sellerId, productCreateRequest);
     return productMapper.toDetailResponse(product, false);
   }
 
@@ -66,14 +66,14 @@ public class ProductFacade {
   }
 
   public Page<ProductResponse> getProducts(
-      Long memberId,
+      Long sellerId,
       String name,
       ProductCategory category,
       SaleStatus saleStatus,
       ProductStatus productStatus,
       Pageable pageable) {
     Page<Product> products =
-        productSupport.getProducts(memberId, name, category, saleStatus, productStatus, pageable);
+        productSupport.getProducts(sellerId, name, category, saleStatus, productStatus, pageable);
     return products.map(product -> productMapper.toResponse(product));
   }
 
@@ -85,9 +85,9 @@ public class ProductFacade {
 
   @Transactional
   public ProductDetailResponse updateProduct(
-      Long memberId, Long productId, ProductUpdateRequest productRequest) {
+      Long memberId, Long sellerId, Long productId, ProductUpdateRequest productRequest) {
     Product product =
-        productUpdateProductUseCase.updateProduct(memberId, productId, productRequest);
+        productUpdateProductUseCase.updateProduct(sellerId, productId, productRequest);
     ProductMember member = productSupport.getProductMember(memberId);
     boolean isFavorite = productSupport.existsProductFavorite(member.getId(), product.getId());
     return productMapper.toDetailResponse(product, isFavorite);
@@ -95,9 +95,9 @@ public class ProductFacade {
 
   @Transactional
   public ProductDetailResponse updateProductStatus(
-      Long memberId, Long productId, ProductStatus productStatus) {
+      Long memberId, Long sellerId, Long productId, ProductStatus productStatus) {
     Product product =
-        productUpdateProductStatusUseCase.updateProductStatus(memberId, productId, productStatus);
+        productUpdateProductStatusUseCase.updateProductStatus(sellerId, productId, productStatus);
     ProductMember member = productSupport.getProductMember(memberId);
     boolean isFavorite = productSupport.existsProductFavorite(member.getId(), product.getId());
     return productMapper.toDetailResponse(product, isFavorite);

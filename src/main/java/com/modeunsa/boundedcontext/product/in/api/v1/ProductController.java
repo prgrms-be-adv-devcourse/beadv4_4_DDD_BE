@@ -50,9 +50,8 @@ public class ProductController {
   public ResponseEntity<ApiResponse> createProduct(
       @AuthenticationPrincipal CustomUserDetails user,
       @Valid @RequestBody ProductCreateRequest productCreateRequest) {
-    // TODO: sellerId userDetail 가져오도록 수정
     ProductDetailResponse productDetailResponse =
-        productFacade.createProduct(user.getMemberId(), productCreateRequest);
+        productFacade.createProduct(user.getSellerId(), productCreateRequest);
     return ApiResponse.onSuccess(SuccessStatus.CREATED, productDetailResponse);
   }
 
@@ -88,9 +87,9 @@ public class ProductController {
       @AuthenticationPrincipal CustomUserDetails user,
       @PathVariable(name = "id") Long productId,
       @Valid @RequestBody ProductUpdateRequest productRequest) {
-    // TODO: sellerId userDetail 가져오도록 수정
     ProductDetailResponse productDetailResponse =
-        productFacade.updateProduct(user.getMemberId(), productId, productRequest);
+        productFacade.updateProduct(
+            user.getMemberId(), user.getSellerId(), productId, productRequest);
     return ApiResponse.onSuccess(SuccessStatus.OK, productDetailResponse);
   }
 
@@ -101,7 +100,8 @@ public class ProductController {
       @PathVariable(name = "id") Long productId,
       @RequestParam(name = "status") ProductStatus productStatus) {
     ProductDetailResponse productDetailResponse =
-        productFacade.updateProductStatus(user.getMemberId(), productId, productStatus);
+        productFacade.updateProductStatus(
+            user.getMemberId(), user.getSellerId(), productId, productStatus);
     return ApiResponse.onSuccess(SuccessStatus.OK, productDetailResponse);
   }
 
@@ -136,7 +136,7 @@ public class ProductController {
             );
     Page<ProductResponse> productResponses =
         productFacade.getProducts(
-            user.getMemberId(), name, category, saleStatus, productStatus, pageable);
+            user.getSellerId(), name, category, saleStatus, productStatus, pageable);
     return ApiResponse.onSuccess(SuccessStatus.OK, productResponses);
   }
 }
