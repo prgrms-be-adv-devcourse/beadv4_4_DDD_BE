@@ -6,27 +6,50 @@ import MypageLayout from '../../components/MypageLayout'
 export default function SocialPage() {
   const [linkedNaver, setLinkedNaver] = useState(false)
   const [linkedKakao, setLinkedKakao] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    const naver = localStorage.getItem('social_naver')
-    const kakao = localStorage.getItem('social_kakao')
-    if (naver !== null) setLinkedNaver(naver === 'true')
-    if (kakao !== null) setLinkedKakao(kakao === 'true')
+    const fetchStatus = async () => {
+      try {
+        const response = await fetch('/mypage/social/status');
+        const data = await response.json();
+        if (data.isSuccess) {
+          setLinkedNaver(data.result.linkedNaver);
+          setLinkedKakao(data.result.linkedKakao);
+        }
+      } catch (error) {
+        console.error("상태 로드 실패:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchStatus()
   }, [])
 
-  const handleToggle = (type: 'naver' | 'kakao') => {
-    const isNaver = type === 'naver'
-    const current = isNaver ? linkedNaver : linkedKakao
-    const next = !current
-
-    if (isNaver) setLinkedNaver(next); else setLinkedKakao(next)
-
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(`social_${type}`, String(next))
+  const handleToggle = async (type: 'naver' | 'kakao') => {
+    const isLinked = type === 'naver' ? linkedNaver : linkedKakao
+    if (isLinked) {
+      alert('연동 해제 기능은 준비 중입니다.')
+      return
     }
-    alert(`${isNaver ? '네이버' : '카카오'} 계정이 ${next ? '연동' : '해제'}되었습니다.`)
+
+    try {
+      const redirectUri = `${window.location.origin}/mypage/social/callback/${type}`
+      // 폴더 구조에 맞춰 경로 수정
+      const response = await fetch(`/mypage/social/link-url?type=${type}&redirectUri=${encodeURIComponent(redirectUri)}`)
+      const data = await response.json()
+
+      if (data.isSuccess) {
+        window.location.href = data.result
+      } else {
+        alert(data.message || '인증 URL을 가져오지 못했습니다.')
+      }
+    } catch (error) {
+      alert('연동 요청 중 오류가 발생했습니다.')
+    }
   }
+
+  if (isLoading) return <MypageLayout><div>로딩 중...</div></MypageLayout>
 
   return (
       <MypageLayout>
@@ -34,7 +57,6 @@ export default function SocialPage() {
           <h1 style={{ fontSize: '28px', fontWeight: 700, marginBottom: '24px' }}>소셜 연동</h1>
           <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)' }}>
             <p style={{ fontSize: '14px', color: '#666', marginBottom: '20px' }}>연동된 계정으로 간편 로그인할 수 있어요.</p>
-
             <SocialItem label="네이버" color="#03C75A" icon="N" isActive={linkedNaver} onToggle={() => handleToggle('naver')} />
             <div style={{ height: '1px', background: '#f0f0f0', margin: '0' }} />
             <SocialItem label="카카오" color="#FEE500" icon="K" textColor="#191919" isActive={linkedKakao} onToggle={() => handleToggle('kakao')} />
