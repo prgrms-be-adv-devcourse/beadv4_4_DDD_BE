@@ -3,8 +3,8 @@ package com.modeunsa.boundedcontext.payment.app.support;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentPayoutDto;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.types.ReferenceType;
-import com.modeunsa.boundedcontext.payment.out.PaymentAccountLogRepository;
-import com.modeunsa.boundedcontext.payment.out.PaymentAccountRepository;
+import com.modeunsa.boundedcontext.payment.out.PaymentAccountLogReader;
+import com.modeunsa.boundedcontext.payment.out.PaymentAccountReader;
 import com.modeunsa.global.config.PaymentAccountConfig;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
@@ -16,25 +16,25 @@ import org.springframework.stereotype.Component;
 public class PaymentAccountSupport {
 
   private final PaymentAccountConfig paymentAccountConfig;
-  private final PaymentAccountRepository paymentAccountRepository;
-  private final PaymentAccountLogRepository paymentAccountLogRepository;
+  private final PaymentAccountReader paymentAccountReader;
+  private final PaymentAccountLogReader paymentAccountLogReader;
 
   public PaymentAccount getPaymentAccountByMemberId(Long memberId) {
-    return paymentAccountRepository
+    return paymentAccountReader
         .findByMemberId(memberId)
         .orElseThrow(() -> new GeneralException(ErrorStatus.PAYMENT_ACCOUNT_NOT_FOUND));
   }
 
   public PaymentAccount getSystemAccount() {
     Long systemMemberId = paymentAccountConfig.getSystemMemberId();
-    return paymentAccountRepository
+    return paymentAccountReader
         .findByMemberId(systemMemberId)
         .orElseThrow(() -> new GeneralException(ErrorStatus.PAYMENT_ACCOUNT_NOT_FOUND));
   }
 
   public PaymentAccount getHolderAccount() {
     Long holderMemberId = paymentAccountConfig.getHolderMemberId();
-    return paymentAccountRepository
+    return paymentAccountReader
         .findByMemberId(holderMemberId)
         .orElseThrow(() -> new GeneralException(ErrorStatus.PAYMENT_ACCOUNT_NOT_FOUND));
   }
@@ -47,19 +47,19 @@ public class PaymentAccountSupport {
   }
 
   public PaymentAccount getPaymentAccountByMemberIdForUpdate(Long memberId) {
-    return paymentAccountRepository
+    return paymentAccountReader
         .findByMemberIdWithLock(memberId)
         .orElseThrow(() -> new GeneralException(ErrorStatus.PAYMENT_ACCOUNT_NOT_FOUND));
   }
 
   public PaymentAccount getHolderAccountByMemberIdForUpdate() {
     Long holderMemberId = paymentAccountConfig.getHolderMemberId();
-    return paymentAccountRepository
+    return paymentAccountReader
         .findByMemberIdWithLock(holderMemberId)
         .orElseThrow(() -> new GeneralException(ErrorStatus.PAYMENT_ACCOUNT_NOT_FOUND));
   }
 
   public long countAccountLog() {
-    return paymentAccountLogRepository.countByReferenceType(ReferenceType.PAYMENT_MEMBER);
+    return paymentAccountLogReader.countByReferenceType(ReferenceType.PAYMENT_MEMBER);
   }
 }
