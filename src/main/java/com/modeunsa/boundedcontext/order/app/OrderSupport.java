@@ -96,7 +96,7 @@ public class OrderSupport {
   }
 
   public void softDeleteCartItems(Long memberId, List<Long> cartItemIds) {
-    if (orderCartItemRepository.softDeleteByMemberIdAndProductIds(memberId, cartItemIds) == 0) {
+    if (orderCartItemRepository.softDeleteByMemberIdAndCartItemIds(memberId, cartItemIds) == 0) {
       throw new GeneralException(ErrorStatus.ORDER_CARTITEM_EMPTY);
     }
   }

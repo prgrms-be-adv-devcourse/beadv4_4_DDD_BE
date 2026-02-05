@@ -29,7 +29,7 @@ public interface OrderCartItemRepository extends JpaRepository<CartItem, Long> {
   @Query(
       "UPDATE CartItem ci SET ci.isDeleted = true "
           + "WHERE ci.memberId = :memberId AND ci.id IN :cartItemIds")
-  int softDeleteByMemberIdAndProductIds(Long memberId, List<Long> cartItemIds);
+  int softDeleteByMemberIdAndCartItemIds(Long memberId, List<Long> cartItemIds);
 
   @Modifying(clearAutomatically = true)
   @Query("UPDATE CartItem ci SET ci.isDeleted = true " + "WHERE ci.memberId = :memberId ")
