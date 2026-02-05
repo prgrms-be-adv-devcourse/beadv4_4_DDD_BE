@@ -23,7 +23,6 @@ public class ProductPolicy {
   private static final EnumSet<ProductUpdatableField> COMPLETED_ALLOWED =
       EnumSet.of(
           ProductUpdatableField.DESCRIPTION,
-          ProductUpdatableField.STOCK,
           ProductUpdatableField.IMAGES,
           ProductUpdatableField.SALE_STATUS);
 
