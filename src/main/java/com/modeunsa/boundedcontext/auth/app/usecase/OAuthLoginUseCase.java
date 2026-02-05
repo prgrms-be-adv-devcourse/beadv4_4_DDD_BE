@@ -11,6 +11,8 @@ import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.auth.dto.JwtTokenResponse;
 import com.modeunsa.shared.auth.dto.OAuthProviderTokenResponse;
 import com.modeunsa.shared.auth.dto.OAuthUserInfo;
+import java.time.Duration;
+import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -32,22 +34,46 @@ public class OAuthLoginUseCase {
     // 1. state 검증
     validateState(state, provider);
 
-    // 2. OAuth 토큰 교환 (외부 HTTP 호출)
+    // 2. OAuth 토큰 교환
     OAuthClient oauthClient = oauthClientFactory.getClient(provider);
     OAuthProviderTokenResponse tokenResponse = oauthClient.getToken(code, redirectUri);
 
-    // 3. 사용자 정보 조회 (외부 HTTP 호출)
+    // 3. 사용자 정보 조회
     OAuthUserInfo userInfo = oauthClient.getUserInfo(tokenResponse.accessToken());
-    log.info("OAuth 사용자 정보 조회 완료 - provider: {}, providerId: {}", provider, userInfo.providerId());
 
-    // 4. 소셜 계정 조회 또는 신규 가입
-    OAuthAccount socialAccount = oauthAccountResolveUseCase.execute(provider, userInfo);
+    // --- [분산 락 적용] ---
+    String lockKey = "lock:auth:" + provider + ":" + userInfo.providerId();
+    // 3초 동안 락을 유지하며, 획득을 위해 최대 5초간 대기 (간단한 구현 예시)
+    return executeWithLock(lockKey, () -> {
+      // 4. 소셜 계정 조회 또는 신규 가입
+      OAuthAccount socialAccount = oauthAccountResolveUseCase.execute(provider, userInfo);
 
-    Member member = socialAccount.getMember();
-    Long sellerId = memberSupport.getSellerIdByMemberId(member.getId());
+      Member member = socialAccount.getMember();
+      Long sellerId = memberSupport.getSellerIdByMemberId(member.getId());
 
-    // 5. JWT 토큰 발급
-    return authTokenIssueUseCase.execute(member.getId(), member.getRole(), sellerId);
+      // 5. JWT 토큰 발급
+      return authTokenIssueUseCase.execute(member.getId(), member.getRole(), sellerId);
+    });
+  }
+
+  private JwtTokenResponse executeWithLock(String key, Supplier<JwtTokenResponse> supplier) {
+    // setIfAbsent를 이용한 간단한 스핀 락 구조
+    for (int i = 0; i < 10; i++) { // 최대 10번 시도
+      Boolean acquired = redisTemplate.opsForValue().setIfAbsent(key, "lock", Duration.ofSeconds(3));
+      if (Boolean.TRUE.equals(acquired)) {
+        try {
+          return supplier.get();
+        } finally {
+          redisTemplate.delete(key); // 락 해제
+        }
+      }
+      try {
+        Thread.sleep(200); // 200ms 대기 후 재시도
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
+    }
+    throw new GeneralException(ErrorStatus.INTERNAL_SERVER_ERROR); // 락 획득 실패 시 에러 처리
   }
 
   private void validateState(String state, OAuthProvider provider) {
