@@ -19,7 +19,7 @@ spec:
       containers:
         - name: redis
           image: "redis:{{ .Values.image.tag }}"
-          command: ["redis-server", "--requirepass", "$(REDIS_PASSWORD)", "--appendonly", "yes"]
+          command: ["redis-server", "--requirepass", "$(REDIS_PASSWORD)", "--appendonly", "yes", "--maxmemory", {{ .Values.maxmemory | quote }}]
           ports:
             - containerPort: 6379
           env:

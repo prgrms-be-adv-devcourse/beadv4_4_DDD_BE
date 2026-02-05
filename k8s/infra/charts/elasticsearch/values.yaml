@@ -1,7 +1,7 @@
 enabled: true
 image:
   tag: "9.2.2"
-javaOpts: "-Xms1g -Xmx1g"
+javaOpts: "-Xms512m -Xmx512m"
 plugins: "analysis-nori"
 service:
   type: NodePort
@@ -10,8 +10,8 @@ storage:
   size: 5Gi
 resources:
   requests:
-    cpu: 250m
-    memory: 1Gi
+    cpu: 150m
+    memory: 768Mi
   limits:
-    cpu: "1"
-    memory: 2Gi
+    cpu: 400m
+    memory: 1280Mi

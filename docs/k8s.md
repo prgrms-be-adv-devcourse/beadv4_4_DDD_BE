@@ -32,22 +32,22 @@ API pod를 포함한 전체 pod를 실행하려면 VM에 충분한 메모리가 
 
 | 서비스 | Memory Limit |
 |--------|-------------|
-| Elasticsearch | 2Gi |
-| API | 2Gi |
-| MySQL | 512Mi |
-| Prometheus | 512Mi |
-| Grafana | 512Mi |
-| Redis | 256Mi |
-| **Pod 합계** | **~5.75Gi** |
+| API | 1536Mi |
+| Elasticsearch | 1280Mi |
+| MySQL | 768Mi |
+| Kafka | 512Mi |
+| Kafka UI | 384Mi |
+| Grafana | 256Mi |
+| Prometheus | 128Mi |
+| Redis | 128Mi |
+| **Pod 합계** | **~5Gi** |
 | k3s 시스템 오버헤드 | ~1Gi |
-| **전체 필요량** | **~6.75Gi** |
-
-권장 VM 메모리: **8Gi** (여유 포함)
+| **전체 필요량** | **~6Gi** |
 
 ```bash
 # VM 메모리 변경 (기존 VM이 있는 경우)
 colima stop
-colima start --memory 8 --cpu 4 --kubernetes
+colima start --memory 7 --cpu 2 --kubernetes
 ```
 
 > VM 메모리가 모든 pod의 limits 합 + 시스템 오버헤드보다 작으면 부하 시 OOMKilled가 발생할 수 있습니다.
@@ -106,6 +106,8 @@ Colima는 macOS/Linux 전용이므로 Windows에서는 Rancher Desktop을 사용
 | MySQL        | `localhost:30306`    | NodePort  |
 | Redis        | `localhost:30379`    | NodePort  |
 | Elasticsearch| `localhost:30920`    | NodePort  |
+| Kafka        | `localhost:30092`    | NodePort  |
+| Kafka UI     | `localhost:30085`    | NodePort  |
 | Prometheus   | `localhost:30090`    | NodePort  |
 | Grafana      | `localhost:30300`    | NodePort  |
 

@@ -8,10 +8,11 @@ service:
   nodePort: 30379
 storage:
   size: 1Gi
+maxmemory: "192mb"
 resources:
   requests:
     cpu: 50m
     memory: 64Mi
   limits:
-    cpu: 250m
-    memory: 256Mi
+    cpu: 150m
+    memory: 128Mi

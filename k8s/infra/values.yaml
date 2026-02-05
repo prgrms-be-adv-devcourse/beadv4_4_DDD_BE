@@ -24,7 +24,7 @@ elasticsearch:
   enabled: true
   image:
     tag: "9.2.2"
-  javaOpts: "-Xms1g -Xmx1g"
+  javaOpts: "-Xms512m -Xmx512m"
   plugins: "analysis-nori"
 
 prometheus:
@@ -52,3 +52,15 @@ grafana:
 
 traefik:
   enabled: false
+
+kafka:
+  enabled: true
+  image:
+    tag: "3.7.0"
+
+kafkaui:
+  enabled: true
+  image:
+    tag: "latest"
+  kafka:
+    bootstrapServers: "modeunsa-infra-kafka:9092"

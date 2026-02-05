@@ -27,6 +27,8 @@
 #   Elasticsearch  localhost:30920 (NodePort)
 #   Prometheus     localhost:30090 (NodePort)
 #   Grafana        localhost:30300 (NodePort)
+#   Kafka          localhost:30092 (NodePort)
+#   Kafka-UI       localhost:30085 (NodePort)
 #
 
 NAMESPACE="modeunsa"
@@ -40,7 +42,7 @@ ensure_colima() {
     echo "Colima가 실행 중이 아닙니다. k3s 모드로 시작합니다..."
     colima start --kubernetes \
       --vz-rosetta \
-      --cpu 4 --memory 6 --disk 30 || { echo "Colima 시작 실패"; exit 1; }
+      --cpu 2 --memory 7 --disk 30 || { echo "Colima 시작 실패"; exit 1; }
   fi
 
   # k8s 클러스터가 완전히 준비될 때까지 대기 (coredns 기준)
@@ -75,7 +77,7 @@ case "$1" in
 
     # Pod가 Ready 될 때까지 대기 (Pod 생성까지 기다린 후 Ready 확인)
     echo "Waiting for pods to be ready..."
-    for APP in mysql redis elasticsearch; do
+    for APP in mysql redis elasticsearch kafka; do
       echo -n "  $APP: "
       # Pod가 생성될 때까지 대기
       while ! kubectl get pod -l app=$RELEASE-$APP -n $NAMESPACE 2>/dev/null | grep -q "$RELEASE-$APP"; do
@@ -92,6 +94,8 @@ case "$1" in
     echo "  Elasticsearch  → localhost:30920"
     echo "  Prometheus     → localhost:30090"
     echo "  Grafana        → localhost:30300"
+    echo "  Kafka          → localhost:30092"
+    echo "  Kafka-UI       → localhost:30085"
     ;;
 
   down)

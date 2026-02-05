@@ -47,6 +47,10 @@ spec:
               value: {{ .Values.env.esPort | quote }}
             - name: SPRING_ELASTICSEARCH_URIS
               value: "http://{{ .Values.env.esHost }}:{{ .Values.env.esPort }}"
+            {{- if .Values.javaOpts }}
+            - name: JAVA_TOOL_OPTIONS
+              value: {{ .Values.javaOpts | quote }}
+            {{- end }}
           envFrom:
             - secretRef:
                 name: {{ include "api.fullname" . }}-secret

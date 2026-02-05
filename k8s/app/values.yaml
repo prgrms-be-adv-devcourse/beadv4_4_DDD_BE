@@ -36,10 +36,11 @@ api:
     awsSecretKey: ""
     encryptionMasterKey: ""
     tossPaymentsSecretKey: ""
+  javaOpts: "-Xmx512m"
   resources:
     requests:
-      cpu: 250m
+      cpu: 150m
       memory: 512Mi
     limits:
-      cpu: "1"
-      memory: 1Gi
+      cpu: 400m
+      memory: 1536Mi
