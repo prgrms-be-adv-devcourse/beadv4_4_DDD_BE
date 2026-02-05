@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 public enum SuccessStatus {
   OK(HttpStatus.OK, "COMMON_200", "성공입니다."),
   CREATED(HttpStatus.CREATED, "COMMON_201", "리소스가 성공적으로 생성되었습니다."),
+  NO_CONTENT(HttpStatus.NO_CONTENT, "COMMON_204", "요청이 성공적으로 처리되었습니다."),
 
   // Auth 200
   AUTH_LOGIN_SUCCESS(HttpStatus.OK, "AUTH_200_001", "로그인에 성공했습니다."),
