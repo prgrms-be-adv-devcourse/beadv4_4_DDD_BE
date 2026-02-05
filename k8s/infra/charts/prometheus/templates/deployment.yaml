@@ -1,0 +1,33 @@
+{{- if .Values.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "prometheus.fullname" . }}
+  labels:
+    {{- include "prometheus.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "prometheus.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "prometheus.fullname" . }}
+    spec:
+      containers:
+        - name: prometheus
+          image: "prom/prometheus:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: 9090
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/prometheus/prometheus.yml
+              subPath: prometheus.yml
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "prometheus.fullname" . }}-config
+{{- end }}

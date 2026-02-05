@@ -1,0 +1,39 @@
+{{- if .Values.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "traefik.fullname" . }}
+  labels:
+    {{- include "traefik.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "traefik.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "traefik.fullname" . }}
+    spec:
+      serviceAccountName: {{ include "traefik.fullname" . }}
+      containers:
+        - name: traefik
+          image: "traefik:{{ .Values.image.tag }}"
+          args:
+            - "--providers.kubernetescrd"
+            - "--entrypoints.web.address=:80"
+            {{- range $name, $ep := .Values.entrypoints }}
+            - "--entrypoints.{{ $name }}.address=:{{ $ep.port }}"
+            {{- end }}
+          ports:
+            - name: web
+              containerPort: 80
+            - name: dashboard
+              containerPort: 8080
+            {{- range $name, $ep := .Values.entrypoints }}
+            - name: {{ $name }}
+              containerPort: {{ $ep.port }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+{{- end }}
