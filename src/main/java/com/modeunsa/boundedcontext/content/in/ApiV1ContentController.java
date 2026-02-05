@@ -1,23 +1,20 @@
 package com.modeunsa.boundedcontext.content.in;
 
 import com.modeunsa.boundedcontext.content.app.ContentFacade;
-import com.modeunsa.boundedcontext.content.app.dto.ContentRequest;
-import com.modeunsa.boundedcontext.content.app.dto.ContentResponse;
 import com.modeunsa.boundedcontext.content.domain.entity.ContentMember;
-import com.modeunsa.boundedcontext.content.out.search.ContentSearchCondition;
-import com.modeunsa.boundedcontext.content.out.search.ContentSearchDocument;
-import com.modeunsa.boundedcontext.content.out.search.ContentSearchUseCase;
-import com.modeunsa.global.elasticsearch.model.ElasticSearchPage;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.status.SuccessStatus;
-import com.modeunsa.shared.content.ContentCommentRequest;
-import com.modeunsa.shared.content.ContentCommentResponse;
+import com.modeunsa.shared.content.dto.ContentCommentRequest;
+import com.modeunsa.shared.content.dto.ContentCommentResponse;
+import com.modeunsa.shared.content.dto.ContentRequest;
+import com.modeunsa.shared.content.dto.ContentResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -35,12 +32,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class ApiV1ContentController {
 
   private final ContentFacade contentFacade;
-  private final ContentSearchUseCase contentSearchUseCase;
 
   @Operation(summary = "콘텐츠 생성", description = "콘텐츠를 생성합니다.")
   @PostMapping
   public ResponseEntity<ApiResponse> createContent(
-      @Valid @RequestBody ContentRequest contentRequest, ContentMember author) {
+      @Valid @RequestBody ContentRequest contentRequest,
+      @AuthenticationPrincipal ContentMember author) {
     ContentResponse contentResponse = contentFacade.createContent(contentRequest, author);
     return ApiResponse.onSuccess(SuccessStatus.CREATED, contentResponse);
   }
@@ -50,7 +47,7 @@ public class ApiV1ContentController {
   public ResponseEntity<ApiResponse> updateContent(
       @PathVariable Long contentId,
       @Valid @RequestBody ContentRequest contentRequest,
-      ContentMember author) {
+      @AuthenticationPrincipal ContentMember author) {
     ContentResponse contentResponse =
         contentFacade.updateContent(contentId, contentRequest, author);
     return ApiResponse.onSuccess(SuccessStatus.OK, contentResponse);
@@ -70,17 +67,6 @@ public class ApiV1ContentController {
     Page<ContentResponse> result = contentFacade.getContents(page);
 
     return ApiResponse.onSuccess(SuccessStatus.CONTENT_LIST_GET_SUCCESS, result);
-  }
-
-  @Operation(summary = "콘텐츠 검색 기능", description = "컨텐츠 내에서 글, 태그 검색 조회를 합니다.")
-  @GetMapping("/{contentId}/search")
-  public ElasticSearchPage<ContentSearchDocument> searchContent(
-      @RequestParam String keyword,
-      @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "20") int size) {
-    ContentSearchCondition condition = new ContentSearchCondition(keyword, page, size);
-
-    return contentSearchUseCase.search(condition);
   }
 
   @Operation(summary = "댓글 생성", description = "한 콘텐츠 내 댓글을 생성합니다.")

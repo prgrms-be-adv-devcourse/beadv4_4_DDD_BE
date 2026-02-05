@@ -13,7 +13,6 @@ import com.modeunsa.shared.inventory.dto.InventoryReserveRequest;
 import com.modeunsa.shared.inventory.out.InventoryApiClient;
 import com.modeunsa.shared.order.dto.CreateCartOrderRequestDto;
 import com.modeunsa.shared.order.dto.OrderResponseDto;
-import com.modeunsa.shared.order.event.OrderCreatedEvent;
 import com.modeunsa.shared.product.dto.ProductOrderResponse;
 import com.modeunsa.shared.product.dto.ProductOrderValidateRequest;
 import com.modeunsa.shared.product.out.ProductApiClient;
@@ -54,8 +53,6 @@ public class OrderCreateCartOrderUseCase {
 
     // 장바구니 비우기
     orderSupport.clearCart(memberId);
-
-    eventPublisher.publish(new OrderCreatedEvent(orderMapper.toOrderDto(order)));
 
     return orderMapper.toOrderResponseDto(order);
   }

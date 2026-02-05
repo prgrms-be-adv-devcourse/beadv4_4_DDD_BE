@@ -1,15 +1,15 @@
 package com.modeunsa.boundedcontext.content.app.usecase;
 
+import com.modeunsa.boundedcontext.content.app.ContentMapper;
 import com.modeunsa.boundedcontext.content.app.ContentSupport;
-import com.modeunsa.boundedcontext.content.app.dto.ContentRequest;
-import com.modeunsa.boundedcontext.content.app.dto.ContentResponse;
-import com.modeunsa.boundedcontext.content.app.mapper.ContentMapper;
 import com.modeunsa.boundedcontext.content.domain.entity.Content;
 import com.modeunsa.boundedcontext.content.domain.entity.ContentImage;
 import com.modeunsa.boundedcontext.content.domain.entity.ContentMember;
 import com.modeunsa.boundedcontext.content.domain.entity.ContentTag;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
+import com.modeunsa.shared.content.dto.ContentRequest;
+import com.modeunsa.shared.content.dto.ContentResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

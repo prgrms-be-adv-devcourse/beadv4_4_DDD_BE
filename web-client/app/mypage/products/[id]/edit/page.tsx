@@ -4,10 +4,35 @@ import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import MypageLayout from '../../../../components/MypageLayout'
+import {images} from "next/dist/build/webpack/config/blocks/images";
 
 type ProductCategory = 'OUTER' | 'UPPER' | 'LOWER' | 'CAP' | 'SHOES' | 'BAG' | 'BEAUTY'
 type ProductStatus = 'CANCELED' | 'DRAFT' | 'COMPLETED'
 type SaleStatus = 'SALE' | 'NOT_SALE' | 'SOLD_OUT'
+
+type PresignedUrlResponse = {
+  presignedUrl: string
+  key: string
+}
+
+type PublicUrlResponse = {
+  imageUrl: string
+  key: string
+}
+
+interface PresignedUrlApiResponse {
+  isSuccess: boolean
+  code: string
+  message: string
+  result: PresignedUrlResponse
+}
+
+interface PublicUrlApiResponse {
+  isSuccess: boolean
+  code: string
+  message: string
+  result: PublicUrlResponse
+}
 
 interface ProductEditForm {
   name: string
@@ -167,7 +192,7 @@ export default function ProductEditPage() {
 
     addIfChanged('description', formData.description, originalProduct.description)
     addIfChanged('stock', formData.stock, originalProduct.stock)
-    addIfChanged('images', formData.images, originalProduct.images)
+    addIfChanged('images', uploadedImageUrls, originalProduct.images)
     addIfChanged('saleStatus', formData.saleStatus, originalProduct.saleStatus)
     // 아래 필드는 변경 시 에러 발생
     addIfChanged('name', formData.name, originalProduct.name)
@@ -230,52 +255,115 @@ export default function ProductEditPage() {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
+  // Presigned URL 요청 및 S3 업로드
+  const uploadImageToS3 = async (file: File): Promise<string> => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL!
+
+    /** 1. presigned url 요청 */
+    const presignedRes = await fetch(`${apiUrl}/api/v1/files/presigned-url`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        domainType: 'PRODUCT',
+        // fileName: file.name,
+        ext: 'png',
+        contentType: file.type,
+      }),
+    })
+
+    if (!presignedRes.ok) {
+      throw new Error('Presigned URL 발급 실패')
+    }
+
+    const data: PresignedUrlApiResponse = await presignedRes.json()
+
+    /** 2. S3에 직접 PUT 업로드 */
+    const uploadRes = await fetch(data.result.presignedUrl, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': file.type,
+      },
+      body: file,
+    })
+
+    if (!uploadRes.ok) {
+      throw new Error('S3 업로드 실패')
+    }
+
+    /** 3. public-read URL 반환 */
+    const publicUrlApi = `${apiUrl}/api/v1/files/public-url`;
+    const downloadRes = await fetch(publicUrlApi, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        rawKey: data.result.key,
+        domainType: 'PRODUCT',
+        contentType: file.type,
+      }),
+    })
+
+    if (!downloadRes.ok) {
+      throw new Error('S3 다운로드 실패')
+    }
+
+    const downloadData: PublicUrlApiResponse = await downloadRes.json()
+
+
+    return downloadData.result.imageUrl
+  }
+
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (!files) return
 
-    const newFiles: File[] = []
-    const startIndex = imageFiles.length
+    if (uploadedImageUrls.length + files.length >= 5) {
+      alert('이미지는 최대 5개까지 추가할 수 있습니다.')
+      return
+    }
 
+    const newFiles: File[] = []
+    // 파일 검증 및 미리보기 생성
     Array.from(files).forEach((file) => {
-      if (file.type.startsWith('image/')) {
-        if (imageFiles.length + newFiles.length < 10) {
-          newFiles.push(file)
-          const reader = new FileReader()
-          reader.onloadend = () => {
-            const result = reader.result as string
-            setImagePreviews((prev) => [...prev, result])
-          }
-          reader.readAsDataURL(file)
-        } else {
-          alert('이미지는 최대 5개까지 추가할 수 있습니다.')
-        }
-      } else {
+      if (!file.type.startsWith('image/')) {
         alert(`${file.name}은(는) 이미지 파일이 아닙니다.`)
+        return
       }
+
+      newFiles.push(file)
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        const result = reader.result as string
+        setImagePreviews(prev => [...prev, result])
+      }
+      reader.readAsDataURL(file)
     })
 
-    setImageFiles((prev) => [...prev, ...newFiles])
+    if (newFiles.length === 0) return
 
-    newFiles.forEach(async (file, relativeIndex) => {
-      const absoluteIndex = startIndex + relativeIndex
-      setUploadingImageIndex((prev) => new Set(prev).add(absoluteIndex))
+    // 파일 추가
+    setImageFiles(prev => [...prev, ...newFiles])
+
+    newFiles.forEach(async (file, i) => {
+      const uploadIndex = imageFiles.length + i
+      setUploadingImageIndex(prev => new Set(prev).add(uploadIndex))
+
       try {
-        const reader = new FileReader()
-        reader.onloadend = () => {
-          const url = reader.result as string
-          setUploadedImageUrls((prev) => {
-            const next = [...prev]
-            next[absoluteIndex] = url
-            return next
-          })
-        }
-        reader.readAsDataURL(file)
+        const downloadUrl = await uploadImageToS3(file)
+        setUploadedImageUrls(prev => [...prev, downloadUrl])
+      } catch (e) {
+        handleRemoveImage(uploadIndex)
+        alert(`이미지 업로드 실패: ${file.name}`)
       } finally {
-        setUploadingImageIndex((prev) => {
-          const next = new Set(prev)
-          next.delete(absoluteIndex)
-          return next
+        setUploadingImageIndex(prev => {
+          const s = new Set(prev)
+          s.delete(uploadIndex)
+          return s
         })
       }
     })
@@ -388,7 +476,7 @@ export default function ProductEditPage() {
             price: formData.price,
             salePrice: formData.salePrice,
             stock: formData.stock,
-            images: formData.images
+            images: uploadedImageUrls
           })
         });
 
@@ -568,7 +656,7 @@ export default function ProductEditPage() {
           </div>
 
           <div className="form-group">
-            <label className="form-label">상품 이미지 (최대 10개)</label>
+            <label className="form-label">상품 이미지 (최대 5개)</label>
             <div className="image-upload-wrapper">
               <label htmlFor="image-upload-edit" className="image-upload-label">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

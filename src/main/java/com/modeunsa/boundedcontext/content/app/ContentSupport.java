@@ -31,4 +31,4 @@ public class ContentSupport {
   }
 }
 
-// 목록 조회를 위한 클래스
+// repository를 감싸는 클래스, 바로 repository로 가지 않게

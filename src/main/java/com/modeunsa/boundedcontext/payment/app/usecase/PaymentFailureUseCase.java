@@ -35,6 +35,6 @@ public class PaymentFailureUseCase {
   private void publishFinalFailureEvent(PaymentFailedEvent event) {
     eventPublisher.publish(
         new PaymentFinalFailureEvent(
-            PaymentDto.of(event.orderId(), event.orderNo(), event.memberId(), event.amount())));
+            new PaymentDto(event.orderId(), event.orderNo(), event.memberId(), event.amount())));
   }
 }

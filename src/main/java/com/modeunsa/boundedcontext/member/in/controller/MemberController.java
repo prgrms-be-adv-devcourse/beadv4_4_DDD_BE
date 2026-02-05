@@ -1,13 +1,13 @@
 package com.modeunsa.boundedcontext.member.in.controller;
 
+import com.modeunsa.boundedcontext.file.app.S3UploadService;
+import com.modeunsa.boundedcontext.file.domain.DomainType;
 import com.modeunsa.boundedcontext.member.app.facade.MemberFacade;
 import com.modeunsa.global.response.ApiResponse;
-import com.modeunsa.global.s3.S3UploadService;
-import com.modeunsa.global.s3.dto.DomainType;
-import com.modeunsa.global.s3.dto.PublicUrlRequest;
-import com.modeunsa.global.s3.dto.PublicUrlResponse;
 import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.global.status.SuccessStatus;
+import com.modeunsa.shared.file.dto.PublicUrlRequest;
+import com.modeunsa.shared.file.dto.PublicUrlResponse;
 import com.modeunsa.shared.member.dto.request.MemberBasicInfoUpdateRequest;
 import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressCreateRequest;
 import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressUpdateRequest;
@@ -172,7 +172,7 @@ public class MemberController {
 
     Long memberId = user.getMemberId();
     PublicUrlRequest secureRequest =
-        new PublicUrlRequest(request.rawKey(), DomainType.MEMBER, memberId, request.contentType());
+        new PublicUrlRequest(request.rawKey(), DomainType.MEMBER, request.contentType());
 
     PublicUrlResponse response = memberFacade.updateProfileImage(memberId, secureRequest);
     return ApiResponse.onSuccess(SuccessStatus.MEMBER_PROFILE_UPDATE_SUCCESS, response);

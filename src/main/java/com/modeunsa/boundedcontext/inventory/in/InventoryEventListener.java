@@ -7,6 +7,8 @@ import com.modeunsa.boundedcontext.inventory.app.InventoryFacade;
 import com.modeunsa.shared.member.event.SellerRegisteredEvent;
 import com.modeunsa.shared.product.event.ProductCreatedEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -24,6 +26,7 @@ public class InventoryEventListener {
         event.memberSellerId(), event.businessName(), event.representativeName());
   }
 
+  @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000))
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Transactional(propagation = REQUIRES_NEW)
   public void handle(ProductCreatedEvent event) {
