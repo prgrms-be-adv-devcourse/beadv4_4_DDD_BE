@@ -1,3 +1,3 @@
-package com.modeunsa.global.s3.dto;
+package com.modeunsa.shared.file.dto;
 
 public record PresignedUrlResponse(String presignedUrl, String key) {}

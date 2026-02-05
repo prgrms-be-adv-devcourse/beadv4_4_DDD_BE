@@ -1,4 +1,4 @@
-package com.modeunsa.global.config;
+package com.modeunsa.boundedcontext.file.out.s3;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

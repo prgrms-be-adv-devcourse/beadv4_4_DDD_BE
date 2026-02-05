@@ -1,5 +1,7 @@
 package com.modeunsa.boundedcontext.member.app.facade;
 
+import com.modeunsa.boundedcontext.file.app.S3UploadService;
+import com.modeunsa.boundedcontext.file.domain.DomainType;
 import com.modeunsa.boundedcontext.member.app.support.MemberSupport;
 import com.modeunsa.boundedcontext.member.app.usecase.AdminApproveSellerUseCase;
 import com.modeunsa.boundedcontext.member.app.usecase.MemberBasicInfoUpdateUseCase;
@@ -14,14 +16,12 @@ import com.modeunsa.boundedcontext.member.app.usecase.SellerRegisterUseCase;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.entity.MemberProfile;
 import com.modeunsa.global.exception.GeneralException;
-import com.modeunsa.global.s3.S3UploadService;
-import com.modeunsa.global.s3.dto.DomainType;
-import com.modeunsa.global.s3.dto.PresignedUrlRequest;
-import com.modeunsa.global.s3.dto.PresignedUrlResponse;
-import com.modeunsa.global.s3.dto.PublicUrlRequest;
-import com.modeunsa.global.s3.dto.PublicUrlResponse;
 import com.modeunsa.global.security.jwt.JwtTokenProvider;
 import com.modeunsa.global.status.ErrorStatus;
+import com.modeunsa.shared.file.dto.PresignedUrlRequest;
+import com.modeunsa.shared.file.dto.PresignedUrlResponse;
+import com.modeunsa.shared.file.dto.PublicUrlRequest;
+import com.modeunsa.shared.file.dto.PublicUrlResponse;
 import com.modeunsa.shared.member.dto.request.MemberBasicInfoUpdateRequest;
 import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressCreateRequest;
 import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressUpdateRequest;
@@ -141,10 +141,7 @@ public class MemberFacade {
 
     PresignedUrlRequest presignedUrlRequest =
         new PresignedUrlRequest(
-            memberId,
-            DomainType.SELLER,
-            request.licenseImageRawKey(),
-            request.licenseContentType());
+            DomainType.SELLER, request.licenseImageRawKey(), request.licenseContentType());
 
     PresignedUrlResponse s3Response = s3UploadService.getPresignedUrl(request.licenseImageRawKey());
 

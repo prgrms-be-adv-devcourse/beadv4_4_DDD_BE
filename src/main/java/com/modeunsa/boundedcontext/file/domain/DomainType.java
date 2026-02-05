@@ -1,4 +1,4 @@
-package com.modeunsa.global.s3.dto;
+package com.modeunsa.boundedcontext.file.domain;
 
 public enum DomainType {
   PRODUCT,
