@@ -17,10 +17,10 @@ public class OAuthAccountGetUseCase {
     // 회원의 연동된 모든 소셜 계정 조회
     List<OAuthAccount> accounts = socialAccountRepository.findAllByMemberId(memberId);
 
-    boolean linkedKakao = accounts.stream()
-        .anyMatch(a -> a.getOauthProvider() == OAuthProvider.KAKAO);
-    boolean linkedNaver = accounts.stream()
-        .anyMatch(a -> a.getOauthProvider() == OAuthProvider.NAVER);
+    boolean linkedKakao =
+        accounts.stream().anyMatch(a -> a.getOauthProvider() == OAuthProvider.KAKAO);
+    boolean linkedNaver =
+        accounts.stream().anyMatch(a -> a.getOauthProvider() == OAuthProvider.NAVER);
 
     return new SocialStatusResponse(linkedKakao, linkedNaver);
   }

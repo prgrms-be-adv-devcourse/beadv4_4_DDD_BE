@@ -18,7 +18,8 @@ public class DuplicateResolveUseCase {
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public OAuthAccount findExistingAccount(OAuthProvider provider, String providerId) {
-    return repository.findByOauthProviderAndProviderId(provider, providerId)
+    return repository
+        .findByOauthProviderAndProviderId(provider, providerId)
         .orElseThrow(() -> new GeneralException(ErrorStatus.INTERNAL_SERVER_ERROR));
   }
 }

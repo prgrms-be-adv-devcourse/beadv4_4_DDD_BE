@@ -44,22 +44,25 @@ public class OAuthLoginUseCase {
     // --- [분산 락 적용] ---
     String lockKey = "lock:auth:" + provider + ":" + userInfo.providerId();
     // 3초 동안 락을 유지하며, 획득을 위해 최대 5초간 대기 (간단한 구현 예시)
-    return executeWithLock(lockKey, () -> {
-      // 4. 소셜 계정 조회 또는 신규 가입
-      OAuthAccount socialAccount = oauthAccountResolveUseCase.execute(provider, userInfo);
+    return executeWithLock(
+        lockKey,
+        () -> {
+          // 4. 소셜 계정 조회 또는 신규 가입
+          OAuthAccount socialAccount = oauthAccountResolveUseCase.execute(provider, userInfo);
 
-      Member member = socialAccount.getMember();
-      Long sellerId = memberSupport.getSellerIdByMemberId(member.getId());
+          Member member = socialAccount.getMember();
+          Long sellerId = memberSupport.getSellerIdByMemberId(member.getId());
 
-      // 5. JWT 토큰 발급
-      return authTokenIssueUseCase.execute(member.getId(), member.getRole(), sellerId);
-    });
+          // 5. JWT 토큰 발급
+          return authTokenIssueUseCase.execute(member.getId(), member.getRole(), sellerId);
+        });
   }
 
   private JwtTokenResponse executeWithLock(String key, Supplier<JwtTokenResponse> supplier) {
     // setIfAbsent를 이용한 간단한 스핀 락 구조
     for (int i = 0; i < 10; i++) { // 최대 10번 시도
-      Boolean acquired = redisTemplate.opsForValue().setIfAbsent(key, "lock", Duration.ofSeconds(3));
+      Boolean acquired =
+          redisTemplate.opsForValue().setIfAbsent(key, "lock", Duration.ofSeconds(3));
       if (Boolean.TRUE.equals(acquired)) {
         try {
           return supplier.get();
