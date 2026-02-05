@@ -59,7 +59,12 @@ class PaymentAccountLogControllerTest extends BasePaymentControllerTest {
 
     // when & then
     mockMvc
-        .perform(get("/api/v1/payments/accounts/logs").param("page", "0").param("size", "10"))
+        .perform(
+            get("/api/v1/payments/accounts/logs")
+                .param("page", "0")
+                .param("size", "10")
+                .param("from", "2024-01-01T00:00:00")
+                .param("to", "2024-01-31T23:59:59"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.isSuccess").value(true))
         .andExpect(jsonPath("$.result[0].isDeposit").value(true))

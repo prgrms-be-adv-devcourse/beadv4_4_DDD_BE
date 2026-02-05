@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Positive;
 import java.time.LocalDateTime;
 
 public record PaymentAccountSearchRequest(
-    @Positive int page,
+    int page,
     @Positive int size,
     @NotNull LocalDateTime from,
     @NotNull LocalDateTime to,
