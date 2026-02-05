@@ -94,4 +94,14 @@ public class OrderSupport {
   public List<Long> getRecentCartItems(Long memberId, int cartItemSize) {
     return orderCartItemRepository.getRecentCartItems(memberId, PageRequest.of(0, cartItemSize));
   }
+
+  public void softDeleteCartItems(Long memberId, List<Long> cartItemIds) {
+    if (orderCartItemRepository.softDeleteByMemberIdAndCartItemIds(memberId, cartItemIds) == 0) {
+      throw new GeneralException(ErrorStatus.ORDER_CARTITEM_EMPTY);
+    }
+  }
+
+  public void softDeleteAllCartItems(Long memberId) {
+    orderCartItemRepository.softDeleteAllByMemberId(memberId);
+  }
 }
