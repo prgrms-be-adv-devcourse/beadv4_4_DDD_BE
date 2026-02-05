@@ -4,9 +4,10 @@
 
 1. [사전 준비](#사전-준비)
 2. [빠른 시작](#빠른-시작)
-3. [환경 변수](#환경-변수-env)
-4. [kubectl 디버깅 명령어](#kubectl-디버깅-명령어)
-5. [트러블슈팅](#트러블슈팅)
+3. [리소스 타입 요약](#리소스-타입-요약)
+4. [환경 변수](#환경-변수-env)
+5. [kubectl 디버깅 명령어](#kubectl-디버깅-명령어)
+6. [트러블슈팅](#트러블슈팅)
 
 ---
 
@@ -107,6 +108,20 @@ Colima는 macOS/Linux 전용이므로 Windows에서는 Rancher Desktop을 사용
 | Elasticsearch| `localhost:30920`    | NodePort  |
 | Prometheus   | `localhost:30090`    | NodePort  |
 | Grafana      | `localhost:30300`    | NodePort  |
+
+---
+
+## 리소스 타입 요약
+
+| 리소스 | 역할 |
+|--------|------|
+| **StatefulSet** | Pod 이름·스토리지 고정. 재시작해도 동일 PVC에 연결 (DB, 캐시용) |
+| **Deployment** | Pod 이름 랜덤. 롤링 업데이트·스케일링 용이 (API, 모니터링용) |
+| **PVC** | Pod 삭제 후에도 데이터 유지. `infra.sh clean` 시에만 삭제 |
+| **Secret** | 비밀번호·API 키 저장. `stringData`로 평문 작성 → K8s가 자동 base64 인코딩 |
+| **ConfigMap** | 설정 파일을 K8s 리소스로 관리 (prometheus.yml) |
+| **NodePort** | `localhost:30xxx`로 외부 접근. 로컬 개발용 (프로덕션에서는 ClusterIP + Ingress) |
+| **initContainer** | 메인 컨테이너 시작 전 실행. ES 플러그인 설치처럼 일회성 초기화에 사용 |
 
 ---
 
