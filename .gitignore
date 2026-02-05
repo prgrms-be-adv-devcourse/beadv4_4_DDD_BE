@@ -41,7 +41,7 @@ db_dev.mv.db
 db_dev.trace.db
 .env
 .env.prod
-web-client/.env.local
+.env.local
 config/env/*
 
 # .gitignore 파일에 추가
