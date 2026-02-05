@@ -75,7 +75,7 @@ class PaymentAccountLogControllerTest extends BasePaymentControllerTest {
   }
 
   @Test
-  @DisplayName("from > to 이면 컨트롤러에서 5xx 에러 응답")
+  @DisplayName("from > to 이면 컨트롤러에서 4xx 에러 응답")
   void getAccountLedgerFailedFromAfterTo() throws Exception {
     // given
     String from = "2024-01-10T00:00:00";
@@ -89,7 +89,7 @@ class PaymentAccountLogControllerTest extends BasePaymentControllerTest {
                 .param("size", "10")
                 .param("from", from)
                 .param("to", to))
-        .andExpect(status().is5xxServerError())
+        .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.isSuccess").value(false))
         .andExpect(jsonPath("$.code").exists())
         .andExpect(jsonPath("$.message").exists());

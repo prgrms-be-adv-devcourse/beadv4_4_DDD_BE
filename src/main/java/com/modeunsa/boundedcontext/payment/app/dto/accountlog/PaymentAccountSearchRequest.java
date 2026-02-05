@@ -12,11 +12,4 @@ public record PaymentAccountSearchRequest(
     @NotNull LocalDateTime from,
     @NotNull LocalDateTime to,
     PaymentEventType type)
-    implements PageableRequest {
-
-  public PaymentAccountSearchRequest {
-    if (from != null && to != null && from.isAfter(to)) {
-      throw new IllegalArgumentException("from must be before to");
-    }
-  }
-}
+    implements PageableRequest {}
