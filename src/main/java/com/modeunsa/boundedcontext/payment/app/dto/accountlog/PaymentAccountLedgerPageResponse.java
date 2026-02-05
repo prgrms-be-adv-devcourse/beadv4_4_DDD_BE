@@ -4,10 +4,18 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record PaymentAccountLedgerPageResponse(
-    boolean isDeposit, String content, BigDecimal balance, LocalDateTime createdAt) {
+    boolean isDeposit,
+    String content,
+    BigDecimal amount,
+    BigDecimal balance,
+    LocalDateTime createdAt) {
   public static PaymentAccountLedgerPageResponse from(PaymentAccountLogDto dto) {
     boolean isDeposit = dto.getAmount().compareTo(BigDecimal.ZERO) > 0;
     return new PaymentAccountLedgerPageResponse(
-        isDeposit, dto.getEventType().getDescription(), dto.getAmount(), dto.getCreatedAt());
+        isDeposit,
+        dto.getEventType().getDescription(),
+        dto.getAmount(),
+        dto.getBalanceAfter(),
+        dto.getCreatedAt());
   }
 }
