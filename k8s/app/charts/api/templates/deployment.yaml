@@ -1,0 +1,71 @@
+{{- if .Values.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "api.fullname" . }}
+  labels:
+    {{- include "api.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      {{- include "api.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "api.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: api
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          env:
+            # Spring Profile
+            - name: SPRING_PROFILES_ACTIVE
+              value: {{ .Values.env.springProfile | quote }}
+            # Database
+            - name: DB_HOST
+              value: {{ .Values.env.dbHost | quote }}
+            - name: DB_PORT
+              value: {{ .Values.env.dbPort | quote }}
+            - name: DB_NAME
+              value: {{ .Values.env.dbName | quote }}
+            - name: MYSQL_DATABASE
+              value: {{ .Values.env.dbName | quote }}
+            # Redis
+            - name: REDIS_HOST
+              value: {{ .Values.env.redisHost | quote }}
+            - name: REDIS_PORT
+              value: {{ .Values.env.redisPort | quote }}
+            # Elasticsearch
+            - name: ES_HOST
+              value: {{ .Values.env.esHost | quote }}
+            - name: ES_PORT
+              value: {{ .Values.env.esPort | quote }}
+            - name: SPRING_ELASTICSEARCH_URIS
+              value: "http://{{ .Values.env.esHost }}:{{ .Values.env.esPort }}"
+            {{- if .Values.javaOpts }}
+            - name: JAVA_TOOL_OPTIONS
+              value: {{ .Values.javaOpts | quote }}
+            {{- end }}
+          envFrom:
+            - secretRef:
+                name: {{ include "api.fullname" . }}-secret
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 30
+{{- end }}

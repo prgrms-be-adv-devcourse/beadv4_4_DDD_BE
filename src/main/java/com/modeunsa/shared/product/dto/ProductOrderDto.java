@@ -9,7 +9,6 @@ public record ProductOrderDto(
     String name,
     BigDecimal salePrice, // 판매가
     BigDecimal price, // 정가
-    int stock,
     SaleStatus saleStatus,
     boolean isAvailable) {
 
@@ -20,7 +19,6 @@ public record ProductOrderDto(
         this.name,
         this.salePrice,
         this.price,
-        this.stock,
         this.saleStatus,
         isAvailable);
   }

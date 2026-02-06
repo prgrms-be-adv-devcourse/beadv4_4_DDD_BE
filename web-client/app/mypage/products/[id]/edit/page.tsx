@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import MypageLayout from '../../../../components/MypageLayout'
-import {images} from "next/dist/build/webpack/config/blocks/images";
 
 type ProductCategory = 'OUTER' | 'UPPER' | 'LOWER' | 'CAP' | 'SHOES' | 'BAG' | 'BEAUTY'
 type ProductStatus = 'CANCELED' | 'DRAFT' | 'COMPLETED'
@@ -41,7 +40,6 @@ interface ProductEditForm {
   saleStatus: SaleStatus
   price: number
   salePrice: number
-  stock: number
   images: string[]
 }
 
@@ -57,7 +55,6 @@ interface ProductDetailResponse {
   currency: string
   productStatus: string
   saleStatus: string
-  stock: number
   isFavorite: boolean
   favoriteCount: number
   images: ProductImageDto[]
@@ -158,7 +155,6 @@ export default function ProductEditPage() {
     saleStatus: 'NOT_SALE',
     price: 0,
     salePrice: 0,
-    stock: 0,
     images: [],
   })
   const [imageFiles, setImageFiles] = useState<File[]>([])
@@ -191,7 +187,6 @@ export default function ProductEditPage() {
     }
 
     addIfChanged('description', formData.description, originalProduct.description)
-    addIfChanged('stock', formData.stock, originalProduct.stock)
     addIfChanged('images', uploadedImageUrls, originalProduct.images)
     addIfChanged('saleStatus', formData.saleStatus, originalProduct.saleStatus)
     // 아래 필드는 변경 시 에러 발생
@@ -218,7 +213,6 @@ export default function ProductEditPage() {
           saleStatus: product.saleStatus,
           price: product.price,
           salePrice: product.salePrice ?? 0,
-          stock: product.stock,
           images: product.images.map((it: {imageUrl: string}) => it.imageUrl) ?? [],
         })
         setOriginalProduct(product)
@@ -459,10 +453,6 @@ export default function ProductEditPage() {
           alert('판매가는 정가보다 크거나 같아야 합니다.')
           return
         }
-        if (formData.stock < 0) {
-          alert('재고는 0 이상이어야 합니다.')
-          return
-        }
         const completeResponse = await fetch(statusChangeUrl, {
           method: 'PATCH',
           headers: {
@@ -475,7 +465,6 @@ export default function ProductEditPage() {
             description: formData.description,
             price: formData.price,
             salePrice: formData.salePrice,
-            stock: formData.stock,
             images: uploadedImageUrls
           })
         });
@@ -637,22 +626,6 @@ export default function ProductEditPage() {
                 disabled={isCompleted}
               />
             </div>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="stock" className="form-label">
-              재고
-            </label>
-            <input
-              type="number"
-              id="stock"
-              className="form-input"
-              placeholder="0"
-              value={formData.stock || ''}
-              onChange={(e) => handleInputChange('stock', parseInt(e.target.value, 10) || 0)}
-              min={0}
-              step={1}
-            />
           </div>
 
           <div className="form-group">

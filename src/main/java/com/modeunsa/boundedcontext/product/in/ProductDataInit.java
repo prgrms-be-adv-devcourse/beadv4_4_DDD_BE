@@ -62,7 +62,6 @@ public class ProductDataInit {
                 "롱코트입니다.",
                 BigDecimal.valueOf(10_000),
                 BigDecimal.valueOf(20_000),
-                10,
                 List.of(
                     "https://team01-storage.s3.ap-northeast-2.amazonaws.com/dev/product/1/coat1.jpg",
                     "https://team01-storage.s3.ap-northeast-2.amazonaws.com/dev/product/1/coat2.jpg",
@@ -79,7 +78,6 @@ public class ProductDataInit {
                 "구스다운 패딩입니다.",
                 BigDecimal.valueOf(10_000),
                 BigDecimal.valueOf(20_000),
-                100,
                 List.of(
                     "https://team01-storage.s3.ap-northeast-2.amazonaws.com/dev/product/1/ad3e23cd-155c-4ae9-80e3-40bcdefb1036.jpg",
                     "https://team01-storage.s3.ap-northeast-2.amazonaws.com/dev/product/1/3457593b-9a40-486a-b506-68224177bb8a.jpg")));
@@ -93,7 +91,6 @@ public class ProductDataInit {
                 "가볍게 입을 수 있는 경량패딩입니다.",
                 BigDecimal.valueOf(10_000),
                 BigDecimal.valueOf(20_000),
-                20,
                 null));
 
     ProductDetailResponse product4 =
@@ -105,7 +102,6 @@ public class ProductDataInit {
                 "설명설명222",
                 BigDecimal.valueOf(20_000),
                 BigDecimal.valueOf(30_000),
-                100,
                 null));
 
     ProductDetailResponse product5 =
@@ -117,7 +113,6 @@ public class ProductDataInit {
                 "설명설명3",
                 BigDecimal.valueOf(30_000),
                 BigDecimal.valueOf(40_000),
-                50,
                 null));
 
     ProductDetailResponse product6 =
@@ -129,7 +124,6 @@ public class ProductDataInit {
                 "설명설명4",
                 BigDecimal.valueOf(40_000),
                 BigDecimal.valueOf(50_000),
-                120,
                 null));
 
     ProductDetailResponse product7 =
@@ -141,7 +135,6 @@ public class ProductDataInit {
                 "설명설명4",
                 BigDecimal.valueOf(50_000),
                 BigDecimal.valueOf(50_000),
-                100,
                 null));
 
     ProductDetailResponse product8 =
@@ -153,7 +146,6 @@ public class ProductDataInit {
                 "설명설명4",
                 BigDecimal.valueOf(60_000),
                 BigDecimal.valueOf(70_000),
-                5,
                 null));
   }
 }
