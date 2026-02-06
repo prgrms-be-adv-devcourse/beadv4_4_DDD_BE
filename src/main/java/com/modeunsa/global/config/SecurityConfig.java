@@ -74,6 +74,8 @@ public class SecurityConfig {
                   .permitAll()
                   .requestMatchers(HttpMethod.GET, "/api/v1/products/{id}")
                   .permitAll()
+                  .requestMatchers(HttpMethod.GET, "/api/v2/products/searches/{id}")
+                  .permitAll()
 
                   // ========================================
                   // 3. 관리자 전용

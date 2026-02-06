@@ -10,16 +10,17 @@ import com.modeunsa.shared.product.dto.ProductDetailResponse;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 
-@Profile("!test")
+@Slf4j
 @ConditionalOnProperty(name = "app.data-init.enabled", havingValue = "true", matchIfMissing = true)
-// @Configuration
+@Configuration
 public class ProductDataInit {
   private final ProductDataInit self;
   private final ProductRepository productRepository;
