@@ -118,6 +118,7 @@ public enum ErrorStatus {
   PAYMENT_INVALID_REQUEST_TOSS_API(
       HttpStatus.BAD_REQUEST, "PAYMENT_400_008", "토스 페이먼츠 API 응답값이 올바르지 않습니다."),
   PAYMENT_REJECT_TOSS_PAYMENT(HttpStatus.BAD_REQUEST, "PAYMENT_400_009", "결제 승인 요청이 거절되었습니다."),
+  PAYMENT_INVALID_DATE_REQUEST(HttpStatus.BAD_REQUEST, "PAYMENT_400_010", "유효하지 않은 날짜 요청입니다."),
 
   PAYMENT_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_001", "결제 회원 정보를 찾을 수 없습니다."),
   PAYMENT_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_002", "결제 계좌 정보를 찾을 수 없습니다."),

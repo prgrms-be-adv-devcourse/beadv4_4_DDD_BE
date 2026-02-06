@@ -7,6 +7,8 @@ import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositResponse
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentResponse;
+import com.modeunsa.boundedcontext.payment.app.dto.accountlog.PaymentAccountLogDto;
+import com.modeunsa.boundedcontext.payment.app.dto.accountlog.PaymentAccountSearchRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberResponse;
 import com.modeunsa.boundedcontext.payment.app.dto.order.PaymentOrderInfo;
@@ -26,6 +28,7 @@ import com.modeunsa.boundedcontext.payment.app.usecase.PaymentPayoutCompleteUseC
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentRefundUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.PaymentSyncMemberUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.complete.PaymentCompleteOrderCompleteUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.ledger.PaymentAccountLedgerUseCase;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
@@ -33,6 +36,7 @@ import com.modeunsa.global.security.CustomUserDetails;
 import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,6 +56,7 @@ public class PaymentFacade {
   private final PaymentPayoutCompleteUseCase paymentPayoutCompleteUseCase;
   private final PaymentConfirmTossPaymentUseCase paymentConfirmTossPaymentUseCase;
   private final PaymentCompleteUseCase paymentCompleteUseCase;
+  private final PaymentAccountLedgerUseCase paymentAccountLedgerUseCase;
 
   private final PaymentMemberSupport paymentMemberSupport;
   private final PaymentAccountSupport paymentAccountSupport;
@@ -151,5 +156,10 @@ public class PaymentFacade {
 
   public long countAccountLog() {
     return paymentAccountSupport.countAccountLog();
+  }
+
+  public Page<PaymentAccountLogDto> getAccountLogPageListBySearch(
+      Long memberId, PaymentAccountSearchRequest paymentAccountSearchRequest) {
+    return paymentAccountLedgerUseCase.execute(memberId, paymentAccountSearchRequest);
   }
 }
