@@ -1,7 +1,12 @@
 package com.modeunsa.boundedcontext.content.app;
 
+import static com.modeunsa.global.status.ErrorStatus.CONTENT_MEMBER_NOT_FOUND;
+
 import com.modeunsa.boundedcontext.content.domain.entity.Content;
+import com.modeunsa.boundedcontext.content.domain.entity.ContentMember;
+import com.modeunsa.boundedcontext.content.out.ContentMemberRepository;
 import com.modeunsa.boundedcontext.content.out.ContentRepository;
+import com.modeunsa.global.exception.GeneralException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -13,6 +18,7 @@ import org.springframework.stereotype.Component;
 public class ContentSupport {
 
   private final ContentRepository contentRepository;
+  private final ContentMemberRepository contentMemberRepository;
 
   public Content save(Content content) {
     return contentRepository.save(content);
@@ -28,6 +34,12 @@ public class ContentSupport {
 
   public Page<Content> findLatest(Pageable pageable) {
     return contentRepository.findByDeletedAtIsNullOrderByIdDesc(pageable);
+  }
+
+  public ContentMember getContentMemberById(Long memberId) {
+    return contentMemberRepository
+        .findById(memberId)
+        .orElseThrow(() -> new GeneralException(CONTENT_MEMBER_NOT_FOUND));
   }
 }
 

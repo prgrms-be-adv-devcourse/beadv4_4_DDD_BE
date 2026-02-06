@@ -33,6 +33,29 @@ interface ApiResponse {
   result: ContentResponse
 }
 
+type PresignedUrlApiResult = { presignedUrl: string; key: string }
+type PublicUrlApiResult = { imageUrl: string; key: string }
+interface PresignedUrlApiResponse {
+  isSuccess: boolean
+  result: PresignedUrlApiResult
+}
+interface PublicUrlApiResponse {
+  isSuccess: boolean
+  result: PublicUrlApiResult
+}
+
+function getExtFromFile(file: File): string {
+  const name = file.name
+  const parts = name.split('.')
+  if (parts.length > 1) return parts[parts.length - 1].toLowerCase()
+  const mime = file.type
+  if (mime === 'image/jpeg' || mime === 'image/jpg') return 'jpg'
+  if (mime === 'image/png') return 'png'
+  if (mime === 'image/gif') return 'gif'
+  if (mime === 'image/webp') return 'webp'
+  return 'jpg'
+}
+
 export default function MagazineWritePage() {
   const router = useRouter()
   const [text, setText] = useState('')
@@ -40,7 +63,64 @@ export default function MagazineWritePage() {
   const [tagInput, setTagInput] = useState('')
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
+  const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>([])
+  const [uploadingImageIndex, setUploadingImageIndex] = useState<Set<number>>(new Set())
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isAuthChecked, setIsAuthChecked] = useState(false)
+
+  const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
+
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken')
+    if (!token?.trim()) {
+      router.replace('/login')
+      return
+    }
+    setIsAuthChecked(true)
+  }, [router])
+
+  const uploadImageToS3 = async (file: File): Promise<string> => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL!
+    const ext = getExtFromFile(file)
+
+    const presignedRes = await fetch(`${apiUrl}/api/v1/files/presigned-url`, {
+      method: 'POST',
+      headers: {
+        ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        domainType: 'CONTENT',
+        ext,
+        contentType: file.type,
+      }),
+    })
+    if (!presignedRes.ok) throw new Error('Presigned URL 발급 실패')
+    const presignedData: PresignedUrlApiResponse = await presignedRes.json()
+
+    const uploadRes = await fetch(presignedData.result.presignedUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': file.type },
+      body: file,
+    })
+    if (!uploadRes.ok) throw new Error('S3 업로드 실패')
+
+    const publicRes = await fetch(`${apiUrl}/api/v1/files/public-url`, {
+      method: 'POST',
+      headers: {
+        ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        rawKey: presignedData.result.key,
+        domainType: 'CONTENT',
+        contentType: file.type,
+      }),
+    })
+    if (!publicRes.ok) throw new Error('Public URL 발급 실패')
+    const publicData: PublicUrlApiResponse = await publicRes.json()
+    return publicData.result.imageUrl
+  }
 
   const handleAddTag = () => {
     if (tagInput.trim() && tags.length < 5 && tagInput.length <= 10) {
@@ -62,48 +142,72 @@ export default function MagazineWritePage() {
     }
   }
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (!files) return
 
     const newFiles: File[] = []
-    const newPreviews: string[] = []
-
     Array.from(files).forEach((file) => {
-      if (file.type.startsWith('image/')) {
-        if (imageFiles.length + newFiles.length < 5) {
-          newFiles.push(file)
-          const reader = new FileReader()
-          reader.onloadend = () => {
-            const result = reader.result as string
-            setImagePreviews(prev => [...prev, result])
-          }
-          reader.readAsDataURL(file)
-        } else {
-          alert('이미지는 최대 5개까지 추가할 수 있습니다.')
-        }
-      } else {
+      if (!file.type.startsWith('image/')) {
         alert(`${file.name}은(는) 이미지 파일이 아닙니다.`)
+        return
       }
+      if (imageFiles.length + newFiles.length >= 5) {
+        alert('이미지는 최대 5개까지 추가할 수 있습니다.')
+        return
+      }
+      newFiles.push(file)
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        const result = reader.result as string
+        setImagePreviews(prev => [...prev, result])
+      }
+      reader.readAsDataURL(file)
     })
 
+    if (newFiles.length === 0) return
+
+    const startIndex = imageFiles.length
     setImageFiles(prev => [...prev, ...newFiles])
+    setUploadedImageUrls(prev => [...prev, ...newFiles.map(() => '')])
+    newFiles.forEach((file, i) => {
+      const uploadIndex = startIndex + i
+      setUploadingImageIndex(prev => new Set(prev).add(uploadIndex))
+      uploadImageToS3(file)
+        .then((url) => {
+          setUploadedImageUrls(prev => {
+            const next = [...prev]
+            next[uploadIndex] = url
+            return next
+          })
+        })
+        .catch(() => {
+          alert(`이미지 업로드 실패: ${file.name}`)
+          handleImageRemove(uploadIndex)
+        })
+        .finally(() => {
+          setUploadingImageIndex(prev => {
+            const s = new Set(prev)
+            s.delete(uploadIndex)
+            return s
+          })
+        })
+    })
+
+    e.target.value = ''
   }
 
   const handleImageRemove = (index: number) => {
     setImageFiles(prev => prev.filter((_, i) => i !== index))
     setImagePreviews(prev => prev.filter((_, i) => i !== index))
-  }
-
-  const convertFileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        const result = reader.result as string
-        resolve(result)
-      }
-      reader.onerror = reject
-      reader.readAsDataURL(file)
+    setUploadedImageUrls(prev => prev.filter((_, i) => i !== index))
+    setUploadingImageIndex(prev => {
+      const next = new Set<number>()
+      prev.forEach(i => {
+        if (i === index) return
+        next.add(i > index ? i - 1 : i)
+      })
+      return next
     })
   }
 
@@ -129,13 +233,56 @@ export default function MagazineWritePage() {
       alert('이미지를 최소 1개 이상 추가해주세요.')
       return
     }
+    if (uploadingImageIndex.size > 0) {
+      alert('이미지 업로드가 완료될 때까지 기다려주세요.')
+      return
+    }
+    const allUploaded =
+      uploadedImageUrls.length === imageFiles.length &&
+      uploadedImageUrls.every((url) => url !== '')
+    if (!allUploaded) {
+      alert('이미지 업로드가 완료되지 않았습니다. 잠시 후 다시 시도해주세요.')
+      return
+    }
 
     setIsSubmitting(true)
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL
+    if (!apiUrl) {
+      alert('API URL이 설정되지 않았습니다.')
+      setIsSubmitting(false)
+      return
+    }
 
     try {
-      // API 통신 제거됨
-      alert('콘텐츠 작성 기능이 비활성화되었습니다.')
-      router.push('/magazine')
+      const body: ContentRequest = {
+        text: text.trim(),
+        tags,
+        images: uploadedImageUrls.map((imageUrl, i) => ({
+          imageUrl,
+          isPrimary: i === 0,
+          sortOrder: i,
+        })),
+      }
+      const res = await fetch(`${apiUrl}/api/v1/contents`, {
+        method: 'POST',
+        headers: {
+          ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      })
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        const msg = (err as { message?: string }).message ?? '콘텐츠 작성에 실패했습니다.'
+        throw new Error(msg)
+      }
+      const data: ApiResponse = await res.json()
+      if (data.isSuccess && data.result?.contentId) {
+        router.push(`/magazine/${data.result.contentId}`)
+      } else {
+        router.push('/magazine')
+      }
     } catch (error) {
       console.error('콘텐츠 생성 실패:', error)
       const errorMessage = error instanceof Error ? error.message : '콘텐츠 생성 중 오류가 발생했습니다.'
@@ -143,6 +290,17 @@ export default function MagazineWritePage() {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  if (!isAuthChecked) {
+    return (
+      <div className="home-page">
+        <Header />
+        <div style={{ padding: '40px 20px', textAlign: 'center', minHeight: '60vh' }}>
+          로딩 중...
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -243,10 +401,14 @@ export default function MagazineWritePage() {
                   {imagePreviews.map((preview, index) => (
                     <div key={index} className="image-item">
                       <img src={preview} alt={`이미지 ${index + 1}`} className="preview-image" />
+                      {uploadingImageIndex.has(index) && (
+                        <span className="image-uploading-badge">업로드 중</span>
+                      )}
                       <button
                         type="button"
                         className="image-remove-btn"
                         onClick={() => handleImageRemove(index)}
+                        disabled={uploadingImageIndex.has(index)}
                       >
                         삭제
                       </button>
@@ -260,9 +422,17 @@ export default function MagazineWritePage() {
                 <button
                   type="submit"
                   className="write-submit-btn"
-                  disabled={isSubmitting || !text.trim() || tags.length === 0 || imageFiles.length === 0}
+                  disabled={
+                    isSubmitting ||
+                    !text.trim() ||
+                    tags.length === 0 ||
+                    imageFiles.length === 0 ||
+                    uploadingImageIndex.size > 0 ||
+                    uploadedImageUrls.length !== imageFiles.length ||
+                    uploadedImageUrls.some((u) => !u)
+                  }
                 >
-                  {isSubmitting ? '작성 중...' : '작성하기'}
+                  {isSubmitting ? '작성 중...' : uploadingImageIndex.size > 0 ? '이미지 업로드 중...' : '작성하기'}
                 </button>
               </div>
             </form>

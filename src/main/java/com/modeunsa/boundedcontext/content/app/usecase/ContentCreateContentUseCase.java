@@ -1,6 +1,7 @@
 package com.modeunsa.boundedcontext.content.app.usecase;
 
 import com.modeunsa.boundedcontext.content.app.ContentMapper;
+import com.modeunsa.boundedcontext.content.app.ContentSupport;
 import com.modeunsa.boundedcontext.content.app.dto.ContentRequest;
 import com.modeunsa.boundedcontext.content.app.dto.ContentResponse;
 import com.modeunsa.boundedcontext.content.domain.entity.Content;
@@ -18,12 +19,15 @@ public class ContentCreateContentUseCase {
 
   private final ContentRepository contentRepository;
   private final ContentMapper contentMapper;
+  private final ContentSupport contentSupport;
 
   @Transactional
-  public ContentResponse createContent(ContentRequest contentRequest, ContentMember author) {
+  public ContentResponse createContent(Long memberId, ContentRequest contentRequest) {
+
     Content content = contentMapper.toEntity(contentRequest);
 
     // 작성자 설정
+    ContentMember author = contentSupport.getContentMemberById(memberId);
     content.setAuthor(author);
 
     // 태그 생성 및 연관관계 설정
