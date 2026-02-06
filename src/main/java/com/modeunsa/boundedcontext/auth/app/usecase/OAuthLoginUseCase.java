@@ -12,6 +12,7 @@ import com.modeunsa.shared.auth.dto.JwtTokenResponse;
 import com.modeunsa.shared.auth.dto.OAuthProviderTokenResponse;
 import com.modeunsa.shared.auth.dto.OAuthUserInfo;
 import java.time.Duration;
+import java.util.UUID; // 중복 해제 방지용
 import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,11 @@ public class OAuthLoginUseCase {
   private final StringRedisTemplate redisTemplate;
   private final MemberSupport memberSupport;
 
+  // 락 관련 상수 설정
+  private static final Duration LOCK_TIMEOUT = Duration.ofSeconds(10); // 3초에서 10초로 연장
+  private static final int MAX_RETRY_COUNT = 15; // 재시도 횟수 증가
+  private static final long RETRY_DELAY_MS = 300; // 재시도 간격 조정
+
   public JwtTokenResponse execute(
       OAuthProvider provider, String code, String redirectUri, String state) {
     // 1. state 검증
@@ -43,7 +49,7 @@ public class OAuthLoginUseCase {
 
     // --- [분산 락 적용] ---
     String lockKey = "lock:auth:" + provider + ":" + userInfo.providerId();
-    // 3초 동안 락을 유지하며, 획득을 위해 최대 5초간 대기 (간단한 구현 예시)
+
     return executeWithLock(
         lockKey,
         () -> {
@@ -59,24 +65,34 @@ public class OAuthLoginUseCase {
   }
 
   private JwtTokenResponse executeWithLock(String key, Supplier<JwtTokenResponse> supplier) {
-    // setIfAbsent를 이용한 간단한 스핀 락 구조
-    for (int i = 0; i < 10; i++) { // 최대 10번 시도
-      Boolean acquired =
-          redisTemplate.opsForValue().setIfAbsent(key, "lock", Duration.ofSeconds(3));
+    // 락의 소유권을 식별하기 위한 고유 값 (다른 프로세스가 내 락을 해제하는 것 방지)
+    String lockValue = UUID.randomUUID().toString();
+
+    for (int i = 0; i < MAX_RETRY_COUNT; i++) {
+      Boolean acquired = redisTemplate.opsForValue()
+          .setIfAbsent(key, lockValue, LOCK_TIMEOUT);
+
       if (Boolean.TRUE.equals(acquired)) {
         try {
           return supplier.get();
         } finally {
-          redisTemplate.delete(key); // 락 해제
+          // 내가 획득한 락인지 확인 후 해제 (안정성 강화)
+          String currentValue = redisTemplate.opsForValue().get(key);
+          if (lockValue.equals(currentValue)) {
+            redisTemplate.delete(key);
+          }
         }
       }
+
       try {
-        Thread.sleep(200); // 200ms 대기 후 재시도
+        Thread.sleep(RETRY_DELAY_MS);
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
+        throw new GeneralException(ErrorStatus.INTERNAL_SERVER_ERROR);
       }
     }
-    throw new GeneralException(ErrorStatus.INTERNAL_SERVER_ERROR); // 락 획득 실패 시 에러 처리
+    log.error("Failed to acquire lock for key: {}", key);
+    throw new GeneralException(ErrorStatus.INTERNAL_SERVER_ERROR);
   }
 
   private void validateState(String state, OAuthProvider provider) {
