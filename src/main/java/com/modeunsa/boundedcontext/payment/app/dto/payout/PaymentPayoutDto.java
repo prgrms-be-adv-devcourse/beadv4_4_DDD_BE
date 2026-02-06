@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.payment.app.dto;
+package com.modeunsa.boundedcontext.payment.app.dto.payout;
 
 import com.modeunsa.boundedcontext.payment.domain.types.PayoutEventType;
 import java.math.BigDecimal;

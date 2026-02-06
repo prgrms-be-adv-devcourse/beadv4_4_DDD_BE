@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.payment.app.usecase.complete;
+package com.modeunsa.boundedcontext.payment.app.usecase.process.complete;
 
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentDomainException;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode;

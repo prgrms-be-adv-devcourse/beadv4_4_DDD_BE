@@ -6,7 +6,7 @@ import static com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorC
 import static com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode.OVERDUE_PAYMENT_DEADLINE;
 import static jakarta.persistence.CascadeType.PERSIST;
 
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
+import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentProcessContext;
 import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmResponse;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentDomainException;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode;

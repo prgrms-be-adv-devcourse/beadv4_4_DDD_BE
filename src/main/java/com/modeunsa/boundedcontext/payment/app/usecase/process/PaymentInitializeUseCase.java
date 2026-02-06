@@ -1,9 +1,9 @@
-package com.modeunsa.boundedcontext.payment.app.usecase;
+package com.modeunsa.boundedcontext.payment.app.usecase.process;
 
 import static com.modeunsa.global.status.ErrorStatus.PAYMENT_DUPLICATE;
 
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequest;
+import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentProcessContext;
+import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentRequest;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentSupport;
 import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
