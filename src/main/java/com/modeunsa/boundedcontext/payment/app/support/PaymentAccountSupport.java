@@ -1,6 +1,6 @@
 package com.modeunsa.boundedcontext.payment.app.support;
 
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentPayoutDto;
+import com.modeunsa.boundedcontext.payment.app.dto.payout.PaymentPayoutDto;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.types.ReferenceType;
 import com.modeunsa.boundedcontext.payment.out.PaymentAccountLogReader;

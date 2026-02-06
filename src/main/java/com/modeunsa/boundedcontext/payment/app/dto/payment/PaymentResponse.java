@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.payment.app.dto;
+package com.modeunsa.boundedcontext.payment.app.dto.payment;
 
 import java.math.BigDecimal;
 import lombok.Builder;

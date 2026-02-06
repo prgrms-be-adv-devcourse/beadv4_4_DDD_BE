@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.payment.app.usecase;
+package com.modeunsa.boundedcontext.payment.app.usecase.process;
 
 import com.modeunsa.boundedcontext.payment.app.event.PaymentFailedEvent;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentSupport;
