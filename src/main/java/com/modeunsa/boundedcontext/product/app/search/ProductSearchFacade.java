@@ -3,7 +3,6 @@ package com.modeunsa.boundedcontext.product.app.search;
 import com.modeunsa.boundedcontext.product.domain.search.document.ProductSearch;
 import com.modeunsa.shared.product.dto.search.ProductSearchRequest;
 import com.modeunsa.shared.product.dto.search.ProductSearchResponse;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +18,7 @@ public class ProductSearchFacade {
   public ProductSearchResponse createProductSearch(ProductSearchRequest request) {
 
     ProductSearch productSearch =
-        productSearchUseCase.createproductSearch(
+        productSearchUseCase.createProductSearch(
             request.name(),
             request.description(),
             request.category(),
@@ -35,35 +34,5 @@ public class ProductSearchFacade {
         productSearch.getPrice(),
         productSearch.getCreatedAt(),
         productSearch.getUpdatedAt());
-  }
-
-  public List<ProductSearchResponse> findAll() {
-    return productSearchUseCase.findAll().stream()
-        .map(
-            ps ->
-                new ProductSearchResponse(
-                    ps.getId(),
-                    ps.getName(),
-                    ps.getDescription(),
-                    ps.getCategory(),
-                    ps.getSaleStatus(),
-                    ps.getPrice(),
-                    ps.getCreatedAt(),
-                    ps.getUpdatedAt()))
-        .toList();
-  }
-
-  public ProductSearchResponse findById(String id) {
-    ProductSearch ps = productSearchUseCase.findById(id).orElseThrow();
-
-    return new ProductSearchResponse(
-        ps.getId(),
-        ps.getName(),
-        ps.getDescription(),
-        ps.getCategory(),
-        ps.getSaleStatus(),
-        ps.getPrice(),
-        ps.getCreatedAt(),
-        ps.getUpdatedAt());
   }
 }

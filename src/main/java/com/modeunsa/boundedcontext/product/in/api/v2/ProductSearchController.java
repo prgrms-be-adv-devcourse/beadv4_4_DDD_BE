@@ -25,7 +25,7 @@ public class ProductSearchController {
   @Operation(summary = "ES 상품 등록", description = "상품을 등록하면 ElasticSearch에도 save된다.")
   @PostMapping
   public ProductSearch create(@RequestBody ProductSearchRequest request) {
-    return productSearchUseCase.createproductSearch(
+    return productSearchUseCase.createProductSearch(
         request.name(),
         request.description(),
         request.category(),
