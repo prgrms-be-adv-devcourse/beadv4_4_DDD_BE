@@ -66,18 +66,21 @@ class OAuthLoginUseCaseTest {
           new OAuthProviderTokenResponse("access", "refresh", "bearer", 3600L);
       OAuthUserInfo userInfo =
           OAuthUserInfo.of(provider, "12345", "test@test.com", "테스터", "010-1234-5678");
-      Member member = createMemberWithId(1L);
-      OAuthAccount socialAccount = OAuthAccount.builder().member(member).build();
-      JwtTokenResponse expectedToken = JwtTokenResponse.of("at", "rt", 3600L, 604800L);
 
-      // Redis stubbing - 각 테스트에서 필요한 것만 설정
+      // Redis stubbing
       setupRedisForLogin(userInfo.providerId());
 
       given(oauthClientFactory.getClient(provider)).willReturn(oauthClient);
       given(oauthClient.getToken(code, redirectUri)).willReturn(tokenResponse);
       given(oauthClient.getUserInfo(tokenResponse.accessToken())).willReturn(userInfo);
+
+      final Member member = createMemberWithId(1L);
+      final OAuthAccount socialAccount = OAuthAccount.builder().member(member).build();
+
       given(oauthAccountResolveUseCase.execute(provider, userInfo)).willReturn(socialAccount);
       given(memberSupport.getSellerIdByMemberId(1L)).willReturn(null);
+
+      final JwtTokenResponse expectedToken = JwtTokenResponse.of("at", "rt", 3600L, 604800L);
       given(authTokenIssueUseCase.execute(1L, MemberRole.MEMBER, null)).willReturn(expectedToken);
 
       // when
@@ -85,8 +88,6 @@ class OAuthLoginUseCaseTest {
 
       // then
       assertThat(result).isEqualTo(expectedToken);
-
-      // State 삭제 검증
       verify(redisTemplate, times(1)).delete("oauth:state:" + state);
     }
 
@@ -98,9 +99,6 @@ class OAuthLoginUseCaseTest {
           new OAuthProviderTokenResponse("access", "refresh", "bearer", 3600L);
       OAuthUserInfo userInfo =
           OAuthUserInfo.of(provider, "67890", "new@test.com", "신규", "010-9876-5432");
-      Member member = createMemberWithId(2L);
-      OAuthAccount socialAccount = OAuthAccount.builder().member(member).build();
-      JwtTokenResponse expectedToken = JwtTokenResponse.of("new_at", "new_rt", 3600L, 604800L);
 
       // Redis stubbing
       setupRedisForLogin(userInfo.providerId());
@@ -108,8 +106,15 @@ class OAuthLoginUseCaseTest {
       given(oauthClientFactory.getClient(provider)).willReturn(oauthClient);
       given(oauthClient.getToken(code, redirectUri)).willReturn(tokenResponse);
       given(oauthClient.getUserInfo(tokenResponse.accessToken())).willReturn(userInfo);
+
+      final Member member = createMemberWithId(2L);
+      final OAuthAccount socialAccount = OAuthAccount.builder().member(member).build();
+
       given(oauthAccountResolveUseCase.execute(provider, userInfo)).willReturn(socialAccount);
       given(memberSupport.getSellerIdByMemberId(2L)).willReturn(null);
+
+      final JwtTokenResponse expectedToken =
+          JwtTokenResponse.of("new_at", "new_rt", 3600L, 604800L);
       given(authTokenIssueUseCase.execute(2L, MemberRole.MEMBER, null)).willReturn(expectedToken);
 
       // when
@@ -118,8 +123,6 @@ class OAuthLoginUseCaseTest {
       // then
       assertThat(result).isEqualTo(expectedToken);
       verify(oauthAccountResolveUseCase).execute(provider, userInfo);
-
-      // State 삭제 검증
       verify(redisTemplate, times(1)).delete("oauth:state:" + state);
     }
   }
