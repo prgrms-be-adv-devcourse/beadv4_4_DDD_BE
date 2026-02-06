@@ -69,8 +69,7 @@ public class OAuthLoginUseCase {
     String lockValue = UUID.randomUUID().toString();
 
     for (int i = 0; i < MAX_RETRY_COUNT; i++) {
-      Boolean acquired = redisTemplate.opsForValue()
-          .setIfAbsent(key, lockValue, LOCK_TIMEOUT);
+      Boolean acquired = redisTemplate.opsForValue().setIfAbsent(key, lockValue, LOCK_TIMEOUT);
 
       if (Boolean.TRUE.equals(acquired)) {
         try {
