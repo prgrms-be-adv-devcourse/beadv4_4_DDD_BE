@@ -88,11 +88,12 @@ public class OAuthLoginUseCase {
         Thread.sleep(RETRY_DELAY_MS);
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
-        throw new GeneralException(ErrorStatus.INTERNAL_SERVER_ERROR);
+        log.warn("Social login lock acquisition failed for key: {}. System is busy.", key);
+        throw new GeneralException(ErrorStatus.AUTH_TOO_MANY_REQUESTS);
       }
     }
     log.error("Failed to acquire lock for key: {}", key);
-    throw new GeneralException(ErrorStatus.INTERNAL_SERVER_ERROR);
+    throw new GeneralException(ErrorStatus.AUTH_TOO_MANY_REQUESTS);
   }
 
   private void validateState(String state, OAuthProvider provider) {

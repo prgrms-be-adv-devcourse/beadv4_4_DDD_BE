@@ -39,6 +39,8 @@ public enum ErrorStatus {
   AUTH_BLACKLISTED_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_007", "로그아웃된 토큰입니다."),
   // Auth 403
   AUTH_ACCESS_DENIED(HttpStatus.FORBIDDEN, "AUTH_403_001", "접근 권한이 없습니다."),
+  // Auth 429
+  AUTH_TOO_MANY_REQUESTS(HttpStatus.TOO_MANY_REQUESTS, "AUTH_429_001", "현재 로그인 요청이 많아 처리가 지연되고 있습니다. 잠시 후 다시 시도해 주세요."),
   // Auth 502
   OAUTH_TOKEN_REQUEST_FAILED(HttpStatus.BAD_GATEWAY, "AUTH_502_001", "OAuth 토큰 요청에 실패했습니다."),
   OAUTH_USER_INFO_FAILED(HttpStatus.BAD_GATEWAY, "AUTH_502_002", "OAuth 사용자 정보 요청에 실패했습니다."),
