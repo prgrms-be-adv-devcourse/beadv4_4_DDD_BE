@@ -1,7 +1,9 @@
 package com.modeunsa.global.security.jwt;
 
+import com.modeunsa.boundedcontext.auth.app.usecase.AuthTokenReissueUseCase;
 import com.modeunsa.boundedcontext.auth.out.repository.AuthAccessTokenBlacklistRepository;
 import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
+import com.modeunsa.global.config.CookieProperties;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.global.status.ErrorStatus;
@@ -11,10 +13,12 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,6 +34,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private final JwtTokenProvider jwtTokenProvider;
   private final AuthAccessTokenBlacklistRepository blacklistRepository;
+  private final AuthTokenReissueUseCase authTokenReissueUseCase;
+  private final CookieProperties cookieProperties;
 
   private static final String AUTHORIZATION_HEADER = "Authorization";
   private static final String BEARER_PREFIX = "Bearer ";
@@ -58,9 +64,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
           throw new GeneralException(ErrorStatus.AUTH_INVALID_ACCESS_TOKEN);
         }
 
-        // TODO: 성능 최적화 고려사항
-        // - 매 요청마다 Redis 조회 발생하여 고부하 시 성능 이슈 가능
-        // - 현재는 트래픽이 적어 수용 가능하며, 부하 증가 시 캐시 도입 예정
         // 블랙리스트 체크
         if (blacklistRepository.existsById(token)) {
           throw new GeneralException(ErrorStatus.AUTH_BLACKLISTED_TOKEN);
@@ -68,6 +71,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 인증 처리
         setAuthentication(token, request);
+
       } catch (GeneralException e) {
         // 토큰 만료 시 자동 재발급 시도
         if (e.getErrorStatus() == ErrorStatus.AUTH_EXPIRED_TOKEN) {
@@ -89,6 +93,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
               filterChain.doFilter(request, response);
               return;
+
             } catch (Exception refreshError) {
               log.warn("토큰 자동 재발급 실패: {}", refreshError.getMessage());
               request.setAttribute(EXCEPTION_ATTRIBUTE, e);
@@ -104,7 +109,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     filterChain.doFilter(request, response);
   }
 
-  /** Request Header 또는 Cookie에서 토큰 추출 */
+  /** Access Token 추출 */
   private String resolveAccessToken(HttpServletRequest request) {
     String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
 
@@ -125,6 +130,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     return null;
   }
 
+  /** Refresh Token 추출 */
   private String resolveRefreshToken(HttpServletRequest request) {
     if (request.getCookies() != null) {
       for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
@@ -136,6 +142,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     return null;
   }
 
+  /** 인증 정보 설정 */
   private void setAuthentication(String token, HttpServletRequest request) {
     Long memberId = jwtTokenProvider.getMemberIdFromToken(token);
     MemberRole role = jwtTokenProvider.getRoleFromToken(token);
@@ -150,5 +157,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     SecurityContextHolder.getContext().setAuthentication(authentication);
 
     log.debug("인증 정보 저장 완료 - memberId: {}, role: {}", memberId, role);
+  }
+
+  /** 토큰 재발급 시도 */
+  private JwtTokenResponse attemptTokenRefresh(String refreshToken) {
+    return authTokenReissueUseCase.execute(refreshToken);
+  }
+
+  /** 새 토큰 쿠키 설정 */
+  private void setNewTokenCookies(HttpServletResponse response, JwtTokenResponse tokens) {
+    // Access Token 쿠키
+    ResponseCookie accessTokenCookie =
+        ResponseCookie.from("accessToken", tokens.accessToken())
+            .httpOnly(cookieProperties.isHttpOnly())
+            .secure(cookieProperties.isSecure())
+            .path(cookieProperties.getPath())
+            .maxAge(Duration.ofMillis(tokens.accessTokenExpiresIn()))
+            .sameSite(cookieProperties.getSameSite())
+            .build();
+
+    // Refresh Token 쿠키
+    ResponseCookie refreshTokenCookie =
+        ResponseCookie.from("refreshToken", tokens.refreshToken())
+            .httpOnly(true)
+            .secure(cookieProperties.isSecure())
+            .path(cookieProperties.getPath())
+            .maxAge(Duration.ofMillis(tokens.refreshTokenExpiresIn()))
+            .sameSite(cookieProperties.getSameSite())
+            .build();
+
+    response.addHeader("Set-Cookie", accessTokenCookie.toString());
+    response.addHeader("Set-Cookie", refreshTokenCookie.toString());
   }
 }
