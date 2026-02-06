@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.payment.app.dto;
+package com.modeunsa.boundedcontext.payment.app.dto.payment;
 
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentPurpose;
 import com.modeunsa.boundedcontext.payment.domain.types.ProviderType;

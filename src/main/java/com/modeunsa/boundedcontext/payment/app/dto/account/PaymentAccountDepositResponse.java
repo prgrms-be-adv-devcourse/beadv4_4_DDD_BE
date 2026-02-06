@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.payment.app.dto;
+package com.modeunsa.boundedcontext.payment.app.dto.account;
 
 import java.math.BigDecimal;
 
