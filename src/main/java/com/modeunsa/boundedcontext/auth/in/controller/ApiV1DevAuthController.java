@@ -9,6 +9,8 @@ import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.auth.dto.JwtTokenResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,14 +36,29 @@ public class ApiV1DevAuthController {
           MemberDataInit으로 생성된 더미 데이터의 ID를 확인 후 사용하세요.<br>
           """)
   @PostMapping("/login")
-  public JwtTokenResponse devLogin(@RequestParam Long memberId) {
+  public JwtTokenResponse devLogin(@RequestParam Long memberId, HttpServletResponse response) {
     Member member =
         memberRepository
             .findById(memberId)
             .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
     Long sellerId = memberSupport.getSellerIdByMemberId(memberId);
+    JwtTokenResponse tokenResponse = authFacade.login(member.getId(), member.getRole(), sellerId);
 
-    return authFacade.login(member.getId(), member.getRole(), sellerId);
+    // Access Token 쿠키
+    Cookie accessCookie = new Cookie("accessToken", tokenResponse.accessToken());
+    accessCookie.setPath("/");
+    accessCookie.setHttpOnly(true);
+    accessCookie.setMaxAge((int) tokenResponse.accessTokenExpiresIn() / 1000);
+    response.addCookie(accessCookie);
+
+    // Refresh Token 쿠키
+    Cookie refreshCookie = new Cookie("refreshToken", tokenResponse.refreshToken());
+    refreshCookie.setPath("/");
+    refreshCookie.setHttpOnly(true);
+    refreshCookie.setMaxAge((int) tokenResponse.refreshTokenExpiresIn() / 1000);
+    response.addCookie(refreshCookie);
+
+    return tokenResponse;
   }
 }
