@@ -1,7 +1,7 @@
 package com.modeunsa.boundedcontext.payment.in.data;
 
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositRequest;
+import com.modeunsa.boundedcontext.payment.app.dto.account.PaymentAccountDepositRequest;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import java.math.BigDecimal;
 import java.util.UUID;

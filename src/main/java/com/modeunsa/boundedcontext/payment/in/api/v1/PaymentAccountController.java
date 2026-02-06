@@ -1,8 +1,8 @@
 package com.modeunsa.boundedcontext.payment.in.api.v1;
 
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositRequest;
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositResponse;
+import com.modeunsa.boundedcontext.payment.app.dto.account.PaymentAccountDepositRequest;
+import com.modeunsa.boundedcontext.payment.app.dto.account.PaymentAccountDepositResponse;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberResponse;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.security.CustomUserDetails;

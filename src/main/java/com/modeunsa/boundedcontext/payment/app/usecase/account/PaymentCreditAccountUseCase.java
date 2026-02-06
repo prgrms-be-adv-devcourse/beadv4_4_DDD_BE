@@ -1,6 +1,6 @@
-package com.modeunsa.boundedcontext.payment.app.usecase;
+package com.modeunsa.boundedcontext.payment.app.usecase.account;
 
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositRequest;
+import com.modeunsa.boundedcontext.payment.app.dto.account.PaymentAccountDepositRequest;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;

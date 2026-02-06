@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.payment.app.dto;
+package com.modeunsa.boundedcontext.payment.app.dto.payment;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;

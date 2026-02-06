@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.payment.app.dto;
+package com.modeunsa.boundedcontext.payment.app.dto.account;
 
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import jakarta.validation.constraints.NotNull;
