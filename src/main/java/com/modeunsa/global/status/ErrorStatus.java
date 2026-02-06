@@ -85,7 +85,7 @@ public enum ErrorStatus {
   ORDER_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_404_001", "없는 상품입니다."),
   ORDER_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_404_002", "없는 회원입니다."),
   ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_404_003", "없는 주문입니다."),
-
+  ORDER_CARTITEM_EMPTY(HttpStatus.NOT_FOUND, "ORDER_404_004", "없는 장바구니 상품입니다."),
   ORDER_ACCESS_DENIED(HttpStatus.FORBIDDEN, "ORDER_403_001", "해당 주문에 대한 접근 권한이 없습니다."),
 
   // Product 400
