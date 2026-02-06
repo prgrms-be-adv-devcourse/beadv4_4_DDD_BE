@@ -1,0 +1,16 @@
+enabled: true
+image:
+  tag: "latest"
+service:
+  type: NodePort
+  nodePort: 30085
+kafka:
+  bootstrapServers: "modeunsa-infra-kafka:9092"
+javaOpts: "-Xmx256m"
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 150m
+    memory: 384Mi

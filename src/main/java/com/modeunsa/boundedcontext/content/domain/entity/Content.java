@@ -27,7 +27,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Content extends GeneratedIdAndAuditedEntity {
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
   @JoinColumn(name = "content_author_id", nullable = false)
   private ContentMember author;
 

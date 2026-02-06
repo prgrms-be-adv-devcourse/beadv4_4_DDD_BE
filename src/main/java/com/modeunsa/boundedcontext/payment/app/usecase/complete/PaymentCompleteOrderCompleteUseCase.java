@@ -120,7 +120,7 @@ public class PaymentCompleteOrderCompleteUseCase implements PaymentCompleteProce
   private void publishPaymentSuccessEvent(PaymentProcessContext paymentProcessContext) {
     eventPublisher.publish(
         new PaymentSuccessEvent(
-            PaymentDto.of(
+            new PaymentDto(
                 paymentProcessContext.orderId(),
                 paymentProcessContext.orderNo(),
                 paymentProcessContext.buyerId(),

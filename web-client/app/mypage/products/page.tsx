@@ -41,7 +41,6 @@ interface ProductResponse {
   currency: string
   productStatus: string
   saleStatus: string
-  stock: number
   favoriteCount: number
   primaryImageUrl: string
   createdAt: string
@@ -367,9 +366,6 @@ export default function ProductsPage() {
                     판매가
                   </th>
                   <th style={{ padding: '14px 12px', textAlign: 'center', fontWeight: 600, color: '#333' }}>
-                    재고
-                  </th>
-                  <th style={{ padding: '14px 12px', textAlign: 'center', fontWeight: 600, color: '#333' }}>
                     판매상태
                   </th>
                   <th style={{ padding: '14px 12px', textAlign: 'center', fontWeight: 600, color: '#333' }}>
@@ -400,9 +396,6 @@ export default function ProductsPage() {
                       {product.salePrice != null
                           ? `₩${product.salePrice.toLocaleString()}`
                           : ''}
-                    </td>
-                    <td style={{ padding: '14px 12px', textAlign: 'center', color: '#333' }}>
-                      {product.stock}개
                     </td>
                     <td style={{ padding: '14px 12px', textAlign: 'center' }}>
                       {getLabel(SALE_STATUS_OPTIONS, product.saleStatus)}

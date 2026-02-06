@@ -7,6 +7,7 @@ import com.modeunsa.boundedcontext.order.domain.OrderProduct;
 import com.modeunsa.shared.order.dto.CartItemsResponseDto;
 import com.modeunsa.shared.order.dto.CreateCartOrderRequestDto;
 import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
+import com.modeunsa.shared.order.dto.DeleteCartItemsRequestDto;
 import com.modeunsa.shared.order.dto.OrderDto;
 import com.modeunsa.shared.order.dto.OrderListResponseDto;
 import com.modeunsa.shared.order.dto.OrderResponseDto;
@@ -14,6 +15,7 @@ import com.modeunsa.shared.order.dto.SyncCartItemRequestDto;
 import com.modeunsa.shared.order.dto.SyncCartItemResponseDto;
 import com.modeunsa.shared.payment.dto.PaymentDto;
 import com.modeunsa.shared.product.dto.ProductDto;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -153,5 +155,19 @@ public class OrderFacade {
       String addressName) {
     orderCreateDeliveryAddressUseCase.createDeliveryAddress(
         memberId, recipientName, recipientPhone, zipCode, address, addressDetail, addressName);
+  }
+
+  public List<Long> getRecentCartItems(Long memberId, int cartItemSize) {
+    return orderSupport.getRecentCartItems(memberId, cartItemSize);
+  }
+
+  @Transactional
+  public void deleteCartItems(Long memberId, DeleteCartItemsRequestDto request) {
+    orderSupport.softDeleteCartItems(memberId, request.cartItemIds());
+  }
+
+  @Transactional
+  public void deleteAllCartItems(Long memberId) {
+    orderSupport.softDeleteAllCartItems(memberId);
   }
 }

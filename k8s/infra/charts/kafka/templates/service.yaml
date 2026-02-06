@@ -1,0 +1,22 @@
+{{- if .Values.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "kafka.fullname" . }}
+  labels:
+    {{- include "kafka.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - name: internal
+      port: {{ .Values.service.internalPort }}
+      targetPort: {{ .Values.service.internalPort }}
+    - name: external
+      port: {{ .Values.service.externalPort }}
+      targetPort: {{ .Values.service.externalPort }}
+      {{- if eq .Values.service.type "NodePort" }}
+      nodePort: {{ .Values.service.nodePort }}
+      {{- end }}
+  selector:
+    app: {{ include "kafka.fullname" . }}
+{{- end }}
