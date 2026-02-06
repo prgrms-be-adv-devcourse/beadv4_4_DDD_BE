@@ -72,7 +72,7 @@ public class ApiV1AuthController {
     // Refresh Token 쿠키
     ResponseCookie refreshTokenCookie =
         ResponseCookie.from("refreshToken", jwtTokenResponse.refreshToken())
-            .httpOnly(true)  // XSS 방어를 위해 반드시 true
+            .httpOnly(true) // XSS 방어를 위해 반드시 true
             .secure(cookieProperties.isSecure())
             .path(cookieProperties.getPath())
             .maxAge(Duration.ofMillis(jwtTokenResponse.refreshTokenExpiresIn()))
@@ -112,7 +112,9 @@ public class ApiV1AuthController {
     return ResponseEntity.ok()
         .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
         .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
-        .body(ApiResponse.onSuccess(SuccessStatus.AUTH_TOKEN_REFRESH_SUCCESS, jwtTokenResponse).getBody());
+        .body(
+            ApiResponse.onSuccess(SuccessStatus.AUTH_TOKEN_REFRESH_SUCCESS, jwtTokenResponse)
+                .getBody());
   }
 
   @Operation(summary = "로그아웃", description = "Access Token과 Refresh Token 쿠키를 삭제합니다.")

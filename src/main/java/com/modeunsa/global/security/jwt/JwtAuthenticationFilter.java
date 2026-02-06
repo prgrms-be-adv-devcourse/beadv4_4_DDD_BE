@@ -88,7 +88,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
               // 응답 헤더에 새 쿠키 설정
               setNewTokenCookies(response, newTokens);
 
-              log.info("토큰 자동 재발급 성공 - memberId: {}",
+              log.info(
+                  "토큰 자동 재발급 성공 - memberId: {}",
                   jwtTokenProvider.getMemberIdFromToken(newTokens.accessToken()));
 
               filterChain.doFilter(request, response);
