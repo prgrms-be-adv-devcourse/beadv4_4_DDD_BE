@@ -14,8 +14,10 @@ export async function POST(request: NextRequest) {
     const accessToken = cookies().get('accessToken')?.value;
     const formattedProvider = provider.toUpperCase(); // KAKAO 또는 NAVER
 
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+
     const response = await fetch(
-        `http://localhost:8080/api/v1/auths/social-accounts/${formattedProvider}/link?code=${code}&state=${state}&redirectUri=${encodeURIComponent(redirectUri)}`,
+        `${baseUrl}/api/v1/auths/social-accounts/${formattedProvider}/link?code=${code}&state=${state}&redirectUri=${encodeURIComponent(redirectUri)}`,
         {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${accessToken}` }
