@@ -49,14 +49,14 @@ public class ApiV1DevAuthController {
     Cookie accessCookie = new Cookie("accessToken", tokenResponse.accessToken());
     accessCookie.setPath("/");
     accessCookie.setHttpOnly(true);
-    accessCookie.setMaxAge((int) tokenResponse.accessTokenExpiresIn() / 1000);
+    accessCookie.setMaxAge((int) (tokenResponse.accessTokenExpiresIn() / 1000L));
     response.addCookie(accessCookie);
 
     // Refresh Token 쿠키
     Cookie refreshCookie = new Cookie("refreshToken", tokenResponse.refreshToken());
     refreshCookie.setPath("/");
     refreshCookie.setHttpOnly(true);
-    refreshCookie.setMaxAge((int) tokenResponse.refreshTokenExpiresIn() / 1000);
+    refreshCookie.setMaxAge((int) (tokenResponse.refreshTokenExpiresIn() / 1000L));
     response.addCookie(refreshCookie);
 
     return tokenResponse;
