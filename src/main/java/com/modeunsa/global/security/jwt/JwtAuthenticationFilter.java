@@ -101,12 +101,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
           }
         }
-
         log.warn("토큰 검증 실패: {}", e.getMessage());
         request.setAttribute(EXCEPTION_ATTRIBUTE, e);
       }
     }
-
     filterChain.doFilter(request, response);
   }
 
