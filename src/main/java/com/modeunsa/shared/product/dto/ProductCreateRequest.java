@@ -18,6 +18,5 @@ public class ProductCreateRequest {
   private String description;
   @PositiveOrZero private BigDecimal price;
   @PositiveOrZero private BigDecimal salePrice;
-  @PositiveOrZero private Integer stock;
   private List<String> images;
 }

@@ -1,0 +1,25 @@
+{{- if .Values.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "prometheus.fullname" . }}-config
+  labels:
+    {{- include "prometheus.labels" . | nindent 4 }}
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: {{ .Values.scrapeInterval }}
+      evaluation_interval: {{ .Values.scrapeInterval }}
+    scrape_configs:
+      {{- range .Values.scrapeConfigs }}
+      - job_name: {{ .jobName | quote }}
+        metrics_path: {{ .metricsPath | quote }}
+        scrape_interval: {{ .scrapeInterval }}
+        scrape_timeout: {{ .scrapeTimeout }}
+        static_configs:
+          - targets:
+            {{- range .targets }}
+              - {{ . | quote }}
+            {{- end }}
+      {{- end }}
+{{- end }}

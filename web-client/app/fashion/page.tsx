@@ -44,7 +44,6 @@ interface ProductResponse {
   currency: string
   productStatus: string
   saleStatus: string
-  stock: number
   favoriteCount: number
   primaryImageUrl: string
   createdAt: string

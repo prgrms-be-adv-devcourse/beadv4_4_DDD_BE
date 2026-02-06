@@ -21,7 +21,6 @@ public record ProductDetailResponse(
     ProductCurrency currency,
     ProductStatus productStatus,
     SaleStatus saleStatus,
-    int stock,
     boolean isFavorite,
     int favoriteCount,
     List<ProductImageDto> images,
