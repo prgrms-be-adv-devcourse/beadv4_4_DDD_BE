@@ -17,65 +17,57 @@ interface PaymentAccountApiResponse {
   result: PaymentMemberResponse
 }
 
-const mockHistory = [
-  {
-    id: 'TXN-001',
-    date: '2024-01-16',
-    dateDisplay: '2024.01.16 15:20',
-    type: '충전',
-    typeStyle: { color: '#22c55e', fontWeight: 600 },
-    description: '카드 충전',
-    amount: '+30,000',
-    amountStyle: { color: '#22c55e', fontWeight: 600 },
-    balance: '80,000원',
-  },
-  {
-    id: 'TXN-002',
-    date: '2024-01-15',
-    dateDisplay: '2024.01.15 14:30',
-    type: '사용',
-    typeStyle: { color: '#666', fontWeight: 600 },
-    description: '주문 결제 (ORD-2024-001)',
-    amount: '-89,000',
-    amountStyle: { color: '#333', fontWeight: 600 },
-    balance: '50,000원',
-  },
-  {
-    id: 'TXN-003',
-    date: '2024-01-10',
-    dateDisplay: '2024.01.10 11:00',
-    type: '충전',
-    typeStyle: { color: '#22c55e', fontWeight: 600 },
-    description: '카드 충전',
-    amount: '+50,000',
-    amountStyle: { color: '#22c55e', fontWeight: 600 },
-    balance: '139,000원',
-  },
-  {
-    id: 'TXN-004',
-    date: '2024-01-05',
-    dateDisplay: '2024.01.05 09:15',
-    type: '사용',
-    typeStyle: { color: '#666', fontWeight: 600 },
-    description: '주문 결제 (ORD-2024-003)',
-    amount: '-132,000',
-    amountStyle: { color: '#333', fontWeight: 600 },
-    balance: '89,000원',
-  },
-]
+// /api/v1/payments/accounts/logs 응답 DTO (PaymentAccountLedgerPageResponse)
+interface PaymentAccountLedgerItem {
+  isDeposit: boolean
+  content: string
+  amount: number
+  balance: number
+  createdAt: string
+}
+
+// 백엔드 PageInfo (ApiResponse.pageInfo)
+interface ApiPageInfo {
+  page: number
+  size: number
+  hasNext: boolean
+  totalElements: number
+  totalPages: number
+}
+
+interface ApiResponsePage<T> {
+  isSuccess: boolean
+  code: string
+  message: string
+  pageInfo?: ApiPageInfo
+  result: T[] // Page<?> 일 때 ApiResponse.result 는 content 배열만 내려옴
+}
 
 const PAGE_SIZE = 10
 
 type PresetKey = 'week' | 'month1' | 'month3' | 'month6' | 'direct'
 
 export default function MoneyHistoryPage() {
-  const [preset, setPreset] = useState<PresetKey>('month1')
-  const [startDate, setStartDate] = useState('2024-01-01')
-  const [endDate, setEndDate] = useState('2024-01-31')
+  // 기본 조회 기간: 최근 1주일
+  const [preset, setPreset] = useState<PresetKey>('week')
+  const [startDate, setStartDate] = useState(() => {
+    const today = new Date()
+    const weekAgo = new Date(today)
+    weekAgo.setDate(weekAgo.getDate() - 7)
+    return weekAgo.toISOString().slice(0, 10)
+  })
+  const [endDate, setEndDate] = useState(() => {
+    const today = new Date()
+    return today.toISOString().slice(0, 10)
+  })
   const [currentPage, setCurrentPage] = useState(1)
   const [balance, setBalance] = useState<number | null>(null)
   const [balanceLoading, setBalanceLoading] = useState(true)
   const [balanceError, setBalanceError] = useState<string | null>(null)
+  const [history, setHistory] = useState<PaymentAccountLedgerItem[]>([])
+  const [historyLoading, setHistoryLoading] = useState(false)
+  const [historyError, setHistoryError] = useState<string | null>(null)
+  const [totalPages, setTotalPages] = useState(1)
 
   useEffect(() => {
     const fetchBalance = async () => {
@@ -110,6 +102,68 @@ export default function MoneyHistoryPage() {
     fetchBalance()
   }, [])
 
+  const fetchHistory = async (page: number, from: string, to: string) => {
+    if (typeof window === 'undefined') return
+
+    const accessToken = localStorage.getItem('accessToken')
+    if (!accessToken?.trim()) {
+      setHistory([])
+      setTotalPages(1)
+      return
+    }
+
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+    if (!apiUrl) {
+      setHistory([])
+      setTotalPages(1)
+      return
+    }
+
+    setHistoryLoading(true)
+    setHistoryError(null)
+
+    const params = new URLSearchParams()
+    params.set('page', String(page)) // 0-based
+    params.set('size', String(PAGE_SIZE))
+    if (from) params.set('from', `${from}T00:00:00`)
+    if (to) params.set('to', `${to}T23:59:59`)
+
+    try {
+      const res = await fetch(
+        `${apiUrl}/api/v1/payments/accounts/logs?${params.toString()}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+      )
+      const data: ApiResponsePage<PaymentAccountLedgerItem> = await res.json()
+
+      if (!res.ok || !data.isSuccess || !Array.isArray(data.result)) {
+        setHistoryError(data.message || '사용 내역을 불러오지 못했습니다.')
+        setHistory([])
+        setTotalPages(1)
+        return
+      }
+
+      setHistory(data.result || [])
+      const totalPagesFromServer = data.pageInfo?.totalPages ?? 1
+      setTotalPages(Math.max(1, totalPagesFromServer))
+    } catch {
+      setHistoryError('사용 내역을 불러오지 못했습니다.')
+      setHistory([])
+      setTotalPages(1)
+    } finally {
+      setHistoryLoading(false)
+    }
+  }
+
+  // 최초 로딩 시 기본 기간으로 조회
+  useEffect(() => {
+    fetchHistory(0, startDate, endDate)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const balanceDisplay =
     balanceLoading && balance === null
       ? '조회 중...'
@@ -130,26 +184,24 @@ export default function MoneyHistoryPage() {
     else if (key === 'month3') start.setMonth(start.getMonth() - 3)
     else if (key === 'month6') start.setMonth(start.getMonth() - 6)
     if (key !== 'direct') {
-      setStartDate(start.toISOString().slice(0, 10))
-      setEndDate(end.toISOString().slice(0, 10))
+      const from = start.toISOString().slice(0, 10)
+      const to = end.toISOString().slice(0, 10)
+      setStartDate(from)
+      setEndDate(to)
+      fetchHistory(0, from, to)
     }
   }
 
   const handleSearch = () => {
     setCurrentPage(1)
-    alert(`기간 검색: ${startDate} ~ ${endDate}\n(데모 화면입니다.)`)
+    fetchHistory(0, startDate, endDate)
   }
 
-  const filteredHistory = mockHistory.filter((item) => {
-    const d = item.date
-    return d >= startDate && d <= endDate
-  })
-
-  const totalPages = Math.max(1, Math.ceil(filteredHistory.length / PAGE_SIZE))
-  const paginatedHistory = filteredHistory.slice(
-    (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE
-  )
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    // backend page 인덱스는 0부터 시작
+    fetchHistory(page - 1, startDate, endDate)
+  }
 
   return (
     <MypageLayout>
@@ -313,26 +365,84 @@ export default function MoneyHistoryPage() {
                 </tr>
               </thead>
               <tbody>
-                {paginatedHistory.map((item) => (
-                  <tr key={item.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
-                    <td style={{ padding: '14px 12px', color: '#666' }}>{item.dateDisplay}</td>
-                    <td style={{ padding: '14px 12px', textAlign: 'center' }}>
-                      <span style={item.typeStyle}>{item.type}</span>
-                    </td>
-                    <td style={{ padding: '14px 12px', color: '#333' }}>{item.description}</td>
-                    <td style={{ padding: '14px 12px', textAlign: 'right' }}>
-                      <span style={item.amountStyle}>{item.amount}</span>
-                    </td>
-                    <td style={{ padding: '14px 12px', textAlign: 'right', fontWeight: 600, color: '#333' }}>
-                      {item.balance}
+                {historyLoading && (
+                  <tr>
+                    <td colSpan={5} style={{ padding: '24px', textAlign: 'center', color: '#999' }}>
+                      조회 중입니다...
                     </td>
                   </tr>
-                ))}
+                )}
+                {!historyLoading && historyError && (
+                  <tr>
+                    <td colSpan={5} style={{ padding: '24px', textAlign: 'center', color: '#dc3545' }}>
+                      {historyError}
+                    </td>
+                  </tr>
+                )}
+                {!historyLoading && !historyError && history.length === 0 && (
+                  <tr>
+                    <td colSpan={5} style={{ padding: '24px', textAlign: 'center', color: '#999' }}>
+                      해당 기간 사용 내역이 없습니다.
+                    </td>
+                  </tr>
+                )}
+                {!historyLoading &&
+                  !historyError &&
+                  history.map((item, idx) => {
+                    const dateObj = new Date(item.createdAt)
+                    const dateDisplay = dateObj.toLocaleString('ko-KR', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })
+
+                    const typeLabel = item.isDeposit ? '충전' : '사용'
+                    const typeStyle = item.isDeposit
+                      ? { color: '#22c55e', fontWeight: 600 }
+                      : { color: '#666', fontWeight: 600 }
+
+                    const amountNumber = Number(item.amount || 0)
+                    const amountFormatted =
+                      (item.isDeposit ? '+' : '-') +
+                      new Intl.NumberFormat('ko-KR').format(Math.abs(amountNumber))
+                    const amountStyle = item.isDeposit
+                      ? { color: '#22c55e', fontWeight: 600 }
+                      : { color: '#333', fontWeight: 600 }
+
+                    const balanceFormatted = new Intl.NumberFormat('ko-KR').format(
+                      Number(item.balance || 0),
+                    )
+
+                    return (
+                      <tr key={`${item.createdAt}-${idx}`} style={{ borderBottom: '1px solid #f0f0f0' }}>
+                        <td style={{ padding: '14px 12px', color: '#666' }}>{dateDisplay}</td>
+                        <td style={{ padding: '14px 12px', textAlign: 'center' }}>
+                          <span style={typeStyle}>{typeLabel}</span>
+                        </td>
+                        <td style={{ padding: '14px 12px', color: '#333' }}>{item.content}</td>
+                        <td style={{ padding: '14px 12px', textAlign: 'right' }}>
+                          <span style={amountStyle}>{amountFormatted}</span>
+                        </td>
+                        <td
+                          style={{
+                            padding: '14px 12px',
+                            textAlign: 'right',
+                            fontWeight: 600,
+                            color: '#333',
+                          }}
+                        >
+                          {`${balanceFormatted}원`}
+                        </td>
+                      </tr>
+                    )
+                  })}
               </tbody>
             </table>
           </div>
 
-          {filteredHistory.length > 0 && totalPages > 0 && (
+          {history.length > 0 && totalPages > 0 && (
             <div
               style={{
                 display: 'flex',
@@ -345,7 +455,7 @@ export default function MoneyHistoryPage() {
             >
               <button
                 type="button"
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
                 style={{
                   padding: '8px 12px',
@@ -363,7 +473,7 @@ export default function MoneyHistoryPage() {
                 <button
                   key={page}
                   type="button"
-                  onClick={() => setCurrentPage(page)}
+                  onClick={() => handlePageChange(page)}
                   style={{
                     minWidth: '36px',
                     padding: '8px',
@@ -381,7 +491,7 @@ export default function MoneyHistoryPage() {
               ))}
               <button
                 type="button"
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
                 style={{
                   padding: '8px 12px',
@@ -395,19 +505,6 @@ export default function MoneyHistoryPage() {
               >
                 다음
               </button>
-            </div>
-          )}
-
-          {filteredHistory.length === 0 && (
-            <div
-              style={{
-                padding: '48px 24px',
-                textAlign: 'center',
-                color: '#999',
-                fontSize: '14px',
-              }}
-            >
-              해당 기간 사용 내역이 없습니다.
             </div>
           )}
         </div>

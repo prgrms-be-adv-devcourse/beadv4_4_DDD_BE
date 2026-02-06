@@ -2,6 +2,7 @@ package com.modeunsa.boundedcontext.payment.app.usecase;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.modeunsa.boundedcontext.payment.app.dto.order.PaymentOrderInfo;
@@ -13,8 +14,11 @@ import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
 import com.modeunsa.global.config.PaymentAccountConfig;
+import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
+import com.modeunsa.shared.payment.dto.PaymentDto;
+import com.modeunsa.shared.payment.event.PaymentRefundSuccessEvent;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -22,6 +26,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -32,6 +37,7 @@ class PaymentRefundUseCaseTest {
 
   @Mock private PaymentAccountLockManager paymentAccountLockManager;
   @Mock private PaymentAccountConfig paymentAccountConfig;
+  @Mock private EventPublisher eventPublisher;
 
   @InjectMocks private PaymentRefundUseCase paymentRefundUseCase;
 
@@ -155,5 +161,42 @@ class PaymentRefundUseCaseTest {
         .isInstanceOf(GeneralException.class)
         .extracting("errorStatus")
         .isEqualTo(ErrorStatus.PAYMENT_INSUFFICIENT_BALANCE);
+  }
+
+  @Test
+  @DisplayName("주문 취소 환불 처리 성공 - 이벤트 발행 내용 확인")
+  void executeRefundOrderCanceledVerifyEvent() {
+    // given
+    final PaymentOrderInfo request =
+        PaymentOrderInfo.builder()
+            .orderId(1L)
+            .orderNo("ORDER12345")
+            .memberId(buyerMember.getId())
+            .totalAmount(BigDecimal.valueOf(5000))
+            .build();
+
+    // LockedPaymentAccounts 생성 (작은 ID부터 순서대로)
+    Map<Long, PaymentAccount> accountsMap = new LinkedHashMap<>();
+    accountsMap.put(HOLDER_ID, holderAccount);
+    accountsMap.put(buyerMember.getId(), buyerAccount);
+    LockedPaymentAccounts lockedAccounts = new LockedPaymentAccounts(accountsMap);
+
+    // PaymentAccountLockManager Mock 설정
+    when(paymentAccountLockManager.getEntitiesForUpdateInOrder(HOLDER_ID, buyerMember.getId()))
+        .thenReturn(lockedAccounts);
+
+    // when
+    paymentRefundUseCase.execute(request, RefundEventType.ORDER_CANCELLED);
+
+    // then
+    ArgumentCaptor<PaymentRefundSuccessEvent> eventCaptor =
+        ArgumentCaptor.forClass(PaymentRefundSuccessEvent.class);
+    verify(eventPublisher).publish(eventCaptor.capture());
+
+    PaymentDto publishedPayment = eventCaptor.getValue().payment();
+    assertThat(publishedPayment.orderId()).isEqualTo(request.orderId());
+    assertThat(publishedPayment.orderNo()).isEqualTo(request.orderNo());
+    assertThat(publishedPayment.memberId()).isEqualTo(request.memberId());
+    assertThat(publishedPayment.totalAmount()).isEqualByComparingTo(request.totalAmount());
   }
 }

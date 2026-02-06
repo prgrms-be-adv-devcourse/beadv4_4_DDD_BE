@@ -7,7 +7,6 @@ import com.modeunsa.boundedcontext.product.app.ProductFacade;
 import com.modeunsa.shared.member.event.MemberBasicInfoUpdatedEvent;
 import com.modeunsa.shared.member.event.MemberSignupEvent;
 import com.modeunsa.shared.member.event.SellerRegisteredEvent;
-import com.modeunsa.shared.order.event.OrderCancelRequestEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,12 +17,6 @@ import org.springframework.transaction.event.TransactionalEventListener;
 public class ProductEventListener {
 
   private final ProductFacade productFacade;
-
-  @TransactionalEventListener(phase = AFTER_COMMIT)
-  @Transactional(propagation = REQUIRES_NEW)
-  public void handleOrderCanceledEvent(OrderCancelRequestEvent event) {
-    productFacade.restoreStock(event.getOrderDto());
-  }
 
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Transactional(propagation = REQUIRES_NEW)

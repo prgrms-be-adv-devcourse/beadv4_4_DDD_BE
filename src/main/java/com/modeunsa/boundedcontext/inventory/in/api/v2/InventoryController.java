@@ -37,10 +37,8 @@ public class InventoryController {
       Long productId,
       @Valid @RequestBody InventoryUpdateRequest inventoryUpdateRequest) {
 
-    // TODO: CustomUserDetails에서 sellerId가져오기
-    Long sellerId = 1L;
     InventoryUpdateResponse response =
-        inventoryFacade.updateInventory(sellerId, productId, inventoryUpdateRequest);
+        inventoryFacade.updateInventory(user.getSellerId(), productId, inventoryUpdateRequest);
 
     return ApiResponse.onSuccess(SuccessStatus.OK, response);
   }

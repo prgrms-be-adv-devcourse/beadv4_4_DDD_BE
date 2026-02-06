@@ -2,6 +2,7 @@ package com.modeunsa.global.config;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
+import com.modeunsa.boundedcontext.file.out.s3.S3Properties;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.springframework.beans.factory.annotation.Autowired;

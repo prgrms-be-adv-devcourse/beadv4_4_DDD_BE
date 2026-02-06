@@ -18,8 +18,10 @@ public class ProductValidateOrderUseCase {
         .map(
             product -> {
               ProductOrderDto dto = productMapper.toProductOrderDto(product);
-              dto.setIsAvailable(ProductPolicy.ORDERABLE_SALE_STATUES.contains(dto.saleStatus()));
-              return dto;
+              ProductOrderDto finalDto =
+                  dto.setIsAvailable(
+                      ProductPolicy.ORDERABLE_SALE_STATUES.contains(dto.saleStatus()));
+              return finalDto;
             })
         .toList();
   }

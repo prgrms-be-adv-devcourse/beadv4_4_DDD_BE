@@ -14,8 +14,6 @@ import com.modeunsa.shared.product.dto.ProductDetailResponse;
 import com.modeunsa.shared.product.dto.ProductOrderResponse;
 import com.modeunsa.shared.product.dto.ProductOrderValidateRequest;
 import com.modeunsa.shared.product.dto.ProductResponse;
-import com.modeunsa.shared.product.dto.ProductStockResponse;
-import com.modeunsa.shared.product.dto.ProductStockUpdateRequest;
 import com.modeunsa.shared.product.dto.ProductUpdateRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -38,7 +36,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Product", description = "상품 도메인 API")
-@RestController
+@RestController("ProductV1Controller")
 @RequestMapping("/api/v1/products")
 @RequiredArgsConstructor
 public class ProductController {
@@ -110,14 +108,6 @@ public class ProductController {
   public List<ProductOrderResponse> validateOrderProducts(
       @Valid @RequestBody ProductOrderValidateRequest productOrderValidateRequest) {
     return productFacade.getProducts(productOrderValidateRequest.productIds());
-  }
-
-  @Deprecated
-  @Operation(summary = "재고 차감 API", description = "주문 생성 시 재고를 차감합니다.")
-  @PatchMapping("/stock")
-  public List<ProductStockResponse> deductStock(
-      @Valid @RequestBody ProductStockUpdateRequest productStockUpdateRequest) {
-    return productFacade.deductStock(productStockUpdateRequest);
   }
 
   @Operation(summary = "(판매자용) 상품 리스트 조회", description = "판매자용 상품 리스트를 조회합니다.")
