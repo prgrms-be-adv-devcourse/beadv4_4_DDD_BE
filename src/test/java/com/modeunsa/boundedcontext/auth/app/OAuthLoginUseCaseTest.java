@@ -1,9 +1,8 @@
 package com.modeunsa.boundedcontext.auth.app;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.modeunsa.boundedcontext.auth.app.usecase.AuthTokenIssueUseCase;
@@ -19,7 +18,6 @@ import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.shared.auth.dto.JwtTokenResponse;
 import com.modeunsa.shared.auth.dto.OAuthProviderTokenResponse;
 import com.modeunsa.shared.auth.dto.OAuthUserInfo;
-import java.time.Duration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -52,33 +50,8 @@ class OAuthLoginUseCaseTest {
 
   @BeforeEach
   void setUp() {
+    // Redis 기본 설정만 유지
     given(redisTemplate.opsForValue()).willReturn(valueOperations);
-
-    // 1. Redis에 저장될 값을 임시로 담을 Map 생성 (테스트 격리)
-    java.util.Map<String, String> redisData = new java.util.HashMap<>();
-
-    // 2. setIfAbsent 호출 시, 키와 값을 Map에 저장하고 true 반환
-    given(valueOperations.setIfAbsent(anyString(), anyString(), any(Duration.class)))
-        .willAnswer(
-            invocation -> {
-              String key = invocation.getArgument(0);
-              String value = invocation.getArgument(1);
-              redisData.put(key, value);
-              return true;
-            });
-
-    // 3. get 호출 시, Map에 저장된 값을 반환 (State 검증 로직 포함)
-    given(valueOperations.get(anyString()))
-        .willAnswer(
-            invocation -> {
-              String key = invocation.getArgument(0);
-              // 기존 로직: state 검증용
-              if (key.equals("oauth:state:" + state)) {
-                return provider.name();
-              }
-              // 락 검증용: setIfAbsent 때 저장된 값 반환
-              return redisData.get(key);
-            });
   }
 
   @Nested
@@ -97,6 +70,9 @@ class OAuthLoginUseCaseTest {
       OAuthAccount socialAccount = OAuthAccount.builder().member(member).build();
       JwtTokenResponse expectedToken = JwtTokenResponse.of("at", "rt", 3600L, 604800L);
 
+      // Redis stubbing - 각 테스트에서 필요한 것만 설정
+      setupRedisForLogin(userInfo.providerId());
+
       given(oauthClientFactory.getClient(provider)).willReturn(oauthClient);
       given(oauthClient.getToken(code, redirectUri)).willReturn(tokenResponse);
       given(oauthClient.getUserInfo(tokenResponse.accessToken())).willReturn(userInfo);
@@ -109,7 +85,9 @@ class OAuthLoginUseCaseTest {
 
       // then
       assertThat(result).isEqualTo(expectedToken);
-      verify(redisTemplate).delete("lock:auth:" + provider + ":" + userInfo.providerId());
+
+      // State 삭제 검증
+      verify(redisTemplate, times(1)).delete("oauth:state:" + state);
     }
 
     @Test
@@ -124,6 +102,9 @@ class OAuthLoginUseCaseTest {
       OAuthAccount socialAccount = OAuthAccount.builder().member(member).build();
       JwtTokenResponse expectedToken = JwtTokenResponse.of("new_at", "new_rt", 3600L, 604800L);
 
+      // Redis stubbing
+      setupRedisForLogin(userInfo.providerId());
+
       given(oauthClientFactory.getClient(provider)).willReturn(oauthClient);
       given(oauthClient.getToken(code, redirectUri)).willReturn(tokenResponse);
       given(oauthClient.getUserInfo(tokenResponse.accessToken())).willReturn(userInfo);
@@ -137,7 +118,16 @@ class OAuthLoginUseCaseTest {
       // then
       assertThat(result).isEqualTo(expectedToken);
       verify(oauthAccountResolveUseCase).execute(provider, userInfo);
+
+      // State 삭제 검증
+      verify(redisTemplate, times(1)).delete("oauth:state:" + state);
     }
+  }
+
+  // Helper Methods
+  private void setupRedisForLogin(String providerId) {
+    // State 검증용 - get 호출 시 provider 반환
+    given(valueOperations.get("oauth:state:" + state)).willReturn(provider.name());
   }
 
   private Member createMemberWithId(Long id) {
