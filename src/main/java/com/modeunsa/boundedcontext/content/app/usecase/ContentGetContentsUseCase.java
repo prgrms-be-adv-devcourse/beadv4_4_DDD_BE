@@ -1,8 +1,8 @@
 package com.modeunsa.boundedcontext.content.app.usecase;
 
-import com.modeunsa.boundedcontext.content.app.dto.ContentResponse;
-import com.modeunsa.boundedcontext.content.app.mapper.ContentMapper;
+import com.modeunsa.boundedcontext.content.app.ContentMapper;
 import com.modeunsa.boundedcontext.content.out.ContentRepository;
+import com.modeunsa.shared.content.dto.ContentResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

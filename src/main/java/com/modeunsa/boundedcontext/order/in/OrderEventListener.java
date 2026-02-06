@@ -7,6 +7,7 @@ import com.modeunsa.boundedcontext.order.app.OrderFacade;
 import com.modeunsa.shared.member.event.MemberBasicInfoUpdatedEvent;
 import com.modeunsa.shared.member.event.MemberDeliveryAddressSetAsDefaultEvent;
 import com.modeunsa.shared.member.event.MemberSignupEvent;
+import com.modeunsa.shared.payment.event.PaymentFinalFailureEvent;
 import com.modeunsa.shared.payment.event.PaymentSuccessEvent;
 import com.modeunsa.shared.product.event.ProductCreatedEvent;
 import com.modeunsa.shared.product.event.ProductUpdatedEvent;
@@ -36,7 +37,13 @@ public class OrderEventListener {
   @Transactional(propagation = REQUIRES_NEW)
   public void handle(MemberDeliveryAddressSetAsDefaultEvent event) {
     orderFacade.createDeliveryAddress(
-        event.memberId(), event.zipCode(), event.address(), event.addressDetail());
+        event.memberId(),
+        event.recipientName(),
+        event.recipientPhone(),
+        event.zipCode(),
+        event.address(),
+        event.addressDetail(),
+        event.addressName());
   }
 
   @TransactionalEventListener(phase = AFTER_COMMIT)
@@ -55,5 +62,11 @@ public class OrderEventListener {
   @Transactional(propagation = REQUIRES_NEW)
   public void handle(PaymentSuccessEvent event) {
     orderFacade.approveOrder(event.payment());
+  }
+
+  @TransactionalEventListener(phase = AFTER_COMMIT)
+  @Transactional(propagation = REQUIRES_NEW)
+  public void handle(PaymentFinalFailureEvent event) {
+    orderFacade.rejectOrder(event.payment());
   }
 }

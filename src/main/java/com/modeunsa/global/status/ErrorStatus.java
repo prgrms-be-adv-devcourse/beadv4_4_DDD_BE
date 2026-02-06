@@ -80,29 +80,24 @@ public enum ErrorStatus {
   ORDER_CANNOT_CANCEL(HttpStatus.BAD_REQUEST, "ORDER_400_002", "현재 주문 상태에서는 주문을 취소할 수 없습니다."),
   ORDER_CART_EMPTY(HttpStatus.BAD_REQUEST, "ORDER_400_003", "장바구니가 비어 있습니다."),
   ORDER_CANNOT_REFUND(HttpStatus.BAD_REQUEST, "ORDER_400_004", "환불 가능한 상태나 기간이 아닙니다."),
+  PRODUCT_NOT_ON_SALE(HttpStatus.BAD_REQUEST, "ORDER_400_005", "판매중인 상품이 아닙니다."),
 
   ORDER_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_404_001", "없는 상품입니다."),
   ORDER_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_404_002", "없는 회원입니다."),
   ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_404_003", "없는 주문입니다."),
-
+  ORDER_CARTITEM_EMPTY(HttpStatus.NOT_FOUND, "ORDER_404_004", "없는 장바구니 상품입니다."),
   ORDER_ACCESS_DENIED(HttpStatus.FORBIDDEN, "ORDER_403_001", "해당 주문에 대한 접근 권한이 없습니다."),
 
   // Product 400
-  PRODUCT_DESCRIPTION_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_001", "상품 설명은 필수입니다."),
-  PRODUCT_CATEGORY_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_002", "카테고리는 필수입니다."),
-  PRODUCT_SALE_PRICE_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_003", "판매가는 0원 이상이어야 합니다."),
-  PRODUCT_PRICE_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_004", "정가는 0원 이상이어야 합니다."),
-  PRODUCT_QTY_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_005", "재고 수량은 0보다 커야 합니다."),
-  INVALID_PRODUCT_STATUS(HttpStatus.BAD_REQUEST, "PRODUCT_400_007", "잘못된 상품 등록 상태입니다."),
-  INVALID_PRODUCT_UPDATE_FIELD(HttpStatus.BAD_REQUEST, "PRODUCT_400_008", "수정 불가한 필드입니다."),
-  INVALID_PRODUCT_MEMBER(HttpStatus.BAD_REQUEST, "PRODUCT_400_009", "판매자 정보가 다릅니다."),
-  PRODUCT_FIELD_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_010", "필수값을 입력해주세요."),
+  INVALID_PRODUCT_STATUS(HttpStatus.BAD_REQUEST, "PRODUCT_400_001", "잘못된 상품 등록 상태입니다."),
+  INVALID_PRODUCT_UPDATE_FIELD(HttpStatus.BAD_REQUEST, "PRODUCT_400_002", "수정 불가한 필드입니다."),
+  INVALID_PRODUCT_MEMBER(HttpStatus.BAD_REQUEST, "PRODUCT_400_003", "판매자 정보가 다릅니다."),
+  PRODUCT_FIELD_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_004", "필수값을 입력해주세요."),
+  PRODUCT_SELLER_INCORRECT(HttpStatus.BAD_REQUEST, "PRODUCT_400_005", "해당 판매자의 상품이 아닙니다."),
   // PRODUCT 404
   PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT_404_001", "상품이 존재하지 않습니다."),
   PRODUCT_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT_404_002", "존재하지 않는 회원입니다."),
   PRODUCT_SELLER_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT_404_003", "존재하지 않는 판매자입니다."),
-  // PRODUCT 409
-  PRODUCT_STOCK_LOCK_FAILURE(HttpStatus.CONFLICT, "PRODUCT_409_001", "재고 처리 중 락 획득에 실패했습니다."),
 
   // Payment
   PAYMENT_MEMBER_DUPLICATE(HttpStatus.BAD_REQUEST, "PAYMENT_400_001", "이미 등록된 결제 회원 정보가 존재합니다."),
@@ -116,6 +111,7 @@ public enum ErrorStatus {
   PAYMENT_INVALID_REQUEST_TOSS_API(
       HttpStatus.BAD_REQUEST, "PAYMENT_400_008", "토스 페이먼츠 API 응답값이 올바르지 않습니다."),
   PAYMENT_REJECT_TOSS_PAYMENT(HttpStatus.BAD_REQUEST, "PAYMENT_400_009", "결제 승인 요청이 거절되었습니다."),
+  PAYMENT_INVALID_DATE_REQUEST(HttpStatus.BAD_REQUEST, "PAYMENT_400_010", "유효하지 않은 날짜 요청입니다."),
 
   PAYMENT_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_001", "결제 회원 정보를 찾을 수 없습니다."),
   PAYMENT_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_002", "결제 계좌 정보를 찾을 수 없습니다."),
@@ -123,8 +119,11 @@ public enum ErrorStatus {
 
   PAYMENT_FAILED_LOCK_ACQUIRE(
       HttpStatus.INTERNAL_SERVER_ERROR, "PAYMENT_500_001", "결제 처리 중 락을 획득하지 못했습니다."),
+
+  PAYMENT_LOCK_TIMEOUT(
+      HttpStatus.INTERNAL_SERVER_ERROR, "PAYMENT_500_002", "결제 처리 중 락 획득이 시간 초과되었습니다."),
   PAYMENT_SYSTEM_ERROR(
-      HttpStatus.INTERNAL_SERVER_ERROR, "PAYMENT_500_002", "결제 처리 중 시스템 오류가 발생했습니다."),
+      HttpStatus.INTERNAL_SERVER_ERROR, "PAYMENT_500_003", "결제 처리 중 시스템 오류가 발생했습니다."),
 
   // Content 400
   CONTENT_TAG_REQUIRED(HttpStatus.BAD_REQUEST, "CONTENT_400_001", "TAG는 NULL일 수 없습니다."),
@@ -134,6 +133,8 @@ public enum ErrorStatus {
   CONTENT_IMAGE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "CONTENT_400_005", "IMAGE는 최대 5개입니다."),
   CONTENT_TEXT_LENGTH_EXCEEDED(HttpStatus.BAD_REQUEST, "CONTENT_400_006", "TEXT는 최대 500자입니다."),
   CONTENT_TEXT_REQUIRED(HttpStatus.BAD_REQUEST, "CONTENT_400_007", "TEXT는 NULL일 수 없습니다."),
+  CONTENT_COMMENT_LENGTH_EXCEEDED(
+      HttpStatus.BAD_REQUEST, "CONTENT_400_008", "COMMENT는 100자를 초과할 수 없습니다."),
 
   // CONTENT 403
   CONTENT_FORBIDDEN(HttpStatus.FORBIDDEN, "CONTENT_403_001", "콘텐츠 내에서 금지된 요청입니다."),
@@ -141,6 +142,7 @@ public enum ErrorStatus {
   // CONTENT 404
   CONTENT_NOT_FOUND(HttpStatus.NOT_FOUND, "CONTENT_404_001", "CONTENT 정보를 찾을 수 없습니다."),
   CONTENT_ALREADY_DELETE(HttpStatus.NOT_FOUND, "CONTENT_404_002", "이 CONTENT는 이미 삭제되었습니다."),
+  CONTENT_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "CONTENT_404_003", "COMMENT를 찾을 수 없습니다."),
 
   // Settlement 400
   SETTLEMENT_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_001", "구매 확정 일자는 필수입니다."),
@@ -153,6 +155,9 @@ public enum ErrorStatus {
   IMAGE_FILE_REQUIRED(HttpStatus.BAD_REQUEST, "IMAGE_400_001", "이미지 파일은 필수입니다."),
   IMAGE_FILE_EMPTY(HttpStatus.BAD_REQUEST, "IMAGE_400_002", "이미지 파일이 비어있습니다."),
   IMAGE_FILE_EXTENSION_NOT_SUPPORTED(HttpStatus.BAD_REQUEST, "IMAGE_400_003", "지원하지 않는 파일 형식입니다."),
+  S3_FILE_NOT_FOUND(HttpStatus.BAD_REQUEST, "IMAGE_400_004", "S3 파일을 찾을 수 없습니다."),
+  S3_OPERATION_FAILED(HttpStatus.BAD_REQUEST, "IMAGE_400_005", "S3 실행에 실패했습니다."),
+  IMAGE_RAW_KEY_INVALID(HttpStatus.BAD_REQUEST, "IMAGE_400_006", "key 형식이 잘못되었습니다"),
   // S3 Image 500
   IMAGE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "IMAGE_500_001", "이미지 업로드에 실패했습니다."),
 
@@ -161,7 +166,12 @@ public enum ErrorStatus {
   ELASTICSEARCH_INDEX_FAILED(HttpStatus.NOT_FOUND, "ELASTICSEARCH_400_002", "인덱싱에 실패하였습니다."),
   ELASTICSEARCH_DELETE_FAILED(HttpStatus.NOT_FOUND, "ELASTICSEARCH_400_003", "삭제에 실패하였습니다."),
   ELASTICSEARCH_BULKINDEX_FAILED(HttpStatus.NOT_FOUND, "ELASTICSEARCH_400_004", "대량 인덱싱에 실패하였습니다."),
-  ;
+
+  // Inventory
+  INVENTORY_NOT_FOUND(HttpStatus.NOT_FOUND, "INVENTORY_404_001", "상품 재고가 등록되지 않았습니다."),
+  INVENTORY_ACCESS_DENIED(HttpStatus.FORBIDDEN, "INVENTORY_403_001", "해당 재고에 대한 접근 권한이 없습니다."),
+  INVALID_STOCK_QUANTITY(HttpStatus.BAD_REQUEST, "INVENTORY_400_001", "현재 예약된 재고 수량보다 적을 수 없습니다."),
+  INSUFFICIENT_STOCK(HttpStatus.BAD_REQUEST, "INVENTORY_400_002", "잔여 재고가 부족하여 주문할 수 없습니다.");
 
   private final HttpStatus httpStatus;
   private final String code;

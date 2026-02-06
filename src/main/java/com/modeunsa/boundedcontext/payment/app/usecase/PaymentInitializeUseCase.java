@@ -4,9 +4,10 @@ import static com.modeunsa.global.status.ErrorStatus.PAYMENT_DUPLICATE;
 
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequest;
+import com.modeunsa.boundedcontext.payment.app.support.PaymentSupport;
 import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
-import com.modeunsa.boundedcontext.payment.out.PaymentRepository;
+import com.modeunsa.boundedcontext.payment.out.PaymentStore;
 import com.modeunsa.global.exception.GeneralException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -19,24 +20,31 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class PaymentInitializeUseCase {
 
-  private final PaymentRepository paymentRepository;
+  private final PaymentSupport paymentSupport;
+  private final PaymentStore paymentStore;
 
   /*
    * 결제 초기화 : 기존 결제 건이 있으면 재시도, 없으면 신규 생성
    * 동시성 이슈를 대비해 복합키 중복 예외 처리 포함
    */
-  public PaymentProcessContext execute(PaymentRequest paymentRequest) {
-    PaymentId paymentId = PaymentId.create(paymentRequest.buyerId(), paymentRequest.orderNo());
+  public PaymentProcessContext execute(Long memberId, PaymentRequest paymentRequest) {
+    PaymentId paymentId = PaymentId.create(memberId, paymentRequest.orderNo());
 
-    Optional<Payment> findPayment = paymentRepository.findById(paymentId);
+    Optional<Payment> findPayment = paymentSupport.getOptPaymentById(paymentId);
     if (findPayment.isPresent()) {
       Payment payment = findPayment.get();
-      payment.changePendingStatus();
+      payment.initPayment(paymentRequest.paymentDeadlineAt());
       return PaymentProcessContext.fromPaymentForInitialize(payment);
     }
 
     Payment payment =
-        Payment.create(paymentId, paymentRequest.orderId(), paymentRequest.totalAmount());
+        Payment.create(
+            paymentId,
+            paymentRequest.orderId(),
+            paymentRequest.totalAmount(),
+            paymentRequest.paymentDeadlineAt(),
+            paymentRequest.providerType(),
+            paymentRequest.paymentPurpose());
     return savePayment(payment);
   }
 
@@ -48,7 +56,7 @@ public class PaymentInitializeUseCase {
 
     try {
       // 복합키 저장을 위해 Payment 를 먼저 저장 후 로그를 추가
-      Payment saved = paymentRepository.save(payment);
+      Payment saved = paymentStore.store(payment);
       saved.addInitialLog(saved);
       return PaymentProcessContext.fromPaymentForInitialize(saved);
     } catch (DataIntegrityViolationException e) {

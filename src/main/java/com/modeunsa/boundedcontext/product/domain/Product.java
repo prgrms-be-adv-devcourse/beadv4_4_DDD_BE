@@ -1,12 +1,13 @@
 package com.modeunsa.boundedcontext.product.domain;
 
-import com.modeunsa.boundedcontext.product.domain.exception.InvalidStockException;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -24,7 +25,12 @@ import lombok.Setter;
 
 @Entity
 @Getter
-@Table(name = "product_product")
+@Table(
+    name = "product_product",
+    indexes = {
+      @Index(name = "idx_product_seller_id", columnList = "seller_id"),
+      @Index(name = "idx_product_category", columnList = "category")
+    })
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
@@ -60,9 +66,7 @@ public class Product extends GeneratedIdAndAuditedEntity {
   // TODO: 이벤트/트랜잭션으로 증감 관리 (정합성 전략 필요)
   @Builder.Default private int favoriteCount = 0;
 
-  @Builder.Default private int stock = 0;
-
-  @OneToMany(mappedBy = "product")
+  @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
   @OrderBy("sortOrder ASC")
   @Builder.Default
   private List<ProductImage> images = new ArrayList<>();
@@ -73,8 +77,7 @@ public class Product extends GeneratedIdAndAuditedEntity {
       ProductCategory category,
       String description,
       BigDecimal salePrice,
-      BigDecimal price,
-      int stock) {
+      BigDecimal price) {
     return Product.builder()
         .seller(seller)
         .name(name)
@@ -86,7 +89,6 @@ public class Product extends GeneratedIdAndAuditedEntity {
         .saleStatus(SaleStatus.NOT_SALE)
         .productStatus(ProductStatus.DRAFT)
         .favoriteCount(0)
-        .stock(stock)
         .build();
   }
 
@@ -96,8 +98,7 @@ public class Product extends GeneratedIdAndAuditedEntity {
       String description,
       SaleStatus saleStatus,
       BigDecimal price,
-      BigDecimal salePrice,
-      Integer stock) {
+      BigDecimal salePrice) {
 
     if (name != null) {
       this.name = name;
@@ -117,34 +118,21 @@ public class Product extends GeneratedIdAndAuditedEntity {
     if (salePrice != null) {
       this.salePrice = salePrice;
     }
-    if (stock != null) {
-      this.stock = stock;
-    }
-    // TODO: image 수정 추가
   }
 
   public void updateProductStatus(ProductStatus productStatus) {
     this.productStatus = productStatus;
   }
 
-  public void decreaseStock(int requestedQty) {
-    if (this.stock < requestedQty) {
-      throw new InvalidStockException(this.stock, requestedQty);
-    }
-    this.stock = this.stock - requestedQty;
-  }
-
-  public void increaseStock(int requestedQty) {
-    this.stock = this.stock + requestedQty;
-  }
-
   public void addImage(ProductImage image) {
     images.add(image);
-    image.setProduct(this);
   }
 
-  public void removeImage(ProductImage image) {
-    images.remove(image);
-    image.setProduct(null);
+  public void clearImages() {
+    this.images.clear();
+  }
+
+  public void changeSaleStatus(SaleStatus saleStatus) {
+    this.saleStatus = saleStatus;
   }
 }

@@ -1,0 +1,21 @@
+enabled: true
+image:
+  tag: "latest"
+service:
+  type: NodePort
+  nodePort: 30090
+scrapeInterval: "15s"
+scrapeConfigs:
+  - jobName: "modeunsa-app"
+    metricsPath: "/actuator/prometheus"
+    scrapeInterval: "15s"
+    scrapeTimeout: "10s"
+    targets:
+      - "modeunsa-app:8080"
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 150m
+    memory: 128Mi

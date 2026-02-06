@@ -1,12 +1,16 @@
 package com.modeunsa.global.exception;
 
+import com.modeunsa.global.file.exception.S3FileNotFoundException;
+import com.modeunsa.global.file.exception.S3OperationException;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.status.ErrorStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
+import java.nio.file.AccessDeniedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -73,6 +77,30 @@ public class ExceptionAdvice {
     storeException(e);
 
     return ApiResponse.onFailure((ErrorStatus.BAD_REQUEST));
+  }
+
+  @ExceptionHandler(S3OperationException.class)
+  public ResponseEntity<ApiResponse> handleS3OperationException(Exception e) {
+    storeException(e);
+
+    return ApiResponse.onFailure(ErrorStatus.S3_OPERATION_FAILED, e.getMessage());
+  }
+
+  @ExceptionHandler(S3FileNotFoundException.class)
+  public ResponseEntity<ApiResponse> handleS3FileNotFoundException(Exception e) {
+    storeException(e);
+
+    return ApiResponse.onFailure(ErrorStatus.S3_FILE_NOT_FOUND, e.getMessage());
+  }
+
+  @ExceptionHandler({AccessDeniedException.class, AuthorizationDeniedException.class})
+  public ResponseEntity<ApiResponse> handleAccessDeniedException(Exception e) {
+
+    log.warn("Access Denied: {}", e.getMessage());
+
+    storeException(e);
+
+    return ApiResponse.onFailure(ErrorStatus.AUTH_ACCESS_DENIED);
   }
 
   private void storeException(Exception e) {

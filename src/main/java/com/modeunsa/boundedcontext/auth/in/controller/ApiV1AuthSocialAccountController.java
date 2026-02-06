@@ -4,6 +4,7 @@ import com.modeunsa.boundedcontext.auth.app.facade.OAuthAccountFacade;
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import com.modeunsa.boundedcontext.auth.in.util.AuthRequestUtils;
 import com.modeunsa.global.response.ApiResponse;
+import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.global.status.SuccessStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -29,10 +30,11 @@ public class ApiV1AuthSocialAccountController {
   @Operation(summary = "소셜 계정 연동 URL 조회", description = "마이페이지에서 소셜 계정 연동을 위한 OAuth URL을 반환합니다.")
   @GetMapping("/{provider}/link-url")
   public ResponseEntity<ApiResponse> getLinkUrl(
-      @AuthenticationPrincipal Long memberId,
+      @AuthenticationPrincipal CustomUserDetails user,
       @Parameter(description = "OAuth 제공자", example = "kakao") @PathVariable String provider,
       @Parameter(description = "리다이렉트 URI") @RequestParam(required = false) String redirectUri) {
 
+    Long memberId = user.getMemberId();
     OAuthProvider oauthProvider = AuthRequestUtils.findProvider(provider);
     String linkUrl = oauthAccountFacade.getLinkUrl(memberId, oauthProvider, redirectUri);
 
@@ -42,12 +44,13 @@ public class ApiV1AuthSocialAccountController {
   @Operation(summary = "소셜 계정 연동", description = "OAuth 인증 완료 후 소셜 계정을 현재 회원에 연동합니다.")
   @PostMapping("/{provider}/link")
   public ResponseEntity<ApiResponse> linkSocialAccount(
-      @AuthenticationPrincipal Long memberId,
+      @AuthenticationPrincipal CustomUserDetails user,
       @Parameter(description = "OAuth 제공자", example = "kakao") @PathVariable String provider,
       @Parameter(description = "인증 코드", required = true) @RequestParam String code,
       @Parameter(description = "리다이렉트 URI") @RequestParam(required = false) String redirectUri,
       @Parameter(description = "state 값", required = true) @RequestParam String state) {
 
+    Long memberId = user.getMemberId();
     OAuthProvider oauthProvider = AuthRequestUtils.findProvider(provider);
     oauthAccountFacade.linkSocialAccount(memberId, oauthProvider, code, redirectUri, state);
 

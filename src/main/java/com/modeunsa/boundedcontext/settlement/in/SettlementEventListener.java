@@ -19,7 +19,7 @@ public class SettlementEventListener {
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Transactional(propagation = REQUIRES_NEW)
   public void handle(MemberSignupEvent event) {
-    settlementFacade.syncMember(event.memberId(), event.role().name());
+    settlementFacade.syncMember(event.memberId(), event.role());
   }
 
   @TransactionalEventListener(phase = AFTER_COMMIT)

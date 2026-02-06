@@ -2,9 +2,12 @@ package com.modeunsa.boundedcontext.product.app;
 
 import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
+import com.modeunsa.boundedcontext.product.domain.ProductFavorite;
 import com.modeunsa.boundedcontext.product.domain.ProductMember;
 import com.modeunsa.boundedcontext.product.domain.ProductMemberSeller;
 import com.modeunsa.boundedcontext.product.domain.ProductPolicy;
+import com.modeunsa.boundedcontext.product.domain.ProductStatus;
+import com.modeunsa.boundedcontext.product.domain.SaleStatus;
 import com.modeunsa.boundedcontext.product.out.ProductFavoriteRepository;
 import com.modeunsa.boundedcontext.product.out.ProductMemberRepository;
 import com.modeunsa.boundedcontext.product.out.ProductMemberSellerRepository;
@@ -30,19 +33,40 @@ public class ProductSupport {
     return productMemberSellerRepository.existsById(sellerId);
   }
 
+  public boolean existsByMemberId(Long memberId) {
+    return productMemberRepository.existsById(memberId);
+  }
+
   public Product getProduct(Long productId) {
     return productRepository
         .findById(productId)
         .orElseThrow(() -> new GeneralException(ErrorStatus.PRODUCT_NOT_FOUND));
   }
 
-  public Page<Product> getProducts(Long memberId, ProductCategory category, Pageable pageable) {
-    // TODO: seller 가 보는 조회 쿼리와 member가 보는 조회 쿼리 다르게 가져가기
+  public Product getProduct(Long productId, Long sellerId) {
+    return productRepository
+        .findByIdAndSellerId(productId, sellerId)
+        .orElseThrow(() -> new GeneralException(ErrorStatus.PRODUCT_SELLER_INCORRECT));
+  }
+
+  public Page<Product> getProducts(ProductCategory category, Pageable pageable) {
     return productRepository.findAllByCategoryAndSaleStatusInAndProductStatusIn(
         category,
         ProductPolicy.DISPLAYABLE_SALE_STATUES_FOR_ALL,
         ProductPolicy.DISPLAYABLE_PRODUCT_STATUSES_FOR_ALL,
         pageable);
+  }
+
+  public Page<Product> getProducts(
+      Long sellerId,
+      String name,
+      ProductCategory category,
+      SaleStatus saleStatus,
+      ProductStatus productStatus,
+      Pageable pageable) {
+    ProductMemberSeller seller = this.getProductMemberSeller(sellerId);
+    return productRepository.findAllBySeller(
+        seller, name, category, saleStatus, productStatus, pageable);
   }
 
   public List<Product> getProducts(List<Long> productIds) {
@@ -83,5 +107,9 @@ public class ProductSupport {
         throw new GeneralException(ErrorStatus.PRODUCT_NOT_FOUND);
       }
     }
+  }
+
+  public Page<ProductFavorite> getProductFavorites(Long memberId, Pageable pageable) {
+    return productFavoriteRepository.findAllByMemberId(memberId, pageable);
   }
 }

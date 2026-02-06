@@ -1,13 +1,21 @@
 package com.modeunsa.boundedcontext.payment.app.lock;
 
+import static com.modeunsa.global.status.ErrorStatus.PAYMENT_FAILED_LOCK_ACQUIRE;
+import static com.modeunsa.global.status.ErrorStatus.PAYMENT_LOCK_TIMEOUT;
+
 import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
+import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.lock.EntityLockManager;
+import jakarta.persistence.LockTimeoutException;
+import jakarta.persistence.PessimisticLockException;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.stereotype.Component;
 
 /*
@@ -29,18 +37,25 @@ public class PaymentAccountLockManager implements EntityLockManager<PaymentAccou
   @Override
   public LockedPaymentAccounts getEntitiesForUpdateInOrder(Long... memberIds) {
 
-    // ID 순서 대로 정렬
-    List<Long> sortedIds = Arrays.stream(memberIds).sorted().toList();
+    try {
 
-    // 순서 유지를 위해 LinkedHashMap 사용
-    Map<Long, PaymentAccount> paymentAccounts = new LinkedHashMap<>();
+      // ID 순서 대로 정렬
+      List<Long> sortedIds = Arrays.stream(memberIds).sorted().toList();
 
-    for (Long memberId : sortedIds) {
-      PaymentAccount paymentAccount =
-          paymentAccountSupport.getPaymentAccountByMemberIdForUpdate(memberId);
-      paymentAccounts.put(memberId, paymentAccount);
+      // 순서 유지를 위해 LinkedHashMap 사용
+      Map<Long, PaymentAccount> paymentAccounts = new LinkedHashMap<>();
+
+      for (Long memberId : sortedIds) {
+        PaymentAccount paymentAccount =
+            paymentAccountSupport.getPaymentAccountByMemberIdForUpdate(memberId);
+        paymentAccounts.put(memberId, paymentAccount);
+      }
+
+      return new LockedPaymentAccounts(paymentAccounts);
+    } catch (CannotAcquireLockException | LockTimeoutException e) {
+      throw new GeneralException(PAYMENT_LOCK_TIMEOUT, e);
+    } catch (PessimisticLockingFailureException | PessimisticLockException e) {
+      throw new GeneralException(PAYMENT_FAILED_LOCK_ACQUIRE, e);
     }
-
-    return new LockedPaymentAccounts(paymentAccounts);
   }
 }

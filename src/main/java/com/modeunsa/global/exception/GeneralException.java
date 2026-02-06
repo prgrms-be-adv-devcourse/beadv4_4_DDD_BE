@@ -38,4 +38,10 @@ public class GeneralException extends RuntimeException {
     this.errorStatus = errorStatus;
     this.data = data;
   }
+
+  public GeneralException(ErrorStatus errorStatus, Throwable cause) {
+    super(errorStatus.getMessage(), cause);
+    this.errorStatus = errorStatus;
+    this.data = null;
+  }
 }

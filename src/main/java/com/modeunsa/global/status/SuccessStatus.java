@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 public enum SuccessStatus {
   OK(HttpStatus.OK, "COMMON_200", "성공입니다."),
   CREATED(HttpStatus.CREATED, "COMMON_201", "리소스가 성공적으로 생성되었습니다."),
+  NO_CONTENT(HttpStatus.NO_CONTENT, "COMMON_204", "요청이 성공적으로 처리되었습니다."),
 
   // Auth 200
   AUTH_LOGIN_SUCCESS(HttpStatus.OK, "AUTH_200_001", "로그인에 성공했습니다."),
@@ -27,6 +28,7 @@ public enum SuccessStatus {
   MEMBER_ADDRESS_DELETE_SUCCESS(HttpStatus.OK, "MEMBER_200_007", "배송지 삭제에 성공했습니다."),
   MEMBER_ADDRESS_UPDATE_SUCCESS(HttpStatus.OK, "MEMBER_200_008", "배송지 수정에 성공했습니다."),
   SELLER_REGISTER_SUCCESS(HttpStatus.OK, "MEMBER_200_009", "판매자 등록 요청이 접수되었습니다."),
+  FILE_UPLOAD_URL_GET_SUCCESS(HttpStatus.OK, "FILE_200_001", "파일 업로드 URL 생성에 성공했습니다."),
 
   // Member 201
   MEMBER_ADDRESS_CREATE_SUCCESS(HttpStatus.CREATED, "MEMBER_201_001", "배송지 등록에 성공했습니다."),
@@ -34,7 +36,8 @@ public enum SuccessStatus {
   MEMBER_PROFILE_CREATE_SUCCESS(HttpStatus.CREATED, "MEMBER_201_003", "프로필 생성에 성공했습니다."),
 
   // Content 200
-  CONTENT_LIST_GET_SUCCESS(HttpStatus.OK, "CONTENT_200_001", "콘텐츠 전체 조회에 성공했습니다.");
+  CONTENT_LIST_GET_SUCCESS(HttpStatus.OK, "CONTENT_200_001", "콘텐츠 전체 조회에 성공했습니다."),
+  CONTENT_NO_DATA(HttpStatus.OK, "CONTENT_200_002", "Delete 요청이 성공적으로 처리되어 응답 데이터가 없습니다.");
 
   private final HttpStatus httpStatus;
   private final String code;

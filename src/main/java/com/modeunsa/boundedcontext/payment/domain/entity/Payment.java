@@ -2,12 +2,15 @@ package com.modeunsa.boundedcontext.payment.domain.entity;
 
 import static com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode.INVALID_CHARGE_AMOUNT;
 import static com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode.INVALID_PAYMENT;
+import static com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode.INVALID_PAYMENT_STATUS;
+import static com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode.OVERDUE_PAYMENT_DEADLINE;
 import static jakarta.persistence.CascadeType.PERSIST;
 
 import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
 import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmResponse;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentDomainException;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode;
+import com.modeunsa.boundedcontext.payment.domain.types.PaymentPurpose;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentStatus;
 import com.modeunsa.boundedcontext.payment.domain.types.ProviderType;
 import com.modeunsa.global.jpa.converter.EncryptedStringConverter;
@@ -27,6 +30,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -64,7 +68,11 @@ public class Payment extends AuditedEntity {
   @Builder.Default
   @Column(nullable = false, length = 20)
   @Enumerated(EnumType.STRING)
-  private PaymentStatus status = PaymentStatus.READY;
+  private PaymentStatus status = PaymentStatus.PENDING;
+
+  @Column(nullable = false, length = 20)
+  @Enumerated(EnumType.STRING)
+  private PaymentPurpose paymentPurpose;
 
   @Column(nullable = false)
   private Long orderId;
@@ -72,23 +80,28 @@ public class Payment extends AuditedEntity {
   @Column(nullable = false, precision = 19, scale = 2)
   private BigDecimal totalAmount;
 
-  private boolean needCharge;
+  private boolean needPgPayment;
 
   @Column(precision = 19, scale = 2)
-  private BigDecimal shortAmount;
+  private BigDecimal requestPgAmount;
+
+  @Column(nullable = false)
+  private LocalDateTime paymentDeadlineAt;
+
+  @Column(length = 20)
+  @Enumerated(EnumType.STRING)
+  private ProviderType paymentProvider;
 
   @Column(length = 20)
   @Enumerated(EnumType.STRING)
   private PaymentErrorCode failedErrorCode;
 
+  private String failedReason;
+
   private LocalDateTime failedAt;
 
   @Column(precision = 19, scale = 2)
   private BigDecimal pgPaymentAmount;
-
-  @Column(length = 20)
-  @Enumerated(EnumType.STRING)
-  private ProviderType pgProvider;
 
   @Convert(converter = EncryptedStringConverter.class)
   private String pgPaymentKey;
@@ -111,18 +124,30 @@ public class Payment extends AuditedEntity {
 
   @Lob private String pgFailureReason;
 
-  public static Payment create(PaymentId id, Long orderId, BigDecimal totalAmount) {
+  private static final Set<PaymentStatus> ALLOWED_FOR_IN_PROGRESS =
+      Set.of(PaymentStatus.PENDING, PaymentStatus.IN_PROGRESS);
+
+  public static Payment create(
+      PaymentId id,
+      Long orderId,
+      BigDecimal totalAmount,
+      LocalDateTime paymentDeadlineAt,
+      ProviderType providerType,
+      PaymentPurpose paymentPurpose) {
     validateTotalAmount(totalAmount);
     return Payment.builder()
         .id(id)
         .orderId(orderId)
         .totalAmount(totalAmount)
+        .paymentDeadlineAt(paymentDeadlineAt)
+        .paymentProvider(providerType)
+        .paymentPurpose(paymentPurpose)
         .status(PaymentStatus.PENDING)
         .build();
   }
 
   public void addInitialLog(Payment payment) {
-    PaymentLog paymentLog = PaymentLog.addInitialLog(payment, PaymentStatus.READY);
+    PaymentLog paymentLog = PaymentLog.addInitialLog(payment, PaymentStatus.PENDING);
     this.paymentLogs.add(paymentLog);
   }
 
@@ -147,10 +172,12 @@ public class Payment extends AuditedEntity {
     changeStatus(PaymentStatus.APPROVED);
   }
 
-  public void failedPayment(PaymentErrorCode errorCode, Long memberId, String orderNo) {
+  public void failedPayment(
+      PaymentErrorCode errorCode, String failureMessage, Long memberId, String orderNo) {
     this.failedErrorCode = errorCode;
     this.failedAt = LocalDateTime.now();
-    changeStatusByFailure(PaymentStatus.FAILED, errorCode.format(memberId, orderNo));
+    this.failedReason = failureMessage;
+    changeStatusByFailure(PaymentStatus.FAILED, failureMessage);
   }
 
   public void failedTossPayment(HttpStatus httpStatus, String message) {
@@ -160,41 +187,47 @@ public class Payment extends AuditedEntity {
     changeStatusByFailure(PaymentStatus.FAILED, message);
   }
 
-  public void changePendingStatus() {
+  public void initPayment(LocalDateTime paymentDeadlineAt) {
     if (!isRetryable()) {
       throw new PaymentDomainException(
-          INVALID_PAYMENT, getId().getMemberId(), getId().getOrderNo());
+          INVALID_PAYMENT,
+          String.format(
+              "초기화 가능한 상태가 아닙니다. 회원 ID: %d, 주문 번호: %s, 현재 상태: %s",
+              getId().getMemberId(), getId().getOrderNo(), this.status));
     }
+    this.paymentDeadlineAt = paymentDeadlineAt;
     changeStatus(PaymentStatus.PENDING);
   }
 
   public void changeInProgress() {
+    validateCanChangeToInProgress();
     changeStatus(PaymentStatus.IN_PROGRESS);
   }
 
-  public void updateChargeInfo(boolean needCharge, BigDecimal shortAmount) {
-    this.needCharge = needCharge;
-    this.shortAmount = shortAmount;
+  public void updatePgRequestInfo(boolean needPgPayment, BigDecimal requestPgAmount) {
+    this.needPgPayment = needPgPayment;
+    this.requestPgAmount = requestPgAmount;
   }
 
   public void validateChargeAmount(BigDecimal chargeAmount) {
     if (chargeAmount == null) {
       throw new PaymentDomainException(
-          INVALID_CHARGE_AMOUNT, getId().getMemberId(), getId().getOrderNo(), this.shortAmount);
+          INVALID_CHARGE_AMOUNT,
+          String.format(
+              "PG 결제 금액이 null 입니다. 회원 ID: %d, 주문 번호: %s, 요청 PG 금액: %s",
+              getId().getMemberId(), getId().getOrderNo(), this.requestPgAmount));
     }
 
-    if (shortAmount.compareTo(chargeAmount) != 0) {
+    if (requestPgAmount.compareTo(chargeAmount) != 0) {
       throw new PaymentDomainException(
           INVALID_CHARGE_AMOUNT,
-          getId().getMemberId(),
-          getId().getOrderNo(),
-          this.shortAmount,
-          chargeAmount);
+          String.format(
+              "부족한 금액과 PG 결제 금액이 다릅니다. 회원 ID: %d, 주문 번호: %s, 부족 금액: %s, PG 요청 금액: %s",
+              getId().getMemberId(), getId().getOrderNo(), this.requestPgAmount, chargeAmount));
     }
   }
 
   public void updatePgInfo(PaymentProcessContext context) {
-    this.pgProvider = ProviderType.TOSS_PAYMENTS;
     this.pgPaymentKey = context.paymentKey();
     this.pgCustomerName = context.pgCustomerName();
     this.pgCustomerEmail = context.pgCustomerEmail();
@@ -213,11 +246,30 @@ public class Payment extends AuditedEntity {
 
   private static void validateTotalAmount(BigDecimal totalAmount) {
     if (totalAmount.compareTo(BigDecimal.ZERO) < 0) {
-      throw new PaymentDomainException(INVALID_PAYMENT, totalAmount);
+      throw new PaymentDomainException(
+          INVALID_PAYMENT, String.format("주문금액은 0원 이상이어야 합니다. 요청 금액: %s", totalAmount));
     }
   }
 
   private boolean isRetryable() {
     return this.status == PaymentStatus.PENDING || this.status == PaymentStatus.FAILED;
+  }
+
+  private void validateCanChangeToInProgress() {
+    if (!ALLOWED_FOR_IN_PROGRESS.contains(this.status)) {
+      throw new PaymentDomainException(
+          INVALID_PAYMENT_STATUS,
+          String.format(
+              "결제 진행상태로 변경할 수 없는 상태입니다. 회원 ID: %d, 주문 번호: %s, 현재 상태: %s",
+              getId().getMemberId(), getId().getOrderNo(), this.status));
+    }
+
+    if (this.paymentDeadlineAt.isBefore(LocalDateTime.now())) {
+      throw new PaymentDomainException(
+          OVERDUE_PAYMENT_DEADLINE,
+          String.format(
+              "결제 유효기간이 만료되어 결제 진행상태로 변경할 수 없습니다. 회원 ID: %d, 주문 번호: %s, 결제 마감일: %s",
+              getId().getMemberId(), getId().getOrderNo(), this.paymentDeadlineAt));
+    }
   }
 }

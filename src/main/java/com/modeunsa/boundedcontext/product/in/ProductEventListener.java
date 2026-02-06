@@ -4,9 +4,9 @@ import static org.springframework.transaction.annotation.Propagation.REQUIRES_NE
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
 import com.modeunsa.boundedcontext.product.app.ProductFacade;
+import com.modeunsa.shared.member.event.MemberBasicInfoUpdatedEvent;
 import com.modeunsa.shared.member.event.MemberSignupEvent;
 import com.modeunsa.shared.member.event.SellerRegisteredEvent;
-import com.modeunsa.shared.order.event.OrderCancelRequestEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,12 +20,6 @@ public class ProductEventListener {
 
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Transactional(propagation = REQUIRES_NEW)
-  public void handleOrderCanceledEvent(OrderCancelRequestEvent event) {
-    productFacade.restoreStock(event.getOrderDto());
-  }
-
-  @TransactionalEventListener(phase = AFTER_COMMIT)
-  @Transactional(propagation = REQUIRES_NEW)
   public void handleMemberSignupEvent(MemberSignupEvent event) {
     productFacade.syncMember(
         event.memberId(), event.email(), event.realName(), event.phoneNumber());
@@ -35,6 +29,13 @@ public class ProductEventListener {
   @Transactional(propagation = REQUIRES_NEW)
   public void handleSellerRegisteredEvent(SellerRegisteredEvent event) {
     productFacade.syncSeller(
-        event.memberSellerId(), event.businessName(), event.representativeName());
+        event.memberSellerId(), event.memberId(), event.businessName(), event.representativeName());
+  }
+
+  @TransactionalEventListener(phase = AFTER_COMMIT)
+  @Transactional(propagation = REQUIRES_NEW)
+  public void handleMemberBasicInfoUpdatedEvent(MemberBasicInfoUpdatedEvent event) {
+    productFacade.updateMember(
+        event.memberId(), event.realName(), event.email(), event.phoneNumber());
   }
 }

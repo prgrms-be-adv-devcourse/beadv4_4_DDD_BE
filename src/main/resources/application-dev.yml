@@ -3,10 +3,10 @@ spring:
     activate:
       on-profile: dev
   datasource:
-    url: jdbc:h2:./db_dev;MODE=MySQL
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
+    url: jdbc:mysql://${DB_HOST:127.0.0.1}:${DB_PORT:30306}/${DB_NAME:modeunsa}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:${MYSQL_ROOT_PASSWORD:}}
+    driver-class-name: com.mysql.cj.jdbc.Driver
   h2:
     console:
       enabled: true
@@ -21,6 +21,11 @@ spring:
         format_sql: true
         highlight_sql: true
         use_sql_comments: true
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:30379}
+      password: ${REDIS_PASSWORD:}
   security:
     oauth2:
       client:
@@ -50,26 +55,36 @@ spring:
 
   elasticsearch:
     uris:
-      - http://localhost:9200
+      - ${SPRING_ELASTICSEARCH_URIS:http://127.0.0.1:30920}
 
 custom:
-  global:
-    internalBackUrl: http://localhost:${server.port:8080}
+  swagger:
+    serverUrl: ${SWAGGER_SERVER_URL:http://127.0.0.1:8080}
+    description: "Local Server"
   security:
     permit-all: false
     permit-urls:
+      # ========== 개발 도구 ==========
       - /h2-console/**
       - /swagger-ui/**
-      - /favicon.ico
-      - /error
-      - /login/oauth2/code/**
       - /v3/api-docs/**
-      - /api/v1/auths/**
-      - /api/v1/products/**
-      - /api/v1/orders/**
-      - /api/v1/payments/**
+      - /
+      - /favicon.ico
+
+      # ========== 인증 API ==========
+      - /api/v1/auths/oauth/*/url
+      - /api/v1/auths/login/**
+      - /api/v1/auths/reissue
+      - /api/v1/auths/dev/**
+      - /login/oauth2/code/**
+      - /api/v1/test/roles/**
+
+      # ========== 헬스체크 ==========
+      - /actuator/health
+      - /actuator/prometheus
+
+      # ========== 콘텐츠 ==========
       - /api/v1/contents/**
-      - /api/v1/settlements/**
     oauth2:
       allowed-redirect-domains:
         - localhost
@@ -79,3 +94,6 @@ custom:
     allowed-origins:
       - http://localhost:3000
       - http://127.0.0.1:3000
+      - http://localhost:8080
+      - http://127.0.0.1:8080
+      - http://localhost:30080

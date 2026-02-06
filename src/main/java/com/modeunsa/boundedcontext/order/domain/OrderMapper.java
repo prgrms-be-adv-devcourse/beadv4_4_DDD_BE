@@ -1,14 +1,14 @@
 package com.modeunsa.boundedcontext.order.domain;
 
 import com.modeunsa.shared.order.dto.CartItemDto;
-import com.modeunsa.shared.order.dto.CreateCartItemRequestDto;
-import com.modeunsa.shared.order.dto.CreateCartItemResponseDto;
 import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
 import com.modeunsa.shared.order.dto.OrderDto;
 import com.modeunsa.shared.order.dto.OrderItemDto;
 import com.modeunsa.shared.order.dto.OrderItemResponseDto;
 import com.modeunsa.shared.order.dto.OrderListResponseDto;
 import com.modeunsa.shared.order.dto.OrderResponseDto;
+import com.modeunsa.shared.order.dto.SyncCartItemRequestDto;
+import com.modeunsa.shared.order.dto.SyncCartItemResponseDto;
 import com.modeunsa.shared.product.dto.ProductDto;
 import com.modeunsa.shared.product.dto.ProductOrderResponse;
 import jakarta.validation.Valid;
@@ -21,9 +21,9 @@ import org.mapstruct.MappingTarget;
 public interface OrderMapper {
   // 장바구니 상품
   // TODO: SecurityContext에서 memberId 추출해서 Auditing으로 createdBy필드 채우기
-  CartItem toCartItemEntity(long memberId, CreateCartItemRequestDto createCartItemRequestDto);
+  CartItem toCartItemEntity(long memberId, SyncCartItemRequestDto syncCartItemRequestDto);
 
-  CreateCartItemResponseDto toCreateCartItemResponseDto(CartItem cartItem);
+  SyncCartItemResponseDto toSyncCartItemResponseDto(CartItem cartItem);
 
   @Mapping(target = "productId", source = "product.productId")
   @Mapping(target = "salePrice", source = "product.salePrice")
@@ -75,7 +75,7 @@ public interface OrderMapper {
 
   // --- 회원 ---
   @Mapping(target = "id", source = "memberId")
-  OrderMember toOrderMember(Long memberId, String memberName, String memberPhone);
+  OrderMember toOrderMember(Long memberId, String realName, String phoneNumber);
 
   // --- 메서드 ---
 

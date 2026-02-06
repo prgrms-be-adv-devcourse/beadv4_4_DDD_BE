@@ -4,8 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.retry.annotation.EnableRetry;
 
-@EnableJpaAuditing
+@EnableRetry
+@EnableJpaAuditing(auditorAwareRef = "userAuditorAware")
 @ConfigurationPropertiesScan
 @SpringBootApplication
 public class ModeunsaApplication {

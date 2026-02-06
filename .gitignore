@@ -40,6 +40,8 @@ out/
 db_dev.mv.db
 db_dev.trace.db
 .env
+.env.prod
+.env.local
 config/env/*
 
 # .gitignore 파일에 추가
