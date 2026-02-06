@@ -53,10 +53,30 @@ class OAuthLoginUseCaseTest {
   @BeforeEach
   void setUp() {
     given(redisTemplate.opsForValue()).willReturn(valueOperations);
-    given(valueOperations.setIfAbsent(anyString(), anyString(), any(Duration.class)))
-        .willReturn(true);
 
-    given(valueOperations.get("oauth:state:" + state)).willReturn(provider.name());
+    // 1. Redis에 저장될 값을 임시로 담을 Map 생성 (테스트 격리)
+    java.util.Map<String, String> redisData = new java.util.HashMap<>();
+
+    // 2. setIfAbsent 호출 시, 키와 값을 Map에 저장하고 true 반환
+    given(valueOperations.setIfAbsent(anyString(), anyString(), any(Duration.class)))
+        .willAnswer(invocation -> {
+          String key = invocation.getArgument(0);
+          String value = invocation.getArgument(1);
+          redisData.put(key, value);
+          return true;
+        });
+
+    // 3. get 호출 시, Map에 저장된 값을 반환 (State 검증 로직 포함)
+    given(valueOperations.get(anyString()))
+        .willAnswer(invocation -> {
+          String key = invocation.getArgument(0);
+          // 기존 로직: state 검증용
+          if (key.equals("oauth:state:" + state)) {
+            return provider.name();
+          }
+          // 락 검증용: setIfAbsent 때 저장된 값 반환
+          return redisData.get(key);
+        });
   }
 
   @Nested
