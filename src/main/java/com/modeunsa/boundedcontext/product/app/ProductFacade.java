@@ -6,14 +6,11 @@ import com.modeunsa.boundedcontext.product.domain.ProductFavorite;
 import com.modeunsa.boundedcontext.product.domain.ProductMember;
 import com.modeunsa.boundedcontext.product.domain.ProductStatus;
 import com.modeunsa.boundedcontext.product.domain.SaleStatus;
-import com.modeunsa.shared.order.dto.OrderDto;
 import com.modeunsa.shared.product.dto.ProductCreateRequest;
 import com.modeunsa.shared.product.dto.ProductDetailResponse;
 import com.modeunsa.shared.product.dto.ProductFavoriteResponse;
 import com.modeunsa.shared.product.dto.ProductOrderResponse;
 import com.modeunsa.shared.product.dto.ProductResponse;
-import com.modeunsa.shared.product.dto.ProductStockResponse;
-import com.modeunsa.shared.product.dto.ProductStockUpdateRequest;
 import com.modeunsa.shared.product.dto.ProductUpdateRequest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -33,8 +30,6 @@ public class ProductFacade {
   private final ProductCreateFavoriteUseCase productCreateFavoriteUseCase;
   private final ProductDeleteFavoriteUseCase productDeleteFavoriteUseCase;
   private final ProductValidateOrderUseCase productValidateOrderUseCase;
-  private final ProductDeductStockUseCase productDeductStockUseCase;
-  private final ProductRestoreStockUseCase productRestoreStockUseCase;
   private final ProductCreateMemberUseCase productCreateMemberUseCase;
   private final ProductCreateSellerUseCase productCreateSellerUseCase;
   private final ProductUpdateMemberUseCase productUpdateMemberUseCase;
@@ -116,18 +111,6 @@ public class ProductFacade {
   public Page<ProductFavoriteResponse> getProductFavorites(Long memberId, Pageable pageable) {
     Page<ProductFavorite> productFavorites = productSupport.getProductFavorites(memberId, pageable);
     return productFavorites.map(productMapper::toProductFavoriteResponse);
-  }
-
-  @Transactional
-  public List<ProductStockResponse> deductStock(
-      ProductStockUpdateRequest productStockUpdateRequest) {
-    return productDeductStockUseCase.deductStock(productStockUpdateRequest).stream()
-        .map(productMapper::toProductStockResponse)
-        .toList();
-  }
-
-  public void restoreStock(OrderDto orderDto) {
-    productRestoreStockUseCase.restoreStock(orderDto);
   }
 
   public void syncMember(Long memberId, String email, String name, String phoneNumber) {

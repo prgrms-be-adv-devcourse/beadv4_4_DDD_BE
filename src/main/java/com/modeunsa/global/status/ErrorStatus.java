@@ -89,22 +89,15 @@ public enum ErrorStatus {
   ORDER_ACCESS_DENIED(HttpStatus.FORBIDDEN, "ORDER_403_001", "해당 주문에 대한 접근 권한이 없습니다."),
 
   // Product 400
-  PRODUCT_DESCRIPTION_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_001", "상품 설명은 필수입니다."),
-  PRODUCT_CATEGORY_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_002", "카테고리는 필수입니다."),
-  PRODUCT_SALE_PRICE_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_003", "판매가는 0원 이상이어야 합니다."),
-  PRODUCT_PRICE_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_004", "정가는 0원 이상이어야 합니다."),
-  PRODUCT_QTY_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_005", "재고 수량은 0보다 커야 합니다."),
-  INVALID_PRODUCT_STATUS(HttpStatus.BAD_REQUEST, "PRODUCT_400_007", "잘못된 상품 등록 상태입니다."),
-  INVALID_PRODUCT_UPDATE_FIELD(HttpStatus.BAD_REQUEST, "PRODUCT_400_008", "수정 불가한 필드입니다."),
-  INVALID_PRODUCT_MEMBER(HttpStatus.BAD_REQUEST, "PRODUCT_400_009", "판매자 정보가 다릅니다."),
-  PRODUCT_FIELD_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_010", "필수값을 입력해주세요."),
-  PRODUCT_SELLER_INCORRECT(HttpStatus.BAD_REQUEST, "PRODUCT_400_011", "해당 판매자의 상품이 아닙니다."),
+  INVALID_PRODUCT_STATUS(HttpStatus.BAD_REQUEST, "PRODUCT_400_001", "잘못된 상품 등록 상태입니다."),
+  INVALID_PRODUCT_UPDATE_FIELD(HttpStatus.BAD_REQUEST, "PRODUCT_400_002", "수정 불가한 필드입니다."),
+  INVALID_PRODUCT_MEMBER(HttpStatus.BAD_REQUEST, "PRODUCT_400_003", "판매자 정보가 다릅니다."),
+  PRODUCT_FIELD_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_004", "필수값을 입력해주세요."),
+  PRODUCT_SELLER_INCORRECT(HttpStatus.BAD_REQUEST, "PRODUCT_400_005", "해당 판매자의 상품이 아닙니다."),
   // PRODUCT 404
   PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT_404_001", "상품이 존재하지 않습니다."),
   PRODUCT_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT_404_002", "존재하지 않는 회원입니다."),
   PRODUCT_SELLER_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT_404_003", "존재하지 않는 판매자입니다."),
-  // PRODUCT 409
-  PRODUCT_STOCK_LOCK_FAILURE(HttpStatus.CONFLICT, "PRODUCT_409_001", "재고 처리 중 락 획득에 실패했습니다."),
 
   // Payment
   PAYMENT_MEMBER_DUPLICATE(HttpStatus.BAD_REQUEST, "PAYMENT_400_001", "이미 등록된 결제 회원 정보가 존재합니다."),

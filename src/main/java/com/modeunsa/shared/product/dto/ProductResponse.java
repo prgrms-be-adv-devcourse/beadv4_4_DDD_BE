@@ -20,7 +20,6 @@ public record ProductResponse(
     ProductCurrency currency,
     ProductStatus productStatus,
     SaleStatus saleStatus,
-    int stock,
     int favoriteCount,
     String primaryImageUrl,
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul") LocalDateTime createdAt,

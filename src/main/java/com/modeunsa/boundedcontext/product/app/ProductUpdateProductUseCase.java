@@ -46,8 +46,7 @@ public class ProductUpdateProductUseCase {
         request.getDescription(),
         request.getSaleStatus(),
         request.getPrice(),
-        request.getSalePrice(),
-        request.getStock());
+        request.getSalePrice());
 
     ProductDto productDto = productMapper.toDto(productRepository.save(product));
     eventPublisher.publish(new ProductUpdatedEvent(productDto));

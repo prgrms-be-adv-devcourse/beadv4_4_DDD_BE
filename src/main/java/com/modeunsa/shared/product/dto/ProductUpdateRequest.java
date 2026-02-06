@@ -19,7 +19,6 @@ public class ProductUpdateRequest implements ProductUpdatableRequest {
   @PositiveOrZero private final BigDecimal price;
   @PositiveOrZero private final BigDecimal salePrice;
   private final SaleStatus saleStatus;
-  @PositiveOrZero private final Integer stock;
   private final List<String> images;
 
   @Override
@@ -42,9 +41,6 @@ public class ProductUpdateRequest implements ProductUpdatableRequest {
     }
     if (saleStatus != null) {
       set.add(ProductUpdatableField.SALE_STATUS);
-    }
-    if (stock != null) {
-      set.add(ProductUpdatableField.STOCK);
     }
     if (images != null) {
       set.add(ProductUpdatableField.IMAGES);
