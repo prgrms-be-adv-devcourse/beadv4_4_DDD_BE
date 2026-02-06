@@ -23,8 +23,17 @@ export async function POST(request: NextRequest) {
           headers: { 'Authorization': `Bearer ${accessToken}` }
         }
     );
+    if (!response.ok) {
+      let errorData: unknown;
+      try {
+        errorData = await response.json();
+      } catch {
+        errorData = { isSuccess: false, message: '백엔드 서버에서 오류가 발생했습니다.' };
+      }
+      return NextResponse.json(errorData, { status: response.status });
+    }
     const data = await response.json();
-    return NextResponse.json(data);
+    return NextResponse.json(data, { status: response.status });
   } catch (error) {
     return NextResponse.json({ isSuccess: false, message: '서버 에러가 발생했습니다.' }, { status: 500 });
   }
