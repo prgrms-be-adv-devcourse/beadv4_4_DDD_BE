@@ -1,6 +1,5 @@
 package com.modeunsa.boundedcontext.product.domain;
 
-import com.modeunsa.boundedcontext.product.domain.exception.InvalidStockException;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -67,8 +66,6 @@ public class Product extends GeneratedIdAndAuditedEntity {
   // TODO: 이벤트/트랜잭션으로 증감 관리 (정합성 전략 필요)
   @Builder.Default private int favoriteCount = 0;
 
-  private Integer stock;
-
   @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
   @OrderBy("sortOrder ASC")
   @Builder.Default
@@ -80,8 +77,7 @@ public class Product extends GeneratedIdAndAuditedEntity {
       ProductCategory category,
       String description,
       BigDecimal salePrice,
-      BigDecimal price,
-      int stock) {
+      BigDecimal price) {
     return Product.builder()
         .seller(seller)
         .name(name)
@@ -93,7 +89,6 @@ public class Product extends GeneratedIdAndAuditedEntity {
         .saleStatus(SaleStatus.NOT_SALE)
         .productStatus(ProductStatus.DRAFT)
         .favoriteCount(0)
-        .stock(stock)
         .build();
   }
 
@@ -103,8 +98,7 @@ public class Product extends GeneratedIdAndAuditedEntity {
       String description,
       SaleStatus saleStatus,
       BigDecimal price,
-      BigDecimal salePrice,
-      Integer stock) {
+      BigDecimal salePrice) {
 
     if (name != null) {
       this.name = name;
@@ -124,24 +118,10 @@ public class Product extends GeneratedIdAndAuditedEntity {
     if (salePrice != null) {
       this.salePrice = salePrice;
     }
-    if (stock != null) {
-      this.stock = stock;
-    }
   }
 
   public void updateProductStatus(ProductStatus productStatus) {
     this.productStatus = productStatus;
-  }
-
-  public void decreaseStock(int requestedQty) {
-    if (this.stock < requestedQty) {
-      throw new InvalidStockException(this.stock, requestedQty);
-    }
-    this.stock = this.stock - requestedQty;
-  }
-
-  public void increaseStock(int requestedQty) {
-    this.stock = this.stock + requestedQty;
   }
 
   public void addImage(ProductImage image) {
@@ -152,18 +132,7 @@ public class Product extends GeneratedIdAndAuditedEntity {
     this.images.clear();
   }
 
-  public boolean isSoldOut() {
-    return this.stock != null && this.stock == 0;
-  }
-
   public void changeSaleStatus(SaleStatus saleStatus) {
     this.saleStatus = saleStatus;
-  }
-
-  public String getPrimaryImageUrl() {
-    if (images == null || images.isEmpty()) {
-      return null;
-    }
-    return images.get(0).getImageUrl();
   }
 }

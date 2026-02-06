@@ -1,0 +1,5 @@
+apiVersion: v2
+name: modeunsa-infra
+description: Modeunsa Infrastructure
+type: application
+version: 0.1.0  # 차트의 버전 정보

@@ -8,7 +8,11 @@ plugins {
 
 group = 'com'
 version = '0.0.1-SNAPSHOT'
-description = 'back'
+description = 'modeunsa'
+
+// CVE-2024-49203 (SQL/HQL Injection, CVSS 9.8) 패치 반영
+// 원본 com.querydsl은 5.1.0이 최신이므로, 패치된 OpenFeign 포크 사용
+ext.querydslVersion = '5.6.1'
 
 java {
     toolchain {
@@ -27,6 +31,7 @@ repositories {
 }
 
 dependencies {
+    // spring boot
     implementation 'org.springframework.boot:spring-boot-h2console'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
@@ -68,7 +73,7 @@ dependencies {
 
     // dotenv for loading .env file in tests
     testImplementation 'io.github.cdimascio:dotenv-java:3.0.0'
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.3'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1'
 
     // MySQL Connector
     runtimeOnly 'com.mysql:mysql-connector-j'
@@ -85,6 +90,12 @@ dependencies {
 
     // prometheus
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+
+    // querydsl (CVE-2024-49203 패치 버전: OpenFeign 포크 5.6.1)
+    implementation "io.github.openfeign.querydsl:querydsl-jpa:${querydslVersion}:jakarta"
+    annotationProcessor "io.github.openfeign.querydsl:querydsl-apt:${querydslVersion}:jakarta"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
 
     // test
     testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
@@ -161,7 +172,11 @@ spotless {
     java {
         googleJavaFormat("1.33.0")
         // Spotless와 Checkstyle 충돌나는 파일 제외
-        targetExclude("**/OAuthUserInfo.java", "**/MemberSellerController.java")
+        targetExclude(
+            "**/OAuthUserInfo.java",
+            "**/MemberSellerController.java",
+            "**/generated/querydsl/**",
+        )
         // diff 안정화를 위해 하기 옵션 추가
         trimTrailingWhitespace() // 줄 끝 공백 제거
         endWithNewline() // 파일 끝에 newline 강제

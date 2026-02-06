@@ -5,15 +5,17 @@ import com.modeunsa.boundedcontext.order.domain.OrderMapper;
 import com.modeunsa.boundedcontext.order.domain.OrderMember;
 import com.modeunsa.boundedcontext.order.domain.OrderProduct;
 import com.modeunsa.shared.order.dto.CartItemsResponseDto;
-import com.modeunsa.shared.order.dto.CreateCartItemRequestDto;
-import com.modeunsa.shared.order.dto.CreateCartItemResponseDto;
 import com.modeunsa.shared.order.dto.CreateCartOrderRequestDto;
 import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
+import com.modeunsa.shared.order.dto.DeleteCartItemsRequestDto;
 import com.modeunsa.shared.order.dto.OrderDto;
 import com.modeunsa.shared.order.dto.OrderListResponseDto;
 import com.modeunsa.shared.order.dto.OrderResponseDto;
+import com.modeunsa.shared.order.dto.SyncCartItemRequestDto;
+import com.modeunsa.shared.order.dto.SyncCartItemResponseDto;
 import com.modeunsa.shared.payment.dto.PaymentDto;
 import com.modeunsa.shared.product.dto.ProductDto;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -27,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class OrderFacade {
-  private final OrderCreateCartItemUseCase orderCreateCartItemUseCase;
+  private final OrderSyncCartItemUseCase orderSyncCartItemUseCase;
   private final OrderSupport orderSupport;
   private final OrderCreateOrderUseCase orderCreateOrderUseCase;
   private final OrderGetOrdersUseCase orderGetOrdersUseCase;
@@ -43,9 +45,8 @@ public class OrderFacade {
 
   // 장바구니 아이템 생성
   @Transactional
-  public CreateCartItemResponseDto createCartItem(
-      Long memberId, CreateCartItemRequestDto requestDto) {
-    return orderCreateCartItemUseCase.createCartItem(memberId, requestDto);
+  public SyncCartItemResponseDto syncCartItem(Long memberId, SyncCartItemRequestDto requestDto) {
+    return orderSyncCartItemUseCase.syncCartItem(memberId, requestDto);
   }
 
   public OrderMember findByMemberId(Long memberId) {
@@ -154,5 +155,19 @@ public class OrderFacade {
       String addressName) {
     orderCreateDeliveryAddressUseCase.createDeliveryAddress(
         memberId, recipientName, recipientPhone, zipCode, address, addressDetail, addressName);
+  }
+
+  public List<Long> getRecentCartItems(Long memberId, int cartItemSize) {
+    return orderSupport.getRecentCartItems(memberId, cartItemSize);
+  }
+
+  @Transactional
+  public void deleteCartItems(Long memberId, DeleteCartItemsRequestDto request) {
+    orderSupport.softDeleteCartItems(memberId, request.cartItemIds());
+  }
+
+  @Transactional
+  public void deleteAllCartItems(Long memberId) {
+    orderSupport.softDeleteAllCartItems(memberId);
   }
 }

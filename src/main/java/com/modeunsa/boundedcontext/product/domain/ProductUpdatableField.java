@@ -7,6 +7,5 @@ public enum ProductUpdatableField {
   PRICE,
   SALE_PRICE,
   SALE_STATUS,
-  STOCK,
   IMAGES
 }

@@ -11,6 +11,4 @@ public interface ProductUpdatableRequest {
   BigDecimal getPrice();
 
   BigDecimal getSalePrice();
-
-  Integer getStock();
 }

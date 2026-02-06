@@ -11,13 +11,19 @@ import com.modeunsa.shared.member.event.MemberProfileCreatedEvent;
 import com.modeunsa.shared.member.event.MemberProfileUpdatedEvent;
 import com.modeunsa.shared.member.event.MemberSignupEvent;
 import com.modeunsa.shared.member.event.SellerRegisteredEvent;
+import com.modeunsa.shared.order.event.OrderCancelRequestEvent;
+import com.modeunsa.shared.order.event.OrderPurchaseConfirmedEvent;
 import com.modeunsa.shared.order.event.RefundRequestedEvent;
+import com.modeunsa.shared.payment.event.PaymentFinalFailureEvent;
+import com.modeunsa.shared.payment.event.PaymentSuccessEvent;
 import com.modeunsa.shared.product.event.ProductCreatedEvent;
 import com.modeunsa.shared.product.event.ProductUpdatedEvent;
 import com.modeunsa.shared.settlement.event.SettlementCompletedPayoutEvent;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
+@ConditionalOnProperty(name = "app.event-publisher.type", havingValue = "kafka")
 public class KafkaResolver {
 
   private static final String MEMBER_EVENTS_TOPIC = "member-events";
@@ -41,15 +47,17 @@ public class KafkaResolver {
     }
 
     // payment
-    if (event instanceof PaymentMemberCreatedEvent) {
-      return PAYMENT_EVENTS_TOPIC;
-    }
-    if (event instanceof PaymentFailedEvent) {
+    if (event instanceof PaymentMemberCreatedEvent
+        || event instanceof PaymentFailedEvent
+        || event instanceof PaymentSuccessEvent
+        || event instanceof PaymentFinalFailureEvent) {
       return PAYMENT_EVENTS_TOPIC;
     }
 
     // order
-    if (event instanceof RefundRequestedEvent) {
+    if (event instanceof OrderPurchaseConfirmedEvent
+        || event instanceof OrderCancelRequestEvent
+        || event instanceof RefundRequestedEvent) {
       return ORDER_EVENTS_TOPIC;
     }
 
@@ -98,14 +106,20 @@ public class KafkaResolver {
     if (event instanceof SellerRegisteredEvent e) {
       return "member-%d-seller-%d".formatted(e.memberId(), e.memberSellerId());
     }
+    if (event instanceof OrderCancelRequestEvent e) {
+      return "order-%d".formatted(e.orderDto().getOrderId());
+    }
+    if (event instanceof OrderPurchaseConfirmedEvent e) {
+      return "order-%d".formatted(e.orderDto().getOrderId());
+    }
+    if (event instanceof RefundRequestedEvent e) {
+      return "order-%d".formatted(e.orderDto().getOrderId());
+    }
     if (event instanceof PaymentMemberCreatedEvent e) {
       return "payment-member-%d".formatted(e.memberId());
     }
     if (event instanceof PaymentFailedEvent e) {
       return "payment-%d-%s".formatted(e.memberId(), e.orderNo());
-    }
-    if (event instanceof RefundRequestedEvent e) {
-      return "order-%s".formatted(e.orderDto().getOrderNo());
     }
     if (event instanceof SettlementCompletedPayoutEvent e) {
       return "settlement";

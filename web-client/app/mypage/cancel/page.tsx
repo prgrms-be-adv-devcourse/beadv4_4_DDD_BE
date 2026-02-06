@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import { useState } from 'react'
 import MypageLayout from '../../components/MypageLayout'
 
@@ -222,9 +221,6 @@ export default function CancelPage() {
                   <th style={{ padding: '14px 12px', textAlign: 'center', fontWeight: 600, color: '#333' }}>
                     처리상태
                   </th>
-                  <th style={{ padding: '14px 12px', textAlign: 'center', fontWeight: 600, color: '#333' }}>
-                    상세
-                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -241,19 +237,6 @@ export default function CancelPage() {
                     </td>
                     <td style={{ padding: '14px 12px', textAlign: 'center' }}>
                       <span style={item.statusStyle}>{item.status}</span>
-                    </td>
-                    <td style={{ padding: '14px 12px', textAlign: 'center' }}>
-                      <Link
-                        href={`/mypage/cancel/${item.id}`}
-                        style={{
-                          fontSize: '13px',
-                          color: '#667eea',
-                          fontWeight: 500,
-                          textDecoration: 'none',
-                        }}
-                      >
-                        상세보기
-                      </Link>
                     </td>
                   </tr>
                 ))}

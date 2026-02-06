@@ -1,30 +1,34 @@
 package com.modeunsa.boundedcontext.payment.app;
 
-import com.modeunsa.boundedcontext.payment.app.dto.ConfirmPaymentRequest;
-import com.modeunsa.boundedcontext.payment.app.dto.ConfirmPaymentResponse;
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositRequest;
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositResponse;
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequest;
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentResponse;
+import com.modeunsa.boundedcontext.payment.app.dto.account.PaymentAccountDepositRequest;
+import com.modeunsa.boundedcontext.payment.app.dto.account.PaymentAccountDepositResponse;
+import com.modeunsa.boundedcontext.payment.app.dto.accountlog.PaymentAccountLogDto;
+import com.modeunsa.boundedcontext.payment.app.dto.accountlog.PaymentAccountSearchRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberResponse;
 import com.modeunsa.boundedcontext.payment.app.dto.order.PaymentOrderInfo;
+import com.modeunsa.boundedcontext.payment.app.dto.payment.ConfirmPaymentRequest;
+import com.modeunsa.boundedcontext.payment.app.dto.payment.ConfirmPaymentResponse;
+import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentProcessContext;
+import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentRequest;
+import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentResponse;
 import com.modeunsa.boundedcontext.payment.app.dto.settlement.PaymentPayoutInfo;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentFailedEvent;
 import com.modeunsa.boundedcontext.payment.app.mapper.PaymentMapper;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentMemberSupport;
-import com.modeunsa.boundedcontext.payment.app.usecase.PaymentConfirmTossPaymentUseCase;
-import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreateAccountUseCase;
-import com.modeunsa.boundedcontext.payment.app.usecase.PaymentCreditAccountUseCase;
-import com.modeunsa.boundedcontext.payment.app.usecase.PaymentFailureUseCase;
-import com.modeunsa.boundedcontext.payment.app.usecase.PaymentInProgressUseCase;
-import com.modeunsa.boundedcontext.payment.app.usecase.PaymentInitializeUseCase;
-import com.modeunsa.boundedcontext.payment.app.usecase.PaymentPayoutCompleteUseCase;
-import com.modeunsa.boundedcontext.payment.app.usecase.PaymentProcessUseCase;
-import com.modeunsa.boundedcontext.payment.app.usecase.PaymentRefundUseCase;
-import com.modeunsa.boundedcontext.payment.app.usecase.PaymentSyncMemberUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.account.PaymentCreateAccountUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.account.PaymentCreditAccountUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.ledger.PaymentAccountLedgerUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.member.PaymentSyncMemberUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentCompleteUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentConfirmTossPaymentUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentFailureUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentInProgressUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentInitializeUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentPayoutCompleteUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentRefundUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.process.complete.PaymentCompleteOrderCompleteUseCase;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
@@ -32,6 +36,7 @@ import com.modeunsa.global.security.CustomUserDetails;
 import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,10 +51,12 @@ public class PaymentFacade {
   private final PaymentInitializeUseCase paymentInitializeUseCase;
   private final PaymentInProgressUseCase paymentInProgressUseCase;
   private final PaymentFailureUseCase paymentFailureUseCase;
-  private final PaymentProcessUseCase paymentProcessUseCase;
+  private final PaymentCompleteOrderCompleteUseCase paymentOrderCompleteUseCase;
   private final PaymentRefundUseCase paymentRefundUseCase;
   private final PaymentPayoutCompleteUseCase paymentPayoutCompleteUseCase;
   private final PaymentConfirmTossPaymentUseCase paymentConfirmTossPaymentUseCase;
+  private final PaymentCompleteUseCase paymentCompleteUseCase;
+  private final PaymentAccountLedgerUseCase paymentAccountLedgerUseCase;
 
   private final PaymentMemberSupport paymentMemberSupport;
   private final PaymentAccountSupport paymentAccountSupport;
@@ -110,7 +117,7 @@ public class PaymentFacade {
       return PaymentResponse.needPgPayment(context);
     }
     // 3-2. 결제 완료로 계좌에서 입출금 처리
-    paymentProcessUseCase.execute(context);
+    paymentOrderCompleteUseCase.execute(context);
     return PaymentResponse.complete(context);
   }
 
@@ -138,7 +145,7 @@ public class PaymentFacade {
     context = paymentConfirmTossPaymentUseCase.execute(context);
 
     // 3. 결제 완료 처리 (계좌 입출금, 이벤트 발행)
-    paymentProcessUseCase.execute(context);
+    paymentCompleteUseCase.execute(context);
 
     return ConfirmPaymentResponse.complete(context.orderNo());
   }
@@ -149,5 +156,10 @@ public class PaymentFacade {
 
   public long countAccountLog() {
     return paymentAccountSupport.countAccountLog();
+  }
+
+  public Page<PaymentAccountLogDto> getAccountLogPageListBySearch(
+      Long memberId, PaymentAccountSearchRequest paymentAccountSearchRequest) {
+    return paymentAccountLedgerUseCase.execute(memberId, paymentAccountSearchRequest);
   }
 }

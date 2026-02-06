@@ -17,11 +17,13 @@ import com.modeunsa.shared.order.event.RefundRequestedEvent;
 import com.modeunsa.shared.settlement.event.SettlementCompletedPayoutEvent;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
+@ConditionalOnProperty(name = "app.event-publisher.type", havingValue = "kafka")
 @RequiredArgsConstructor
 public class PaymentKafkaEventListener {
 

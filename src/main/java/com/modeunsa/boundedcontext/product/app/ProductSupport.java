@@ -6,6 +6,8 @@ import com.modeunsa.boundedcontext.product.domain.ProductFavorite;
 import com.modeunsa.boundedcontext.product.domain.ProductMember;
 import com.modeunsa.boundedcontext.product.domain.ProductMemberSeller;
 import com.modeunsa.boundedcontext.product.domain.ProductPolicy;
+import com.modeunsa.boundedcontext.product.domain.ProductStatus;
+import com.modeunsa.boundedcontext.product.domain.SaleStatus;
 import com.modeunsa.boundedcontext.product.out.ProductFavoriteRepository;
 import com.modeunsa.boundedcontext.product.out.ProductMemberRepository;
 import com.modeunsa.boundedcontext.product.out.ProductMemberSellerRepository;
@@ -55,9 +57,16 @@ public class ProductSupport {
         pageable);
   }
 
-  public Page<Product> getProducts(Long memberId, Pageable pageable) {
-    ProductMemberSeller seller = this.getProductMemberSellerByMemberId(memberId);
-    return productRepository.findAllBySeller(seller, pageable);
+  public Page<Product> getProducts(
+      Long sellerId,
+      String name,
+      ProductCategory category,
+      SaleStatus saleStatus,
+      ProductStatus productStatus,
+      Pageable pageable) {
+    ProductMemberSeller seller = this.getProductMemberSeller(sellerId);
+    return productRepository.findAllBySeller(
+        seller, name, category, saleStatus, productStatus, pageable);
   }
 
   public List<Product> getProducts(List<Long> productIds) {
@@ -98,12 +107,6 @@ public class ProductSupport {
         throw new GeneralException(ErrorStatus.PRODUCT_NOT_FOUND);
       }
     }
-  }
-
-  public ProductMemberSeller getProductMemberSellerByMemberId(Long memberId) {
-    return productMemberSellerRepository
-        .findByMemberId(memberId)
-        .orElseThrow(() -> new GeneralException(ErrorStatus.PRODUCT_SELLER_NOT_FOUND));
   }
 
   public Page<ProductFavorite> getProductFavorites(Long memberId, Pageable pageable) {

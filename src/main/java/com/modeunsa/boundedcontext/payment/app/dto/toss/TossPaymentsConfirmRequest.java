@@ -1,6 +1,6 @@
 package com.modeunsa.boundedcontext.payment.app.dto.toss;
 
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
+import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentProcessContext;
 import lombok.Builder;
 
 @Builder

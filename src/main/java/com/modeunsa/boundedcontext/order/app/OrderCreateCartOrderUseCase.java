@@ -9,14 +9,12 @@ import com.modeunsa.boundedcontext.order.out.OrderRepository;
 import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
+import com.modeunsa.shared.inventory.dto.InventoryReserveRequest;
+import com.modeunsa.shared.inventory.out.InventoryApiClient;
 import com.modeunsa.shared.order.dto.CreateCartOrderRequestDto;
 import com.modeunsa.shared.order.dto.OrderResponseDto;
-import com.modeunsa.shared.order.event.OrderCreatedEvent;
 import com.modeunsa.shared.product.dto.ProductOrderResponse;
 import com.modeunsa.shared.product.dto.ProductOrderValidateRequest;
-import com.modeunsa.shared.product.dto.ProductStockResponse;
-import com.modeunsa.shared.product.dto.ProductStockUpdateRequest;
-import com.modeunsa.shared.product.dto.ProductStockUpdateRequest.ProductOrderItemDto;
 import com.modeunsa.shared.product.out.ProductApiClient;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +31,7 @@ public class OrderCreateCartOrderUseCase {
   private final OrderMapper orderMapper;
   private final EventPublisher eventPublisher;
   private final ProductApiClient productApiClient;
+  private final InventoryApiClient inventoryApiClient;
 
   public OrderResponseDto createCartOrder(Long memberId, CreateCartOrderRequestDto requestDto) {
     // 회원 및 장바구니 목록 조회
@@ -50,12 +49,10 @@ public class OrderCreateCartOrderUseCase {
     Order order = createAndSaveOrder(member, cartItems, productMap, requestDto);
 
     // 재고 일괄 차감 요청
-    processStockDecrease(order);
+    requestReserveInventory(order);
 
     // 장바구니 비우기
     orderSupport.clearCart(memberId);
-
-    eventPublisher.publish(new OrderCreatedEvent(orderMapper.toOrderDto(order)));
 
     return orderMapper.toOrderResponseDto(order);
   }
@@ -83,10 +80,9 @@ public class OrderCreateCartOrderUseCase {
       if (product == null) {
         throw new GeneralException(ErrorStatus.PRODUCT_NOT_FOUND);
       }
-      // 2) 재고 부족
-      if (product.stock() < item.getQuantity()) {
-        throw new GeneralException(
-            ErrorStatus.ORDER_STOCK_NOT_ENOUGH, List.of(item.getProductId()));
+      // 2) 판매상태 여부
+      if (!product.isAvailable()) {
+        throw new GeneralException(ErrorStatus.PRODUCT_NOT_ON_SALE);
       }
     }
 
@@ -124,26 +120,14 @@ public class OrderCreateCartOrderUseCase {
   }
 
   // 재고 차감
-  private void processStockDecrease(Order order) {
+  private void requestReserveInventory(Order order) {
     // DTO 변환
-    List<ProductOrderItemDto> items =
+    List<InventoryReserveRequest.Item> items =
         order.getOrderItems().stream()
-            .map(item -> new ProductOrderItemDto(item.getProductId(), item.getQuantity()))
+            .map(item -> new InventoryReserveRequest.Item(item.getProductId(), item.getQuantity()))
             .toList();
 
     // API 호출
-    List<ProductStockResponse> stockResults =
-        productApiClient.updateStock(new ProductStockUpdateRequest(order.getId(), items));
-
-    // 실패 건 필터링
-    List<Long> failedProductIds =
-        stockResults.stream()
-            .filter(result -> !result.success())
-            .map(ProductStockResponse::productId)
-            .toList();
-
-    if (!failedProductIds.isEmpty()) {
-      throw new GeneralException(ErrorStatus.ORDER_STOCK_NOT_ENOUGH, failedProductIds);
-    }
+    inventoryApiClient.reserveInventory(new InventoryReserveRequest(items));
   }
 }

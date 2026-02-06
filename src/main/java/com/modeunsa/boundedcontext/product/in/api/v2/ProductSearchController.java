@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,12 +31,6 @@ public class ProductSearchController {
         request.category(),
         request.saleStatus(),
         request.price());
-  }
-
-  @Operation(summary = "검색 상품 단건 조회", description = "검색한 상품을 단 건으로 조회한다.")
-  @GetMapping("/{id}")
-  public ProductSearch findById(@PathVariable String name) {
-    return productSearchUseCase.findById(name).orElseThrow();
   }
 
   @Operation(summary = "검색 상품 조회", description = "name, description 기준으로 상품을 검색한다.")

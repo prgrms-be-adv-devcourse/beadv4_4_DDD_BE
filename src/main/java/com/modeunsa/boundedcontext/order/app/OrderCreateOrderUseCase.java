@@ -8,14 +8,12 @@ import com.modeunsa.boundedcontext.order.out.OrderRepository;
 import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
+import com.modeunsa.shared.inventory.dto.InventoryReserveRequest;
+import com.modeunsa.shared.inventory.out.InventoryApiClient;
 import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
 import com.modeunsa.shared.order.dto.OrderResponseDto;
-import com.modeunsa.shared.order.event.OrderCreatedEvent;
 import com.modeunsa.shared.product.dto.ProductOrderResponse;
 import com.modeunsa.shared.product.dto.ProductOrderValidateRequest;
-import com.modeunsa.shared.product.dto.ProductStockResponse;
-import com.modeunsa.shared.product.dto.ProductStockUpdateRequest;
-import com.modeunsa.shared.product.dto.ProductStockUpdateRequest.ProductOrderItemDto;
 import com.modeunsa.shared.product.out.ProductApiClient;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -29,22 +27,20 @@ public class OrderCreateOrderUseCase {
   private final OrderMapper orderMapper;
   private final EventPublisher eventPublisher;
   private final ProductApiClient productApiClient;
+  private final InventoryApiClient inventoryApiClient;
 
   public OrderResponseDto createOrder(Long memberId, CreateOrderRequestDto requestDto) {
     // 회원 확인
     OrderMember member = orderSupport.findByMemberId(memberId);
 
     // 상품 조회 및 검증
-    ProductOrderResponse product =
-        getValidatedProduct(requestDto.getProductId(), requestDto.getQuantity());
+    ProductOrderResponse product = getValidatedProduct(requestDto.getProductId());
 
     // 주문 생성 및 저장
     Order order = createAndSaveOrder(member, product, requestDto);
 
     // 재고 차감 및 검증
-    requestDecreaseStock(order);
-
-    eventPublisher.publish(new OrderCreatedEvent(orderMapper.toOrderDto(order)));
+    requestReserveInventory(order);
 
     return orderMapper.toOrderResponseDto(order);
   }
@@ -52,7 +48,7 @@ public class OrderCreateOrderUseCase {
   // --- Private Methods] ---
 
   // 상품 정보 조회
-  private ProductOrderResponse getValidatedProduct(Long productId, int quantity) {
+  private ProductOrderResponse getValidatedProduct(Long productId) {
     // 상품 모듈 api 호출
     List<ProductOrderResponse> responses =
         productApiClient.validateOrderProducts(new ProductOrderValidateRequest(List.of(productId)));
@@ -63,11 +59,8 @@ public class OrderCreateOrderUseCase {
             .findFirst()
             .orElseThrow(() -> new GeneralException(ErrorStatus.PRODUCT_NOT_FOUND));
 
-    // 검증 (품절, 재고 부족)
-    if (product.stock()
-        < quantity) { // !product.isAvailable() TODO: 상품 상태필드 받고 검증 추가, 지금 request에 상태 없음. 그리고 상품 새로
-      // 추가될 때 판매중상태 아님.
-      throw new GeneralException(ErrorStatus.ORDER_STOCK_NOT_ENOUGH, List.of(productId));
+    if (!product.isAvailable()) {
+      throw new GeneralException(ErrorStatus.PRODUCT_NOT_ON_SALE);
     }
 
     return product;
@@ -92,26 +85,14 @@ public class OrderCreateOrderUseCase {
   }
 
   // 상품 재고 차감
-  private void requestDecreaseStock(Order order) {
+  private void requestReserveInventory(Order order) {
     // 변환
-    List<ProductOrderItemDto> items =
+    List<InventoryReserveRequest.Item> items =
         order.getOrderItems().stream()
-            .map(item -> new ProductOrderItemDto(item.getProductId(), item.getQuantity()))
+            .map(item -> new InventoryReserveRequest.Item(item.getProductId(), item.getQuantity()))
             .toList();
 
     // API 호출
-    List<ProductStockResponse> stockResult =
-        productApiClient.updateStock(new ProductStockUpdateRequest(order.getId(), items));
-
-    List<Long> failedProductIds =
-        stockResult.stream()
-            .filter(result -> !result.success())
-            .map(ProductStockResponse::productId)
-            .toList();
-
-    // 실패한 게 하나라도 있으면 예외 발생 (ID 목록 함께 전달)
-    if (!failedProductIds.isEmpty()) {
-      throw new GeneralException(ErrorStatus.ORDER_STOCK_NOT_ENOUGH, failedProductIds);
-    }
+    inventoryApiClient.reserveInventory(new InventoryReserveRequest(items));
   }
 }

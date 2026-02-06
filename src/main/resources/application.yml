@@ -2,6 +2,9 @@ server:
   port: 8080
 
 spring:
+  devtools:
+    restart:
+      enabled: false
   config:
     import: optional:file:.env[.properties]
   profiles:
@@ -122,7 +125,6 @@ custom:
 encryption:
   enabled: true
   master-key: ${ENCRYPTION_MASTER_KEY}
-
 
 app:
   simulation:

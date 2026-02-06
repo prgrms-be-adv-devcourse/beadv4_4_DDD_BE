@@ -23,9 +23,9 @@ public class ProductUpdateProductUseCase {
   private final EventPublisher eventPublisher;
   private final ProductPolicy productPolicy;
 
-  public Product updateProduct(Long memberId, Long productId, ProductUpdateRequest request) {
+  public Product updateProduct(Long sellerId, Long productId, ProductUpdateRequest request) {
     // 판매자 및 상품 검증
-    ProductMemberSeller seller = productSupport.getProductMemberSellerByMemberId(memberId);
+    ProductMemberSeller seller = productSupport.getProductMemberSeller(sellerId);
     Product product = productSupport.getProduct(productId, seller.getId());
 
     // 정책 검증
@@ -46,8 +46,7 @@ public class ProductUpdateProductUseCase {
         request.getDescription(),
         request.getSaleStatus(),
         request.getPrice(),
-        request.getSalePrice(),
-        request.getStock());
+        request.getSalePrice());
 
     ProductDto productDto = productMapper.toDto(productRepository.save(product));
     eventPublisher.publish(new ProductUpdatedEvent(productDto));

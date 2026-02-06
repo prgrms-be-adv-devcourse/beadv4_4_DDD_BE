@@ -5,7 +5,7 @@ import com.modeunsa.global.eventpublisher.KafkaDomainEventPublisher;
 import com.modeunsa.global.eventpublisher.SpringDomainEventPublisher;
 import com.modeunsa.global.eventpublisher.topic.KafkaResolver;
 import com.modeunsa.global.json.JsonConverter;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,15 +15,17 @@ import org.springframework.kafka.core.KafkaTemplate;
 public class EventConfig {
 
   @Bean
-  public EventPublisher eventPublisher(
-      @Value("${app.event-publisher.type}") String type,
-      ApplicationEventPublisher applicationEventPublisher,
-      KafkaTemplate<String, Object> kafkaTemplate,
-      KafkaResolver topicResolver,
-      JsonConverter jsonConverter) {
+  @ConditionalOnProperty(name = "app.event-publisher.type", havingValue = "spring")
+  public EventPublisher springEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+    return new SpringDomainEventPublisher(applicationEventPublisher);
+  }
 
-    return "kafka".equalsIgnoreCase(type)
-        ? new KafkaDomainEventPublisher(kafkaTemplate, topicResolver, jsonConverter)
-        : new SpringDomainEventPublisher(applicationEventPublisher);
+  @Bean
+  @ConditionalOnProperty(name = "app.event-publisher.type", havingValue = "kafka")
+  public EventPublisher kafkaEventPublisher(
+      KafkaTemplate<String, Object> kafkaTemplate,
+      KafkaResolver kafkaResolver,
+      JsonConverter jsonConverter) {
+    return new KafkaDomainEventPublisher(kafkaTemplate, kafkaResolver, jsonConverter);
   }
 }

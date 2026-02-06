@@ -13,6 +13,10 @@ public class InventoryCreateInventoryUseCase {
   private final InventoryRepository inventoryRepository;
 
   public void createInventory(InventoryProduct product) {
+    if (inventoryRepository.existsByProductId(product.getId())) {
+      return;
+    }
+
     Inventory inventory = inventoryMapper.toInventoryFromProduct(product);
     inventoryRepository.save(inventory);
   }

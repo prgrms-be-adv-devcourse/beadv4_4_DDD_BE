@@ -1,0 +1,23 @@
+{{- if .Values.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "traefik.fullname" . }}
+  labels:
+    {{- include "traefik.labels" . | nindent 4 }}
+spec:
+  type: NodePort
+  ports:
+    - name: web
+      port: 80
+      targetPort: 80
+      nodePort: 30080
+    {{- range $name, $ep := .Values.entrypoints }}
+    - name: {{ $name }}
+      port: {{ $ep.port }}
+      targetPort: {{ $ep.port }}
+      nodePort: {{ $ep.nodePort }}
+    {{- end }}
+  selector:
+    app: {{ include "traefik.fullname" . }}
+{{- end }}
