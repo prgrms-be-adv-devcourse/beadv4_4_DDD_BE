@@ -68,8 +68,6 @@ export default function MagazineWritePage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isAuthChecked, setIsAuthChecked] = useState(false)
 
-  const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
-
   useEffect(() => {
     const token = localStorage.getItem('accessToken')
     if (!token?.trim()) {
@@ -82,11 +80,12 @@ export default function MagazineWritePage() {
   const uploadImageToS3 = async (file: File): Promise<string> => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL!
     const ext = getExtFromFile(file)
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
 
     const presignedRes = await fetch(`${apiUrl}/api/v1/files/presigned-url`, {
       method: 'POST',
       headers: {
-        ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+        ...(token && { Authorization: `Bearer ${token}` }),
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -108,7 +107,7 @@ export default function MagazineWritePage() {
     const publicRes = await fetch(`${apiUrl}/api/v1/files/public-url`, {
       method: 'POST',
       headers: {
-        ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+        ...(token && { Authorization: `Bearer ${token}` }),
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -266,7 +265,12 @@ export default function MagazineWritePage() {
       const res = await fetch(`${apiUrl}/api/v1/contents`, {
         method: 'POST',
         headers: {
-          ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+          ...(typeof window !== 'undefined' &&
+          localStorage.getItem('accessToken')?.trim()
+            ? {
+                Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              }
+            : {}),
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(body),
