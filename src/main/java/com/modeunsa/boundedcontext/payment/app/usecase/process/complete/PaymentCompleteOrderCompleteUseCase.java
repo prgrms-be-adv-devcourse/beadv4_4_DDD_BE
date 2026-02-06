@@ -1,7 +1,7 @@
-package com.modeunsa.boundedcontext.payment.app.usecase.complete;
+package com.modeunsa.boundedcontext.payment.app.usecase.process.complete;
 
 import co.elastic.clients.util.VisibleForTesting;
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
+import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentProcessContext;
 import com.modeunsa.boundedcontext.payment.app.lock.LockedPaymentAccounts;
 import com.modeunsa.boundedcontext.payment.app.lock.PaymentAccountLockManager;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
