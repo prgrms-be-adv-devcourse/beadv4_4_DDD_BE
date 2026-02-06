@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -60,6 +59,7 @@ public class ApiV1AuthController {
     JwtTokenResponse jwtTokenResponse =
         authFacade.oauthLogin(oauthProvider, code, redirectUri, state);
 
+    // Access Token 쿠키
     ResponseCookie accessTokenCookie =
         ResponseCookie.from("accessToken", jwtTokenResponse.accessToken())
             .httpOnly(cookieProperties.isHttpOnly())
@@ -69,47 +69,86 @@ public class ApiV1AuthController {
             .sameSite(cookieProperties.getSameSite())
             .build();
 
+    // Refresh Token 쿠키
+    ResponseCookie refreshTokenCookie =
+        ResponseCookie.from("refreshToken", jwtTokenResponse.refreshToken())
+            .httpOnly(true)  // XSS 방어를 위해 반드시 true
+            .secure(cookieProperties.isSecure())
+            .path(cookieProperties.getPath())
+            .maxAge(Duration.ofMillis(jwtTokenResponse.refreshTokenExpiresIn()))
+            .sameSite(cookieProperties.getSameSite())
+            .build();
+
     return ResponseEntity.ok()
         .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
+        .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
         .body(ApiResponse.onSuccess(SuccessStatus.AUTH_LOGIN_SUCCESS, jwtTokenResponse).getBody());
   }
 
   @Operation(summary = "토큰 재발급", description = "Refresh Token을 사용하여 Access Token을 재발급합니다.")
   @PostMapping("/reissue")
   public ResponseEntity<ApiResponse> reissue(
-      @Parameter(description = "Refresh Token", required = true) @RequestHeader("RefreshToken")
-          String refreshToken) {
+      @CookieValue(value = "refreshToken", required = true) String refreshToken) {
     JwtTokenResponse jwtTokenResponse = authFacade.reissueToken(refreshToken);
 
-    return ApiResponse.onSuccess(SuccessStatus.AUTH_TOKEN_REFRESH_SUCCESS, jwtTokenResponse);
+    ResponseCookie accessTokenCookie =
+        ResponseCookie.from("accessToken", jwtTokenResponse.accessToken())
+            .httpOnly(cookieProperties.isHttpOnly())
+            .secure(cookieProperties.isSecure())
+            .path(cookieProperties.getPath())
+            .maxAge(Duration.ofMillis(jwtTokenResponse.accessTokenExpiresIn()))
+            .sameSite(cookieProperties.getSameSite())
+            .build();
+
+    ResponseCookie refreshTokenCookie =
+        ResponseCookie.from("refreshToken", jwtTokenResponse.refreshToken())
+            .httpOnly(true)
+            .secure(cookieProperties.isSecure())
+            .path(cookieProperties.getPath())
+            .maxAge(Duration.ofMillis(jwtTokenResponse.refreshTokenExpiresIn()))
+            .sameSite(cookieProperties.getSameSite())
+            .build();
+
+    return ResponseEntity.ok()
+        .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
+        .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+        .body(ApiResponse.onSuccess(SuccessStatus.AUTH_TOKEN_REFRESH_SUCCESS, jwtTokenResponse).getBody());
   }
 
-  @Operation(summary = "로그아웃", description = "Access Token을 블랙리스트에 등록하고 Refresh Token을 삭제합니다.")
+  @Operation(summary = "로그아웃", description = "Access Token과 Refresh Token 쿠키를 삭제합니다.")
   @PostMapping("/logout")
   public ResponseEntity<ApiResponse> logout(
-      @Parameter(description = "Access Token") @CookieValue(value = "accessToken", required = false)
-          String accessToken) {
+      @CookieValue(value = "accessToken", required = false) String accessToken) {
 
-    // 1. 쿠키에 토큰이 없는 경우 처리
     if (accessToken == null) {
       throw new GeneralException(ErrorStatus.AUTH_INVALID_TOKEN_FORMAT);
     }
 
-    // 2. 비즈니스 로직 수행 (블랙리스트 등록 등)
     authFacade.logout(accessToken);
 
-    // 3. 브라우저 쿠키 삭제를 위한 ResponseCookie 생성
-    ResponseCookie cookie =
+    // Access Token 쿠키 삭제
+    ResponseCookie accessCookie =
         ResponseCookie.from("accessToken", "")
             .httpOnly(cookieProperties.isHttpOnly())
             .secure(cookieProperties.isSecure())
             .path(cookieProperties.getPath())
             .sameSite(cookieProperties.getSameSite())
-            .maxAge(0) // 즉시 만료시켜 삭제
+            .maxAge(0)
+            .build();
+
+    // Refresh Token 쿠키 삭제
+    ResponseCookie refreshCookie =
+        ResponseCookie.from("refreshToken", "")
+            .httpOnly(true)
+            .secure(cookieProperties.isSecure())
+            .path(cookieProperties.getPath())
+            .sameSite(cookieProperties.getSameSite())
+            .maxAge(0)
             .build();
 
     return ResponseEntity.ok()
-        .header(HttpHeaders.SET_COOKIE, cookie.toString())
+        .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+        .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
         .body(ApiResponse.onSuccess(SuccessStatus.AUTH_LOGOUT_SUCCESS).getBody());
   }
 

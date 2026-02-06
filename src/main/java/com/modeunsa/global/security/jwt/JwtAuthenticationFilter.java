@@ -5,6 +5,7 @@ import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.global.status.ErrorStatus;
+import com.modeunsa.shared.auth.dto.JwtTokenResponse;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -47,7 +48,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       @NonNull FilterChain filterChain)
       throws ServletException, IOException {
 
-    String token = resolveToken(request);
+    String token = resolveAccessToken(request);
 
     if (StringUtils.hasText(token)) {
       try {
@@ -65,21 +66,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
           throw new GeneralException(ErrorStatus.AUTH_BLACKLISTED_TOKEN);
         }
 
-        Long memberId = jwtTokenProvider.getMemberIdFromToken(token);
-        MemberRole role = jwtTokenProvider.getRoleFromToken(token);
-        Long sellerId = jwtTokenProvider.getSellerIdFromToken(token);
-
-        CustomUserDetails principal = new CustomUserDetails(memberId, role, sellerId);
-
-        UsernamePasswordAuthenticationToken authentication =
-            new UsernamePasswordAuthenticationToken(
-                principal, null, List.of(new SimpleGrantedAuthority(ROLE_PREFIX + role.name())));
-
-        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        log.debug("인증 정보 저장 완료 - memberId: {}, role: {}", memberId, role);
+        // 인증 처리
+        setAuthentication(token, request);
       } catch (GeneralException e) {
+        // 토큰 만료 시 자동 재발급 시도
+        if (e.getErrorStatus() == ErrorStatus.AUTH_EXPIRED_TOKEN) {
+          String refreshToken = resolveRefreshToken(request);
+
+          if (StringUtils.hasText(refreshToken)) {
+            try {
+              // 재발급 시도
+              JwtTokenResponse newTokens = attemptTokenRefresh(refreshToken);
+
+              // 새 토큰으로 인증 설정
+              setAuthentication(newTokens.accessToken(), request);
+
+              // 응답 헤더에 새 쿠키 설정
+              setNewTokenCookies(response, newTokens);
+
+              log.info("토큰 자동 재발급 성공 - memberId: {}",
+                  jwtTokenProvider.getMemberIdFromToken(newTokens.accessToken()));
+
+              filterChain.doFilter(request, response);
+              return;
+            } catch (Exception refreshError) {
+              log.warn("토큰 자동 재발급 실패: {}", refreshError.getMessage());
+              request.setAttribute(EXCEPTION_ATTRIBUTE, e);
+            }
+          }
+        }
+
         log.warn("토큰 검증 실패: {}", e.getMessage());
         request.setAttribute(EXCEPTION_ATTRIBUTE, e);
       }
@@ -89,7 +105,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   }
 
   /** Request Header 또는 Cookie에서 토큰 추출 */
-  private String resolveToken(HttpServletRequest request) {
+  private String resolveAccessToken(HttpServletRequest request) {
     String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
 
     // 1. 기존 헤더 방식 유지
@@ -107,5 +123,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     return null;
+  }
+
+  private String resolveRefreshToken(HttpServletRequest request) {
+    if (request.getCookies() != null) {
+      for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
+        if ("refreshToken".equals(cookie.getName())) {
+          return cookie.getValue();
+        }
+      }
+    }
+    return null;
+  }
+
+  private void setAuthentication(String token, HttpServletRequest request) {
+    Long memberId = jwtTokenProvider.getMemberIdFromToken(token);
+    MemberRole role = jwtTokenProvider.getRoleFromToken(token);
+    Long sellerId = jwtTokenProvider.getSellerIdFromToken(token);
+
+    CustomUserDetails principal = new CustomUserDetails(memberId, role, sellerId);
+    UsernamePasswordAuthenticationToken authentication =
+        new UsernamePasswordAuthenticationToken(
+            principal, null, List.of(new SimpleGrantedAuthority(ROLE_PREFIX + role.name())));
+
+    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+    SecurityContextHolder.getContext().setAuthentication(authentication);
+
+    log.debug("인증 정보 저장 완료 - memberId: {}, role: {}", memberId, role);
   }
 }
