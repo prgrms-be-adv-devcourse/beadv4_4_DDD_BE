@@ -21,8 +21,23 @@ export async function GET() {
       cache: 'no-store' // 캐시 방지
     });
 
+    // HTTP 응답 상태 확인 (response.ok)
+    if (!response.ok) {
+      // 비-200 상태 코드일 때도 JSON 에러 응답이 있을 수 있으므로 파싱 시도
+      // JSON 파싱 실패 시(HTML 에러 페이지 등)를 대비해 catch 처리
+      const errorData = await response.json().catch(() => ({
+        isSuccess: false,
+        message: `백엔드 요청 실패: ${response.statusText}`
+      }));
+
+      // 백엔드의 상태 코드와 에러 데이터를 그대로 클라이언트에 전달
+      return NextResponse.json(errorData, { status: response.status });
+    }
+
+    // 성공(200 OK)인 경우 정상적으로 데이터 파싱 및 반환
     const data = await response.json();
     return NextResponse.json(data);
+
   } catch (error) {
     console.error('백엔드 통신 에러:', error);
     return NextResponse.json({ isSuccess: false, message: '서버 통신 실패' }, { status: 500 });
