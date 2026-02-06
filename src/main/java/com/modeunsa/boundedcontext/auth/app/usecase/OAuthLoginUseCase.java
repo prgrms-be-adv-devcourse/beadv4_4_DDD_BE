@@ -11,9 +11,7 @@ import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.auth.dto.JwtTokenResponse;
 import com.modeunsa.shared.auth.dto.OAuthProviderTokenResponse;
 import com.modeunsa.shared.auth.dto.OAuthUserInfo;
-import java.time.Duration;
-import java.util.UUID; // 중복 해제 방지용
-import java.util.function.Supplier;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -30,69 +28,51 @@ public class OAuthLoginUseCase {
   private final StringRedisTemplate redisTemplate;
   private final MemberSupport memberSupport;
 
-  // 락 관련 상수 설정
-  private static final Duration LOCK_TIMEOUT = Duration.ofSeconds(10); // 3초에서 10초로 연장
-  private static final int MAX_RETRY_COUNT = 15; // 재시도 횟수 증가
-  private static final long RETRY_DELAY_MS = 300; // 재시도 간격 조정
-
   public JwtTokenResponse execute(
       OAuthProvider provider, String code, String redirectUri, String state) {
-    // 1. state 검증
-    validateState(state, provider);
 
-    // 2. OAuth 토큰 교환
-    OAuthClient oauthClient = oauthClientFactory.getClient(provider);
-    OAuthProviderTokenResponse tokenResponse = oauthClient.getToken(code, redirectUri);
+    // 요청 ID 생성 (각 요청 구분용)
+    String requestId = UUID.randomUUID().toString().substring(0, 8);
 
-    // 3. 사용자 정보 조회
-    OAuthUserInfo userInfo = oauthClient.getUserInfo(tokenResponse.accessToken());
+    log.info("[{}] OAuth 로그인 시작 - provider: {}, state: {}",
+        requestId, provider, state);
 
-    // --- [분산 락 적용] ---
-    String lockKey = "lock:auth:" + provider + ":" + userInfo.providerId();
+    try {
+      // 1. state 검증
+      validateState(state, provider);
+      log.info("[{}] State 검증 완료", requestId);
 
-    return executeWithLock(
-        lockKey,
-        () -> {
-          // 4. 소셜 계정 조회 또는 신규 가입
-          OAuthAccount socialAccount = oauthAccountResolveUseCase.execute(provider, userInfo);
+      // 2. OAuth 토큰 교환
+      OAuthClient oauthClient = oauthClientFactory.getClient(provider);
+      OAuthProviderTokenResponse tokenResponse = oauthClient.getToken(code, redirectUri);
+      log.info("[{}] OAuth 토큰 교환 완료", requestId);
 
-          Member member = socialAccount.getMember();
-          Long sellerId = memberSupport.getSellerIdByMemberId(member.getId());
+      // 3. 사용자 정보 조회
+      OAuthUserInfo userInfo = oauthClient.getUserInfo(tokenResponse.accessToken());
+      log.info("[{}] 사용자 정보 조회 완료 - providerId: {}",
+          requestId, userInfo.providerId());
 
-          // 5. JWT 토큰 발급
-          return authTokenIssueUseCase.execute(member.getId(), member.getRole(), sellerId);
-        });
-  }
+      // 4. 소셜 계정 조회 또는 신규 가입
+      log.info("[{}] 소셜 계정 처리 시작", requestId);
+      OAuthAccount socialAccount = oauthAccountResolveUseCase.execute(provider, userInfo);
+      log.info("[{}] 소셜 계정 처리 완료 - accountId: {}, memberId: {}",
+          requestId, socialAccount.getId(), socialAccount.getMember().getId());
 
-  private JwtTokenResponse executeWithLock(String key, Supplier<JwtTokenResponse> supplier) {
-    // 락의 소유권을 식별하기 위한 고유 값 (다른 프로세스가 내 락을 해제하는 것 방지)
-    String lockValue = UUID.randomUUID().toString();
+      Member member = socialAccount.getMember();
+      Long sellerId = memberSupport.getSellerIdByMemberId(member.getId());
 
-    for (int i = 0; i < MAX_RETRY_COUNT; i++) {
-      Boolean acquired = redisTemplate.opsForValue().setIfAbsent(key, lockValue, LOCK_TIMEOUT);
+      // 5. JWT 토큰 발급
+      JwtTokenResponse jwtTokenResponse = authTokenIssueUseCase.execute(
+          member.getId(), member.getRole(), sellerId);
 
-      if (Boolean.TRUE.equals(acquired)) {
-        try {
-          return supplier.get();
-        } finally {
-          // 내가 획득한 락인지 확인 후 해제 (안정성 강화)
-          String currentValue = redisTemplate.opsForValue().get(key);
-          if (lockValue.equals(currentValue)) {
-            redisTemplate.delete(key);
-          }
-        }
-      }
+      log.info("[{}] ✅ OAuth 로그인 성공 - memberId: {}", requestId, member.getId());
+      return jwtTokenResponse;
 
-      try {
-        Thread.sleep(RETRY_DELAY_MS);
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-        log.warn("Social login lock acquisition failed for key: {}. System is busy.", key);
-        throw new GeneralException(ErrorStatus.AUTH_TOO_MANY_REQUESTS);
-      }
+    } catch (Exception e) {
+      log.error("[{}] ❌ OAuth 로그인 실패 - error: {}, message: {}",
+          requestId, e.getClass().getSimpleName(), e.getMessage());
+      throw e;
     }
-    log.error("Failed to acquire lock for key: {}", key);
-    throw new GeneralException(ErrorStatus.AUTH_TOO_MANY_REQUESTS);
   }
 
   private void validateState(String state, OAuthProvider provider) {
