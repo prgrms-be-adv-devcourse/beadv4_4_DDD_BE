@@ -1,10 +1,10 @@
 package com.modeunsa.boundedcontext.payment.in.api.v1;
 
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
-import com.modeunsa.boundedcontext.payment.app.dto.ConfirmPaymentRequest;
-import com.modeunsa.boundedcontext.payment.app.dto.ConfirmPaymentResponse;
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentRequest;
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentResponse;
+import com.modeunsa.boundedcontext.payment.app.dto.payment.ConfirmPaymentRequest;
+import com.modeunsa.boundedcontext.payment.app.dto.payment.ConfirmPaymentResponse;
+import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentRequest;
+import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentResponse;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.global.status.SuccessStatus;

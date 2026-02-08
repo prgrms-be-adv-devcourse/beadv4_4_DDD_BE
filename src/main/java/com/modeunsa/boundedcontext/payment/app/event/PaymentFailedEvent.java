@@ -1,6 +1,6 @@
 package com.modeunsa.boundedcontext.payment.app.event;
 
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
+import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentProcessContext;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode;
 import com.modeunsa.global.event.EventUtils;
 import com.modeunsa.global.event.TraceableEvent;

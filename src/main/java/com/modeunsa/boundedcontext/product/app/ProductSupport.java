@@ -58,13 +58,13 @@ public class ProductSupport {
   }
 
   public Page<Product> getProducts(
-      Long memberId,
+      Long sellerId,
       String name,
       ProductCategory category,
       SaleStatus saleStatus,
       ProductStatus productStatus,
       Pageable pageable) {
-    ProductMemberSeller seller = this.getProductMemberSellerByMemberId(memberId);
+    ProductMemberSeller seller = this.getProductMemberSeller(sellerId);
     return productRepository.findAllBySeller(
         seller, name, category, saleStatus, productStatus, pageable);
   }
@@ -107,12 +107,6 @@ public class ProductSupport {
         throw new GeneralException(ErrorStatus.PRODUCT_NOT_FOUND);
       }
     }
-  }
-
-  public ProductMemberSeller getProductMemberSellerByMemberId(Long memberId) {
-    return productMemberSellerRepository
-        .findByMemberId(memberId)
-        .orElseThrow(() -> new GeneralException(ErrorStatus.PRODUCT_SELLER_NOT_FOUND));
   }
 
   public Page<ProductFavorite> getProductFavorites(Long memberId, Pageable pageable) {
