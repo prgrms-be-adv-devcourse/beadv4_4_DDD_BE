@@ -1,10 +1,10 @@
 spring:
   config:
-    import: optional:file:.env.dev[.properties]
+    import: optional:file:.env.k3s-dev[.properties]
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:modeunsa}
-    username: root
-    password: ${MYSQL_ROOT_PASSWORD:}
+    url: jdbc:mysql://127.0.0.1:30306/${DB_NAME:modeunsa}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
   h2:
     console:
@@ -17,28 +17,29 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
         highlight_sql: true
         use_sql_comments: true
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: 127.0.0.1
+      port: 30379
       password: ${REDIS_PASSWORD:}
   security:
     oauth2:
       client:
         registration:
           kakao:
-            client-id: ${KAKAO_CLIENT_ID}
-            client-secret: ${KAKAO_CLIENT_SECRET}
+            client-id: ${KAKAO_CLIENT_ID:dummy}
+            client-secret: ${KAKAO_CLIENT_SECRET:dummy}
             redirect-uri: "http://127.0.0.1:8080/login/oauth2/code/kakao"
             authorization-grant-type: authorization_code
             client-authentication-method: client_secret_post
             client-name: KAKAO
           naver:
-            client-id: ${NAVER_CLIENT_ID}
-            client-secret: ${NAVER_CLIENT_SECRET}
+            client-id: ${NAVER_CLIENT_ID:dummy}
+            client-secret: ${NAVER_CLIENT_SECRET:dummy}
             redirect-uri: "http://127.0.0.1:8080/login/oauth2/code/naver"
             authorization-grant-type: authorization_code
             client-name: NAVER
@@ -54,20 +55,16 @@ spring:
 
   elasticsearch:
     uris:
-      - http://localhost:9200
+      - http://127.0.0.1:30920
 
 management:
   health:
     elasticsearch:
       enabled: false
 
-#  kafka:
-#    listener:
-#      auto-startup: false
-
 custom:
   swagger:
-    serverUrl: http://localhost:8080
+    serverUrl: ${SWAGGER_SERVER_URL:http://127.0.0.1:8080}
     description: "Local Server"
   security:
     permit-all: false
@@ -87,6 +84,10 @@ custom:
       - /login/oauth2/code/**
       - /api/v1/test/roles/**
 
+      # ========== 헬스체크 ==========
+      - /actuator/health
+      - /actuator/prometheus
+
       # ========== 콘텐츠 ==========
       - /api/v1/contents/**
     oauth2:
@@ -100,6 +101,7 @@ custom:
       - http://127.0.0.1:3000
       - http://localhost:8080
       - http://127.0.0.1:8080
+      - http://localhost:30080
 
 jwt:
   secret: ${JWT_SECRET:local-test-jwt-secret-key-which-is-long-enough-32bytes}
