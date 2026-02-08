@@ -5,8 +5,10 @@ import com.modeunsa.boundedcontext.product.out.search.ProductSearchRepository;
 import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
+@Profile("!test")
 @Service
 @RequiredArgsConstructor
 public class ProductSearchUseCase {

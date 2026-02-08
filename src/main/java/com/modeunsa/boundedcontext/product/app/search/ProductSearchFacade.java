@@ -4,9 +4,11 @@ import com.modeunsa.boundedcontext.product.domain.search.document.ProductSearch;
 import com.modeunsa.shared.product.dto.search.ProductSearchRequest;
 import com.modeunsa.shared.product.dto.search.ProductSearchResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Profile("!test")
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)

@@ -13,12 +13,6 @@ public class ModeunsaApplicationTests {
   @MockitoBean(name = "orderDataInitApplicationRunner")
   private ApplicationRunner runner;
 
-  @MockitoBean private co.elastic.clients.elasticsearch.ElasticsearchClient elasticsearchClient;
-
-  @MockitoBean
-  private org.springframework.data.elasticsearch.core.ElasticsearchOperations
-      elasticsearchOperations;
-
   @Test
   void contextLoads() {}
 }
