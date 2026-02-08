@@ -1,17 +1,17 @@
 #!/bin/bash
 #
-# Modeunsa 애플리케이션 배포 스크립트
+# Modeunsa 애플리케이션 배포 스크립트 (k3s)
 #
 # 사전 조건:
 #   - infra가 먼저 실행되어 있어야 함 (./k8s/infra.sh up)
 #   - Docker 이미지가 빌드되어 있어야 함
 #
 # 사용법:
-#   ./k8s/app.sh up        앱 배포
-#   ./k8s/app.sh down      앱 중지
-#   ./k8s/app.sh status    앱 상태 확인
-#   ./k8s/app.sh restart   앱 재시작
-#   ./k8s/app.sh logs      앱 로그 확인
+#   ./k8s/app.sh up [dev|prod]    앱 배포 (기본: dev)
+#   ./k8s/app.sh down             앱 중지
+#   ./k8s/app.sh status           앱 상태 확인
+#   ./k8s/app.sh restart          앱 재시작
+#   ./k8s/app.sh logs             앱 로그 확인
 #
 # 접속 정보:
 #   API Server    localhost:30080
@@ -20,15 +20,32 @@
 NAMESPACE="modeunsa"
 RELEASE="modeunsa-app"
 CHART_DIR="$(dirname "$0")/app"
-ENV_FILE="$(dirname "$0")/../.env"
+ROOT_DIR="$(dirname "$0")/.."
+
+# 환경 인자 처리 (dev/prod, 기본값: dev)
+get_env_file() {
+  local env="${1:-dev}"
+  case "$env" in
+    dev|prod)
+      echo "$ROOT_DIR/.env.k3s-$env"
+      ;;
+    *)
+      echo "오류: 환경은 'dev' 또는 'prod'만 가능합니다." >&2
+      exit 1
+      ;;
+  esac
+}
 
 case "$1" in
   up)
+    ENV_FILE=$(get_env_file "$2")
     # .env 로드
     if [ -f "$ENV_FILE" ]; then
+      echo "환경 파일 로드: $ENV_FILE"
       source "$ENV_FILE"
     else
       echo ".env 파일을 찾을 수 없습니다: $ENV_FILE"
+      echo "다음 명령어로 생성하세요: cp .env.example $ENV_FILE"
       exit 1
     fi
 
@@ -113,6 +130,12 @@ case "$1" in
     ;;
 
   *)
-    echo "Usage: $0 {up|down|status|restart|logs}"
+    echo "Usage: $0 {up|down|status|restart|logs} [dev|prod]"
+    echo ""
+    echo "Examples:"
+    echo "  $0 up dev       # dev 환경으로 배포"
+    echo "  $0 up prod      # prod 환경으로 배포"
+    echo "  $0 down         # 중지"
+    echo "  $0 logs         # 로그 확인"
     ;;
 esac

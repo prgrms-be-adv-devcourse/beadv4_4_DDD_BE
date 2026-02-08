@@ -2,10 +2,9 @@ server:
   port: 8080
 
 spring:
-  config:
-    import: optional:file:.env[.properties]
-  profiles:
-    active: dev
+  devtools:
+    restart:
+      enabled: false
   application:
     name: modeunsa
   data:

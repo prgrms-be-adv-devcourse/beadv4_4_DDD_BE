@@ -35,7 +35,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 @Component
 public class S3UploadService {
 
-  @Value("${spring.config.activate.on-profile}")
+  @Value("${spring.profiles.active:default}")
   private String profile;
 
   private final String bucket;
