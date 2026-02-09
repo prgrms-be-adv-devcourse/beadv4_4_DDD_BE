@@ -30,7 +30,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -124,9 +123,6 @@ public class Payment extends AuditedEntity {
 
   @Lob private String pgFailureReason;
 
-  private static final Set<PaymentStatus> ALLOWED_FOR_IN_PROGRESS =
-      Set.of(PaymentStatus.PENDING, PaymentStatus.IN_PROGRESS);
-
   public static Payment create(
       PaymentId id,
       Long orderId,
@@ -205,6 +201,11 @@ public class Payment extends AuditedEntity {
     changeStatus(PaymentStatus.IN_PROGRESS);
   }
 
+  public void validatePgProcess() {
+    validatePaymentStatus(PaymentStatus.IN_PROGRESS);
+    validatePaymentDeadline();
+  }
+
   public void updatePgRequestInfo(boolean needPgPayment, BigDecimal requestPgAmount) {
     this.needPgPayment = needPgPayment;
     this.requestPgAmount = requestPgAmount;
@@ -257,14 +258,21 @@ public class Payment extends AuditedEntity {
   }
 
   private void validateCanChangeToInProgress() {
-    if (!ALLOWED_FOR_IN_PROGRESS.contains(this.status)) {
+    validatePaymentStatus(PaymentStatus.PENDING);
+    validatePaymentDeadline();
+  }
+
+  private void validatePaymentStatus(PaymentStatus paymentStatus) {
+    if (this.status != paymentStatus) {
       throw new PaymentDomainException(
           INVALID_PAYMENT_STATUS,
           String.format(
               "결제 진행상태로 변경할 수 없는 상태입니다. 회원 ID: %d, 주문 번호: %s, 현재 상태: %s",
               getId().getMemberId(), getId().getOrderNo(), this.status));
     }
+  }
 
+  private void validatePaymentDeadline() {
     if (this.paymentDeadlineAt.isBefore(LocalDateTime.now())) {
       throw new PaymentDomainException(
           OVERDUE_PAYMENT_DEADLINE,
