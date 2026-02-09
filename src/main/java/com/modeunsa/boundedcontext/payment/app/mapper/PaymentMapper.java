@@ -2,10 +2,9 @@ package com.modeunsa.boundedcontext.payment.app.mapper;
 
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberResponse;
+import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberSyncRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.order.PaymentOrderInfo;
 import com.modeunsa.boundedcontext.payment.app.dto.settlement.PaymentPayoutInfo;
-import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
-import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
 import com.modeunsa.shared.member.event.MemberSignupEvent;
 import com.modeunsa.shared.order.dto.OrderDto;
@@ -20,17 +19,12 @@ public interface PaymentMapper {
 
   PaymentOrderInfo toPaymentOrderInfo(OrderDto orderDto);
 
-  @Mapping(target = "customerKey", source = "paymentMember.customerKey")
-  @Mapping(target = "customerName", source = "paymentMember.name")
-  @Mapping(target = "customerEmail", source = "paymentMember.email")
-  @Mapping(target = "balance", source = "paymentAccount.balance")
-  PaymentMemberResponse toPaymentMemberResponse(
-      PaymentMember paymentMember, PaymentAccount paymentAccount);
+  PaymentMemberResponse toPaymentMemberResponse(PaymentMemberDto paymentMemberDto);
 
   @Mapping(target = "id", source = "memberId")
   @Mapping(target = "name", source = "realName")
   @Mapping(target = "status", source = "status", qualifiedByName = "mapMemberStatus")
-  PaymentMemberDto toPaymentMemberDto(MemberSignupEvent memberSignupEvent);
+  PaymentMemberSyncRequest toPaymentMemberSyncRequest(MemberSignupEvent memberSignupEvent);
 
   @Named("mapMemberStatus")
   default MemberStatus mapMemberStatus(
