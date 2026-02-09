@@ -45,10 +45,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   // PRE_ACTIVE 상태일 때도 접근 가능한 URL 목록 (Whitelist)
   private static final String[] PRE_ACTIVE_ALLOW_URLS = {
-      "/api/v1/auths", // 로그아웃, 토큰 재발급 등
-      "/api/v2/members/me/basic-info", // 가입 정보 조회
-      "/api/v2/members/me/signup-complete", // 가입 완료 처리
-      "/api/v1/files" // 이미지 업로드 (프로필 사진용)
+      "/api/v1/auths",                     // 로그아웃, 토큰 재발급 등
+      "/api/v1/members/me/basic-info",     // 기본 정보 조회
+      "/api/v2/members/me/signup-complete",// 가입 완료 처리
+      "/api/v1/files"                      // 이미지 업로드
   };
 
   @Override
