@@ -167,7 +167,7 @@ export default function SignupCompletePage() {
                 onChange={handleChange}
                 style={inputStyle}
             >
-              <option value="">선택 안 함</option>
+              <option value="">피부 타입</option>
               <option value="dry">건성 (Dry)</option>
               <option value="oily">지성 (Oily)</option>
               <option value="combination">복합성 (Combination)</option>
