@@ -172,12 +172,13 @@ public class Payment extends AuditedEntity {
     changeStatus(PaymentStatus.APPROVED);
   }
 
-  public void failedPayment(
-      PaymentErrorCode errorCode, String failureMessage, Long memberId, String orderNo) {
+  public void failedPayment(PaymentErrorCode errorCode, String failureMessage) {
     this.failedErrorCode = errorCode;
     this.failedAt = LocalDateTime.now();
     this.failedReason = failureMessage;
-    changeStatusByFailure(PaymentStatus.FAILED, failureMessage);
+    PaymentStatus failedStatus =
+        errorCode.isFinalFailure() ? PaymentStatus.FINAL_FAILED : PaymentStatus.FAILED;
+    changeStatusByFailure(failedStatus, failureMessage);
   }
 
   public void failedTossPayment(HttpStatus httpStatus, String message) {
