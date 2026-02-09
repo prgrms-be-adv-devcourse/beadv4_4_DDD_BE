@@ -41,6 +41,7 @@ public class OrderFacade {
   private final OrderUpdateMemberUseCase orderUpdateMemberUseCase;
   private final OrderCreateDeliveryAddressUseCase orderCreateDeliveryAddressUseCase;
   private final OrderGetOrderUseCase orderGetOrderUseCase;
+  private final OrderConfirmOrderCancellationUseCase orderConfirmOrderCancellationUseCase;
 
   // 장바구니 아이템 생성
   @Transactional
@@ -158,5 +159,9 @@ public class OrderFacade {
 
   public List<Long> getRecentCartItems(Long memberId, int cartItemSize) {
     return orderSupport.getRecentCartItems(memberId, cartItemSize);
+  }
+
+  public void confirmOrderCancellation(PaymentDto payment) {
+    orderConfirmOrderCancellationUseCase.confirmOrderCancellation(payment.orderId());
   }
 }

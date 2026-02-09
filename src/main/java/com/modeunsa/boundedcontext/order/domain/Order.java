@@ -172,4 +172,8 @@ public class Order extends GeneratedIdAndAuditedEntity {
   public void confirm() {
     this.status = OrderStatus.PURCHASE_CONFIRMED;
   }
+
+  public void confirmCancellation() {
+    this.status = OrderStatus.CANCELLED;
+  }
 }

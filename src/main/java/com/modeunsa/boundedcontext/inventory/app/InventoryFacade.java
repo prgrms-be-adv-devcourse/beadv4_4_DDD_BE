@@ -6,7 +6,9 @@ import com.modeunsa.shared.inventory.dto.InventoryDto;
 import com.modeunsa.shared.inventory.dto.InventoryReserveRequest;
 import com.modeunsa.shared.inventory.dto.InventoryUpdateRequest;
 import com.modeunsa.shared.inventory.dto.InventoryUpdateResponse;
+import com.modeunsa.shared.order.dto.OrderItemDto;
 import com.modeunsa.shared.product.dto.ProductDto;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,7 @@ public class InventoryFacade {
   private final InventoryMapper inventoryMapper;
   private final InventoryReserveInventoryUseCase inventoryReserveInventoryUseCase;
   private final InventoryGetAvailableQuantityUseCase inventoryGetAvailableQuantityUseCase;
+  private final InventoryReleaseInventoryUseCase inventoryReleaseInventoryUseCase;
 
   @Transactional
   public void registerSeller(Long sellerId, String businessName, String representativeName) {
@@ -53,5 +56,10 @@ public class InventoryFacade {
 
   public InventoryAvailableQuantityResponse getAvailableQuantity(Long productId) {
     return inventoryGetAvailableQuantityUseCase.getAvailableQuantity(productId);
+  }
+
+  @Transactional
+  public void releaseInventory(List<OrderItemDto> orderItems) {
+    inventoryReleaseInventoryUseCase.releaseInventory(orderItems);
   }
 }

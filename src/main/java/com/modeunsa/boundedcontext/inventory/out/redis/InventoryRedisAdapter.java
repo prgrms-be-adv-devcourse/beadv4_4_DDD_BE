@@ -25,6 +25,12 @@ public class InventoryRedisAdapter implements InventoryCommandPort {
       return available - requestQty
       """;
 
+  private static final String RELEASE_LUA =
+      """
+      redis.call("INCRBY", KEYS[1], ARGV[1])
+      return 1
+      """;
+
   public void reserve(Long productId, int quantity) {
     String key = inventoryKey(productId);
 
@@ -37,6 +43,13 @@ public class InventoryRedisAdapter implements InventoryCommandPort {
     if (result == null || result < 0) {
       throw new GeneralException(ErrorStatus.INSUFFICIENT_STOCK);
     }
+  }
+
+  public void release(Long productId, int quantity) {
+    redisTemplate.execute(
+        new DefaultRedisScript<>(RELEASE_LUA, Long.class),
+        List.of(inventoryKey(productId)),
+        String.valueOf(quantity));
   }
 
   private String inventoryKey(Long productId) {

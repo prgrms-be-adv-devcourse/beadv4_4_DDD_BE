@@ -81,6 +81,8 @@ public enum ErrorStatus {
   ORDER_CART_EMPTY(HttpStatus.BAD_REQUEST, "ORDER_400_003", "장바구니가 비어 있습니다."),
   ORDER_CANNOT_REFUND(HttpStatus.BAD_REQUEST, "ORDER_400_004", "환불 가능한 상태나 기간이 아닙니다."),
   PRODUCT_NOT_ON_SALE(HttpStatus.BAD_REQUEST, "ORDER_400_005", "판매중인 상품이 아닙니다."),
+  ORDER_CANCELLATION_CANNOT_CONFIRM(
+      HttpStatus.BAD_REQUEST, "ORDER_400_006", "현재 주문 상태에서는 주문취소를 확정할 수 없습니다."),
 
   ORDER_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_404_001", "없는 상품입니다."),
   ORDER_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_404_002", "없는 회원입니다."),
