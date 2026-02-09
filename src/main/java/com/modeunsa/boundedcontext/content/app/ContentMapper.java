@@ -1,10 +1,10 @@
 package com.modeunsa.boundedcontext.content.app;
 
+import com.modeunsa.boundedcontext.content.app.dto.ContentRequest;
+import com.modeunsa.boundedcontext.content.app.dto.ContentResponse;
 import com.modeunsa.boundedcontext.content.domain.entity.Content;
 import com.modeunsa.boundedcontext.content.domain.entity.ContentComment;
 import com.modeunsa.shared.content.dto.ContentCommentResponse;
-import com.modeunsa.shared.content.dto.ContentRequest;
-import com.modeunsa.shared.content.dto.ContentResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
