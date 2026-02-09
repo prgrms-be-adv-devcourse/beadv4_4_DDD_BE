@@ -46,7 +46,7 @@ public class Member extends GeneratedIdAndAuditedEntity {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   @Builder.Default
-  private MemberStatus status = MemberStatus.ACTIVE;
+  private MemberStatus status = MemberStatus.PRE_ACTIVE;
 
   @Convert(converter = EncryptedStringConverter.class)
   private String email;
