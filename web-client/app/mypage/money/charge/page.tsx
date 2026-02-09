@@ -77,7 +77,7 @@ export default function MoneyChargePage() {
         return
       }
       try {
-        const res = await fetch(`${apiUrl}/api/v1/payments/accounts`, {
+        const res = await fetch(`${apiUrl}/api/v1/payments/members`, {
           headers: { Authorization: `Bearer ${accessToken}` },
         })
         const data: PaymentAccountApiResponse = await res.json()

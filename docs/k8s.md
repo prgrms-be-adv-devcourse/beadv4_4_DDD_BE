@@ -73,29 +73,43 @@ Colima는 macOS/Linux 전용이므로 Windows에서는 Rancher Desktop을 사용
 
 ## 빠른 시작
 
+### 1. 환경 파일 설정
+
+```bash
+# 템플릿 복사
+cp .env.example .env.k3s.dev     # 개발 환경
+cp .env.example .env.k3s-prod    # 운영 환경
+
+# K3s용 호스트 설정으로 변경
+vi .env.k3s.dev
+```
+
+### 2. 실행
+
 | 스크립트 | 역할 |
 |---------|------|
 | `./k8s/infra.sh` | 인프라만 관리 (MySQL, Redis, ES 등) |
-| `./k8s/app.sh` | 애플리케이션만 관리 (API 서버, 인프라가 먼저 실행되어 있어야 함) |
+| `./k8s/app.sh` | 애플리케이션만 관리 (API 서버) |
 | `./k8s/deploy.sh` | 인프라 + 앱 통합 관리 |
 
 ```bash
 # 인프라만
-./k8s/infra.sh up        # 인프라 시작
-./k8s/infra.sh down      # 인프라 중지 (데이터 유지)
-./k8s/infra.sh clean     # 인프라 삭제 (데이터 포함)
-./k8s/infra.sh status    # 상태 확인
-./k8s/infra.sh restart   # 재시작
+./k8s/infra.sh up dev       # 인프라 시작 (dev 환경)
+./k8s/infra.sh up prod      # 인프라 시작 (prod 환경)
+./k8s/infra.sh down         # 인프라 중지 (데이터 유지)
+./k8s/infra.sh clean        # 인프라 삭제 (데이터 포함)
+./k8s/infra.sh status       # 상태 확인
 
 # 앱만 (인프라 실행 중이어야 함)
-./k8s/app.sh up          # 앱 배포
-./k8s/app.sh down        # 앱 중지
-./k8s/app.sh logs        # 앱 로그
+./k8s/app.sh up dev         # 앱 배포 (dev 환경)
+./k8s/app.sh up prod        # 앱 배포 (prod 환경)
+./k8s/app.sh down           # 앱 중지
+./k8s/app.sh logs           # 앱 로그
 
 # 전체 (인프라 + 앱)
-./k8s/deploy.sh up       # 전체 시작
-./k8s/deploy.sh down     # 전체 중지
-./k8s/deploy.sh clean    # 전체 삭제
+./k8s/deploy.sh up          # 전체 시작
+./k8s/deploy.sh down        # 전체 중지
+./k8s/deploy.sh clean       # 전체 삭제
 ```
 
 ### 접속 정보
@@ -127,12 +141,42 @@ Colima는 macOS/Linux 전용이므로 Windows에서는 Rancher Desktop을 사용
 
 ---
 
-## 환경 변수 (.env)
+## 환경 변수 설정
 
-인프라 실행에 필요한 환경 변수를 `.env` 파일에 설정합니다:
+### 환경 파일 생성
 
 ```bash
-# MySQL
+# 템플릿에서 환경 파일 생성
+cp .env.example .env.k3s.dev     # 개발 환경
+cp .env.example .env.k3s-prod    # 운영 환경
+
+# 환경 파일 편집 (호스트 설정 변경 필요)
+vi .env.k3s.dev
+```
+
+### K3s용 호스트 설정
+
+K3s 환경에서는 서비스 이름을 사용해야 합니다. `.env.k3s.*` 파일에서 다음과 같이 설정하세요:
+
+```bash
+# Database
+DB_HOST=modeunsa-infra-mysql
+DB_PORT=3306
+
+# Redis
+REDIS_HOST=modeunsa-infra-redis
+REDIS_PORT=6379
+
+# Elasticsearch
+ES_HOST=modeunsa-infra-elasticsearch
+ES_PORT=9200
+SPRING_ELASTICSEARCH_URIS=http://modeunsa-infra-elasticsearch:9200
+```
+
+### 필수 환경 변수
+
+```bash
+# Database
 MYSQL_ROOT_PASSWORD=your_password
 MYSQL_DATABASE=modeunsa
 
@@ -142,9 +186,10 @@ REDIS_PASSWORD=your_redis_password
 # Grafana
 GF_SECURITY_ADMIN_USER=admin
 GF_SECURITY_ADMIN_PASSWORD=your_grafana_password
-```
 
-> `.env` 파일은 프로젝트 루트에 위치해야 합니다.
+# Docker Image (app 배포 시 필요)
+DOCKER_IMAGE=your-registry/modeunsa:latest
+```
 
 ---
 

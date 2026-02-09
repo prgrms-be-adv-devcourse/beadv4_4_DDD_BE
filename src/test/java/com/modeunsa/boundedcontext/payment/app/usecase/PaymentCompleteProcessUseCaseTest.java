@@ -10,11 +10,12 @@ import com.modeunsa.boundedcontext.payment.app.lock.LockedPaymentAccounts;
 import com.modeunsa.boundedcontext.payment.app.lock.PaymentAccountLockManager;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentSupport;
 import com.modeunsa.boundedcontext.payment.app.usecase.process.complete.PaymentCompleteOrderCompleteUseCase;
+import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
+import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
-import com.modeunsa.boundedcontext.payment.domain.types.PaymentStatus;
 import com.modeunsa.global.config.PaymentAccountConfig;
 import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.shared.payment.dto.PaymentDto;
@@ -39,6 +40,7 @@ class PaymentCompleteProcessUseCaseTest {
   @Mock private EventPublisher eventPublisher;
   @Mock private PaymentAccountConfig paymentAccountConfig;
   @Mock private PaymentAccountLockManager paymentAccountLockManager;
+  @Mock private Payment payment;
 
   @InjectMocks private PaymentCompleteOrderCompleteUseCase paymentOrderCompleteUseCase;
 
@@ -86,6 +88,9 @@ class PaymentCompleteProcessUseCaseTest {
     when(paymentAccountLockManager.getEntitiesForUpdateInOrder(HOLDER_ID, buyerId))
         .thenReturn(lockedAccounts);
 
+    PaymentId paymentId = PaymentId.create(buyerId, paymentProcessContext.orderNo());
+    when(paymentSupport.getPaymentById(paymentId)).thenReturn(payment);
+
     // 테스트코드에서 잔액은 변경되지 않고 증감, 감소된 금액으로만 검증
     final BigDecimal holderBalanceBefore = holderAccount.getBalance();
     final BigDecimal buyerBalanceBefore = buyerAccount.getBalance();
@@ -103,9 +108,9 @@ class PaymentCompleteProcessUseCaseTest {
     assertThat(holderAccount.getBalance())
         .isEqualByComparingTo(holderBalanceBefore.add(paymentProcessContext.totalAmount()));
 
-    // PaymentStatus 변경 확인
-    verify(paymentSupport)
-        .changePaymentStatus(buyerId, paymentProcessContext.orderNo(), PaymentStatus.COMPLETED);
+    // Payment 조회 후 상태 변경 확인
+    verify(paymentSupport).getPaymentById(paymentId);
+    verify(payment).changeSuccess();
 
     // 이벤트 발행 확인
     verify(eventPublisher).publish(any(PaymentSuccessEvent.class));
@@ -139,6 +144,9 @@ class PaymentCompleteProcessUseCaseTest {
     when(paymentAccountLockManager.getEntitiesForUpdateInOrder(HOLDER_ID, buyerId))
         .thenReturn(lockedAccounts);
 
+    PaymentId paymentId = PaymentId.create(buyerId, paymentProcessContext.orderNo());
+    when(paymentSupport.getPaymentById(paymentId)).thenReturn(payment);
+
     // 테스트코드에서 잔액은 변경되지 않고 증감, 감소된 금액으로만 검증
     final BigDecimal holderBalanceBefore = holderAccount.getBalance();
     final BigDecimal buyerBalanceBefore = buyerAccount.getBalance();
@@ -159,9 +167,9 @@ class PaymentCompleteProcessUseCaseTest {
     assertThat(holderAccount.getBalance())
         .isEqualByComparingTo(holderBalanceBefore.add(totalAmount));
 
-    // PaymentStatus 변경 확인
-    verify(paymentSupport)
-        .changePaymentStatus(buyerId, paymentProcessContext.orderNo(), PaymentStatus.COMPLETED);
+    // Payment 조회 후 상태 변경 확인
+    verify(paymentSupport).getPaymentById(paymentId);
+    verify(payment).changeSuccess();
 
     // 이벤트 발행 확인
     verify(eventPublisher).publish(any(PaymentSuccessEvent.class));
@@ -195,6 +203,10 @@ class PaymentCompleteProcessUseCaseTest {
     // PaymentAccountLockManager Mock 설정
     when(paymentAccountLockManager.getEntitiesForUpdateInOrder(HOLDER_ID, buyerId))
         .thenReturn(lockedAccounts);
+
+    // payment Mock 설정
+    PaymentId paymentId = PaymentId.create(buyerId, paymentProcessContext.orderNo());
+    when(paymentSupport.getPaymentById(paymentId)).thenReturn(payment);
 
     // when
     paymentOrderCompleteUseCase.execute(paymentProcessContext);

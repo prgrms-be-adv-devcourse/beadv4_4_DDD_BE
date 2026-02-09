@@ -71,15 +71,7 @@ public class OrderCreateOrderUseCase {
       OrderMember member, ProductOrderResponse product, CreateOrderRequestDto request) {
     OrderItem orderItem = orderMapper.toOrderItemEntity(product, request);
 
-    Order order =
-        Order.createOrder(
-            member,
-            List.of(orderItem),
-            request.getRecipientName(),
-            request.getRecipientPhone(),
-            request.getZipCode(),
-            request.getAddress(),
-            request.getAddressDetail());
+    Order order = Order.createOrder(member, List.of(orderItem));
 
     return orderRepository.save(order);
   }

@@ -58,11 +58,11 @@ public class Order extends GeneratedIdAndAuditedEntity {
 
   // --- 배송 정보 ---
   @Convert(converter = EncryptedStringConverter.class)
-  @Column(name = "recipient_name", nullable = false, length = 500)
+  @Column(name = "recipient_name", length = 500)
   private String recipientName;
 
   @Convert(converter = EncryptedStringConverter.class)
-  @Column(name = "recipient_phone", nullable = false, length = 500)
+  @Column(name = "recipient_phone", length = 500)
   private String recipientPhone;
 
   @Convert(converter = EncryptedStringConverter.class)
@@ -70,11 +70,11 @@ public class Order extends GeneratedIdAndAuditedEntity {
   private String zipCode;
 
   @Convert(converter = EncryptedStringConverter.class)
-  @Column(name = "address", nullable = false, length = 500)
+  @Column(name = "address", length = 500)
   private String address;
 
   @Convert(converter = EncryptedStringConverter.class)
-  @Column(name = "address_detail", nullable = false, length = 500)
+  @Column(name = "address_detail", length = 500)
   private String addressDetail;
 
   // --- 시간 정보 ---
@@ -103,14 +103,7 @@ public class Order extends GeneratedIdAndAuditedEntity {
   }
 
   // 정적 메서드
-  public static Order createOrder(
-      OrderMember member,
-      List<OrderItem> orderItems,
-      String recipientName,
-      String recipientPhone,
-      String zipCode,
-      String address,
-      String addressDetail) {
+  public static Order createOrder(OrderMember member, List<OrderItem> orderItems) {
 
     // 주문 껍데기 생성
     Order order =
@@ -118,11 +111,6 @@ public class Order extends GeneratedIdAndAuditedEntity {
             .orderMember(member)
             .orderNo(generateOrderNo())
             .status(OrderStatus.PENDING_PAYMENT)
-            .recipientName(recipientName)
-            .recipientPhone(recipientPhone)
-            .zipCode(zipCode)
-            .address(address)
-            .addressDetail(addressDetail)
             .build();
 
     for (OrderItem item : orderItems) {
@@ -171,5 +159,18 @@ public class Order extends GeneratedIdAndAuditedEntity {
 
   public void confirm() {
     this.status = OrderStatus.PURCHASE_CONFIRMED;
+  }
+
+  public void addDeliveryInfo(
+      String recipientName,
+      String recipientPhone,
+      String zipCode,
+      String address,
+      String addressDetail) {
+    this.recipientName = recipientName;
+    this.recipientPhone = recipientPhone;
+    this.zipCode = zipCode;
+    this.address = address;
+    this.addressDetail = addressDetail;
   }
 }

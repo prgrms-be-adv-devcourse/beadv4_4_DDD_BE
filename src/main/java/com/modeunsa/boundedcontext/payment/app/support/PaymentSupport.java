@@ -2,7 +2,6 @@ package com.modeunsa.boundedcontext.payment.app.support;
 
 import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
-import com.modeunsa.boundedcontext.payment.domain.types.PaymentStatus;
 import com.modeunsa.boundedcontext.payment.out.PaymentReader;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
@@ -24,11 +23,5 @@ public class PaymentSupport {
 
   public Optional<Payment> getOptPaymentById(PaymentId paymentId) {
     return paymentReader.findById(paymentId);
-  }
-
-  public void changePaymentStatus(Long buyerId, String orderNo, PaymentStatus paymentStatus) {
-    PaymentId paymentId = new PaymentId(buyerId, orderNo);
-    Payment payment = getPaymentById(paymentId);
-    payment.changeStatus(paymentStatus);
   }
 }

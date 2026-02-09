@@ -1,6 +1,5 @@
-package com.modeunsa.boundedcontext.member.in.controller;
+package com.modeunsa.boundedcontext.member.in.api.v1;
 
-import com.modeunsa.boundedcontext.file.app.S3UploadService;
 import com.modeunsa.boundedcontext.file.domain.DomainType;
 import com.modeunsa.boundedcontext.member.app.facade.MemberFacade;
 import com.modeunsa.global.response.ApiResponse;
@@ -43,7 +42,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController {
 
   private final MemberFacade memberFacade;
-  private final S3UploadService s3UploadService;
 
   /** 생성 (Create) */
   @Operation(summary = "배송지 추가", description = "새로운 배송지를 추가합니다. 최대 10개까지 등록 가능합니다.")
