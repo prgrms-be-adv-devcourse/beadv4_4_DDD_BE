@@ -115,6 +115,13 @@ export default function ProfilePage() {
 
   // 프로필 이미지 업로드
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    // 1. 프로필 존재 여부 체크 (백엔드 에러 방지)
+    if (!hasProfile) {
+      alert('프로필 정보를 먼저 생성(저장)한 후 이미지를 업로드할 수 있습니다.');
+      e.target.value = '';
+      return;
+    }
+
     const file = e.target.files?.[0]
     if (!file) return
 
@@ -135,8 +142,7 @@ export default function ProfilePage() {
       setUploading(true)
 
       // 1. Presigned URL 발급
-      const ext = file.type.split('/')[1] // png, jpeg, webp
-      console.log('1. Presigned URL 요청:', { domainType: 'MEMBER', contentType: file.type, ext })
+      const ext = file.type.split('/')[1]
 
       const presignedResponse = await api.post('/api/v1/files/presigned-url', {
         domainType: 'MEMBER',
@@ -144,17 +150,13 @@ export default function ProfilePage() {
         ext: ext,
       })
 
-      // 백엔드 응답: { presignedUrl, key }
       const result = presignedResponse.data.result
       const presignedUrl = result.presignedUrl || result.url
       const rawKey = result.key || result.rawKey || result.objectKey
 
       if (!presignedUrl || !rawKey) {
-        console.error('❌ Presigned URL 또는 rawKey가 없습니다:', result)
         throw new Error('Presigned URL 발급 응답이 올바르지 않습니다.')
       }
-
-      console.log('2. Presigned URL 발급 완료:', { presignedUrl, rawKey })
 
       // 2. S3에 직접 업로드
       const s3Response = await fetch(presignedUrl, {
@@ -166,26 +168,19 @@ export default function ProfilePage() {
       })
 
       if (!s3Response.ok) {
-        throw new Error(`S3 업로드 실패: ${s3Response.status} ${s3Response.statusText}`)
+        throw new Error(`S3 업로드 실패: ${s3Response.status}`)
       }
-
-      console.log('3. S3 업로드 완료')
 
       // S3 업로드 후 약간의 지연 (S3 eventual consistency)
       await new Promise(resolve => setTimeout(resolve, 1000))
 
-      // 3. 프로필 이미지 업데이트 (이 API가 내부적으로 public-url 변환도 처리함)
-      console.log('4. 프로필 이미지 업데이트 요청:', { rawKey, domainType: 'MEMBER', contentType: file.type })
-
+      // 3. 프로필 이미지 업데이트
       const updateResponse = await api.patch('/api/v1/members/me/profile/image', {
         rawKey: rawKey,
         domainType: 'MEMBER',
         contentType: file.type,
       })
 
-      console.log('5. 프로필 이미지 업데이트 완료:', updateResponse.data)
-
-      // 응답에서 imageUrl 추출 (백엔드 응답: { imageUrl, key })
       const imageUrl = updateResponse.data.result?.imageUrl || updateResponse.data.result?.publicUrl
 
       if (imageUrl) {
@@ -193,30 +188,18 @@ export default function ProfilePage() {
       }
 
       alert('프로필 이미지가 업로드되었습니다.')
-
-      // 프로필 재조회
       await fetchData()
     } catch (error: any) {
-      console.error('❌ 이미지 업로드 실패:', error)
-
-      // 상세 에러 메시지
+      console.error('이미지 업로드 실패:', error)
       let errorMessage = '이미지 업로드에 실패했습니다.'
-
       if (error.response) {
-        console.error('에러 응답:', {
-          status: error.response.status,
-          data: error.response.data,
-          headers: error.response.headers,
-        })
         errorMessage = error.response.data?.message || `서버 에러 (${error.response.status})`
       } else if (error.message) {
         errorMessage = error.message
       }
-
       alert(errorMessage)
     } finally {
       setUploading(false)
-      // input 초기화 (같은 파일 재선택 가능하도록)
       e.target.value = ''
     }
     window.dispatchEvent(new Event('loginStatusChanged'));
@@ -256,7 +239,7 @@ export default function ProfilePage() {
                   accept="image/png,image/jpeg,image/webp"
                   style={{ display: 'none' }}
                   onChange={handleImageUpload}
-                  disabled={uploading}
+                  disabled={uploading || !hasProfile} // 프로필 없을 때 비활성화
               />
               <label
                   htmlFor="profile-image-upload"
@@ -273,38 +256,46 @@ export default function ProfilePage() {
                     color: 'white',
                     fontWeight: '600',
                     fontSize: '26px',
-                    cursor: uploading ? 'not-allowed' : 'pointer',
+                    cursor: (uploading || !hasProfile) ? 'not-allowed' : 'pointer',
                     position: 'relative',
-                    opacity: uploading ? 0.6 : 1,
+                    opacity: (uploading || !hasProfile) ? 0.6 : 1,
                   }}
-                  title={uploading ? '업로드 중...' : '클릭하여 이미지 변경'}
+                  title={!hasProfile ? '프로필 정보를 먼저 저장해주세요' : (uploading ? '업로드 중...' : '클릭하여 이미지 변경')}
+                  onClick={(e) => {
+                    if (!hasProfile) {
+                      e.preventDefault();
+                      alert('프로필 정보를 먼저 생성(저장)해 주세요.');
+                    }
+                  }}
               >
                 {uploading ? (
                     <div style={{ fontSize: '12px' }}>...</div>
                 ) : !profileImageUrl ? (
                     avatarLetter
                 ) : null}
-                {/* 호버 시 오버레이 */}
-                <div
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      width: '100%',
-                      height: '100%',
-                      borderRadius: '50%',
-                      background: 'rgba(0, 0, 0, 0.3)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      opacity: 0,
-                      transition: 'opacity 0.2s',
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
-                    onMouseLeave={(e) => (e.currentTarget.style.opacity = '0')}
-                >
-                  <span style={{ fontSize: '12px', color: 'white' }}>변경</span>
-                </div>
+
+                {hasProfile && (
+                    <div
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          height: '100%',
+                          borderRadius: '50%',
+                          background: 'rgba(0, 0, 0, 0.3)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          opacity: 0,
+                          transition: 'opacity 0.2s',
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
+                        onMouseLeave={(e) => (e.currentTarget.style.opacity = '0')}
+                    >
+                      <span style={{ fontSize: '12px', color: 'white' }}>변경</span>
+                    </div>
+                )}
               </label>
               <div>
                 <div style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>이름</div>
@@ -312,6 +303,11 @@ export default function ProfilePage() {
                 <div style={{ fontSize: '13px', color: '#666', marginTop: '2px' }}>{email}</div>
               </div>
             </div>
+            {!hasProfile && (
+                <div style={{ fontSize: '12px', color: '#ff4d4f', marginTop: '8px' }}>
+                  * 프로필을 먼저 생성해야 이미지를 등록할 수 있습니다.
+                </div>
+            )}
             {uploading && (
                 <div style={{ fontSize: '13px', color: '#667eea', marginTop: '8px' }}>
                   이미지 업로드 중...
@@ -319,7 +315,7 @@ export default function ProfilePage() {
             )}
           </div>
 
-          {/* 프로필(닉네임/신체/피부) 정보 수정 */}
+          {/* 프로필 정보 수정 */}
           <div
               style={{
                 background: 'white',
@@ -351,14 +347,14 @@ export default function ProfilePage() {
             <div style={{ marginBottom: '16px', display: 'flex', gap: '12px' }}>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>
-                  키 (cm)
+                  키 (50~300cm)
                 </label>
                 <input
                     type="number"
                     value={heightCm}
                     onChange={(e) => setHeightCm(e.target.value === '' ? '' : Number(e.target.value))}
                     placeholder="예: 175"
-                    min="0"
+                    min="50"
                     max="300"
                     style={{
                       width: '100%',
@@ -378,7 +374,7 @@ export default function ProfilePage() {
                     value={weightKg}
                     onChange={(e) => setWeightKg(e.target.value === '' ? '' : Number(e.target.value))}
                     placeholder="예: 65"
-                    min="0"
+                    min="20"
                     max="500"
                     style={{
                       width: '100%',
