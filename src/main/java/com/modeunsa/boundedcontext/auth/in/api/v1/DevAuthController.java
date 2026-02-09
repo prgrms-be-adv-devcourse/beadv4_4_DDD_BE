@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.auth.in.controller;
+package com.modeunsa.boundedcontext.auth.in.api.v1;
 
 import com.modeunsa.boundedcontext.auth.app.facade.AuthFacade;
 import com.modeunsa.boundedcontext.member.app.support.MemberSupport;
@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/auths/dev")
 @RequiredArgsConstructor
-public class ApiV1DevAuthController {
+public class DevAuthController {
   private final MemberRepository memberRepository;
   private final MemberSupport memberSupport;
   private final AuthFacade authFacade;
