@@ -49,26 +49,37 @@ const cardStyle = {
 export default function MypageNav() {
   const [realName, setRealName] = useState('')
   const [email, setEmail] = useState('')
+  const [profileImageUrl, setProfileImageUrl] = useState('')
   const [loading, setLoading] = useState(true)
 
-  // 기본정보 조회
-  useEffect(() => {
-    const fetchBasicInfo = async () => {
-      try {
-        setLoading(true)
-        const response = await api.get('/api/v1/members/me/basic-info')
-        const basicInfo = response.data.result
+  const fetchInfo = async () => {
+    try {
+      setLoading(true)
+      const [basicRes, profileRes] = await Promise.allSettled([
+          api.get('/api/v1/members/me/basic-info'),
+          api.get('/api/v1/members/me/profile')
+      ])
 
-        setRealName(basicInfo.realName || '')
-        setEmail(basicInfo.email || '')
-      } catch (error) {
-        console.error('기본정보 조회 실패:', error)
-      } finally {
-        setLoading(false)
+      if (basicRes.status === 'fulfilled') {
+        setRealName(basicRes.value.data.result.realName || '')
+        setEmail(basicRes.value.data.result.email || '')
       }
+      if (profileRes.status === 'fulfilled') {
+        setProfileImageUrl(profileRes.value.data.result.profileImageUrl || '')
+      }
+    } finally {
+      setLoading(false)
     }
+  }
 
-    fetchBasicInfo()
+  // 기본 정보 + 프로필 조회
+  useEffect(() => {
+    fetchInfo()
+    window.addEventListener('loginStatusChanged', fetchInfo)
+    return () => {
+      // 언마운트 시 이벤트 제거
+      window.removeEventListener('loginStatusChanged', fetchInfo)
+    }
   }, [])
 
   const getUserRoleFromToken = () => {
@@ -107,16 +118,19 @@ export default function MypageNav() {
                     width: '40px',
                     height: '40px',
                     borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    background: profileImageUrl
+                        ? `url(${profileImageUrl}) center/cover`
+                        : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     color: 'white',
                     fontWeight: 600,
                     fontSize: '18px',
+                    overflow: 'hidden'
                   }}
               >
-                {loading ? '...' : avatarLetter}
+                {loading ? '...' : (!profileImageUrl && avatarLetter)}
               </div>
               <div>
                 <div style={{ fontSize: '13px', fontWeight: 600 }}>

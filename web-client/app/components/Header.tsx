@@ -10,6 +10,7 @@ export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
   const profileRef = useRef<HTMLDivElement | null>(null)
+  const [profileImageUrl, setProfileImageUrl] = useState('')
 
   // 기본 정보 상태 추가
   const [realName, setRealName] = useState('')
@@ -22,8 +23,9 @@ export default function Header() {
       const response = await api.get('/api/v1/auths/me');
       if (response.data.isSuccess) {
         setIsLoggedIn(true);
-        // 로그인 상태이면 기본정보도 조회
+        // 로그인 상태이면 기본정보와 프로필도 조회
         fetchBasicInfo();
+        fetchProfile();
       } else {
         setIsLoggedIn(false);
       }
@@ -38,12 +40,19 @@ export default function Header() {
     try {
       const response = await api.get('/api/v1/members/me/basic-info');
       const basicInfo = response.data.result;
-
       setRealName(basicInfo.realName || '');
       setEmail(basicInfo.email || '');
     } catch (error) {
       console.error('기본정보 조회 실패:', error);
     }
+  }
+
+  // 프로필 조회
+  const fetchProfile = async () => {
+    try {
+      const profileRes = await api.get('/api/v1/members/me/profile');
+      setProfileImageUrl(profileRes.data.result.profileImageUrl || '');
+    } catch (e) { /* 프로필 없는 경우 무시 */ }
   }
 
   useEffect(() => {
@@ -76,6 +85,8 @@ export default function Header() {
         // 기본정보 초기화
         setRealName('');
         setEmail('');
+        // 프로필 초기화
+        setProfileImageUrl('');
         alert('로그아웃 되었습니다.');
         router.push('/');
       }
@@ -131,16 +142,19 @@ export default function Header() {
                           width: '32px',
                           height: '32px',
                           borderRadius: '50%',
-                          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                          background: profileImageUrl
+                              ? `url(${profileImageUrl}) center/cover`
+                              : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', // 조건부 배경
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           color: 'white',
                           fontWeight: '600',
                           fontSize: '14px',
+                          overflow: 'hidden'
                         }}
                     >
-                      {avatarLetter}
+                      {!profileImageUrl && avatarLetter}
                     </div>
                     <span style={{ fontSize: '14px', fontWeight: '500' }}>
                       {realName ? `${realName} 님` : '마이페이지'}
