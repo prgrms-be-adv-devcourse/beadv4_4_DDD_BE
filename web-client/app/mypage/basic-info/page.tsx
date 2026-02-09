@@ -46,10 +46,18 @@ export default function BasicInfoPage() {
         phoneNumber,
       })
 
+      // 저장 성공 시 전역 이벤트 발생 (Header/Nav 갱신용)
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('loginStatusChanged'))
+      }
+
       alert('기본정보가 저장되었습니다.')
-    } catch (error) {
+    } catch (error: any) {
       console.error('기본정보 저장 실패:', error)
-      alert('저장에 실패했습니다.')
+
+      //  백엔드에서 전달된 구체적인 에러 메시지 표시
+      const errorMessage = error.response?.data?.message || '저장에 실패했습니다.'
+      alert(errorMessage)
     } finally {
       setSaving(false)
     }
