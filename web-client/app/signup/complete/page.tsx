@@ -18,14 +18,13 @@ export default function SignupCompletePage() {
     nickname: '',
     heightCm: '',
     weightKg: '',
-    skinType: '', // 초기값 빈 문자열
+    skinType: '', // optional
   })
 
   // 페이지 진입 시 기본 정보 불러오기
   useEffect(() => {
     const fetchBasicInfo = async () => {
       try {
-        // 내 정보 조회 API
         const response = await api.get('/api/v1/members/me/basic-info')
         if (response.data.isSuccess) {
           const { realName, email, phoneNumber } = response.data.result
@@ -38,7 +37,6 @@ export default function SignupCompletePage() {
         }
       } catch (error) {
         console.error('기본 정보 로드 실패', error)
-        // 토큰이 없거나 만료되면 로그인 페이지로
         router.replace('/login')
       }
     }
@@ -53,8 +51,8 @@ export default function SignupCompletePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // 간단한 유효성 검사
-    if (!formData.nickname || !formData.skinType || !formData.realName || !formData.email) {
+    // 필수값만 검사 (skinType 제외)
+    if (!formData.nickname || !formData.phoneNumber || !formData.realName || !formData.email) {
       alert('필수 정보를 모두 입력해주세요.')
       return
     }
@@ -62,7 +60,6 @@ export default function SignupCompletePage() {
     try {
       setLoading(true)
 
-      // 백엔드 SignupCompleteRequest DTO 구조에 맞춤
       const requestBody = {
         realName: formData.realName,
         email: formData.email,
@@ -70,17 +67,16 @@ export default function SignupCompletePage() {
         nickname: formData.nickname,
         heightCm: formData.heightCm ? Number(formData.heightCm) : null,
         weightKg: formData.weightKg ? Number(formData.weightKg) : null,
-        skinType: formData.skinType,
-        profileImageUrl: null // 필요 시 이미지 업로드 로직 추가
+        skinType: formData.skinType ? formData.skinType : null, // ✅ optional 처리
+        profileImageUrl: null
       }
 
       const response = await api.post('/api/v2/members/signup-complete', requestBody)
 
       if (response.data.isSuccess) {
         alert('회원가입이 완료되었습니다! 환영합니다.')
-        // 로그인 상태 갱신 이벤트 발생
         window.dispatchEvent(new Event('loginStatusChanged'))
-        router.replace('/') // 홈으로 이동
+        router.replace('/')
       } else {
         alert(response.data.message || '가입 처리에 실패했습니다.')
       }
@@ -171,7 +167,7 @@ export default function SignupCompletePage() {
                 onChange={handleChange}
                 style={inputStyle}
             >
-              <option value="" disabled>피부 타입 선택</option>
+              <option value="">선택 안 함</option>
               <option value="dry">건성 (Dry)</option>
               <option value="oily">지성 (Oily)</option>
               <option value="combination">복합성 (Combination)</option>
