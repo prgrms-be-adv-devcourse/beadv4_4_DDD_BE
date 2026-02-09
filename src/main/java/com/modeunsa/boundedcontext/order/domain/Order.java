@@ -160,4 +160,17 @@ public class Order extends GeneratedIdAndAuditedEntity {
   public void confirm() {
     this.status = OrderStatus.PURCHASE_CONFIRMED;
   }
+
+  public void addDeliveryInfo(
+      String recipientName,
+      String recipientPhone,
+      String zipCode,
+      String address,
+      String addressDetail) {
+    this.recipientName = recipientName;
+    this.recipientPhone = recipientPhone;
+    this.zipCode = zipCode;
+    this.address = address;
+    this.addressDetail = addressDetail;
+  }
 }
