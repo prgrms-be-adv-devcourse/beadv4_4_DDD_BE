@@ -160,9 +160,9 @@ public class MemberFacade {
     Long sellerId = memberSupport.getSellerIdByMemberId(memberId);
 
     String accessToken =
-        jwtTokenProvider.createAccessToken(member.getId(), member.getRole(), sellerId);
+        jwtTokenProvider.createAccessToken(member.getId(), member.getRole(), sellerId, member.getStatus().name());
     String refreshToken =
-        jwtTokenProvider.createRefreshToken(member.getId(), member.getRole(), sellerId);
+        jwtTokenProvider.createRefreshToken(member.getId(), member.getRole(), sellerId, member.getStatus().name());
 
     return new SellerRegisterResponse(accessToken, refreshToken);
   }
