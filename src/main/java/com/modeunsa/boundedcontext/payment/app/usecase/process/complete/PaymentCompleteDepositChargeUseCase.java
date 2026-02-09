@@ -3,10 +3,11 @@ package com.modeunsa.boundedcontext.payment.app.usecase.process.complete;
 import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentProcessContext;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentSupport;
+import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
+import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentPurpose;
-import com.modeunsa.boundedcontext.payment.domain.types.PaymentStatus;
 import com.modeunsa.boundedcontext.payment.domain.types.ReferenceType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,12 @@ public class PaymentCompleteDepositChargeUseCase implements PaymentCompleteProce
         context.buyerId(),
         ReferenceType.PAYMENT_MEMBER);
 
-    paymentSupport.changePaymentStatus(context.buyerId(), context.orderNo(), PaymentStatus.SUCCESS);
+    Payment payment = loadPayment(context.buyerId(), context.orderNo());
+    payment.changeSuccess();
+  }
+
+  private Payment loadPayment(Long memberId, String orderNo) {
+    PaymentId paymentId = PaymentId.create(memberId, orderNo);
+    return paymentSupport.getPaymentById(paymentId);
   }
 }
