@@ -3,8 +3,8 @@ package com.modeunsa.boundedcontext.payment.in.api.v1;
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
 import com.modeunsa.boundedcontext.payment.app.dto.account.PaymentAccountDepositRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.account.PaymentAccountDepositResponse;
-import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
-import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberResponse;
+import com.modeunsa.boundedcontext.payment.app.dto.account.PaymentAccountDto;
+import com.modeunsa.boundedcontext.payment.app.dto.account.PaymentAccountResponse;
 import com.modeunsa.boundedcontext.payment.app.mapper.PaymentMapper;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.security.CustomUserDetails;
@@ -42,9 +42,10 @@ public class PaymentAccountController {
 
   @Operation(summary = "결제 계좌 정보 조회 기능", description = "결제 계좌 정보를 조회하는 기능입니다.")
   @GetMapping
-  public ResponseEntity<ApiResponse> getMember(@AuthenticationPrincipal CustomUserDetails user) {
-    PaymentMemberDto data = paymentFacade.getMember(user.getMemberId());
-    PaymentMemberResponse response = paymentMapper.toPaymentMemberResponse(data);
+  public ResponseEntity<ApiResponse> getAccountBalance(
+      @AuthenticationPrincipal CustomUserDetails user) {
+    PaymentAccountDto data = paymentFacade.getAccountBalance(user.getMemberId());
+    PaymentAccountResponse response = paymentMapper.toPaymentAccountResponse(data);
     return ApiResponse.onSuccess(SuccessStatus.OK, response);
   }
 }

@@ -10,8 +10,8 @@ import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
 import com.modeunsa.boundedcontext.payment.app.dto.account.PaymentAccountDepositRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.account.PaymentAccountDepositResponse;
-import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
-import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberResponse;
+import com.modeunsa.boundedcontext.payment.app.dto.account.PaymentAccountDto;
+import com.modeunsa.boundedcontext.payment.app.dto.account.PaymentAccountResponse;
 import com.modeunsa.boundedcontext.payment.app.mapper.PaymentMapper;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.boundedcontext.payment.in.BasePaymentControllerTest;
@@ -111,7 +111,7 @@ class PaymentAccountControllerTest extends BasePaymentControllerTest {
 
   @Test
   @DisplayName("계좌 정보 조회 성공 - 유효한 요청으로 계좌 정보 조회 성공")
-  void getMemberSuccess() throws Exception {
+  void getAccountBalanceSuccess() throws Exception {
     // given
     Long memberId = 1L;
     String customerKey = "customer_key_123";
@@ -119,13 +119,12 @@ class PaymentAccountControllerTest extends BasePaymentControllerTest {
     String customerEmail = "test@example.com";
     BigDecimal balance = BigDecimal.valueOf(50000.00);
 
-    PaymentMemberDto dto = new PaymentMemberDto(customerKey, customerName, customerEmail, balance);
+    PaymentAccountDto dto = new PaymentAccountDto(memberId, balance);
 
-    PaymentMemberResponse response =
-        new PaymentMemberResponse(customerKey, customerName, customerEmail, balance);
+    PaymentAccountResponse response = new PaymentAccountResponse(memberId, balance);
 
-    when(paymentFacade.getMember(memberId)).thenReturn(dto);
-    when(paymentMapper.toPaymentMemberResponse(dto)).thenReturn(response);
+    when(paymentFacade.getAccountBalance(memberId)).thenReturn(dto);
+    when(paymentMapper.toPaymentAccountResponse(dto)).thenReturn(response);
 
     // when, then
     mockMvc
@@ -144,7 +143,7 @@ class PaymentAccountControllerTest extends BasePaymentControllerTest {
     // given
     Long memberId = 1L;
 
-    when(paymentFacade.getMember(memberId))
+    when(paymentFacade.getAccountBalance(memberId))
         .thenThrow(new GeneralException(ErrorStatus.PAYMENT_ACCOUNT_NOT_FOUND));
 
     // when, then
