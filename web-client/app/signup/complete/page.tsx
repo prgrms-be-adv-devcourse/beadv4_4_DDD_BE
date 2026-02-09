@@ -21,11 +21,11 @@ export default function SignupCompletePage() {
     skinType: '', // 초기값 빈 문자열
   })
 
-  // 페이지 진입 시 기본 정보 불러오기 (OAuth에서 받은 정보 프리필)
+  // 페이지 진입 시 기본 정보 불러오기
   useEffect(() => {
     const fetchBasicInfo = async () => {
       try {
-        // 내 정보 조회 API (기존에 만드신 것 활용)
+        // 내 정보 조회 API
         const response = await api.get('/api/v1/members/me/basic-info')
         if (response.data.isSuccess) {
           const { realName, email, phoneNumber } = response.data.result
@@ -74,9 +74,7 @@ export default function SignupCompletePage() {
         profileImageUrl: null // 필요 시 이미지 업로드 로직 추가
       }
 
-      // [주의] 백엔드 Controller에 매핑된 주소를 확인하세요.
-      // 예: POST /api/v1/members/signup-complete
-      const response = await api.post('/api/v1/members/signup-complete', requestBody)
+      const response = await api.post('/api/v2/members/signup-complete', requestBody)
 
       if (response.data.isSuccess) {
         alert('회원가입이 완료되었습니다! 환영합니다.')
@@ -174,7 +172,7 @@ export default function SignupCompletePage() {
                 style={inputStyle}
                 required
             >
-              <option value="" disabled>피부 타입 선택 (필수) *</option>
+              <option value="" disabled>피부 타입 선택</option>
               <option value="dry">건성 (Dry)</option>
               <option value="oily">지성 (Oily)</option>
               <option value="combination">복합성 (Combination)</option>
