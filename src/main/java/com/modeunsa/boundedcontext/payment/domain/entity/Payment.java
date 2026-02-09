@@ -30,6 +30,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -122,6 +123,9 @@ public class Payment extends AuditedEntity {
   private Integer pgStatusCode;
 
   @Lob private String pgFailureReason;
+
+  private static final Set<PaymentStatus> ALLOWED_FOR_IN_PROGRESS =
+      Set.of(PaymentStatus.PENDING, PaymentStatus.FAILED);
 
   public static Payment create(
       PaymentId id,
@@ -258,12 +262,22 @@ public class Payment extends AuditedEntity {
   }
 
   private void validateCanChangeToInProgress() {
-    validatePaymentStatus(PaymentStatus.PENDING);
+    validatePaymentStatusContains(ALLOWED_FOR_IN_PROGRESS);
     validatePaymentDeadline();
   }
 
   private void validatePaymentStatus(PaymentStatus paymentStatus) {
     if (this.status != paymentStatus) {
+      throw new PaymentDomainException(
+          INVALID_PAYMENT_STATUS,
+          String.format(
+              "결제 진행상태로 변경할 수 없는 상태입니다. 회원 ID: %d, 주문 번호: %s, 현재 상태: %s",
+              getId().getMemberId(), getId().getOrderNo(), this.status));
+    }
+  }
+
+  private void validatePaymentStatusContains(Set<PaymentStatus> allowStatus) {
+    if (allowStatus.contains(this.status)) {
       throw new PaymentDomainException(
           INVALID_PAYMENT_STATUS,
           String.format(
