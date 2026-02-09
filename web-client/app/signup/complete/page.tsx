@@ -170,7 +170,6 @@ export default function SignupCompletePage() {
                 value={formData.skinType}
                 onChange={handleChange}
                 style={inputStyle}
-                required
             >
               <option value="" disabled>피부 타입 선택</option>
               <option value="dry">건성 (Dry)</option>
