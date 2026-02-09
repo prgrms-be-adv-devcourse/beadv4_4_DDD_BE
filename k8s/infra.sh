@@ -24,13 +24,11 @@
 #   * k3s가 미리 실행 중이어야 합니다.
 #
 # !!!!!!!!!!!!!!!!!!!!!!사용법!!!!!!!!!!!!!!!!!!!!!!
-#   ./k8s/infra.sh up [dev|prod]  인프라 시작 (helm 설치)
-#                                  - dev: macOS + Colima (기본값)
-#                                  - prod: Linux + k3s
-#   ./k8s/infra.sh down           인프라 중지 (데이터 유지)
-#   ./k8s/infra.sh clean          인프라 중지 + 데이터 삭제 (PVC 포함 전체 삭제)
-#   ./k8s/infra.sh status         인프라 상태 확인
-#   ./k8s/infra.sh restart        인프라 재시작
+#   ./k8s/infra.sh up [dev|prod]    인프라 시작 (기본: dev)
+#   ./k8s/infra.sh down             인프라 중지 (데이터 유지)
+#   ./k8s/infra.sh clean            인프라 중지 + 데이터 삭제 (PVC 포함 전체 삭제)
+#   ./k8s/infra.sh status           인프라 상태 확인
+#   ./k8s/infra.sh restart [dev|prod] 인프라 재시작
 #
 #
 # 접속 정보 (dev - NodePort):
@@ -142,19 +140,6 @@ case "$1" in
 
     # namespace 생성 (이미 있으면 무시)
     kubectl create namespace $NAMESPACE 2>/dev/null
-
-    # cert-manager CRD 설치 (prod 환경에서만, 미설치 시)
-    if [ "$ENV" = "prod" ]; then
-      if ! kubectl get namespace cert-manager &>/dev/null; then
-        echo "cert-manager CRD 설치 중..."
-        kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.14.0/cert-manager.yaml
-        echo "cert-manager pod 준비 대기..."
-        kubectl wait --for=condition=ready pod -l app.kubernetes.io/instance=cert-manager -n cert-manager --timeout=120s
-        echo "cert-manager 설치 완료"
-      else
-        echo "cert-manager 이미 설치됨"
-      fi
-    fi
 
     # helm 설치 또는 업그레이드 (서브차트 구조 + .env에서 비밀값 주입)
     helm upgrade --install $RELEASE $CHART_DIR -n $NAMESPACE $VALUES_FILES \

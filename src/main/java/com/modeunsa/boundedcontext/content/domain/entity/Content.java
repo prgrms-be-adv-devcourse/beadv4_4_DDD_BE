@@ -8,7 +8,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -34,13 +33,17 @@ public class Content extends GeneratedIdAndAuditedEntity {
   @Column(nullable = false, length = 500)
   private String text;
 
-  @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
-  @OrderBy("id ASC")
+  @OneToMany(
+      mappedBy = "content",
+      cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
+      orphanRemoval = true)
   @Builder.Default
   private List<ContentTag> tags = new ArrayList<>();
 
-  @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
-  @OrderBy("sortOrder ASC, id ASC")
+  @OneToMany(
+      mappedBy = "content",
+      cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
+      orphanRemoval = true)
   @Builder.Default
   private List<ContentImage> images = new ArrayList<>();
 
@@ -51,8 +54,10 @@ public class Content extends GeneratedIdAndAuditedEntity {
     this.text = text;
   }
 
-  @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
-  @OrderBy("createdAt ASC")
+  @OneToMany(
+      mappedBy = "content",
+      cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+      orphanRemoval = true)
   @Builder.Default
   private List<ContentComment> comments = new ArrayList<>();
 

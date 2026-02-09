@@ -440,7 +440,7 @@ export default function ProductDetailPage() {
                   onClick={handleOrder}
                   disabled={isCreatingOrder || product.stock <= 0}
                 >
-                  {isCreatingOrder ? '주문 처리 중...' : product.stock <= 0 ? '품절' : '구매하기'}
+                  {isCreatingOrder ? '주문 처리 중...' : product.stock <= 0 ? '재입고 요청' : '구매하기'}
                 </button>
               </div>
             </div>

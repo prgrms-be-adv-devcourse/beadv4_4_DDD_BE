@@ -21,9 +21,9 @@ public class ProductCreateProductUseCase {
   private final ProductMapper productMapper;
   private final EventPublisher eventPublisher;
 
-  public Product createProduct(Long memberId, ProductCreateRequest productCreateRequest) {
+  public Product createProduct(Long sellerId, ProductCreateRequest productCreateRequest) {
     // 판매자 검증
-    ProductMemberSeller seller = productSupport.getProductMemberSellerByMemberId(memberId);
+    ProductMemberSeller seller = productSupport.getProductMemberSeller(sellerId);
 
     Product product =
         Product.create(
@@ -32,8 +32,7 @@ public class ProductCreateProductUseCase {
             productCreateRequest.getCategory(),
             productCreateRequest.getDescription(),
             productCreateRequest.getSalePrice(),
-            productCreateRequest.getPrice(),
-            productCreateRequest.getStock() != null ? productCreateRequest.getStock() : 0);
+            productCreateRequest.getPrice());
 
     List<String> images = productCreateRequest.getImages();
     if (images != null && !images.isEmpty()) {

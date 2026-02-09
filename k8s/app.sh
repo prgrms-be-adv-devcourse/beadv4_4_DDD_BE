@@ -7,13 +7,11 @@
 #   - Docker 이미지가 빌드되어 있어야 함
 #
 # 사용법:
-#   ./k8s/app.sh up [dev|prod]  앱 배포
-#                               - dev: NodePort (기본값)
-#                               - prod: ClusterIP + Ingress
-#   ./k8s/app.sh down           앱 중지
-#   ./k8s/app.sh status         앱 상태 확인
-#   ./k8s/app.sh restart        앱 재시작
-#   ./k8s/app.sh logs           앱 로그 확인
+#   ./k8s/app.sh up [dev|prod]    앱 배포 (기본: dev)
+#   ./k8s/app.sh down             앱 중지
+#   ./k8s/app.sh status           앱 상태 확인
+#   ./k8s/app.sh restart          앱 재시작
+#   ./k8s/app.sh logs             앱 로그 확인
 #
 # 접속 정보 (dev - NodePort):
 #   API Server    localhost:30080
@@ -60,6 +58,7 @@ case "$1" in
       exit 1
     fi
 
+    ENV_FILE=$(get_env_file "$2")
     # .env 로드
     if [ -f "$ENV_FILE" ]; then
       echo "환경 파일 로드: $ENV_FILE"
