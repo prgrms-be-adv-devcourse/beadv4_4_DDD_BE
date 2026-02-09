@@ -84,6 +84,10 @@ custom:
 
       # ========== 콘텐츠 ==========
       - /api/v1/contents/**
+
+      # ========== 상품 ===========
+      - /api/v2/products/searches
+
     oauth2:
       allowed-redirect-domains:
         - localhost
