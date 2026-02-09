@@ -106,15 +106,7 @@ public class OrderCreateCartOrderUseCase {
       orderItems.add(orderItem);
     }
 
-    Order order =
-        Order.createOrder(
-            member,
-            orderItems,
-            request.getRecipientName(),
-            request.getRecipientPhone(),
-            request.getZipCode(),
-            request.getAddress(),
-            request.getAddressDetail());
+    Order order = Order.createOrder(member, orderItems);
 
     return orderRepository.save(order);
   }
