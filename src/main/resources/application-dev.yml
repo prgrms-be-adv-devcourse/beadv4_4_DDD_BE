@@ -54,20 +54,11 @@ spring:
 
   elasticsearch:
     uris:
-      - ${SPRING_ELASTICSEARCH_URIS:http://localhost:9200}
-
-management:
-  health:
-    elasticsearch:
-      enabled: false
-
-#  kafka:
-#    listener:
-#      auto-startup: false
+      - ${SPRING_ELASTICSEARCH_URIS:http://127.0.0.1:30920}
 
 custom:
   swagger:
-    serverUrl: ${SWAGGER_SERVER_URL:http://localhost:8080}
+    serverUrl: ${SWAGGER_SERVER_URL:http://127.0.0.1:8080}
     description: "Local Server"
   security:
     permit-all: false
@@ -104,18 +95,4 @@ custom:
       - http://127.0.0.1:3000
       - http://localhost:8080
       - http://127.0.0.1:8080
-
-jwt:
-  secret: ${JWT_SECRET:local-test-jwt-secret-key-which-is-long-enough-32bytes}
-  access-token-expiration: 86400000 # 24시간
-  refresh-token-expiration: 604800000 # 7일
-
-springdoc:
-  swagger-ui:
-    persistAuthorization: true
-
-app:
-  cookie:
-    secure: false
-    http-only: true
-    same-site: Lax
+      - http://localhost:30080

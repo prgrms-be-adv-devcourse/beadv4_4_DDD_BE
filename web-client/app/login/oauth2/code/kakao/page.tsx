@@ -2,12 +2,13 @@
 
 import api from '../../../../lib/axios';
 import { useSearchParams, useRouter } from 'next/navigation'
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, useState, useRef, Suspense } from 'react'
 
 function LoginCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [message, setMessage] = useState('로그인 처리 중입니다...')
+  const isProcessing = useRef(false)  // 추가
 
   useEffect(() => {
     const code = searchParams.get('code')
@@ -21,13 +22,16 @@ function LoginCallbackContent() {
       return
     }
 
+    // 이미 처리 중이면 무시
+    if (isProcessing.current) return
+    isProcessing.current = true  // 처리 시작 표시
+
     api.post(`/api/v1/auths/login/${provider}`, null, {
       params: { code, state, redirectUri }
     })
     .then((response) => {
       if (response.data.isSuccess) {
         setMessage('로그인 성공!')
-        // 헤더의 checkLoginStatus를 깨우는 이벤트
         window.dispatchEvent(new Event('loginStatusChanged'))
         setTimeout(() => router.push('/'), 1000)
       } else {
