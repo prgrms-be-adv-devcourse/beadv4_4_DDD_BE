@@ -55,6 +55,10 @@ public class InventoryRedisAdapter implements InventoryCommandPort {
         new DefaultRedisScript<>(RELEASE_LUA, Long.class),
         List.of(inventoryKey(productId)),
         String.valueOf(quantity));
+
+    int remaining = Integer.parseInt(redisTemplate.opsForValue().get(inventoryKey(productId)));
+    System.out.printf(
+        "[REDIS LOG] RELEASE productId=%d, qty=%d, remaining=%d%n", productId, quantity, remaining);
   }
 
   private String inventoryKey(Long productId) {

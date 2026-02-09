@@ -31,6 +31,7 @@ public class OrderConfirmOrderCancellationUseCase {
     order.confirmCancellation();
 
     eventPublisher.publish(
-        new OrderCancellationConfirmedEvent(orderMapper.toOrderItemDto(order.getOrderItems())));
+        new OrderCancellationConfirmedEvent(
+            order.getId(), orderMapper.toOrderItemDto(order.getOrderItems())));
   }
 }
