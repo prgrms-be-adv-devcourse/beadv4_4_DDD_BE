@@ -61,7 +61,7 @@ export default function MyPage() {
   useEffect(() => {
     const fetchBalance = async () => {
       try {
-        const response = await api.get('/api/v1/payments/accounts')
+        const response = await api.get('/api/v1/payments/members')
         const data = response.data
 
         if (data.isSuccess && data.result != null) {
