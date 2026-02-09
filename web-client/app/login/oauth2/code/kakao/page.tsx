@@ -1,3 +1,5 @@
+// app/login/oauth2/code/kakao
+
 'use client'
 
 import api from '../../../../lib/axios';
