@@ -19,7 +19,10 @@ public class OAuthMemberRegisterUseCase {
 
   @Transactional
   public OAuthAccount execute(OAuthUserInfo userInfo) {
-    log.info("신규 회원 가입 (PRE_ACTIVE) - provider: {}, providerId: {}", userInfo.provider(), userInfo.providerId());
+    log.info(
+        "신규 회원 가입 (PRE_ACTIVE) - provider: {}, providerId: {}",
+        userInfo.provider(),
+        userInfo.providerId());
 
     // 1. Member 생성 (초기 상태 PRE_ACTIVE)
     Member member =

@@ -87,8 +87,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
               setAuthentication(newTokens.accessToken(), request, newTokens.status());
               setNewTokenCookies(response, newTokens);
 
-
-
               log.info(
                   "토큰 자동 재발급 성공 - memberId: {}",
                   jwtTokenProvider.getMemberIdFromToken(newTokens.accessToken()));

@@ -71,11 +71,14 @@ public class SecurityConfig {
                   // 가입 미완료(GUEST) 회원 전용 API
                   // ========================================
                   // 기본 정보 조회 & 가입 완료 요청은 GUEST 포함 접근 가능해야 함
-                  .requestMatchers(HttpMethod.GET, "/api/v1/members/me/basic-info").hasRole("GUEST")
-                  .requestMatchers(HttpMethod.POST, "/api/v2/members/signup-complete").hasRole("GUEST")
+                  .requestMatchers(HttpMethod.GET, "/api/v1/members/me/basic-info")
+                  .hasRole("GUEST")
+                  .requestMatchers(HttpMethod.POST, "/api/v2/members/signup-complete")
+                  .hasRole("GUEST")
 
                   // 이미지 업로드 (프로필용)
-                  .requestMatchers("/api/v1/files/**").hasRole("GUEST")
+                  .requestMatchers("/api/v1/files/**")
+                  .hasRole("GUEST")
 
                   // ========================================
                   // 상품 API - GET만 공개

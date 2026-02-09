@@ -13,5 +13,4 @@ public record MemberSignupCompleteRequest(
     String profileImageUrl,
     Integer heightCm,
     Integer weightKg,
-    String skinType
-) {}
+    String skinType) {}

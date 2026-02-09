@@ -35,7 +35,7 @@ public interface PaymentMapper {
     return switch (status) {
       case PRE_ACTIVE, SUSPENDED, WITHDRAWN_PENDING -> MemberStatus.INACTIVE;
       case ACTIVE -> MemberStatus.ACTIVE;
-      case WITHDRAWN ->  MemberStatus.WITHDRAWN;
+      case WITHDRAWN -> MemberStatus.WITHDRAWN;
     };
   }
 

@@ -81,9 +81,10 @@ class OAuthLoginUseCaseTest {
       given(oauthAccountResolveUseCase.execute(provider, userInfo)).willReturn(socialAccount);
       given(memberSupport.getSellerIdByMemberId(1L)).willReturn(null);
 
-      final JwtTokenResponse expectedToken = JwtTokenResponse.of("at", "rt", 3600L, 604800L,
-          MemberStatus.ACTIVE.name());
-      given(authTokenIssueUseCase.execute(1L, MemberRole.MEMBER, null, MemberStatus.ACTIVE.name())).willReturn(expectedToken);
+      final JwtTokenResponse expectedToken =
+          JwtTokenResponse.of("at", "rt", 3600L, 604800L, MemberStatus.ACTIVE.name());
+      given(authTokenIssueUseCase.execute(1L, MemberRole.MEMBER, null, MemberStatus.ACTIVE.name()))
+          .willReturn(expectedToken);
 
       // when
       JwtTokenResponse result = oauthLoginUseCase.execute(provider, code, redirectUri, state);
@@ -117,7 +118,8 @@ class OAuthLoginUseCaseTest {
 
       final JwtTokenResponse expectedToken =
           JwtTokenResponse.of("new_at", "new_rt", 3600L, 604800L, MemberStatus.ACTIVE.name());
-      given(authTokenIssueUseCase.execute(2L, MemberRole.MEMBER, null, MemberStatus.ACTIVE.name())).willReturn(expectedToken);
+      given(authTokenIssueUseCase.execute(2L, MemberRole.MEMBER, null, MemberStatus.ACTIVE.name()))
+          .willReturn(expectedToken);
 
       // when
       JwtTokenResponse result = oauthLoginUseCase.execute(provider, code, redirectUri, state);

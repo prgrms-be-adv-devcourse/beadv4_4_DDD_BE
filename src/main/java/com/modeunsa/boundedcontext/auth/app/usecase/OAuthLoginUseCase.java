@@ -64,7 +64,8 @@ public class OAuthLoginUseCase {
 
       // 5. JWT 토큰 발급
       JwtTokenResponse jwtTokenResponse =
-          authTokenIssueUseCase.execute(member.getId(), member.getRole(), sellerId, member.getStatus().name());
+          authTokenIssueUseCase.execute(
+              member.getId(), member.getRole(), sellerId, member.getStatus().name());
 
       log.info("[{}] ✅ OAuth 로그인 성공 - memberId: {}", requestId, member.getId());
       return jwtTokenResponse;

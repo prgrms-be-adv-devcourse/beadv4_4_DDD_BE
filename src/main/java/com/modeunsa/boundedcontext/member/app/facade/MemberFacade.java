@@ -73,11 +73,7 @@ public class MemberFacade {
 
     // 새 토큰 발급 (ACTIVE 상태가 들어감)
     return authTokenIssueUseCase.execute(
-        member.getId(),
-        member.getRole(),
-        sellerId,
-        member.getStatus().name()
-    );
+        member.getId(), member.getRole(), sellerId, member.getStatus().name());
   }
 
   /** 생성 (Create) */
@@ -175,9 +171,11 @@ public class MemberFacade {
     Long sellerId = memberSupport.getSellerIdByMemberId(memberId);
 
     String accessToken =
-        jwtTokenProvider.createAccessToken(member.getId(), member.getRole(), sellerId, member.getStatus().name());
+        jwtTokenProvider.createAccessToken(
+            member.getId(), member.getRole(), sellerId, member.getStatus().name());
     String refreshToken =
-        jwtTokenProvider.createRefreshToken(member.getId(), member.getRole(), sellerId, member.getStatus().name());
+        jwtTokenProvider.createRefreshToken(
+            member.getId(), member.getRole(), sellerId, member.getStatus().name());
 
     return new SellerRegisterResponse(accessToken, refreshToken);
   }

@@ -30,7 +30,9 @@ public class MemberController {
   private final MemberFacade memberFacade;
   private final CookieProperties cookieProperties;
 
-  @Operation(summary = "회원가입 완료 처리", description = "소셜 로그인 직후(PRE_ACTIVE) 추가 정보를 입력받아 정회원(ACTIVE)으로 전환합니다.")
+  @Operation(
+      summary = "회원가입 완료 처리",
+      description = "소셜 로그인 직후(PRE_ACTIVE) 추가 정보를 입력받아 정회원(ACTIVE)으로 전환합니다.")
   @PostMapping("/signup-complete")
   public ResponseEntity<ApiResponse> completeSignup(
       @Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails,
@@ -42,22 +44,24 @@ public class MemberController {
     JwtTokenResponse jwtTokenResponse = memberFacade.completeSignup(memberId, request);
 
     // 2. Access Token 쿠키 생성 (ACTIVE 상태)
-    ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", jwtTokenResponse.accessToken())
-        .httpOnly(cookieProperties.isHttpOnly())
-        .secure(cookieProperties.isSecure())
-        .path(cookieProperties.getPath())
-        .maxAge(Duration.ofMillis(jwtTokenResponse.accessTokenExpiresIn()))
-        .sameSite(cookieProperties.getSameSite())
-        .build();
+    ResponseCookie accessTokenCookie =
+        ResponseCookie.from("accessToken", jwtTokenResponse.accessToken())
+            .httpOnly(cookieProperties.isHttpOnly())
+            .secure(cookieProperties.isSecure())
+            .path(cookieProperties.getPath())
+            .maxAge(Duration.ofMillis(jwtTokenResponse.accessTokenExpiresIn()))
+            .sameSite(cookieProperties.getSameSite())
+            .build();
 
     // 3. Refresh Token 쿠키 생성
-    ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", jwtTokenResponse.refreshToken())
-        .httpOnly(true)
-        .secure(cookieProperties.isSecure())
-        .path(cookieProperties.getPath())
-        .maxAge(Duration.ofMillis(jwtTokenResponse.refreshTokenExpiresIn()))
-        .sameSite(cookieProperties.getSameSite())
-        .build();
+    ResponseCookie refreshTokenCookie =
+        ResponseCookie.from("refreshToken", jwtTokenResponse.refreshToken())
+            .httpOnly(true)
+            .secure(cookieProperties.isSecure())
+            .path(cookieProperties.getPath())
+            .maxAge(Duration.ofMillis(jwtTokenResponse.refreshTokenExpiresIn()))
+            .sameSite(cookieProperties.getSameSite())
+            .build();
 
     // 4. 응답 헤더에 쿠키 설정하여 반환
     return ResponseEntity.ok()

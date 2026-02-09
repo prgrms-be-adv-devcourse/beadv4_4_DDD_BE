@@ -24,8 +24,10 @@ public class MemberSignupCompleteUseCase {
 
   @Transactional
   public void execute(Long memberId, MemberSignupCompleteRequest request) {
-    Member member = memberRepository.findById(memberId)
-        .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
+    Member member =
+        memberRepository
+            .findById(memberId)
+            .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
     // 이미 가입 완료된 회원인지 검증
     if (member.getStatus() == MemberStatus.ACTIVE) {
@@ -33,12 +35,19 @@ public class MemberSignupCompleteUseCase {
     }
 
     // 1. 기본 정보 업데이트
-    MemberBasicInfoUpdateRequest memberBasicInfoUpdateRequest = new MemberBasicInfoUpdateRequest(request.realName(), request.phoneNumber(), request.email());
+    MemberBasicInfoUpdateRequest memberBasicInfoUpdateRequest =
+        new MemberBasicInfoUpdateRequest(
+            request.realName(), request.phoneNumber(), request.email());
     memberBasicInfoUpdateUseCase.execute(memberId, memberBasicInfoUpdateRequest);
 
     // 2. 프로필 생성 및 저장
-    MemberProfileCreateRequest memberProfileCreateRequest = new MemberProfileCreateRequest(request.nickname(),
-        request.profileImageUrl(), request.heightCm(), request.weightKg(), request.skinType());
+    MemberProfileCreateRequest memberProfileCreateRequest =
+        new MemberProfileCreateRequest(
+            request.nickname(),
+            request.profileImageUrl(),
+            request.heightCm(),
+            request.weightKg(),
+            request.skinType());
     memberProfileCreateUseCase.execute(memberId, memberProfileCreateRequest);
 
     // 3. 상태 변경 (PRE_ACTIVE -> ACTIVE)
@@ -52,8 +61,6 @@ public class MemberSignupCompleteUseCase {
             member.getEmail(),
             member.getPhoneNumber(),
             member.getRole().name(),
-            member.getStatus().name()
-        )
-    );
+            member.getStatus().name()));
   }
 }
