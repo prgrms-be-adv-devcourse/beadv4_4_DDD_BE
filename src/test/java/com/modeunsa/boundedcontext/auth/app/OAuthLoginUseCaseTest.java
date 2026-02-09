@@ -15,6 +15,7 @@ import com.modeunsa.boundedcontext.auth.out.client.OAuthClientFactory;
 import com.modeunsa.boundedcontext.member.app.support.MemberSupport;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
+import com.modeunsa.boundedcontext.member.domain.types.MemberStatus;
 import com.modeunsa.shared.auth.dto.JwtTokenResponse;
 import com.modeunsa.shared.auth.dto.OAuthProviderTokenResponse;
 import com.modeunsa.shared.auth.dto.OAuthUserInfo;
@@ -80,8 +81,9 @@ class OAuthLoginUseCaseTest {
       given(oauthAccountResolveUseCase.execute(provider, userInfo)).willReturn(socialAccount);
       given(memberSupport.getSellerIdByMemberId(1L)).willReturn(null);
 
-      final JwtTokenResponse expectedToken = JwtTokenResponse.of("at", "rt", 3600L, 604800L);
-      given(authTokenIssueUseCase.execute(1L, MemberRole.MEMBER, null)).willReturn(expectedToken);
+      final JwtTokenResponse expectedToken = JwtTokenResponse.of("at", "rt", 3600L, 604800L,
+          MemberStatus.ACTIVE.name());
+      given(authTokenIssueUseCase.execute(1L, MemberRole.MEMBER, null, MemberStatus.ACTIVE.name())).willReturn(expectedToken);
 
       // when
       JwtTokenResponse result = oauthLoginUseCase.execute(provider, code, redirectUri, state);
@@ -114,8 +116,8 @@ class OAuthLoginUseCaseTest {
       given(memberSupport.getSellerIdByMemberId(2L)).willReturn(null);
 
       final JwtTokenResponse expectedToken =
-          JwtTokenResponse.of("new_at", "new_rt", 3600L, 604800L);
-      given(authTokenIssueUseCase.execute(2L, MemberRole.MEMBER, null)).willReturn(expectedToken);
+          JwtTokenResponse.of("new_at", "new_rt", 3600L, 604800L, MemberStatus.ACTIVE.name());
+      given(authTokenIssueUseCase.execute(2L, MemberRole.MEMBER, null, MemberStatus.ACTIVE.name())).willReturn(expectedToken);
 
       // when
       JwtTokenResponse result = oauthLoginUseCase.execute(provider, code, redirectUri, state);
