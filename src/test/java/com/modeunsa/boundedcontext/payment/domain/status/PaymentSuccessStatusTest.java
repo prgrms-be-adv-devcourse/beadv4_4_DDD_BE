@@ -56,7 +56,7 @@ class PaymentSuccessStatusTest {
             .paymentDeadlineAt(futureDeadline)
             .paymentProvider(ProviderType.MODEUNSA_PAY)
             .paymentPurpose(PaymentPurpose.PRODUCT_PURCHASE)
-            .status(PaymentStatus.APPROVED)
+            .status(PaymentStatus.PENDING)
             .build();
 
     // when, then
@@ -109,7 +109,7 @@ class PaymentSuccessStatusTest {
             .paymentDeadlineAt(futureDeadline)
             .paymentProvider(ProviderType.TOSS_PAYMENTS)
             .paymentPurpose(PaymentPurpose.PRODUCT_PURCHASE)
-            .status(PaymentStatus.IN_PROGRESS)
+            .status(PaymentStatus.FINAL_FAILED)
             .build();
 
     // when, then
