@@ -105,7 +105,7 @@ class PaymentCompleteProcessUseCaseTest {
 
     // PaymentStatus 변경 확인
     verify(paymentSupport)
-        .changePaymentStatus(buyerId, paymentProcessContext.orderNo(), PaymentStatus.COMPLETED);
+        .changePaymentStatus(buyerId, paymentProcessContext.orderNo(), PaymentStatus.SUCCESS);
 
     // 이벤트 발행 확인
     verify(eventPublisher).publish(any(PaymentSuccessEvent.class));
@@ -161,7 +161,7 @@ class PaymentCompleteProcessUseCaseTest {
 
     // PaymentStatus 변경 확인
     verify(paymentSupport)
-        .changePaymentStatus(buyerId, paymentProcessContext.orderNo(), PaymentStatus.COMPLETED);
+        .changePaymentStatus(buyerId, paymentProcessContext.orderNo(), PaymentStatus.SUCCESS);
 
     // 이벤트 발행 확인
     verify(eventPublisher).publish(any(PaymentSuccessEvent.class));

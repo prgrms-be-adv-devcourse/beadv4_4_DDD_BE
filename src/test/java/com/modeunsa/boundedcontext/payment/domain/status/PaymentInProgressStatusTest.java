@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.payment.domain;
+package com.modeunsa.boundedcontext.payment.domain.status;
 
 import static com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode.INVALID_PAYMENT_STATUS;
 import static com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode.OVERDUE_PAYMENT_DEADLINE;
@@ -17,7 +17,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("Payment 도메인 테스트")
-class PaymentTest {
+class PaymentInProgressStatusTest {
 
   @Test
   @DisplayName("IN_PROGRESS 상태 변경 성공 - PENDING 상태이고 결제 마감일이 미래인 경우")

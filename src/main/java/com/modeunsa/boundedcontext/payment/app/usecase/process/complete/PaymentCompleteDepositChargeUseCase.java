@@ -36,7 +36,6 @@ public class PaymentCompleteDepositChargeUseCase implements PaymentCompleteProce
         context.buyerId(),
         ReferenceType.PAYMENT_MEMBER);
 
-    paymentSupport.changePaymentStatus(
-        context.buyerId(), context.orderNo(), PaymentStatus.COMPLETED);
+    paymentSupport.changePaymentStatus(context.buyerId(), context.orderNo(), PaymentStatus.SUCCESS);
   }
 }
