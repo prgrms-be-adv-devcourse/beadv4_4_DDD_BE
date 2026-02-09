@@ -70,7 +70,7 @@ export default function ProductCreatePage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
 
-  const accessToken = localStorage.getItem('accessToken')
+  const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
 
 
   const handleInputChange = (field: keyof ProductCreateRequest, value: any) => {
