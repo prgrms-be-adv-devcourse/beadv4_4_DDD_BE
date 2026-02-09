@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.auth.in.controller;
+package com.modeunsa.boundedcontext.auth.in.api.v1;
 
 import com.modeunsa.boundedcontext.auth.app.facade.AuthFacade;
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/auths")
 @RequiredArgsConstructor
-public class ApiV1AuthController {
+public class AuthController {
 
   private final AuthFacade authFacade;
   private final CookieProperties cookieProperties;
@@ -88,7 +88,7 @@ public class ApiV1AuthController {
   @Operation(summary = "토큰 재발급", description = "Refresh Token을 사용하여 Access Token을 재발급합니다.")
   @PostMapping("/reissue")
   public ResponseEntity<ApiResponse> reissue(
-      @CookieValue(value = "refreshToken", required = true) String refreshToken) {
+      @CookieValue(value = "refreshToken") String refreshToken) {
     JwtTokenResponse jwtTokenResponse = authFacade.reissueToken(refreshToken);
 
     ResponseCookie accessTokenCookie =

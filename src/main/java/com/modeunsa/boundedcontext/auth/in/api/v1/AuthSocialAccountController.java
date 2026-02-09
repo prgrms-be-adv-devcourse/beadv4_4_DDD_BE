@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.auth.in.controller;
+package com.modeunsa.boundedcontext.auth.in.api.v1;
 
 import com.modeunsa.boundedcontext.auth.app.facade.OAuthAccountFacade;
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/auths/social-accounts")
 @RequiredArgsConstructor
-public class ApiV1AuthSocialAccountController {
+public class AuthSocialAccountController {
 
   private final OAuthAccountFacade oauthAccountFacade;
 
