@@ -14,7 +14,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -42,14 +41,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private static final String BEARER_PREFIX = "Bearer ";
   private static final String ROLE_PREFIX = "ROLE_";
   private static final String EXCEPTION_ATTRIBUTE = "exception";
-
-  // PRE_ACTIVE 상태일 때도 접근 가능한 URL 목록 (Whitelist)
-  private static final String[] PRE_ACTIVE_ALLOW_URLS = {
-      "/api/v1/auths",                     // 로그아웃, 토큰 재발급 등
-      "/api/v1/members/me/basic-info",     // 기본 정보 조회
-      "/api/v2/members/signup-complete",// 가입 완료 처리
-      "/api/v1/files"                      // 이미지 업로드
-  };
 
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -80,14 +71,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 2. 상태 기반 접근 제어 (PRE_ACTIVE 체크)
         String status = jwtTokenProvider.getStatusFromToken(token);
-        if ("PRE_ACTIVE".equals(status)) {
-          if (!isAllowedForPreActive(request.getRequestURI())) {
-            throw new GeneralException(ErrorStatus.MEMBER_NOT_ACTIVATED);
-          }
-        }
 
         // 3. 인증 객체 설정
-        setAuthentication(token, request);
+        setAuthentication(token, request, status);
 
       } catch (GeneralException e) {
         // Auth 엔드포인트는 자동 재발급 제외
@@ -98,8 +84,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
           if (StringUtils.hasText(refreshToken)) {
             try {
               JwtTokenResponse newTokens = attemptTokenRefresh(refreshToken);
-              setAuthentication(newTokens.accessToken(), request);
+              setAuthentication(newTokens.accessToken(), request, newTokens.status());
               setNewTokenCookies(response, newTokens);
+
+
 
               log.info(
                   "토큰 자동 재발급 성공 - memberId: {}",
@@ -143,16 +131,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     return uri.startsWith("/api/v1/auths/");
   }
 
-  /** PRE_ACTIVE 상태 허용 URL 체크 */
-  private boolean isAllowedForPreActive(String requestUri) {
-    // 1. Auth 관련은 무조건 허용 (isAuthEndpoint 로직 재활용 또는 포함)
-    if (requestUri.startsWith("/api/v1/auths/")) return true;
-
-    // 2. 화이트리스트 체크
-    return Arrays.stream(PRE_ACTIVE_ALLOW_URLS)
-        .anyMatch(requestUri::startsWith);
-  }
-
   private String resolveAccessToken(HttpServletRequest request) {
     String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
 
@@ -182,15 +160,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     return null;
   }
 
-  private void setAuthentication(String token, HttpServletRequest request) {
+  private void setAuthentication(String token, HttpServletRequest request, String status) {
     Long memberId = jwtTokenProvider.getMemberIdFromToken(token);
     MemberRole role = jwtTokenProvider.getRoleFromToken(token);
     Long sellerId = jwtTokenProvider.getSellerIdFromToken(token);
 
+    // PRE_ACTIVE 상태라면 강제로 'ROLE_GUEST' 부여
+    List<SimpleGrantedAuthority> authorities;
+    if ("PRE_ACTIVE".equals(status)) {
+      authorities = List.of(new SimpleGrantedAuthority("ROLE_GUEST"));
+      log.debug("PRE_ACTIVE 회원 권한 제한: ROLE_MEMBER -> ROLE_GUEST");
+    } else {
+      authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+    }
+
     CustomUserDetails principal = new CustomUserDetails(memberId, role, sellerId);
     UsernamePasswordAuthenticationToken authentication =
-        new UsernamePasswordAuthenticationToken(
-            principal, null, List.of(new SimpleGrantedAuthority(ROLE_PREFIX + role.name())));
+        new UsernamePasswordAuthenticationToken(principal, null, authorities);
 
     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
     SecurityContextHolder.getContext().setAuthentication(authentication);
