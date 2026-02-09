@@ -12,6 +12,7 @@ import com.modeunsa.boundedcontext.member.app.usecase.MemberDeliveryAddressUpdat
 import com.modeunsa.boundedcontext.member.app.usecase.MemberProfileCreateUseCase;
 import com.modeunsa.boundedcontext.member.app.usecase.MemberProfileUpdateImageUseCase;
 import com.modeunsa.boundedcontext.member.app.usecase.MemberProfileUpdateUseCase;
+import com.modeunsa.boundedcontext.member.app.usecase.MemberSignupCompleteUseCase;
 import com.modeunsa.boundedcontext.member.app.usecase.SellerRegisterUseCase;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.entity.MemberProfile;
@@ -27,6 +28,7 @@ import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressCreateRequest
 import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressUpdateRequest;
 import com.modeunsa.shared.member.dto.request.MemberProfileCreateRequest;
 import com.modeunsa.shared.member.dto.request.MemberProfileUpdateRequest;
+import com.modeunsa.shared.member.dto.request.MemberSignupCompleteRequest;
 import com.modeunsa.shared.member.dto.request.SellerRegisterRequest;
 import com.modeunsa.shared.member.dto.response.MemberBasicInfoResponse;
 import com.modeunsa.shared.member.dto.response.MemberDeliveryAddressResponse;
@@ -55,6 +57,13 @@ public class MemberFacade {
   private final S3UploadService s3UploadService;
   private final MemberProfileUpdateImageUseCase memberProfileUpdateImageUseCase;
   private final JwtTokenProvider jwtTokenProvider;
+  private final MemberSignupCompleteUseCase memberSignupCompleteUseCase;
+
+  /** 회원 가입 */
+  @Transactional
+  public void completeSignup(Long memberId, MemberSignupCompleteRequest request) {
+    memberSignupCompleteUseCase.execute(memberId, request);
+  }
 
   /** 생성 (Create) */
   @Transactional
