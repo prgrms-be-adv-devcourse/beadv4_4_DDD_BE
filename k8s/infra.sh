@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Modeunsa 인프라 관리 스크립트
+# Modeunsa 인프라 관리 스크립트 (k3s)
 
 # 사용하기 전 세팅:
 #
@@ -14,11 +14,11 @@
 #   * Docker Desktop은 불필요합니다.
 #
 # !!!!!!!!!!!!!!!!!!!!!!사용법!!!!!!!!!!!!!!!!!!!!!!
-#   ./k8s/infra.sh up        인프라 시작 (helm 설치)
-#   ./k8s/infra.sh down      인프라 중지 (데이터 유지)
-#   ./k8s/infra.sh clean     인프라 중지 + 데이터 삭제 (PVC 포함 전체 삭제)
-#   ./k8s/infra.sh status    인프라 상태 확인
-#   ./k8s/infra.sh restart   인프라 재시작
+#   ./k8s/infra.sh up [dev|prod]    인프라 시작 (기본: dev)
+#   ./k8s/infra.sh down             인프라 중지 (데이터 유지)
+#   ./k8s/infra.sh clean            인프라 중지 + 데이터 삭제 (PVC 포함 전체 삭제)
+#   ./k8s/infra.sh status           인프라 상태 확인
+#   ./k8s/infra.sh restart [dev|prod] 인프라 재시작
 #
 #
 # 접속 정보:
@@ -34,7 +34,21 @@
 NAMESPACE="modeunsa"
 RELEASE="modeunsa-infra"
 CHART_DIR="$(dirname "$0")/infra"
-ENV_FILE="$(dirname "$0")/../.env"
+ROOT_DIR="$(dirname "$0")/.."
+
+# 환경 인자 처리 (dev/prod, 기본값: dev)
+get_env_file() {
+  local env="${1:-dev}"
+  case "$env" in
+    dev|prod)
+      echo "$ROOT_DIR/.env.k3s-$env"
+      ;;
+    *)
+      echo "오류: 환경은 'dev' 또는 'prod'만 가능합니다." >&2
+      exit 1
+      ;;
+  esac
+}
 
 ensure_colima() {
   # colima status 종료 코드로 판단 (0=실행중, 1=중지)
@@ -55,12 +69,15 @@ ensure_colima() {
 
 case "$1" in
   up)
+    ENV_FILE=$(get_env_file "$2")
     ensure_colima
     # .env 로드
     if [ -f "$ENV_FILE" ]; then
+      echo "환경 파일 로드: $ENV_FILE"
       source "$ENV_FILE"
     else
       echo ".env 파일을 찾을 수 없습니다: $ENV_FILE"
+      echo "다음 명령어로 생성하세요: cp .env.example $ENV_FILE"
       exit 1
     fi
 
@@ -132,10 +149,16 @@ case "$1" in
   restart)
     $0 down
     sleep 2
-    $0 up
+    $0 up "${2:-dev}"
     ;;
 
   *)
-    echo "Usage: $0 {up|down|clean|status|restart}"
+    echo "Usage: $0 {up|down|clean|status|restart} [dev|prod]"
+    echo ""
+    echo "Examples:"
+    echo "  $0 up dev       # dev 환경으로 시작"
+    echo "  $0 up prod      # prod 환경으로 시작"
+    echo "  $0 down         # 중지"
+    echo "  $0 status       # 상태 확인"
     ;;
 esac

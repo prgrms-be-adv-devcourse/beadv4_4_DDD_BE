@@ -8,7 +8,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx-local.conf:/etc/nginx/nginx.conf
+      - ./nginx-dev.conf:/etc/nginx/nginx.conf
       - /etc/letsencrypt:/etc/letsencrypt:ro
     networks:
       - modeunsa-net
@@ -34,33 +34,14 @@ services:
     restart: unless-stopped
     container_name: app
     ports:
-      - "8080:8080"
+      - "8081:8080"
+    env_file:
+      - .env.dev
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - KAKAO_CLIENT_ID=${KAKAO_CLIENT_ID}
-      - KAKAO_CLIENT_SECRET=${KAKAO_CLIENT_SECRET}
-      - KAKAO_REDIRECT_URI=${KAKAO_REDIRECT_URI}
-      - NAVER_CLIENT_ID=${NAVER_CLIENT_ID}
-      - NAVER_CLIENT_SECRET=${NAVER_CLIENT_SECRET}
-      - NAVER_REDIRECT_URI=${NAVER_REDIRECT_URI}
-      - JWT_SECRET=${JWT_SECRET}
-      - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PORT=${REDIS_PORT}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_NAME=${MYSQL_DATABASE}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
-      - AWS_SECRET_KEY=${AWS_SECRET_KEY}
-      - ENCRYPTION_MASTER_KEY=${ENCRYPTION_MASTER_KEY}
-      - TOSS_PAYMENTS_SECRET_KEY=${TOSS_PAYMENTS_SECRET_KEY}
+      - SPRING_PROFILES_ACTIVE=dev
+      - DB_HOST=mysql
+      - REDIS_HOST=redis
       - ES_HOST=elasticsearch
-      - ES_PORT=9200
-      - DOCKER_IMAGE=${DOCKER_IMAGE}
     networks:
       - modeunsa-net
     depends_on:
