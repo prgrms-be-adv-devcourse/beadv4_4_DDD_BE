@@ -1,0 +1,25 @@
+enabled: true
+
+image:
+  repository: ""        # .env에서 주입 (FRONTEND_IMAGE)
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+replicas: 1
+
+service:
+  type: NodePort        # dev용, prod에서는 ClusterIP로 덮어씀
+  port: 3000
+  nodePort: 30000       # dev에서 localhost:30000으로 접근
+
+# Next.js는 환경변수로 API URL 주입 가능
+env:
+  apiUrl: ""            # 필요시 사용 (보통 Ingress로 /api 처리하면 불필요)
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
