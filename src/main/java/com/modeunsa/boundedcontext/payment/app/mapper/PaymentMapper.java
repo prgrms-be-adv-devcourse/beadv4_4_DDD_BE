@@ -1,7 +1,7 @@
 package com.modeunsa.boundedcontext.payment.app.mapper;
 
-import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberResponse;
+import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberSyncRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.order.PaymentOrderInfo;
 import com.modeunsa.boundedcontext.payment.app.dto.settlement.PaymentPayoutInfo;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
@@ -30,7 +30,7 @@ public interface PaymentMapper {
   @Mapping(target = "id", source = "memberId")
   @Mapping(target = "name", source = "realName")
   @Mapping(target = "status", source = "status", qualifiedByName = "mapMemberStatus")
-  PaymentMemberDto toPaymentMemberDto(MemberSignupEvent memberSignupEvent);
+  PaymentMemberSyncRequest toPaymentMemberDto(MemberSignupEvent memberSignupEvent);
 
   @Named("mapMemberStatus")
   default MemberStatus mapMemberStatus(

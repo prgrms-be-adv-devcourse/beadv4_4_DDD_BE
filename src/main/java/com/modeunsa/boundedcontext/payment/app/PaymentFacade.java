@@ -4,8 +4,8 @@ import com.modeunsa.boundedcontext.payment.app.dto.account.PaymentAccountDeposit
 import com.modeunsa.boundedcontext.payment.app.dto.account.PaymentAccountDepositResponse;
 import com.modeunsa.boundedcontext.payment.app.dto.accountlog.PaymentAccountLogDto;
 import com.modeunsa.boundedcontext.payment.app.dto.accountlog.PaymentAccountSearchRequest;
-import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberResponse;
+import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberSyncRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.order.PaymentOrderInfo;
 import com.modeunsa.boundedcontext.payment.app.dto.payment.ConfirmPaymentRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.payment.ConfirmPaymentResponse;
@@ -62,15 +62,14 @@ public class PaymentFacade {
   private final PaymentAccountSupport paymentAccountSupport;
   private final PaymentMapper paymentMapper;
 
-  public void createPaymentMember(PaymentMemberDto paymentMemberDto) {
-    paymentSyncMemberUseCase.createPaymentMember(paymentMemberDto);
+  public void createPaymentMember(PaymentMemberSyncRequest paymentMemberSyncRequest) {
+    paymentSyncMemberUseCase.createPaymentMember(paymentMemberSyncRequest);
   }
 
   @Transactional(readOnly = true)
   public PaymentMemberResponse getMember(Long memberId) {
     PaymentMember paymentMember = paymentMemberSupport.getPaymentMemberById(memberId);
-    PaymentAccount paymentAccount =
-        paymentAccountSupport.getPaymentAccountByMemberId(paymentMember.getId());
+    PaymentAccount paymentAccount = paymentAccountSupport.getPaymentAccountByMemberId(memberId);
     return paymentMapper.toPaymentMemberResponse(paymentMember, paymentAccount);
   }
 

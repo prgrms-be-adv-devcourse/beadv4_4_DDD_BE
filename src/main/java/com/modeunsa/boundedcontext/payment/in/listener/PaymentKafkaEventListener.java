@@ -3,7 +3,7 @@ package com.modeunsa.boundedcontext.payment.in.listener;
 import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
 
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
-import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
+import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberSyncRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.order.PaymentOrderInfo;
 import com.modeunsa.boundedcontext.payment.app.dto.settlement.PaymentPayoutInfo;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentFailedEvent;
@@ -38,7 +38,7 @@ public class PaymentKafkaEventListener {
       case "MemberSignupEvent" -> {
         MemberSignupEvent event =
             jsonConverter.deserialize(envelope.payload(), MemberSignupEvent.class);
-        PaymentMemberDto member = paymentMapper.toPaymentMemberDto(event);
+        PaymentMemberSyncRequest member = paymentMapper.toPaymentMemberDto(event);
         paymentFacade.createPaymentMember(member);
       }
       default -> {
