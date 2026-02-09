@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@DisplayName("Payment 도메인 테스트")
+@DisplayName("Payment 결제 진행 중 상태 테스트")
 class PaymentInProgressStatusTest {
 
   @Test
