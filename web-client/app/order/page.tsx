@@ -74,7 +74,7 @@ export default function OrderPage() {
     }
     const fetchMemberInfo = async () => {
       try {
-        const res = await fetch(`${apiUrl}/api/v1/payments/accounts`, {
+        const res = await fetch(`${apiUrl}/api/v1/payments/members`, {
           headers: { Authorization: `Bearer ${accessToken}` },
         })
         const data: PaymentMemberApiResponse = await res.json()
