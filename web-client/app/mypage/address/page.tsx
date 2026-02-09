@@ -126,22 +126,30 @@ export default function AddressPage() {
       return
     }
 
-    const payload = {
+    // 공통 데이터 (수정/생성 모두 필요)
+    const basePayload = {
       addressName,
       recipientName,
       recipientPhone,
       zipCode,
       address,
       addressDetail,
-      isDefault
     }
 
     try {
       if (selectedId === 'new') {
-        await api.post('/api/v1/members/me/addresses', payload)
+        // [생성] isDefault 포함
+        // 백엔드: MemberDeliveryAddressCreateRequest (isDefault 존재)
+        const createPayload = {
+          ...basePayload,
+          isDefault
+        }
+        await api.post('/api/v1/members/me/addresses', createPayload)
         alert('배송지가 추가되었습니다.')
       } else {
-        await api.patch(`/api/v1/members/me/addresses/${selectedId}`, payload)
+        // [수정] isDefault 제외 (basePayload만 사용)
+        // 백엔드: MemberDeliveryAddressUpdateRequest (isDefault 없음)
+        await api.patch(`/api/v1/members/me/addresses/${selectedId}`, basePayload)
         alert('배송지가 수정되었습니다.')
       }
 
