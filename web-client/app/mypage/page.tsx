@@ -137,10 +137,10 @@ export default function MyPage() {
                       </div>
                       <div>
                         <h2 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '4px' }}>
-                          {basicInfoLoading ? '로딩 중...' : email || 'test@example.com'}
+                          {basicInfoLoading ? '로딩 중...' : email || '이메일 미등록'}
                         </h2>
                         <p style={{ color: '#666', fontSize: '13px' }}>
-                          {basicInfoLoading ? '로딩 중...' : realName ? `${realName} 님` : '뭐든사 회원'}
+                          {basicInfoLoading ? '로딩 중...' : realName ? `${realName} 님` : '이름 미등록'}
                         </p>
                       </div>
                     </div>

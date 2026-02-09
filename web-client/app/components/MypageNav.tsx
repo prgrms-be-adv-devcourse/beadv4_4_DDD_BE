@@ -134,10 +134,10 @@ export default function MypageNav() {
               </div>
               <div>
                 <div style={{ fontSize: '13px', fontWeight: 600 }}>
-                  {loading ? '로딩 중...' : email || 'test@example.com'}
+                  {loading ? '로딩 중...' : email || '이메일 미등록'}
                 </div>
                 <div style={{ fontSize: '12px', color: '#777' }}>
-                  {loading ? '로딩 중...' : realName ? `${realName} 님` : '뭐든사 회원'}
+                  {loading ? '로딩 중...' : realName ? `${realName} 님` : '이름 미등록'}
                 </div>
               </div>
             </div>
