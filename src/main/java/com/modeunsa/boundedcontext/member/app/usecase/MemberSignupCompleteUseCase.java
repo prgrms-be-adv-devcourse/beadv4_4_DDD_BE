@@ -2,7 +2,6 @@ package com.modeunsa.boundedcontext.member.app.usecase;
 
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.types.MemberStatus;
-import com.modeunsa.boundedcontext.member.out.repository.MemberProfileRepository;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
 import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.global.exception.GeneralException;
@@ -19,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MemberSignupCompleteUseCase {
   private final MemberRepository memberRepository;
-  private final MemberProfileRepository memberProfileRepository;
   private final EventPublisher eventPublisher;
   private final MemberProfileCreateUseCase memberProfileCreateUseCase;
   private final MemberBasicInfoUpdateUseCase memberBasicInfoUpdateUseCase;

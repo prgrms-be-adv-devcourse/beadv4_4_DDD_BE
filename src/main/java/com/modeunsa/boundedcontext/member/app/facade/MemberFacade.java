@@ -1,5 +1,6 @@
 package com.modeunsa.boundedcontext.member.app.facade;
 
+import com.modeunsa.boundedcontext.auth.app.usecase.AuthTokenIssueUseCase;
 import com.modeunsa.boundedcontext.file.app.S3UploadService;
 import com.modeunsa.boundedcontext.file.domain.DomainType;
 import com.modeunsa.boundedcontext.member.app.support.MemberSupport;
@@ -19,6 +20,7 @@ import com.modeunsa.boundedcontext.member.domain.entity.MemberProfile;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.security.jwt.JwtTokenProvider;
 import com.modeunsa.global.status.ErrorStatus;
+import com.modeunsa.shared.auth.dto.JwtTokenResponse;
 import com.modeunsa.shared.file.dto.PresignedUrlRequest;
 import com.modeunsa.shared.file.dto.PresignedUrlResponse;
 import com.modeunsa.shared.file.dto.PublicUrlRequest;
@@ -58,11 +60,24 @@ public class MemberFacade {
   private final MemberProfileUpdateImageUseCase memberProfileUpdateImageUseCase;
   private final JwtTokenProvider jwtTokenProvider;
   private final MemberSignupCompleteUseCase memberSignupCompleteUseCase;
+  private final AuthTokenIssueUseCase authTokenIssueUseCase;
 
   /** 회원 가입 */
   @Transactional
-  public void completeSignup(Long memberId, MemberSignupCompleteRequest request) {
+  public JwtTokenResponse completeSignup(Long memberId, MemberSignupCompleteRequest request) {
     memberSignupCompleteUseCase.execute(memberId, request);
+
+    // 변경된 상태(ACTIVE)로 새 토큰 발급을 위해 회원 정보 조회
+    Member member = memberSupport.getMember(memberId);
+    Long sellerId = memberSupport.getSellerIdByMemberId(memberId);
+
+    // 새 토큰 발급 (ACTIVE 상태가 들어감)
+    return authTokenIssueUseCase.execute(
+        member.getId(),
+        member.getRole(),
+        sellerId,
+        member.getStatus().name()
+    );
   }
 
   /** 생성 (Create) */
