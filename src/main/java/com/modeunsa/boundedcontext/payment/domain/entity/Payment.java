@@ -127,6 +127,9 @@ public class Payment extends AuditedEntity {
   private static final Set<PaymentStatus> ALLOWED_FOR_IN_PROGRESS =
       Set.of(PaymentStatus.PENDING, PaymentStatus.FAILED);
 
+  private static final Set<PaymentStatus> ALLOWED_FOR_SUCCESS =
+      Set.of(PaymentStatus.IN_PROGRESS, PaymentStatus.APPROVED);
+
   public static Payment create(
       PaymentId id,
       Long orderId,
@@ -212,12 +215,7 @@ public class Payment extends AuditedEntity {
   }
 
   public void changeSuccess() {
-    if (this.paymentProvider == ProviderType.MODEUNSA_PAY) {
-      validatePaymentStatus(PaymentStatus.IN_PROGRESS);
-    }
-    if (this.paymentProvider == ProviderType.TOSS_PAYMENTS) {
-      validatePaymentStatus(PaymentStatus.APPROVED);
-    }
+    validatePaymentStatusContains(ALLOWED_FOR_SUCCESS, PaymentStatus.SUCCESS);
     changeStatus(PaymentStatus.SUCCESS);
   }
 
