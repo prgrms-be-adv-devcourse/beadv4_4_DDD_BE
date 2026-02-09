@@ -76,7 +76,7 @@ export default function SignupCompletePage() {
       if (response.data.isSuccess) {
         alert('회원가입이 완료되었습니다! 환영합니다.')
         window.dispatchEvent(new Event('loginStatusChanged'))
-        router.replace('/')
+        window.location.href = '/';
       } else {
         alert(response.data.message || '가입 처리에 실패했습니다.')
       }
