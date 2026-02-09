@@ -10,7 +10,9 @@ import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
 import com.modeunsa.boundedcontext.payment.app.dto.account.PaymentAccountDepositRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.account.PaymentAccountDepositResponse;
+import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberResponse;
+import com.modeunsa.boundedcontext.payment.app.mapper.PaymentMapper;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.boundedcontext.payment.in.BasePaymentControllerTest;
 import com.modeunsa.boundedcontext.payment.in.api.v1.PaymentAccountController;
@@ -27,11 +29,12 @@ import org.springframework.http.MediaType;
 class PaymentAccountControllerTest extends BasePaymentControllerTest {
 
   @Mock private PaymentFacade paymentFacade;
+  @Mock private PaymentMapper paymentMapper;
 
   @BeforeEach
   void setUp() {
     super.setUpBase();
-    setUpMockMvc(new PaymentAccountController(paymentFacade));
+    setUpMockMvc(new PaymentAccountController(paymentFacade, paymentMapper));
     setSecurityContext(1L, MemberRole.MEMBER, null);
   }
 
@@ -116,10 +119,13 @@ class PaymentAccountControllerTest extends BasePaymentControllerTest {
     String customerEmail = "test@example.com";
     BigDecimal balance = BigDecimal.valueOf(50000.00);
 
+    PaymentMemberDto dto = new PaymentMemberDto(customerKey, customerName, customerEmail, balance);
+
     PaymentMemberResponse response =
         new PaymentMemberResponse(customerKey, customerName, customerEmail, balance);
 
-    when(paymentFacade.getMember(memberId)).thenReturn(response);
+    when(paymentFacade.getMember(memberId)).thenReturn(dto);
+    when(paymentMapper.toPaymentMemberResponse(dto)).thenReturn(response);
 
     // when, then
     mockMvc

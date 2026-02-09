@@ -3,7 +3,9 @@ package com.modeunsa.boundedcontext.payment.in.api.v1;
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
 import com.modeunsa.boundedcontext.payment.app.dto.account.PaymentAccountDepositRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.account.PaymentAccountDepositResponse;
+import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberResponse;
+import com.modeunsa.boundedcontext.payment.app.mapper.PaymentMapper;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.global.status.SuccessStatus;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PaymentAccountController {
 
   private final PaymentFacade paymentFacade;
+  private final PaymentMapper paymentMapper;
 
   @Operation(summary = "계좌 입금 기능", description = "계좌에 입금하는 기능입니다.")
   @PostMapping("/deposit")
@@ -40,7 +43,8 @@ public class PaymentAccountController {
   @Operation(summary = "결제 계좌 정보 조회 기능", description = "결제 계좌 정보를 조회하는 기능입니다.")
   @GetMapping
   public ResponseEntity<ApiResponse> getMember(@AuthenticationPrincipal CustomUserDetails user) {
-    PaymentMemberResponse response = paymentFacade.getMember(user.getMemberId());
+    PaymentMemberDto data = paymentFacade.getMember(user.getMemberId());
+    PaymentMemberResponse response = paymentMapper.toPaymentMemberResponse(data);
     return ApiResponse.onSuccess(SuccessStatus.OK, response);
   }
 }

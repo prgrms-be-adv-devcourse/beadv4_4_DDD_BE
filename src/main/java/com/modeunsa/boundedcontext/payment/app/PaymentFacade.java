@@ -4,7 +4,7 @@ import com.modeunsa.boundedcontext.payment.app.dto.account.PaymentAccountDeposit
 import com.modeunsa.boundedcontext.payment.app.dto.account.PaymentAccountDepositResponse;
 import com.modeunsa.boundedcontext.payment.app.dto.accountlog.PaymentAccountLogDto;
 import com.modeunsa.boundedcontext.payment.app.dto.accountlog.PaymentAccountSearchRequest;
-import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberResponse;
+import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberSyncRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.order.PaymentOrderInfo;
 import com.modeunsa.boundedcontext.payment.app.dto.payment.ConfirmPaymentRequest;
@@ -14,12 +14,11 @@ import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentResponse;
 import com.modeunsa.boundedcontext.payment.app.dto.settlement.PaymentPayoutInfo;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentFailedEvent;
-import com.modeunsa.boundedcontext.payment.app.mapper.PaymentMapper;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
-import com.modeunsa.boundedcontext.payment.app.support.PaymentMemberSupport;
 import com.modeunsa.boundedcontext.payment.app.usecase.account.PaymentCreateAccountUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.account.PaymentCreditAccountUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.ledger.PaymentAccountLedgerUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.member.PaymentGetMemberUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.member.PaymentSyncMemberUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentCompleteUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentConfirmTossPaymentUseCase;
@@ -29,8 +28,6 @@ import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentInitialize
 import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentPayoutCompleteUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentRefundUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.process.complete.PaymentCompleteOrderCompleteUseCase;
-import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
-import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
 import com.modeunsa.global.security.CustomUserDetails;
 import java.math.BigDecimal;
@@ -38,13 +35,13 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class PaymentFacade {
 
   private final PaymentSyncMemberUseCase paymentSyncMemberUseCase;
+  private final PaymentGetMemberUseCase paymentGetMemberUseCase;
 
   private final PaymentCreateAccountUseCase paymentCreateAccountUseCase;
   private final PaymentCreditAccountUseCase paymentCreditAccountUseCase;
@@ -58,19 +55,14 @@ public class PaymentFacade {
   private final PaymentCompleteUseCase paymentCompleteUseCase;
   private final PaymentAccountLedgerUseCase paymentAccountLedgerUseCase;
 
-  private final PaymentMemberSupport paymentMemberSupport;
   private final PaymentAccountSupport paymentAccountSupport;
-  private final PaymentMapper paymentMapper;
 
   public void createPaymentMember(PaymentMemberSyncRequest paymentMemberSyncRequest) {
     paymentSyncMemberUseCase.createPaymentMember(paymentMemberSyncRequest);
   }
 
-  @Transactional(readOnly = true)
-  public PaymentMemberResponse getMember(Long memberId) {
-    PaymentMember paymentMember = paymentMemberSupport.getPaymentMemberById(memberId);
-    PaymentAccount paymentAccount = paymentAccountSupport.getPaymentAccountByMemberId(memberId);
-    return paymentMapper.toPaymentMemberResponse(paymentMember, paymentAccount);
+  public PaymentMemberDto getMember(Long memberId) {
+    return paymentGetMemberUseCase.execute(memberId);
   }
 
   public void createPaymentAccount(Long memberId) {
