@@ -277,7 +277,7 @@ public class Payment extends AuditedEntity {
   }
 
   private void validatePaymentStatusContains(Set<PaymentStatus> allowStatus) {
-    if (allowStatus.contains(this.status)) {
+    if (!allowStatus.contains(this.status)) {
       throw new PaymentDomainException(
           INVALID_PAYMENT_STATUS,
           String.format(

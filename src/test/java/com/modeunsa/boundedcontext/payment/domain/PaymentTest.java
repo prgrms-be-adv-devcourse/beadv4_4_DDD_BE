@@ -21,7 +21,7 @@ class PaymentTest {
 
   @Test
   @DisplayName("IN_PROGRESS 상태 변경 성공 - PENDING 상태이고 결제 마감일이 미래인 경우")
-  void changeInProgressSuccess() {
+  void changeInProgressSuccessFromPending() {
     // given
     Long memberId = 1L;
     String orderNo = "ORDER12345";
@@ -47,7 +47,36 @@ class PaymentTest {
   }
 
   @Test
-  @DisplayName("IN_PROGRESS 상태 변경 실패 - PENDING 상태가 아닌 경우")
+  @DisplayName("IN_PROGRESS 상태 변경 성공 - FAILED 상태이고 결제 마감일이 미래인 경우")
+  void changeInProgressSuccessFromFailed() {
+    // given
+    Long memberId = 1L;
+    String orderNo = "ORDER12345";
+    Long orderId = 1L;
+    BigDecimal totalAmount = BigDecimal.valueOf(50000);
+    LocalDateTime futureDeadline = LocalDateTime.now().plusDays(1); // 미래 날짜
+
+    PaymentId paymentId = PaymentId.create(memberId, orderNo);
+    Payment payment =
+        Payment.create(
+            paymentId,
+            orderId,
+            totalAmount,
+            futureDeadline,
+            ProviderType.MODEUNSA_PAY,
+            PaymentPurpose.PRODUCT_PURCHASE);
+
+    payment.changeStatusByFailure(PaymentStatus.FAILED, "Initial failure for testing");
+
+    // when
+    payment.changeInProgress();
+
+    // then
+    assertThat(payment.getStatus()).isEqualTo(PaymentStatus.IN_PROGRESS);
+  }
+
+  @Test
+  @DisplayName("IN_PROGRESS 상태 변경 실패 - PENDING 상태 또는 FAILED 상태가 아닌 경우")
   void changeInProgressFailureWhenStatusIsNotPending() {
     // given
     Long memberId = 1L;
