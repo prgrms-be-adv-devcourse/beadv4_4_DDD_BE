@@ -1,13 +1,14 @@
-package com.modeunsa.boundedcontext.content.in;
+package com.modeunsa.boundedcontext.content.in.api.v1;
 
 import com.modeunsa.boundedcontext.content.app.ContentFacade;
+import com.modeunsa.boundedcontext.content.app.dto.ContentRequest;
+import com.modeunsa.boundedcontext.content.app.dto.ContentResponse;
 import com.modeunsa.boundedcontext.content.domain.entity.ContentMember;
 import com.modeunsa.global.response.ApiResponse;
+import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.global.status.SuccessStatus;
 import com.modeunsa.shared.content.dto.ContentCommentRequest;
 import com.modeunsa.shared.content.dto.ContentCommentResponse;
-import com.modeunsa.shared.content.dto.ContentRequest;
-import com.modeunsa.shared.content.dto.ContentResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -29,16 +30,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/contents")
-public class ApiV1ContentController {
+public class ContentController {
 
   private final ContentFacade contentFacade;
 
   @Operation(summary = "콘텐츠 생성", description = "콘텐츠를 생성합니다.")
   @PostMapping
   public ResponseEntity<ApiResponse> createContent(
-      @Valid @RequestBody ContentRequest contentRequest,
-      @AuthenticationPrincipal ContentMember author) {
-    ContentResponse contentResponse = contentFacade.createContent(contentRequest, author);
+      @AuthenticationPrincipal CustomUserDetails user,
+      @Valid @RequestBody ContentRequest contentRequest) {
+    ContentResponse contentResponse =
+        contentFacade.createContent(user.getMemberId(), contentRequest);
     return ApiResponse.onSuccess(SuccessStatus.CREATED, contentResponse);
   }
 

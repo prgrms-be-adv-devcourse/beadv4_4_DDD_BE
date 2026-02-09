@@ -1,4 +1,4 @@
-package com.modeunsa.shared.content.dto;
+package com.modeunsa.boundedcontext.content.app.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
