@@ -1,10 +1,10 @@
 spring:
   config:
-    import: optional:file:.env.dev[.properties]
+    import: optional:file:.env.k3s-dev[.properties]
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:modeunsa}
+    url: jdbc:mysql://127.0.0.1:30306/${DB_NAME:modeunsa}
     username: ${DB_USERNAME:root}
-    password: ${MYSQL_ROOT_PASSWORD:}
+    password: ${DB_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
   h2:
     console:
@@ -17,28 +17,29 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
         highlight_sql: true
         use_sql_comments: true
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: 127.0.0.1
+      port: 30379
       password: ${REDIS_PASSWORD:}
   security:
     oauth2:
       client:
         registration:
           kakao:
-            client-id: ${KAKAO_CLIENT_ID}
-            client-secret: ${KAKAO_CLIENT_SECRET}
+            client-id: ${KAKAO_CLIENT_ID:dummy}
+            client-secret: ${KAKAO_CLIENT_SECRET:dummy}
             redirect-uri: "http://127.0.0.1:8080/login/oauth2/code/kakao"
             authorization-grant-type: authorization_code
             client-authentication-method: client_secret_post
             client-name: KAKAO
           naver:
-            client-id: ${NAVER_CLIENT_ID}
-            client-secret: ${NAVER_CLIENT_SECRET}
+            client-id: ${NAVER_CLIENT_ID:dummy}
+            client-secret: ${NAVER_CLIENT_SECRET:dummy}
             redirect-uri: "http://127.0.0.1:8080/login/oauth2/code/naver"
             authorization-grant-type: authorization_code
             client-name: NAVER
@@ -54,7 +55,12 @@ spring:
 
   elasticsearch:
     uris:
-      - ${SPRING_ELASTICSEARCH_URIS:http://127.0.0.1:30920}
+      - http://127.0.0.1:30920
+
+management:
+  health:
+    elasticsearch:
+      enabled: false
 
 custom:
   swagger:
@@ -96,3 +102,18 @@ custom:
       - http://localhost:8080
       - http://127.0.0.1:8080
       - http://localhost:30080
+
+jwt:
+  secret: ${JWT_SECRET:local-test-jwt-secret-key-which-is-long-enough-32bytes}
+  access-token-expiration: 86400000 # 24시간
+  refresh-token-expiration: 604800000 # 7일
+
+springdoc:
+  swagger-ui:
+    persistAuthorization: true
+
+app:
+  cookie:
+    secure: false
+    http-only: true
+    same-site: Lax

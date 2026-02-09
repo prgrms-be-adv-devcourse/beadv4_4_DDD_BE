@@ -5,10 +5,6 @@ spring:
   devtools:
     restart:
       enabled: false
-  config:
-    import: optional:file:.env[.properties]
-  profiles:
-    active: dev
   application:
     name: modeunsa
   data:
