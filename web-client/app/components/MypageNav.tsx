@@ -2,6 +2,8 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import api from "@/app/lib/axios";
 
 const linkStyle = {
   padding: '8px 10px',
@@ -12,26 +14,26 @@ const linkStyle = {
 }
 
 function NavLink({
-  href,
-  children,
-}: {
+                   href,
+                   children,
+                 }: {
   href: string
   children: React.ReactNode
 }) {
   const pathname = usePathname()
   const isActive = pathname === href
   return (
-    <Link
-      href={href}
-      style={{
-        ...linkStyle,
-        ...(isActive
-          ? { background: '#f1f3ff', color: '#667eea', fontWeight: 600 }
-          : {}),
-      }}
-    >
-      {children}
-    </Link>
+      <Link
+          href={href}
+          style={{
+            ...linkStyle,
+            ...(isActive
+                ? { background: '#f1f3ff', color: '#667eea', fontWeight: 600 }
+                : {}),
+          }}
+      >
+        {children}
+      </Link>
   )
 }
 
@@ -45,6 +47,41 @@ const cardStyle = {
 }
 
 export default function MypageNav() {
+  const [realName, setRealName] = useState('')
+  const [email, setEmail] = useState('')
+  const [profileImageUrl, setProfileImageUrl] = useState('')
+  const [loading, setLoading] = useState(true)
+
+  const fetchInfo = async () => {
+    try {
+      setLoading(true)
+      const [basicRes, profileRes] = await Promise.allSettled([
+          api.get('/api/v1/members/me/basic-info'),
+          api.get('/api/v1/members/me/profile')
+      ])
+
+      if (basicRes.status === 'fulfilled') {
+        setRealName(basicRes.value.data.result.realName || '')
+        setEmail(basicRes.value.data.result.email || '')
+      }
+      if (profileRes.status === 'fulfilled') {
+        setProfileImageUrl(profileRes.value.data.result.profileImageUrl || '')
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // 기본 정보 + 프로필 조회
+  useEffect(() => {
+    fetchInfo()
+    window.addEventListener('loginStatusChanged', fetchInfo)
+    return () => {
+      // 언마운트 시 이벤트 제거
+      window.removeEventListener('loginStatusChanged', fetchInfo)
+    }
+  }, [])
+
   const getUserRoleFromToken = () => {
     if (typeof window === 'undefined') return null
 
@@ -61,73 +98,83 @@ export default function MypageNav() {
 
   const isSeller = getUserRoleFromToken() === 'SELLER'
 
+  // 아바타 글자 (realName의 첫 글자)
+  const avatarLetter = realName ? realName.charAt(0).toUpperCase() : 'U'
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '220px', flexShrink: 0 }}>
-      <aside style={cardStyle}>
-        <div style={{ marginBottom: '16px' }}>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              marginBottom: '8px',
-            }}
-          >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '220px', flexShrink: 0 }}>
+        <aside style={cardStyle}>
+          <div style={{ marginBottom: '16px' }}>
             <div
-              style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                fontWeight: 600,
-                fontSize: '18px',
-              }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  marginBottom: '8px',
+                }}
             >
-              T
-            </div>
-            <div>
-              <div style={{ fontSize: '13px', fontWeight: 600 }}>test@example.com</div>
-              <div style={{ fontSize: '12px', color: '#777' }}>뭐든사 회원</div>
+              <div
+                  style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    background: profileImageUrl
+                        ? `url(${profileImageUrl}) center/cover`
+                        : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                    fontWeight: 600,
+                    fontSize: '18px',
+                    overflow: 'hidden'
+                  }}
+              >
+                {loading ? '...' : (!profileImageUrl && avatarLetter)}
+              </div>
+              <div>
+                <div style={{ fontSize: '13px', fontWeight: 600 }}>
+                  {loading ? '로딩 중...' : email || '이메일 미등록'}
+                </div>
+                <div style={{ fontSize: '12px', color: '#777' }}>
+                  {loading ? '로딩 중...' : realName ? `${realName} 님` : '이름 미등록'}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '14px' }}>
-          <div style={{ fontSize: '12px', color: '#999', margin: '8px 0 4px' }}>내 정보</div>
-          <NavLink href="/mypage">마이페이지 홈</NavLink>
-          <NavLink href="/mypage/profile">기본 정보</NavLink>
-          <NavLink href="/mypage/profile/edit">프로필</NavLink>
-          <NavLink href="/mypage/address">배송지</NavLink>
-          <NavLink href="/mypage/social">소셜 연동</NavLink>
-
-          <div style={{ fontSize: '12px', color: '#999', margin: '12px 0 4px' }}>주문</div>
-          <NavLink href="/mypage/orders">주문 내역</NavLink>
-          <NavLink href="/mypage/cancel">취소/반품 내역</NavLink>
-
-          <div style={{ fontSize: '12px', color: '#999', margin: '12px 0 4px' }}>뭐든사 머니</div>
-          <NavLink href="/mypage/money/charge">충전하기</NavLink>
-          <NavLink href="/mypage/money/history">사용 내역</NavLink>
-
-          <div style={{ fontSize: '12px', color: '#999', margin: '12px 0 4px' }}>저장</div>
-          <NavLink href="/mypage/favorites">좋아요</NavLink>
-        </nav>
-      </aside>
-
-      {isSeller && (
-        <aside style={cardStyle}>
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '14px' }}>
-            <div style={{ fontSize: '12px', color: '#999', margin: '8px 0 4px' }}>판매</div>
-            <NavLink href="/mypage/seller-request">판매자정보</NavLink>
-            <NavLink href="/mypage/products">상품 관리</NavLink>
-            <NavLink href="/mypage/stock">재고 관리</NavLink>
-            <NavLink href="/mypage/settlement">정산 내역</NavLink>
+            <div style={{ fontSize: '12px', color: '#999', margin: '8px 0 4px' }}>내 정보</div>
+            <NavLink href="/mypage">마이페이지 홈</NavLink>
+            <NavLink href="/mypage/basic-info">기본 정보</NavLink>
+            <NavLink href="/mypage/profile">프로필</NavLink>
+            <NavLink href="/mypage/address">배송지</NavLink>
+            <NavLink href="/mypage/social">소셜 연동</NavLink>
+
+            <div style={{ fontSize: '12px', color: '#999', margin: '12px 0 4px' }}>주문</div>
+            <NavLink href="/mypage/orders">주문 내역</NavLink>
+            <NavLink href="/mypage/cancel">취소/반품 내역</NavLink>
+
+            <div style={{ fontSize: '12px', color: '#999', margin: '12px 0 4px' }}>뭐든사 머니</div>
+            <NavLink href="/mypage/money/charge">충전하기</NavLink>
+            <NavLink href="/mypage/money/history">사용 내역</NavLink>
+
+            <div style={{ fontSize: '12px', color: '#999', margin: '12px 0 4px' }}>저장</div>
+            <NavLink href="/mypage/favorites">좋아요</NavLink>
           </nav>
         </aside>
-      )}
-    </div>
+
+        {isSeller && (
+            <aside style={cardStyle}>
+              <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '14px' }}>
+                <div style={{ fontSize: '12px', color: '#999', margin: '8px 0 4px' }}>판매</div>
+                <NavLink href="/mypage/seller-request">판매자정보</NavLink>
+                <NavLink href="/mypage/products">상품 관리</NavLink>
+                <NavLink href="/mypage/stock">재고 관리</NavLink>
+                <NavLink href="/mypage/settlement">정산 내역</NavLink>
+              </nav>
+            </aside>
+        )}
+      </div>
   )
 }
