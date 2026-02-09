@@ -23,18 +23,15 @@ export default function ProfilePage() {
   const [hasProfile, setHasProfile] = useState(false)
   const [uploading, setUploading] = useState(false)
 
-  // 기본정보 (상단 카드용)
   const [realName, setRealName] = useState('')
   const [email, setEmail] = useState('')
 
-  // 프로필 정보
   const [nickname, setNickname] = useState('')
   const [profileImageUrl, setProfileImageUrl] = useState('')
   const [heightCm, setHeightCm] = useState<number | ''>('')
   const [weightKg, setWeightKg] = useState<number | ''>('')
   const [skinType, setSkinType] = useState('')
 
-  // 페이지 로드 시 기본정보와 프로필 조회
   useEffect(() => {
     fetchData()
   }, [])
@@ -42,14 +39,11 @@ export default function ProfilePage() {
   const fetchData = async () => {
     try {
       setLoading(true)
-
-      // 기본정보 조회
       const basicInfoResponse = await api.get('/api/v1/members/me/basic-info')
       const basicInfo: MemberBasicInfo = basicInfoResponse.data.result
       setRealName(basicInfo.realName || '')
       setEmail(basicInfo.email || '')
 
-      // 프로필 조회
       try {
         const profileResponse = await api.get('/api/v1/members/me/profile')
         const profile: MemberProfile = profileResponse.data.result
@@ -61,47 +55,53 @@ export default function ProfilePage() {
         setWeightKg(profile.weightKg ?? '')
         setSkinType(profile.skinType || '')
       } catch (error: any) {
-        // 404: 프로필이 아직 없음
         if (error.response?.status === 404) {
           setHasProfile(false)
         } else {
           console.error('프로필 조회 실패:', error)
-          alert('프로필을 불러오는데 실패했습니다.')
         }
       }
     } catch (error) {
       console.error('데이터 조회 실패:', error)
-      alert('정보를 불러오는데 실패했습니다.')
     } finally {
       setLoading(false)
     }
   }
 
-  // 프로필 저장 (생성 또는 수정)
+  // 프로필 저장 전 검증 및 실행
   const handleSave = async () => {
+    const trimmedNickname = nickname.trim();
+
+    // 1. 필수 값 검증 (백엔드 @NotBlank 대응)
+    if (!trimmedNickname) {
+      alert('닉네임은 필수 입력 항목입니다.');
+      return;
+    }
+    if (!skinType) {
+      alert('피부 타입을 선택해 주세요.');
+      return;
+    }
+
     try {
       setSaving(true)
 
       const profileData = {
-        nickname: nickname.trim() || null,
+        nickname: trimmedNickname, // null 대신 유효한 문자열 전송
         profileImageUrl: profileImageUrl.trim() || null,
         heightCm: heightCm === '' ? null : Number(heightCm),
         weightKg: weightKg === '' ? null : Number(weightKg),
-        skinType: skinType || null,
+        skinType: skinType, // 필수 값이므로 선택된 값 전송
       }
 
       if (hasProfile) {
-        // 프로필 수정 (PUT)
         await api.put('/api/v1/members/me/profile', profileData)
         alert('프로필이 수정되었습니다.')
       } else {
-        // 프로필 생성 (POST)
         await api.post('/api/v1/members/me/profile', profileData)
         setHasProfile(true)
         alert('프로필이 생성되었습니다.')
       }
 
-      // 저장 후 다시 조회
       await fetchData()
     } catch (error: any) {
       console.error('프로필 저장 실패:', error)
@@ -113,11 +113,10 @@ export default function ProfilePage() {
     window.dispatchEvent(new Event('loginStatusChanged'));
   }
 
-  // 프로필 이미지 업로드
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    // 1. 프로필 존재 여부 체크 (백엔드 에러 방지)
+    // 프로필 부재 시 업로드 차단 (이전 리뷰 반영)
     if (!hasProfile) {
-      alert('프로필 정보를 먼저 생성(저장)한 후 이미지를 업로드할 수 있습니다.');
+      alert('프로필 정보를 먼저 저장(생성)한 후 이미지를 업로드할 수 있습니다.');
       e.target.value = '';
       return;
     }
@@ -125,23 +124,8 @@ export default function ProfilePage() {
     const file = e.target.files?.[0]
     if (!file) return
 
-    // 이미지 파일만 허용
-    const allowedTypes = ['image/png', 'image/jpeg', 'image/webp']
-    if (!allowedTypes.includes(file.type)) {
-      alert('PNG, JPEG, WEBP 형식의 이미지만 업로드 가능합니다.')
-      return
-    }
-
-    // 파일 크기 제한 (10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      alert('파일 크기는 10MB 이하여야 합니다.')
-      return
-    }
-
     try {
       setUploading(true)
-
-      // 1. Presigned URL 발급
       const ext = file.type.split('/')[1]
 
       const presignedResponse = await api.post('/api/v1/files/presigned-url', {
@@ -154,27 +138,16 @@ export default function ProfilePage() {
       const presignedUrl = result.presignedUrl || result.url
       const rawKey = result.key || result.rawKey || result.objectKey
 
-      if (!presignedUrl || !rawKey) {
-        throw new Error('Presigned URL 발급 응답이 올바르지 않습니다.')
-      }
-
-      // 2. S3에 직접 업로드
       const s3Response = await fetch(presignedUrl, {
         method: 'PUT',
-        headers: {
-          'Content-Type': file.type,
-        },
+        headers: { 'Content-Type': file.type },
         body: file,
       })
 
-      if (!s3Response.ok) {
-        throw new Error(`S3 업로드 실패: ${s3Response.status}`)
-      }
+      if (!s3Response.ok) throw new Error('S3 업로드 실패')
 
-      // S3 업로드 후 약간의 지연 (S3 eventual consistency)
       await new Promise(resolve => setTimeout(resolve, 1000))
 
-      // 3. 프로필 이미지 업데이트
       const updateResponse = await api.patch('/api/v1/members/me/profile/image', {
         rawKey: rawKey,
         domainType: 'MEMBER',
@@ -182,22 +155,13 @@ export default function ProfilePage() {
       })
 
       const imageUrl = updateResponse.data.result?.imageUrl || updateResponse.data.result?.publicUrl
-
-      if (imageUrl) {
-        setProfileImageUrl(imageUrl)
-      }
+      if (imageUrl) setProfileImageUrl(imageUrl)
 
       alert('프로필 이미지가 업로드되었습니다.')
       await fetchData()
     } catch (error: any) {
       console.error('이미지 업로드 실패:', error)
-      let errorMessage = '이미지 업로드에 실패했습니다.'
-      if (error.response) {
-        errorMessage = error.response.data?.message || `서버 에러 (${error.response.status})`
-      } else if (error.message) {
-        errorMessage = error.message
-      }
-      alert(errorMessage)
+      alert('이미지 업로드에 실패했습니다.')
     } finally {
       setUploading(false)
       e.target.value = ''
@@ -208,9 +172,7 @@ export default function ProfilePage() {
   if (loading) {
     return (
         <MypageLayout>
-          <div style={{ maxWidth: '600px', textAlign: 'center', padding: '40px' }}>
-            로딩 중...
-          </div>
+          <div style={{ maxWidth: '600px', textAlign: 'center', padding: '40px' }}>로딩 중...</div>
         </MypageLayout>
     )
   }
@@ -222,45 +184,18 @@ export default function ProfilePage() {
         <div style={{ maxWidth: '600px' }}>
           <h1 style={{ fontSize: '28px', fontWeight: 700, marginBottom: '24px' }}>프로필</h1>
 
-          {/* 상단 프로필 카드 */}
-          <div
-              style={{
-                background: 'white',
-                borderRadius: '12px',
-                padding: '24px',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                marginBottom: '24px',
-              }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
-              <input
-                  type="file"
-                  id="profile-image-upload"
-                  accept="image/png,image/jpeg,image/webp"
-                  style={{ display: 'none' }}
-                  onChange={handleImageUpload}
-                  disabled={uploading || !hasProfile} // 프로필 없을 때 비활성화
-              />
+          <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <input type="file" id="profile-image-upload" accept="image/*" style={{ display: 'none' }} onChange={handleImageUpload} disabled={uploading || !hasProfile} />
               <label
                   htmlFor="profile-image-upload"
                   style={{
-                    width: '64px',
-                    height: '64px',
-                    borderRadius: '50%',
-                    background: profileImageUrl
-                        ? `url(${profileImageUrl}) center/cover`
-                        : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'white',
-                    fontWeight: '600',
-                    fontSize: '26px',
-                    cursor: (uploading || !hasProfile) ? 'not-allowed' : 'pointer',
-                    position: 'relative',
-                    opacity: (uploading || !hasProfile) ? 0.6 : 1,
+                    width: '64px', height: '64px', borderRadius: '50%',
+                    background: profileImageUrl ? `url(${profileImageUrl}) center/cover` : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: 'white', fontSize: '26px', cursor: (uploading || !hasProfile) ? 'not-allowed' : 'pointer',
+                    position: 'relative', opacity: (uploading || !hasProfile) ? 0.6 : 1,
                   }}
-                  title={!hasProfile ? '프로필 정보를 먼저 저장해주세요' : (uploading ? '업로드 중...' : '클릭하여 이미지 변경')}
                   onClick={(e) => {
                     if (!hasProfile) {
                       e.preventDefault();
@@ -268,140 +203,58 @@ export default function ProfilePage() {
                     }
                   }}
               >
-                {uploading ? (
-                    <div style={{ fontSize: '12px' }}>...</div>
-                ) : !profileImageUrl ? (
-                    avatarLetter
-                ) : null}
-
-                {hasProfile && (
-                    <div
-                        style={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          width: '100%',
-                          height: '100%',
-                          borderRadius: '50%',
-                          background: 'rgba(0, 0, 0, 0.3)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          opacity: 0,
-                          transition: 'opacity 0.2s',
-                        }}
-                        onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
-                        onMouseLeave={(e) => (e.currentTarget.style.opacity = '0')}
-                    >
-                      <span style={{ fontSize: '12px', color: 'white' }}>변경</span>
-                    </div>
-                )}
+                {uploading ? '...' : (!profileImageUrl && avatarLetter)}
               </label>
               <div>
-                <div style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>이름</div>
+                <div style={{ fontSize: '14px', color: '#666' }}>이름</div>
                 <div style={{ fontSize: '16px', fontWeight: 600 }}>{realName || '사용자'}</div>
-                <div style={{ fontSize: '13px', color: '#666', marginTop: '2px' }}>{email}</div>
+                <div style={{ fontSize: '13px', color: '#666' }}>{email}</div>
               </div>
             </div>
-            {!hasProfile && (
-                <div style={{ fontSize: '12px', color: '#ff4d4f', marginTop: '8px' }}>
-                  * 프로필을 먼저 생성해야 이미지를 등록할 수 있습니다.
-                </div>
-            )}
-            {uploading && (
-                <div style={{ fontSize: '13px', color: '#667eea', marginTop: '8px' }}>
-                  이미지 업로드 중...
-                </div>
-            )}
+            {!hasProfile && <div style={{ fontSize: '12px', color: '#ff4d4f', marginTop: '12px' }}>* 프로필 정보를 먼저 저장해야 이미지를 등록할 수 있습니다.</div>}
           </div>
 
-          {/* 프로필 정보 수정 */}
-          <div
-              style={{
-                background: 'white',
-                borderRadius: '12px',
-                padding: '24px',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-              }}
-          >
+          <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>
-                닉네임
-              </label>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>닉네임 *</label>
               <input
                   type="text"
                   value={nickname}
                   onChange={(e) => setNickname(e.target.value)}
-                  placeholder="예: 뭐든사_사용자"
-                  maxLength={50}
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    borderRadius: '8px',
-                    border: '1px solid #e0e0e0',
-                    fontSize: '14px',
-                  }}
+                  placeholder="닉네임을 입력해주세요"
+                  style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #e0e0e0' }}
               />
             </div>
 
             <div style={{ marginBottom: '16px', display: 'flex', gap: '12px' }}>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>
-                  키 (50~300cm)
-                </label>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>키 (cm)</label>
                 <input
                     type="number"
                     value={heightCm}
                     onChange={(e) => setHeightCm(e.target.value === '' ? '' : Number(e.target.value))}
-                    placeholder="예: 175"
-                    min="50"
-                    max="300"
-                    style={{
-                      width: '100%',
-                      padding: '10px 12px',
-                      borderRadius: '8px',
-                      border: '1px solid #e0e0e0',
-                      fontSize: '14px',
-                    }}
+                    min="50" max="300"
+                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #e0e0e0' }}
                 />
               </div>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>
-                  몸무게 (kg)
-                </label>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>몸무게 (kg)</label>
                 <input
                     type="number"
                     value={weightKg}
                     onChange={(e) => setWeightKg(e.target.value === '' ? '' : Number(e.target.value))}
-                    placeholder="예: 65"
-                    min="20"
-                    max="500"
-                    style={{
-                      width: '100%',
-                      padding: '10px 12px',
-                      borderRadius: '8px',
-                      border: '1px solid #e0e0e0',
-                      fontSize: '14px',
-                    }}
+                    min="10" max="300" // 백엔드 기준 일치
+                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #e0e0e0' }}
                 />
               </div>
             </div>
 
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>
-                피부 타입
-              </label>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>피부 타입 *</label>
               <select
                   value={skinType}
                   onChange={(e) => setSkinType(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    borderRadius: '8px',
-                    border: '1px solid #e0e0e0',
-                    fontSize: '14px',
-                    backgroundColor: 'white',
-                  }}
+                  style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #e0e0e0', backgroundColor: 'white' }}
               >
                 <option value="">선택해주세요</option>
                 <option value="normal">중성</option>
@@ -417,19 +270,12 @@ export default function ProfilePage() {
                 onClick={handleSave}
                 disabled={saving}
                 style={{
-                  width: '100%',
-                  marginTop: '8px',
-                  padding: '10px 0',
-                  borderRadius: '8px',
-                  border: 'none',
+                  width: '100%', padding: '12px', borderRadius: '8px', border: 'none',
                   background: saving ? '#ccc' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  color: 'white',
-                  cursor: saving ? 'not-allowed' : 'pointer',
-                  fontSize: '14px',
-                  fontWeight: 600,
+                  color: 'white', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer'
                 }}
             >
-              {saving ? '저장 중...' : hasProfile ? '수정하기' : '생성하기'}
+              {saving ? '저장 중...' : (hasProfile ? '수정하기' : '생성하기')}
             </button>
           </div>
         </div>
