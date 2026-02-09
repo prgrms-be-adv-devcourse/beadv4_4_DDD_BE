@@ -8,8 +8,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositRequest;
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentAccountDepositResponse;
+import com.modeunsa.boundedcontext.payment.app.dto.account.PaymentAccountDepositRequest;
+import com.modeunsa.boundedcontext.payment.app.dto.account.PaymentAccountDepositResponse;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberResponse;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.boundedcontext.payment.in.BasePaymentControllerTest;

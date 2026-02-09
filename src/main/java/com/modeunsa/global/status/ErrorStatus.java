@@ -37,8 +37,14 @@ public enum ErrorStatus {
   AUTH_INVALID_TOKEN_TYPE(HttpStatus.UNAUTHORIZED, "AUTH_401_005", "유효하지 않은 토큰 타입입니다."),
   AUTH_INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_006", "유효하지 않은 Access Token입니다."),
   AUTH_BLACKLISTED_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_007", "로그아웃된 토큰입니다."),
+  AUTH_TOKEN_REFRESH_FAILED(HttpStatus.UNAUTHORIZED, "AUTH_401_008", "토큰 재발급에 실패했습니다."),
   // Auth 403
   AUTH_ACCESS_DENIED(HttpStatus.FORBIDDEN, "AUTH_403_001", "접근 권한이 없습니다."),
+  // Auth 429
+  AUTH_TOO_MANY_REQUESTS(
+      HttpStatus.TOO_MANY_REQUESTS,
+      "AUTH_429_001",
+      "현재 로그인 요청이 많아 처리가 지연되고 있습니다. 잠시 후 다시 시도해 주세요."),
   // Auth 502
   OAUTH_TOKEN_REQUEST_FAILED(HttpStatus.BAD_GATEWAY, "AUTH_502_001", "OAuth 토큰 요청에 실패했습니다."),
   OAUTH_USER_INFO_FAILED(HttpStatus.BAD_GATEWAY, "AUTH_502_002", "OAuth 사용자 정보 요청에 실패했습니다."),
@@ -87,26 +93,19 @@ public enum ErrorStatus {
   ORDER_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_404_001", "없는 상품입니다."),
   ORDER_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_404_002", "없는 회원입니다."),
   ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_404_003", "없는 주문입니다."),
-
+  ORDER_CARTITEM_EMPTY(HttpStatus.NOT_FOUND, "ORDER_404_004", "없는 장바구니 상품입니다."),
   ORDER_ACCESS_DENIED(HttpStatus.FORBIDDEN, "ORDER_403_001", "해당 주문에 대한 접근 권한이 없습니다."),
 
   // Product 400
-  PRODUCT_DESCRIPTION_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_001", "상품 설명은 필수입니다."),
-  PRODUCT_CATEGORY_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_002", "카테고리는 필수입니다."),
-  PRODUCT_SALE_PRICE_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_003", "판매가는 0원 이상이어야 합니다."),
-  PRODUCT_PRICE_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_004", "정가는 0원 이상이어야 합니다."),
-  PRODUCT_QTY_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_005", "재고 수량은 0보다 커야 합니다."),
-  INVALID_PRODUCT_STATUS(HttpStatus.BAD_REQUEST, "PRODUCT_400_007", "잘못된 상품 등록 상태입니다."),
-  INVALID_PRODUCT_UPDATE_FIELD(HttpStatus.BAD_REQUEST, "PRODUCT_400_008", "수정 불가한 필드입니다."),
-  INVALID_PRODUCT_MEMBER(HttpStatus.BAD_REQUEST, "PRODUCT_400_009", "판매자 정보가 다릅니다."),
-  PRODUCT_FIELD_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_010", "필수값을 입력해주세요."),
-  PRODUCT_SELLER_INCORRECT(HttpStatus.BAD_REQUEST, "PRODUCT_400_011", "해당 판매자의 상품이 아닙니다."),
+  INVALID_PRODUCT_STATUS(HttpStatus.BAD_REQUEST, "PRODUCT_400_001", "잘못된 상품 등록 상태입니다."),
+  INVALID_PRODUCT_UPDATE_FIELD(HttpStatus.BAD_REQUEST, "PRODUCT_400_002", "수정 불가한 필드입니다."),
+  INVALID_PRODUCT_MEMBER(HttpStatus.BAD_REQUEST, "PRODUCT_400_003", "판매자 정보가 다릅니다."),
+  PRODUCT_FIELD_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_004", "필수값을 입력해주세요."),
+  PRODUCT_SELLER_INCORRECT(HttpStatus.BAD_REQUEST, "PRODUCT_400_005", "해당 판매자의 상품이 아닙니다."),
   // PRODUCT 404
   PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT_404_001", "상품이 존재하지 않습니다."),
   PRODUCT_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT_404_002", "존재하지 않는 회원입니다."),
   PRODUCT_SELLER_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT_404_003", "존재하지 않는 판매자입니다."),
-  // PRODUCT 409
-  PRODUCT_STOCK_LOCK_FAILURE(HttpStatus.CONFLICT, "PRODUCT_409_001", "재고 처리 중 락 획득에 실패했습니다."),
 
   // Payment
   PAYMENT_MEMBER_DUPLICATE(HttpStatus.BAD_REQUEST, "PAYMENT_400_001", "이미 등록된 결제 회원 정보가 존재합니다."),
@@ -120,6 +119,7 @@ public enum ErrorStatus {
   PAYMENT_INVALID_REQUEST_TOSS_API(
       HttpStatus.BAD_REQUEST, "PAYMENT_400_008", "토스 페이먼츠 API 응답값이 올바르지 않습니다."),
   PAYMENT_REJECT_TOSS_PAYMENT(HttpStatus.BAD_REQUEST, "PAYMENT_400_009", "결제 승인 요청이 거절되었습니다."),
+  PAYMENT_INVALID_DATE_REQUEST(HttpStatus.BAD_REQUEST, "PAYMENT_400_010", "유효하지 않은 날짜 요청입니다."),
 
   PAYMENT_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_001", "결제 회원 정보를 찾을 수 없습니다."),
   PAYMENT_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_404_002", "결제 계좌 정보를 찾을 수 없습니다."),
@@ -151,6 +151,7 @@ public enum ErrorStatus {
   CONTENT_NOT_FOUND(HttpStatus.NOT_FOUND, "CONTENT_404_001", "CONTENT 정보를 찾을 수 없습니다."),
   CONTENT_ALREADY_DELETE(HttpStatus.NOT_FOUND, "CONTENT_404_002", "이 CONTENT는 이미 삭제되었습니다."),
   CONTENT_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "CONTENT_404_003", "COMMENT를 찾을 수 없습니다."),
+  CONTENT_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "CONTENT_404_004", "CONTENT MEMBER를 찾을 수 없습니다."),
 
   // Settlement 400
   SETTLEMENT_REQUIRED(HttpStatus.BAD_REQUEST, "PRODUCT_400_001", "구매 확정 일자는 필수입니다."),

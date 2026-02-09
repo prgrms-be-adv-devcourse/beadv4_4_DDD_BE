@@ -1,7 +1,6 @@
 spring:
   config:
-    activate:
-      on-profile: prod
+    import: optional:file:.env.prod[.properties]
   datasource:
     url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:your_db_name}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: ${DB_USERNAME:root}
@@ -48,7 +47,7 @@ spring:
 
   elasticsearch:
     uris:
-      - http://elasticsearch:9200
+      - http://${ES_HOST:elasticsearch}:${ES_PORT:9200}
 
 custom:
   swagger:
@@ -92,6 +91,9 @@ custom:
       - https://www.modeunsa.store
 
 management:
+  health:
+    elasticsearch:
+      enabled: false
   endpoints:
     web:
       exposure:

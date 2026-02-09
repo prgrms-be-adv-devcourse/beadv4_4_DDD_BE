@@ -3,8 +3,8 @@ package com.modeunsa.boundedcontext.payment.app.usecase;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import com.modeunsa.boundedcontext.payment.app.dto.PaymentProcessContext;
-import com.modeunsa.boundedcontext.payment.app.usecase.complete.PaymentCompleteOrderCompleteUseCase;
+import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentProcessContext;
+import com.modeunsa.boundedcontext.payment.app.usecase.process.complete.PaymentCompleteOrderCompleteUseCase;
 import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;

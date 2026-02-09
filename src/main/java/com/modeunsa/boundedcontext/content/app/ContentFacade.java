@@ -1,16 +1,18 @@
 package com.modeunsa.boundedcontext.content.app;
 
+import com.modeunsa.boundedcontext.content.app.dto.ContentRequest;
+import com.modeunsa.boundedcontext.content.app.dto.ContentResponse;
+import com.modeunsa.boundedcontext.content.app.dto.member.ContentMemberDto;
 import com.modeunsa.boundedcontext.content.app.usecase.ContentCreateCommentUseCase;
 import com.modeunsa.boundedcontext.content.app.usecase.ContentCreateContentUseCase;
 import com.modeunsa.boundedcontext.content.app.usecase.ContentDeleteCommentUseCase;
 import com.modeunsa.boundedcontext.content.app.usecase.ContentDeleteContentUseCase;
 import com.modeunsa.boundedcontext.content.app.usecase.ContentGetContentsUseCase;
 import com.modeunsa.boundedcontext.content.app.usecase.ContentUpdateContentUseCase;
+import com.modeunsa.boundedcontext.content.app.usecase.member.ContentSyncMemberUseCase;
 import com.modeunsa.boundedcontext.content.domain.entity.ContentMember;
 import com.modeunsa.shared.content.dto.ContentCommentRequest;
 import com.modeunsa.shared.content.dto.ContentCommentResponse;
-import com.modeunsa.shared.content.dto.ContentRequest;
-import com.modeunsa.shared.content.dto.ContentResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
@@ -20,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ContentFacade {
 
+  private final ContentSyncMemberUseCase contentSyncMemberUseCase;
+
   private final ContentCreateContentUseCase contentCreateContentUseCase;
   private final ContentUpdateContentUseCase contentUpdateContentUseCase;
   private final ContentDeleteContentUseCase contentDeleteContentUseCase;
@@ -27,9 +31,13 @@ public class ContentFacade {
   private final ContentCreateCommentUseCase contentCreateCommentUseCase;
   private final ContentDeleteCommentUseCase contentDeleteCommentUseCase;
 
+  public void syncContentMember(ContentMemberDto member) {
+    contentSyncMemberUseCase.syncContentMember(member);
+  }
+
   @Transactional
-  public ContentResponse createContent(ContentRequest contentRequest, ContentMember author) {
-    return contentCreateContentUseCase.createContent(contentRequest, author);
+  public ContentResponse createContent(Long memberId, ContentRequest contentRequest) {
+    return contentCreateContentUseCase.createContent(memberId, contentRequest);
   }
 
   @Transactional

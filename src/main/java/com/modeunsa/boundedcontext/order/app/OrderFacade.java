@@ -7,6 +7,7 @@ import com.modeunsa.boundedcontext.order.domain.OrderProduct;
 import com.modeunsa.shared.order.dto.CartItemsResponseDto;
 import com.modeunsa.shared.order.dto.CreateCartOrderRequestDto;
 import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
+import com.modeunsa.shared.order.dto.DeleteCartItemsRequestDto;
 import com.modeunsa.shared.order.dto.OrderDto;
 import com.modeunsa.shared.order.dto.OrderListResponseDto;
 import com.modeunsa.shared.order.dto.OrderResponseDto;
@@ -159,6 +160,16 @@ public class OrderFacade {
 
   public List<Long> getRecentCartItems(Long memberId, int cartItemSize) {
     return orderSupport.getRecentCartItems(memberId, cartItemSize);
+  }
+
+  @Transactional
+  public void deleteCartItems(Long memberId, DeleteCartItemsRequestDto request) {
+    orderSupport.softDeleteCartItems(memberId, request.cartItemIds());
+  }
+
+  @Transactional
+  public void deleteAllCartItems(Long memberId) {
+    orderSupport.softDeleteAllCartItems(memberId);
   }
 
   public void confirmOrderCancellation(PaymentDto payment) {

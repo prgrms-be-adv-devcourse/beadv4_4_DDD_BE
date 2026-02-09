@@ -9,8 +9,6 @@ import com.modeunsa.shared.product.dto.ProductFavoriteResponse;
 import com.modeunsa.shared.product.dto.ProductOrderDto;
 import com.modeunsa.shared.product.dto.ProductOrderResponse;
 import com.modeunsa.shared.product.dto.ProductResponse;
-import com.modeunsa.shared.product.dto.ProductStockDto;
-import com.modeunsa.shared.product.dto.ProductStockResponse;
 import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -33,14 +31,11 @@ public abstract class ProductMapper {
   @Mapping(source = "images", target = "primaryImageUrl", qualifiedByName = "primaryImageUrl")
   public abstract ProductDto toDto(Product product);
 
-  @Mapping(source = "stock", target = "stock")
   @Mapping(source = "id", target = "productId")
   @Mapping(source = "seller.id", target = "sellerId")
   public abstract ProductOrderDto toProductOrderDto(Product product);
 
   public abstract ProductOrderResponse toProductOrderResponse(ProductOrderDto dto);
-
-  public abstract ProductStockResponse toProductStockResponse(ProductStockDto dto);
 
   @Mapping(source = "member.id", target = "memberId")
   @Mapping(source = "product.id", target = "productId")
