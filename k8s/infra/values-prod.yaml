@@ -26,4 +26,6 @@ grafana:
     type: ClusterIP
 ingress:
   enabled: true
-
+cert-manager:
+  enabled: true
+  email: "ghghfkd52@gmail.com"

@@ -1,5 +1,4 @@
 apiVersion: v2
-name: elasticsearch
-description: Elasticsearch search engine for Modeunsa
-type: application
+name: cert-manager-issuer
+description: ClusterIssuer for Let's Encrypt
 version: 0.1.0

@@ -4,6 +4,7 @@
 
 # 사용하기 전 세팅:
 #
+#   [macOS / dev 환경]
 #   1. Colima 및 Docker CLI 설치
 #      brew install colima docker
 #
@@ -13,15 +14,26 @@
 #   * Colima(k3s)는 infra.sh up 시 자동 시작됩니다.
 #   * Docker Desktop은 불필요합니다.
 #
+#   [Linux / prod 환경]
+#   1. k3s 설치
+#      curl -sfL https://get.k3s.io | sh -
+#
+#   2. kubectl, helm 설치
+#      sudo apt install kubectl helm (또는 공식 설치 스크립트)
+#
+#   * k3s가 미리 실행 중이어야 합니다.
+#
 # !!!!!!!!!!!!!!!!!!!!!!사용법!!!!!!!!!!!!!!!!!!!!!!
-#   ./k8s/infra.sh up [dev|prod]    인프라 시작 (기본: dev)
-#   ./k8s/infra.sh down             인프라 중지 (데이터 유지)
-#   ./k8s/infra.sh clean            인프라 중지 + 데이터 삭제 (PVC 포함 전체 삭제)
-#   ./k8s/infra.sh status           인프라 상태 확인
-#   ./k8s/infra.sh restart [dev|prod] 인프라 재시작
+#   ./k8s/infra.sh up [dev|prod]  인프라 시작 (helm 설치)
+#                                  - dev: macOS + Colima (기본값)
+#                                  - prod: Linux + k3s
+#   ./k8s/infra.sh down           인프라 중지 (데이터 유지)
+#   ./k8s/infra.sh clean          인프라 중지 + 데이터 삭제 (PVC 포함 전체 삭제)
+#   ./k8s/infra.sh status         인프라 상태 확인
+#   ./k8s/infra.sh restart        인프라 재시작
 #
 #
-# 접속 정보:
+# 접속 정보 (dev - NodePort):
 #   MySQL          localhost:30306 (NodePort)
 #   Redis          localhost:30379 (NodePort)
 #   Elasticsearch  localhost:30920 (NodePort)
@@ -29,6 +41,10 @@
 #   Grafana        localhost:30300 (NodePort)
 #   Kafka          localhost:30092 (NodePort)
 #   Kafka-UI       localhost:30085 (NodePort)
+#
+# 접속 정보 (prod - Ingress):
+#   Grafana        <EC2-IP>/grafana
+#   Prometheus     <EC2-IP>/prometheus
 #
 
 NAMESPACE="modeunsa"
@@ -67,10 +83,53 @@ ensure_colima() {
   echo "Kubernetes 클러스터 준비 완료"
 }
 
+ensure_k3s() {
+  # k3s가 실행 중인지 확인 (systemd 기반)
+  if ! systemctl is-active --quiet k3s 2>/dev/null; then
+    echo "k3s가 실행 중이 아닙니다. 먼저 k3s를 시작하세요."
+    echo "  sudo systemctl start k3s"
+    exit 1
+  fi
+
+  # kubeconfig 설정 확인
+  if [ ! -f /etc/rancher/k3s/k3s.yaml ]; then
+    echo "k3s kubeconfig를 찾을 수 없습니다: /etc/rancher/k3s/k3s.yaml"
+    exit 1
+  fi
+
+  # KUBECONFIG 환경변수 설정 (필요시)
+  export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+
+  echo "k3s 클러스터 준비 확인..."
+  kubectl wait --for=condition=ready pod -l k8s-app=kube-dns -n kube-system --timeout=120s &>/dev/null \
+    || { echo "k3s 클러스터가 준비되지 않았습니다."; exit 1; }
+  echo "k3s 클러스터 준비 완료"
+}
+
 case "$1" in
   up)
-    ENV_FILE=$(get_env_file "$2")
-    ensure_colima
+    ENV="${2:-dev}"  # 기본값 dev
+    ENV_FILE=$(get_env_file "$ENV")
+
+    # OS 감지: macOS는 Colima, Linux는 k3s
+    if [[ "$(uname)" == "Darwin" ]]; then
+      ensure_colima
+    else
+      ensure_k3s
+    fi
+
+    if [ "$ENV" = "dev" ]; then
+      VALUES_FILES=""  # values.yaml만 사용 (기본값)
+      echo "=== dev 환경으로 시작합니다 (NodePort) ==="
+    elif [ "$ENV" = "prod" ]; then
+      VALUES_FILES="-f $CHART_DIR/values-prod.yaml"  # prod 설정으로 덮어쓰기
+      echo "=== prod 환경으로 시작합니다 (ClusterIP + Ingress) ==="
+    else
+      echo "알 수 없는 환경: $ENV"
+      echo "사용법: $0 up [dev|prod]"
+      exit 1
+    fi
+
     # .env 로드
     if [ -f "$ENV_FILE" ]; then
       echo "환경 파일 로드: $ENV_FILE"
@@ -84,17 +143,31 @@ case "$1" in
     # namespace 생성 (이미 있으면 무시)
     kubectl create namespace $NAMESPACE 2>/dev/null
 
+    # cert-manager CRD 설치 (prod 환경에서만, 미설치 시)
+    if [ "$ENV" = "prod" ]; then
+      if ! kubectl get namespace cert-manager &>/dev/null; then
+        echo "cert-manager CRD 설치 중..."
+        kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.14.0/cert-manager.yaml
+        echo "cert-manager pod 준비 대기..."
+        kubectl wait --for=condition=ready pod -l app.kubernetes.io/instance=cert-manager -n cert-manager --timeout=120s
+        echo "cert-manager 설치 완료"
+      else
+        echo "cert-manager 이미 설치됨"
+      fi
+    fi
+
     # helm 설치 또는 업그레이드 (서브차트 구조 + .env에서 비밀값 주입)
-    helm upgrade --install $RELEASE $CHART_DIR -n $NAMESPACE \
+    helm upgrade --install $RELEASE $CHART_DIR -n $NAMESPACE $VALUES_FILES \
       --set mysql.auth.rootPassword="$MYSQL_ROOT_PASSWORD" \
       --set mysql.auth.database="$MYSQL_DATABASE" \
       --set redis.auth.password="$REDIS_PASSWORD" \
       --set grafana.auth.adminUser="$GF_SECURITY_ADMIN_USER" \
-      --set grafana.auth.adminPassword="$GF_SECURITY_ADMIN_PASSWORD"
+      --set grafana.auth.adminPassword="$GF_SECURITY_ADMIN_PASSWORD" \
+      --set cert-manager.email="$CERT_MANAGER_EMAIL"
 
     # Pod가 Ready 될 때까지 대기 (Pod 생성까지 기다린 후 Ready 확인)
     echo "Waiting for pods to be ready..."
-    for APP in mysql redis elasticsearch kafka; do
+    for APP in mysql redis; do
       echo -n "  $APP: "
       # Pod가 생성될 때까지 대기
       while ! kubectl get pod -l app=$RELEASE-$APP -n $NAMESPACE 2>/dev/null | grep -q "$RELEASE-$APP"; do
@@ -106,19 +179,29 @@ case "$1" in
 
     echo ""
     echo "=== Infrastructure started ==="
-    echo "  MySQL          → localhost:30306"
-    echo "  Redis          → localhost:30379"
-    echo "  Elasticsearch  → localhost:30920"
-    echo "  Prometheus     → localhost:30090"
-    echo "  Grafana        → localhost:30300"
-    echo "  Kafka          → localhost:30092"
-    echo "  Kafka-UI       → localhost:30085"
+    if [ "$ENV" = "dev" ]; then
+      echo "  MySQL          → localhost:30306"
+      echo "  Redis          → localhost:30379"
+      echo "  Elasticsearch  → localhost:30920"
+      echo "  Prometheus     → localhost:30090"
+      echo "  Grafana        → localhost:30300"
+      echo "  Kafka          → localhost:30092"
+      echo "  Kafka-UI       → localhost:30085"
+    else
+      echo "  서비스들이 ClusterIP로 실행됩니다."
+      echo "  Grafana        → <EC2-IP>/grafana (Ingress)"
+      echo "  Prometheus     → <EC2-IP>/prometheus (Ingress)"
+    fi
     ;;
 
   down)
     # helm 삭제 (PVC는 유지 → 데이터 보존)
     helm uninstall $RELEASE -n $NAMESPACE 2>/dev/null
-    colima stop 2>/dev/null
+
+    # dev 환경에서만 colima 중지
+    if colima status &>/dev/null; then
+      colima stop 2>/dev/null
+    fi
 
     echo "=== Infrastructure stopped (데이터 유지됨) ==="
     ;;
@@ -129,7 +212,11 @@ case "$1" in
 
     # PVC 삭제 (데이터 완전 삭제)
     kubectl delete pvc --all -n $NAMESPACE 2>/dev/null
-    colima stop 2>/dev/null
+
+    # dev 환경에서만 colima 중지
+    if colima status &>/dev/null; then
+      colima stop 2>/dev/null
+    fi
 
     echo "=== Infrastructure stopped (데이터 삭제됨) ==="
     ;;

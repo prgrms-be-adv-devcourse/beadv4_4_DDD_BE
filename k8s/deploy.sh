@@ -3,14 +3,14 @@
 # Modeunsa 통합 배포 스크립트
 #
 # 사용법:
-#   ./k8s/deploy.sh up        인프라 + 앱 전체 시작
-#   ./k8s/deploy.sh down      인프라 + 앱 전체 중지 (데이터 유지)
-#   ./k8s/deploy.sh clean     인프라 + 앱 전체 삭제 (데이터 포함)
-#   ./k8s/deploy.sh status    전체 상태 확인
-#   ./k8s/deploy.sh restart   전체 재시작
+#   ./k8s/deploy.sh up [dev|prod]     인프라 + 앱 전체 시작
+#   ./k8s/deploy.sh down              인프라 + 앱 전체 중지 (데이터 유지)
+#   ./k8s/deploy.sh clean             인프라 + 앱 전체 삭제 (데이터 포함)
+#   ./k8s/deploy.sh status            전체 상태 확인
+#   ./k8s/deploy.sh restart [dev|prod] 전체 재시작
 #
-#   ./k8s/deploy.sh infra     인프라만 시작
-#   ./k8s/deploy.sh app       앱만 시작 (인프라가 실행 중이어야 함)
+#   ./k8s/deploy.sh infra [dev|prod]  인프라만 시작
+#   ./k8s/deploy.sh app [dev|prod]    앱만 시작 (인프라가 실행 중이어야 함)
 #
 # 접속 정보:
 #   API Server     localhost:30080
@@ -34,10 +34,10 @@ print_status() {
 case "$1" in
   up)
     print_status "Starting Infrastructure..."
-    "$SCRIPT_DIR/infra.sh" up || exit 1
+    "$SCRIPT_DIR/infra.sh" up "$2" || exit 1
 
     print_status "Starting Application..."
-    "$SCRIPT_DIR/app.sh" up || exit 1
+    "$SCRIPT_DIR/app.sh" up "$2" || exit 1
     
     print_status "All services started!"
     echo "  API Server     → localhost:30080"
@@ -86,34 +86,34 @@ case "$1" in
     "$SCRIPT_DIR/app.sh" down
     "$SCRIPT_DIR/infra.sh" down
     sleep 2
-    "$SCRIPT_DIR/infra.sh" up
-    "$SCRIPT_DIR/app.sh" up
-    
+    "$SCRIPT_DIR/infra.sh" up "$2"
+    "$SCRIPT_DIR/app.sh" up "$2"
+
     print_status "All services restarted!"
     ;;
 
   infra)
     print_status "Starting Infrastructure only..."
-    "$SCRIPT_DIR/infra.sh" up
+    "$SCRIPT_DIR/infra.sh" up "$2"
     ;;
 
   app)
     print_status "Starting Application only..."
-    "$SCRIPT_DIR/app.sh" up
+    "$SCRIPT_DIR/app.sh" up "$2"
     ;;
 
   *)
     echo "Modeunsa Deploy Script"
     echo ""
-    echo "Usage: $0 {up|down|clean|status|restart|infra|app}"
+    echo "Usage: $0 {up|down|clean|status|restart|infra|app} [dev|prod]"
     echo ""
     echo "Commands:"
-    echo "  up       인프라 + 앱 전체 시작"
-    echo "  down     인프라 + 앱 전체 중지 (데이터 유지)"
-    echo "  clean    인프라 + 앱 전체 삭제 (데이터 포함)"
-    echo "  status   전체 상태 확인"
-    echo "  restart  전체 재시작"
-    echo "  infra    인프라만 시작"
-    echo "  app      앱만 시작"
+    echo "  up [dev|prod]       인프라 + 앱 전체 시작"
+    echo "  down                인프라 + 앱 전체 중지 (데이터 유지)"
+    echo "  clean               인프라 + 앱 전체 삭제 (데이터 포함)"
+    echo "  status              전체 상태 확인"
+    echo "  restart [dev|prod]  전체 재시작"
+    echo "  infra [dev|prod]    인프라만 시작"
+    echo "  app [dev|prod]      앱만 시작"
     ;;
 esac

@@ -3,9 +3,18 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ .Release.Name }}-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
+  tls:
+    - hosts:
+        - modeunsa.store
+      secretName: modeunsa-tls
   rules:
-    - http:
+    - host: modeunsa.store
+      http:
         paths:
           - path: /api
             pathType: Prefix
