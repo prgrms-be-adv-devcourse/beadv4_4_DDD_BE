@@ -12,13 +12,18 @@ public class InventoryReserveInventoryUseCase {
   private final InventoryCommandPort inventoryCommandPort;
 
   public void reserveInventory(InventoryReserveRequest request) {
+
+    // productId 순으로 정렬 (선택사항)
     List<InventoryReserveRequest.Item> items =
         request.items().stream()
             .sorted(Comparator.comparing(InventoryReserveRequest.Item::productId))
             .toList();
 
-    for (InventoryReserveRequest.Item item : items) {
-      inventoryCommandPort.reserve(item.productId(), item.quantity());
-    }
+    // 멀티 상품용 Lua에 넘길 key/value 준비
+    List<Long> productIds = items.stream().map(InventoryReserveRequest.Item::productId).toList();
+    List<Integer> quantities = items.stream().map(InventoryReserveRequest.Item::quantity).toList();
+
+    // 멀티 상품 Lua 호출
+    inventoryCommandPort.reserve(productIds, quantities);
   }
 }

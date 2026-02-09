@@ -14,15 +14,19 @@ import org.springframework.stereotype.Component;
 public class InventoryRedisAdapter implements InventoryCommandPort {
   private final RedisTemplate<String, String> redisTemplate;
 
-  private static final String RESERVE_LUA =
+  private static final String RESERVE_MULTI_LUA =
       """
-      local available = tonumber(redis.call("GET", KEYS[1]) or "0")
-      local requestQty = tonumber(ARGV[1])
-      if available < requestQty then
-        return -1
+      for i=1,#KEYS do
+          local available = tonumber(redis.call("GET", KEYS[i]) or "0")
+          local requestQty = tonumber(ARGV[i])
+          if available < requestQty then
+              return -1
+          end
       end
-      redis.call("DECRBY", KEYS[1], requestQty)
-      return available - requestQty
+      for i=1,#KEYS do
+          redis.call("DECRBY", KEYS[i], ARGV[i])
+      end
+      return 1
       """;
 
   private static final String RELEASE_LUA =
@@ -31,14 +35,15 @@ public class InventoryRedisAdapter implements InventoryCommandPort {
       return 1
       """;
 
-  public void reserve(Long productId, int quantity) {
-    String key = inventoryKey(productId);
+  public void reserve(List<Long> productIds, List<Integer> quantities) {
+    List<String> keys = productIds.stream().map(id -> "inventory:available:" + id).toList();
+    List<String> args = quantities.stream().map(String::valueOf).toList();
 
     Long result =
         redisTemplate.execute(
-            new DefaultRedisScript<>(RESERVE_LUA, Long.class),
-            List.of(key),
-            String.valueOf(quantity));
+            new DefaultRedisScript<>(RESERVE_MULTI_LUA, Long.class),
+            keys,
+            args.toArray(new String[0]));
 
     if (result == null || result < 0) {
       throw new GeneralException(ErrorStatus.INSUFFICIENT_STOCK);

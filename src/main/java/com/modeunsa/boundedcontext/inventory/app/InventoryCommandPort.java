@@ -1,7 +1,9 @@
 package com.modeunsa.boundedcontext.inventory.app;
 
+import java.util.List;
+
 public interface InventoryCommandPort {
-  void reserve(Long productId, int quantity);
+  void reserve(List<Long> productId, List<Integer> quantity);
 
   void release(Long productId, int quantity);
 }
