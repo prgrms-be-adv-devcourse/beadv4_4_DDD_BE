@@ -7,17 +7,20 @@ public record JwtTokenResponse(
     String accessToken,
     String refreshToken,
     long accessTokenExpiresIn,
-    long refreshTokenExpiresIn) {
+    long refreshTokenExpiresIn,
+    String status) {
   public static JwtTokenResponse of(
       String accessToken,
       String refreshToken,
       long accessTokenExpiresIn,
-      long refreshTokenExpiresIn) {
+      long refreshTokenExpiresIn,
+      String status) {
     return JwtTokenResponse.builder()
         .accessToken(accessToken)
         .refreshToken(refreshToken)
         .accessTokenExpiresIn(accessTokenExpiresIn)
         .refreshTokenExpiresIn(refreshTokenExpiresIn)
+        .status(status)
         .build();
   }
 }
