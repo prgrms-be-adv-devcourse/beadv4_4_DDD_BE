@@ -50,7 +50,7 @@ public class OAuthLoginUseCase {
       OAuthUserInfo userInfo = oauthClient.getUserInfo(tokenResponse.accessToken());
       log.info("[{}] 사용자 정보 조회 완료 - providerId: {}", requestId, userInfo.providerId());
 
-      // 4. 소셜 계정 조회 또는 신규 가입
+      // 4. 소셜 계정 조회 또는 신규 가입 (이제 신규가입 시 PRE_ACTIVE가 됨)
       log.info("[{}] 소셜 계정 처리 시작", requestId);
       OAuthAccount socialAccount = oauthAccountResolveUseCase.execute(provider, userInfo);
       log.info(
@@ -64,7 +64,7 @@ public class OAuthLoginUseCase {
 
       // 5. JWT 토큰 발급
       JwtTokenResponse jwtTokenResponse =
-          authTokenIssueUseCase.execute(member.getId(), member.getRole(), sellerId);
+          authTokenIssueUseCase.execute(member.getId(), member.getRole(), sellerId, member.getStatus().name());
 
       log.info("[{}] ✅ OAuth 로그인 성공 - memberId: {}", requestId, member.getId());
       return jwtTokenResponse;
