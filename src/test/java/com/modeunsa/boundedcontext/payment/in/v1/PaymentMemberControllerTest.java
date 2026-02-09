@@ -34,8 +34,8 @@ class PaymentMemberControllerTest extends BasePaymentControllerTest {
   }
 
   @Test
-  @DisplayName("회원 정보 조회 성공 - 유효한 요청으로 계좌 정보 조회 성공")
-  void getAccountBalanceSuccess() throws Exception {
+  @DisplayName("회원 정보 조회 성공 - 유효한 요청으로 회원 정보 조회 성공")
+  void getPaymentMemberSuccess() throws Exception {
     // given
     Long memberId = 1L;
     String customerKey = "customer_key_123";

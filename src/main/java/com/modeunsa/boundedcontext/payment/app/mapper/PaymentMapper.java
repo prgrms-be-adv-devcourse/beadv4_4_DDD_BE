@@ -24,7 +24,7 @@ public interface PaymentMapper {
   @Mapping(target = "id", source = "memberId")
   @Mapping(target = "name", source = "realName")
   @Mapping(target = "status", source = "status", qualifiedByName = "mapMemberStatus")
-  PaymentMemberSyncRequest toPaymentMemberDto(MemberSignupEvent memberSignupEvent);
+  PaymentMemberSyncRequest toPaymentMemberSyncRequest(MemberSignupEvent memberSignupEvent);
 
   @Named("mapMemberStatus")
   default MemberStatus mapMemberStatus(

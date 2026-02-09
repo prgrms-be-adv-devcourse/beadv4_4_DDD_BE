@@ -30,7 +30,7 @@ public class PaymentEventListener {
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Transactional(propagation = REQUIRES_NEW)
   public void handleMemberCreateEvent(MemberSignupEvent memberSignupEvent) {
-    PaymentMemberSyncRequest member = paymentMapper.toPaymentMemberDto(memberSignupEvent);
+    PaymentMemberSyncRequest member = paymentMapper.toPaymentMemberSyncRequest(memberSignupEvent);
     paymentFacade.createPaymentMember(member);
   }
 

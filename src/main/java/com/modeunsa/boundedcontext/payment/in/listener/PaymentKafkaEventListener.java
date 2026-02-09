@@ -38,7 +38,7 @@ public class PaymentKafkaEventListener {
       case "MemberSignupEvent" -> {
         MemberSignupEvent event =
             jsonConverter.deserialize(envelope.payload(), MemberSignupEvent.class);
-        PaymentMemberSyncRequest member = paymentMapper.toPaymentMemberDto(event);
+        PaymentMemberSyncRequest member = paymentMapper.toPaymentMemberSyncRequest(event);
         paymentFacade.createPaymentMember(member);
       }
       default -> {
