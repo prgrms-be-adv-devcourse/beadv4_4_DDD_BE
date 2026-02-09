@@ -37,6 +37,7 @@ public enum ErrorStatus {
   AUTH_INVALID_TOKEN_TYPE(HttpStatus.UNAUTHORIZED, "AUTH_401_005", "유효하지 않은 토큰 타입입니다."),
   AUTH_INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_006", "유효하지 않은 Access Token입니다."),
   AUTH_BLACKLISTED_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_007", "로그아웃된 토큰입니다."),
+  AUTH_TOKEN_REFRESH_FAILED(HttpStatus.UNAUTHORIZED, "AUTH_401_008", "토큰 재발급에 실패했습니다."),
   // Auth 403
   AUTH_ACCESS_DENIED(HttpStatus.FORBIDDEN, "AUTH_403_001", "접근 권한이 없습니다."),
   // Auth 429
