@@ -118,6 +118,12 @@ public class Member extends GeneratedIdAndAuditedEntity {
     newDefault.setAsDefault();
   }
 
+  public void updateBasicInfo(String realName, String email, String phoneNumber) {
+    this.realName = realName;
+    this.email = email;
+    this.phoneNumber = phoneNumber;
+  }
+
   public Member updateRealName(String realName) {
     if (realName != null) {
       this.realName = realName;
@@ -144,6 +150,13 @@ public class Member extends GeneratedIdAndAuditedEntity {
 
   public void changeStatus(MemberStatus status) {
     this.status = status;
+  }
+
+  public void activate() {
+    if (this.status == MemberStatus.ACTIVE) {
+      throw new GeneralException(ErrorStatus.MEMBER_ALREADY_ACTIVE);
+    }
+    this.status = MemberStatus.ACTIVE;
   }
 
   public void addOAuthAccount(OAuthAccount oauth) {
