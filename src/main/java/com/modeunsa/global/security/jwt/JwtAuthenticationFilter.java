@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private static final String ROLE_PREFIX = "ROLE_";
   private static final String EXCEPTION_ATTRIBUTE = "exception";
 
+  // PRE_ACTIVE 상태일 때도 접근 가능한 URL 목록 (Whitelist)
+  private static final String[] PRE_ACTIVE_ALLOW_URLS = {
+      "/api/v1/auths", // 로그아웃, 토큰 재발급 등
+      "/api/v2/members/me/basic-info", // 가입 정보 조회
+      "/api/v2/members/me/signup-complete", // 가입 완료 처리
+      "/api/v1/files" // 이미지 업로드 (프로필 사진용)
+  };
+
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) {
     return request.getRequestURI().contains("/internal/");
@@ -58,6 +67,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     if (StringUtils.hasText(token)) {
       try {
+        // 1. 토큰 검증
         jwtTokenProvider.validateTokenOrThrow(token);
 
         if (!jwtTokenProvider.isAccessToken(token)) {
@@ -68,6 +78,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
           throw new GeneralException(ErrorStatus.AUTH_BLACKLISTED_TOKEN);
         }
 
+        // 2. 상태 기반 접근 제어 (PRE_ACTIVE 체크)
+        String status = jwtTokenProvider.getStatusFromToken(token);
+        if ("PRE_ACTIVE".equals(status)) {
+          if (!isAllowedForPreActive(request.getRequestURI())) {
+            throw new GeneralException(ErrorStatus.MEMBER_NOT_ACTIVATED);
+          }
+        }
+
+        // 3. 인증 객체 설정
         setAuthentication(token, request);
 
       } catch (GeneralException e) {
@@ -122,6 +141,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private boolean isAuthEndpoint(HttpServletRequest request) {
     String uri = request.getRequestURI();
     return uri.startsWith("/api/v1/auths/");
+  }
+
+  /** PRE_ACTIVE 상태 허용 URL 체크 */
+  private boolean isAllowedForPreActive(String requestUri) {
+    // 1. Auth 관련은 무조건 허용 (isAuthEndpoint 로직 재활용 또는 포함)
+    if (requestUri.startsWith("/api/v1/auths/")) return true;
+
+    // 2. 화이트리스트 체크
+    return Arrays.stream(PRE_ACTIVE_ALLOW_URLS)
+        .anyMatch(requestUri::startsWith);
   }
 
   private String resolveAccessToken(HttpServletRequest request) {
