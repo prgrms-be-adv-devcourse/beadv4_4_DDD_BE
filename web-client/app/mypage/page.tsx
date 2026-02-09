@@ -125,7 +125,7 @@ export default function MyPage() {
                 </div>
               </div>
 
-              {/* 내정보 카드 */}
+              {/* 내 정보 카드 */}
               <div
                 style={{
                   background: 'white',
@@ -135,7 +135,7 @@ export default function MyPage() {
                   marginBottom: '24px',
                 }}
               >
-                <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '8px' }}>내정보</h3>
+                <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '8px' }}>내 정보</h3>
                 <p style={{ color: '#666', fontSize: '14px', marginBottom: '16px' }}>
                   프로필, 배송지 등 내 정보를 관리할 수 있어요.
                 </p>
@@ -153,7 +153,7 @@ export default function MyPage() {
                       textDecoration: 'none',
                     }}
                   >
-                    기본 정보 수정
+                    기본 정보
                   </Link>
                   <Link
                     href="/mypage/profile/edit"
@@ -168,7 +168,7 @@ export default function MyPage() {
                       textDecoration: 'none',
                     }}
                   >
-                    프로필 수정
+                    프로필
                   </Link>
                   <Link
                     href="/mypage/address"
@@ -184,6 +184,21 @@ export default function MyPage() {
                     }}
                   >
                     배송지
+                  </Link>
+                  <Link
+                      href="/mypage/social"
+                      style={{
+                          padding: '8px 14px',
+                          borderRadius: '8px',
+                          border: '1px solid #e0e0ff',
+                          background: '#f8f8ff',
+                          color: '#667eea',
+                          fontSize: '13px',
+                          fontWeight: 500,
+                          textDecoration: 'none',
+                      }}
+                  >
+                    소셜 연동
                   </Link>
                 </div>
               </div>

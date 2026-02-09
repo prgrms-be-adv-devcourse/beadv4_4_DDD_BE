@@ -99,9 +99,10 @@ export default function MypageNav() {
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '14px' }}>
           <div style={{ fontSize: '12px', color: '#999', margin: '8px 0 4px' }}>내 정보</div>
           <NavLink href="/mypage">마이페이지 홈</NavLink>
-          <NavLink href="/mypage/profile">기본 정보 수정</NavLink>
-          <NavLink href="/mypage/profile/edit">프로필 수정</NavLink>
+          <NavLink href="/mypage/profile">기본 정보</NavLink>
+          <NavLink href="/mypage/profile/edit">프로필</NavLink>
           <NavLink href="/mypage/address">배송지</NavLink>
+          <NavLink href="/mypage/social">소셜 연동</NavLink>
 
           <div style={{ fontSize: '12px', color: '#999', margin: '12px 0 4px' }}>주문</div>
           <NavLink href="/mypage/orders">주문 내역</NavLink>

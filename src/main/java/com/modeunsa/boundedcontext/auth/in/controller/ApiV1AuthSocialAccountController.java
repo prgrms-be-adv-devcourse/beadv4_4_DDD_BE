@@ -6,6 +6,7 @@ import com.modeunsa.boundedcontext.auth.in.util.AuthRequestUtils;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.global.status.SuccessStatus;
+import com.modeunsa.shared.auth.dto.SocialStatusResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -55,5 +56,16 @@ public class ApiV1AuthSocialAccountController {
     oauthAccountFacade.linkSocialAccount(memberId, oauthProvider, code, redirectUri, state);
 
     return ApiResponse.onSuccess(SuccessStatus.SOCIAL_ACCOUNT_LINK_SUCCESS);
+  }
+
+  @Operation(summary = "소셜 계정 연동 상태 조회", description = "현재 로그인한 사용자의 플랫폼별 연동 여부를 반환합니다.")
+  @GetMapping("/status")
+  public ResponseEntity<ApiResponse> getSocialStatus(
+      @AuthenticationPrincipal CustomUserDetails user) {
+
+    Long memberId = user.getMemberId();
+    SocialStatusResponse status = oauthAccountFacade.getSocialStatus(memberId);
+
+    return ApiResponse.onSuccess(SuccessStatus.OK, status);
   }
 }

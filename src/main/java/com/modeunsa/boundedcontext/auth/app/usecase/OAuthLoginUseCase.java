@@ -11,6 +11,7 @@ import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.auth.dto.JwtTokenResponse;
 import com.modeunsa.shared.auth.dto.OAuthProviderTokenResponse;
 import com.modeunsa.shared.auth.dto.OAuthUserInfo;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -29,25 +30,53 @@ public class OAuthLoginUseCase {
 
   public JwtTokenResponse execute(
       OAuthProvider provider, String code, String redirectUri, String state) {
-    // 1. state 검증
-    validateState(state, provider);
 
-    // 2. OAuth 토큰 교환 (외부 HTTP 호출)
-    OAuthClient oauthClient = oauthClientFactory.getClient(provider);
-    OAuthProviderTokenResponse tokenResponse = oauthClient.getToken(code, redirectUri);
+    // 요청 ID 생성 (각 요청 구분용)
+    String requestId = UUID.randomUUID().toString().substring(0, 8);
 
-    // 3. 사용자 정보 조회 (외부 HTTP 호출)
-    OAuthUserInfo userInfo = oauthClient.getUserInfo(tokenResponse.accessToken());
-    log.info("OAuth 사용자 정보 조회 완료 - provider: {}, providerId: {}", provider, userInfo.providerId());
+    log.info("[{}] OAuth 로그인 시작 - provider: {}, state: {}", requestId, provider, state);
 
-    // 4. 소셜 계정 조회 또는 신규 가입
-    OAuthAccount socialAccount = oauthAccountResolveUseCase.execute(provider, userInfo);
+    try {
+      // 1. state 검증
+      validateState(state, provider);
+      log.info("[{}] State 검증 완료", requestId);
 
-    Member member = socialAccount.getMember();
-    Long sellerId = memberSupport.getSellerIdByMemberId(member.getId());
+      // 2. OAuth 토큰 교환
+      OAuthClient oauthClient = oauthClientFactory.getClient(provider);
+      OAuthProviderTokenResponse tokenResponse = oauthClient.getToken(code, redirectUri);
+      log.info("[{}] OAuth 토큰 교환 완료", requestId);
 
-    // 5. JWT 토큰 발급
-    return authTokenIssueUseCase.execute(member.getId(), member.getRole(), sellerId);
+      // 3. 사용자 정보 조회
+      OAuthUserInfo userInfo = oauthClient.getUserInfo(tokenResponse.accessToken());
+      log.info("[{}] 사용자 정보 조회 완료 - providerId: {}", requestId, userInfo.providerId());
+
+      // 4. 소셜 계정 조회 또는 신규 가입
+      log.info("[{}] 소셜 계정 처리 시작", requestId);
+      OAuthAccount socialAccount = oauthAccountResolveUseCase.execute(provider, userInfo);
+      log.info(
+          "[{}] 소셜 계정 처리 완료 - accountId: {}, memberId: {}",
+          requestId,
+          socialAccount.getId(),
+          socialAccount.getMember().getId());
+
+      Member member = socialAccount.getMember();
+      Long sellerId = memberSupport.getSellerIdByMemberId(member.getId());
+
+      // 5. JWT 토큰 발급
+      JwtTokenResponse jwtTokenResponse =
+          authTokenIssueUseCase.execute(member.getId(), member.getRole(), sellerId);
+
+      log.info("[{}] ✅ OAuth 로그인 성공 - memberId: {}", requestId, member.getId());
+      return jwtTokenResponse;
+
+    } catch (Exception e) {
+      log.error(
+          "[{}] ❌ OAuth 로그인 실패 - error: {}, message: {}",
+          requestId,
+          e.getClass().getSimpleName(),
+          e.getMessage());
+      throw e;
+    }
   }
 
   private void validateState(String state, OAuthProvider provider) {
