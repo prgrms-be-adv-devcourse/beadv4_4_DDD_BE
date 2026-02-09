@@ -5,13 +5,6 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Header from '../components/Header'
 
-interface JwtTokenResponse {
-  accessToken: string
-  refreshToken: string
-  accessTokenExpiresIn: number
-  refreshTokenExpiresIn: number
-}
-
 export default function LoginDevPage() {
   const router = useRouter()
   const [memberId, setMemberId] = useState('')
@@ -45,7 +38,7 @@ export default function LoginDevPage() {
       }
 
       const url = `${apiUrl}/api/v1/auths/dev/login?memberId=${numId}`
-      const res = await fetch(url, { method: 'POST' })
+      const res = await fetch(url, { method: 'POST', credentials: 'include' })
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}))
@@ -55,15 +48,6 @@ export default function LoginDevPage() {
         setIsSubmitting(false)
         return
       }
-
-      const data: JwtTokenResponse = await res.json()
-
-      localStorage.setItem('accessToken', data.accessToken)
-      localStorage.setItem('refreshToken', data.refreshToken)
-      localStorage.setItem('accessTokenExpiresIn', String(data.accessTokenExpiresIn))
-      localStorage.setItem('refreshTokenExpiresIn', String(data.refreshTokenExpiresIn))
-
-      window.dispatchEvent(new Event('loginStatusChanged'))
 
       router.push('/')
     } catch (err) {

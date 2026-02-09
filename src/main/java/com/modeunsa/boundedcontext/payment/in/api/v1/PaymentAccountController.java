@@ -3,7 +3,6 @@ package com.modeunsa.boundedcontext.payment.in.api.v1;
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
 import com.modeunsa.boundedcontext.payment.app.dto.account.PaymentAccountDepositRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.account.PaymentAccountDepositResponse;
-import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberResponse;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.global.status.SuccessStatus;
@@ -13,7 +12,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,13 +32,6 @@ public class PaymentAccountController {
       @Valid @RequestBody PaymentAccountDepositRequest request) {
     PaymentAccountDepositResponse response =
         paymentFacade.creditAccount(user.getMemberId(), request);
-    return ApiResponse.onSuccess(SuccessStatus.OK, response);
-  }
-
-  @Operation(summary = "결제 계좌 정보 조회 기능", description = "결제 계좌 정보를 조회하는 기능입니다.")
-  @GetMapping
-  public ResponseEntity<ApiResponse> getMember(@AuthenticationPrincipal CustomUserDetails user) {
-    PaymentMemberResponse response = paymentFacade.getMember(user.getMemberId());
     return ApiResponse.onSuccess(SuccessStatus.OK, response);
   }
 }

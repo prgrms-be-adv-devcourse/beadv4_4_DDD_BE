@@ -125,7 +125,10 @@ public class Payment extends AuditedEntity {
   @Lob private String pgFailureReason;
 
   private static final Set<PaymentStatus> ALLOWED_FOR_IN_PROGRESS =
-      Set.of(PaymentStatus.PENDING, PaymentStatus.IN_PROGRESS);
+      Set.of(PaymentStatus.PENDING, PaymentStatus.FAILED);
+
+  private static final Set<PaymentStatus> ALLOWED_FOR_SUCCESS =
+      Set.of(PaymentStatus.IN_PROGRESS, PaymentStatus.APPROVED);
 
   public static Payment create(
       PaymentId id,
@@ -164,6 +167,7 @@ public class Payment extends AuditedEntity {
   }
 
   public void approveTossPayment(TossPaymentsConfirmResponse tossRes) {
+    validatePaymentStatus(PaymentStatus.IN_PROGRESS);
     this.pgOrderName = tossRes.orderName();
     this.pgMethod = tossRes.method();
     this.pgStatus = tossRes.status();
@@ -172,12 +176,13 @@ public class Payment extends AuditedEntity {
     changeStatus(PaymentStatus.APPROVED);
   }
 
-  public void failedPayment(
-      PaymentErrorCode errorCode, String failureMessage, Long memberId, String orderNo) {
+  public void failedPayment(PaymentErrorCode errorCode, String failureMessage) {
     this.failedErrorCode = errorCode;
     this.failedAt = LocalDateTime.now();
     this.failedReason = failureMessage;
-    changeStatusByFailure(PaymentStatus.FAILED, failureMessage);
+    PaymentStatus failedStatus =
+        errorCode.isFinalFailure() ? PaymentStatus.FINAL_FAILED : PaymentStatus.FAILED;
+    changeStatusByFailure(failedStatus, failureMessage);
   }
 
   public void failedTossPayment(HttpStatus httpStatus, String message) {
@@ -202,6 +207,16 @@ public class Payment extends AuditedEntity {
   public void changeInProgress() {
     validateCanChangeToInProgress();
     changeStatus(PaymentStatus.IN_PROGRESS);
+  }
+
+  public void validatePgProcess() {
+    validatePaymentStatus(PaymentStatus.IN_PROGRESS);
+    validatePaymentDeadline();
+  }
+
+  public void changeSuccess() {
+    validatePaymentStatusContains(ALLOWED_FOR_SUCCESS, PaymentStatus.SUCCESS);
+    changeStatus(PaymentStatus.SUCCESS);
   }
 
   public void updatePgRequestInfo(boolean needPgPayment, BigDecimal requestPgAmount) {
@@ -256,14 +271,32 @@ public class Payment extends AuditedEntity {
   }
 
   private void validateCanChangeToInProgress() {
-    if (!ALLOWED_FOR_IN_PROGRESS.contains(this.status)) {
+    validatePaymentStatusContains(ALLOWED_FOR_IN_PROGRESS, PaymentStatus.IN_PROGRESS);
+    validatePaymentDeadline();
+  }
+
+  private void validatePaymentStatus(PaymentStatus paymentStatus) {
+    if (this.status != paymentStatus) {
       throw new PaymentDomainException(
           INVALID_PAYMENT_STATUS,
           String.format(
-              "결제 진행상태로 변경할 수 없는 상태입니다. 회원 ID: %d, 주문 번호: %s, 현재 상태: %s",
-              getId().getMemberId(), getId().getOrderNo(), this.status));
+              "현재 결제 상태는 변경할 수 없는 상태입니다. 회원 ID: %d, 주문 번호: %s, 현재 상태: %s, 필요한 결제 상태: %s",
+              getId().getMemberId(), getId().getOrderNo(), this.status, paymentStatus));
     }
+  }
 
+  private void validatePaymentStatusContains(
+      Set<PaymentStatus> allowStatus, PaymentStatus paymentStatus) {
+    if (!allowStatus.contains(this.status)) {
+      throw new PaymentDomainException(
+          INVALID_PAYMENT_STATUS,
+          String.format(
+              "현재 상태는 변경할 수 없는 상태입니다. 회원 ID: %d, 주문 번호: %s, 현재 상태: %s, 필요한 상태: %s",
+              getId().getMemberId(), getId().getOrderNo(), this.status, paymentStatus));
+    }
+  }
+
+  private void validatePaymentDeadline() {
     if (this.paymentDeadlineAt.isBefore(LocalDateTime.now())) {
       throw new PaymentDomainException(
           OVERDUE_PAYMENT_DEADLINE,

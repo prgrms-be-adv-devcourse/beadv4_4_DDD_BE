@@ -6,7 +6,6 @@ import lombok.Getter;
 @Getter
 public enum PaymentErrorCode {
   MEMBER_IN_ACTIVE,
-  INSUFFICIENT_BALANCE,
   DUPLICATE_PAYMENT,
   INVALID_PAYMENT,
   INVALID_CHARGE_AMOUNT,
