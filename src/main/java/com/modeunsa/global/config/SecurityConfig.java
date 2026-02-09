@@ -62,13 +62,23 @@ public class SecurityConfig {
                   .permitAll()
 
                   // ========================================
-                  // 1. 공개 URL (yml에서 관리)
+                  // 공개 URL (yml에서 관리)
                   // ========================================
                   .requestMatchers(permitUrls)
                   .permitAll()
 
                   // ========================================
-                  // 2. 상품 API - GET만 공개
+                  // 가입 미완료(GUEST) 회원 전용 API
+                  // ========================================
+                  // 기본 정보 조회 & 가입 완료 요청은 GUEST 포함 접근 가능해야 함
+                  .requestMatchers(HttpMethod.GET, "/api/v1/members/me/basic-info").hasRole("GUEST")
+                  .requestMatchers(HttpMethod.POST, "/api/v2/members/signup-complete").hasRole("GUEST")
+
+                  // 이미지 업로드 (프로필용)
+                  .requestMatchers("/api/v1/files/**").hasRole("GUEST")
+
+                  // ========================================
+                  // 상품 API - GET만 공개
                   // ========================================
                   .requestMatchers(HttpMethod.GET, "/api/v1/products")
                   .permitAll()
@@ -79,13 +89,13 @@ public class SecurityConfig {
                   .requestMatchers(HttpMethod.GET, "/api/v2/inventories/*/available-quantity")
                   .permitAll()
                   // ========================================
-                  // 3. 관리자 전용
+                  // 관리자 전용
                   // ========================================
                   .requestMatchers("/api/v1/admin/**")
                   .hasRole("ADMIN")
 
                   // ========================================
-                  // 4. 판매자 전용
+                  // 판매자 전용
                   // ========================================
                   // 상품 CUD
                   .requestMatchers(HttpMethod.POST, "/api/v1/products")
@@ -98,7 +108,7 @@ public class SecurityConfig {
                   .hasRole("SELLER")
 
                   // ========================================
-                  // 5. 회원 전용
+                  // 회원 전용
                   // ========================================
                   // 마이페이지
                   .requestMatchers("/api/v1/members/me/**")
@@ -130,7 +140,7 @@ public class SecurityConfig {
                   .hasRole("MEMBER")
 
                   // ========================================
-                  // 6. 나머지는 인증 필요
+                  // 나머지는 인증 필요
                   // ========================================
                   .anyRequest()
                   .authenticated());
@@ -152,6 +162,8 @@ public class SecurityConfig {
         .implies("SELLER") // ADMIN은 SELLER의 모든 권한을 가짐
         .role("SELLER")
         .implies("MEMBER") // SELLER는 MEMBER의 모든 권한을 가짐
+        .role("MEMBER")
+        .implies("GUEST") // MEMBER는 GUEST 모든 권한을 가짐
         .build();
   }
 
