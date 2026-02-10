@@ -1,8 +1,6 @@
 package com.modeunsa.boundedcontext.member.app.facade;
 
-import com.modeunsa.boundedcontext.auth.app.usecase.AuthTokenIssueUseCase;
 import com.modeunsa.boundedcontext.file.app.S3UploadService;
-import com.modeunsa.boundedcontext.file.domain.DomainType;
 import com.modeunsa.boundedcontext.member.app.support.MemberSupport;
 import com.modeunsa.boundedcontext.member.app.usecase.AdminApproveSellerUseCase;
 import com.modeunsa.boundedcontext.member.app.usecase.MemberBasicInfoUpdateUseCase;
@@ -21,7 +19,6 @@ import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.security.jwt.JwtTokenProvider;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.auth.dto.JwtTokenResponse;
-import com.modeunsa.shared.file.dto.PresignedUrlRequest;
 import com.modeunsa.shared.file.dto.PresignedUrlResponse;
 import com.modeunsa.shared.file.dto.PublicUrlRequest;
 import com.modeunsa.shared.file.dto.PublicUrlResponse;
@@ -60,20 +57,11 @@ public class MemberFacade {
   private final MemberProfileUpdateImageUseCase memberProfileUpdateImageUseCase;
   private final JwtTokenProvider jwtTokenProvider;
   private final MemberSignupCompleteUseCase memberSignupCompleteUseCase;
-  private final AuthTokenIssueUseCase authTokenIssueUseCase;
 
   /** 회원 가입 */
   @Transactional
   public JwtTokenResponse completeSignup(Long memberId, MemberSignupCompleteRequest request) {
-    memberSignupCompleteUseCase.execute(memberId, request);
-
-    // 변경된 상태(ACTIVE)로 새 토큰 발급을 위해 회원 정보 조회
-    Member member = memberSupport.getMember(memberId);
-    Long sellerId = memberSupport.getSellerIdByMemberId(memberId);
-
-    // 새 토큰 발급 (ACTIVE 상태가 들어감)
-    return authTokenIssueUseCase.execute(
-        member.getId(), member.getRole(), sellerId, member.getStatus().name());
+    return memberSignupCompleteUseCase.execute(memberId, request);
   }
 
   /** 생성 (Create) */
@@ -158,10 +146,6 @@ public class MemberFacade {
         || !StringUtils.hasText(request.licenseContentType())) {
       throw new GeneralException(ErrorStatus.IMAGE_FILE_REQUIRED);
     }
-
-    PresignedUrlRequest presignedUrlRequest =
-        new PresignedUrlRequest(
-            DomainType.SELLER, request.licenseImageRawKey(), request.licenseContentType());
 
     PresignedUrlResponse s3Response = s3UploadService.getPresignedUrl(request.licenseImageRawKey());
 

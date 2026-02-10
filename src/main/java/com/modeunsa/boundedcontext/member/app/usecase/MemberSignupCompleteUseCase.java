@@ -1,11 +1,14 @@
 package com.modeunsa.boundedcontext.member.app.usecase;
 
+import com.modeunsa.boundedcontext.auth.app.usecase.AuthTokenIssueUseCase;
+import com.modeunsa.boundedcontext.member.app.support.MemberSupport;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.types.MemberStatus;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
 import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
+import com.modeunsa.shared.auth.dto.JwtTokenResponse;
 import com.modeunsa.shared.member.dto.request.MemberBasicInfoUpdateRequest;
 import com.modeunsa.shared.member.dto.request.MemberProfileCreateRequest;
 import com.modeunsa.shared.member.dto.request.MemberSignupCompleteRequest;
@@ -17,13 +20,16 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class MemberSignupCompleteUseCase {
+
   private final MemberRepository memberRepository;
   private final EventPublisher eventPublisher;
   private final MemberProfileCreateUseCase memberProfileCreateUseCase;
   private final MemberBasicInfoUpdateUseCase memberBasicInfoUpdateUseCase;
+  private final MemberSupport memberSupport;
+  private final AuthTokenIssueUseCase authTokenIssueUseCase;
 
   @Transactional
-  public void execute(Long memberId, MemberSignupCompleteRequest request) {
+  public JwtTokenResponse execute(Long memberId, MemberSignupCompleteRequest request) {
     Member member =
         memberRepository
             .findById(memberId)
@@ -62,5 +68,12 @@ public class MemberSignupCompleteUseCase {
             member.getPhoneNumber(),
             member.getRole().name(),
             member.getStatus().name()));
+
+    // 변경된 상태(ACTIVE)로 새 토큰 발급을 위해 회원 정보 조회
+    Long sellerId = memberSupport.getSellerIdByMemberId(memberId);
+
+    // 새 토큰 발급 (ACTIVE 상태가 들어감)
+    return authTokenIssueUseCase.execute(
+        member.getId(), member.getRole(), sellerId, member.getStatus().name());
   }
 }
