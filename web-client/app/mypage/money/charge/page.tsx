@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import MypageLayout from '../../../components/MypageLayout'
+import api from '@/app/lib/axios'
 
 declare global {
   interface Window {
@@ -65,23 +66,10 @@ export default function MoneyChargePage() {
 
   useEffect(() => {
     const fetchAccount = async () => {
-      if (typeof window === 'undefined') return
-      const accessToken = localStorage.getItem('accessToken')
-      if (!accessToken?.trim()) {
-        setLoading(false)
-        return
-      }
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
-      if (!apiUrl) {
-        setLoading(false)
-        return
-      }
       try {
-        const res = await fetch(`${apiUrl}/api/v1/payments/members`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        })
-        const data: PaymentAccountApiResponse = await res.json()
-        if (res.ok && data.isSuccess && data.result != null) {
+        const response = await api.get<PaymentAccountApiResponse>('/api/v1/payments/members')
+        const data = response.data
+        if (data.isSuccess && data.result != null) {
           setBalance(Number(data.result.balance))
           setCustomerEmail(data.result.customerEmail ?? null)
           setCustomerName(data.result.customerName ?? null)
@@ -118,12 +106,6 @@ export default function MoneyChargePage() {
       alert('충전 금액은 100원 이상 입력해주세요.')
       return
     }
-    const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
-    if (!accessToken?.trim() || !apiUrl) {
-      alert('로그인 또는 API 설정을 확인해주세요.')
-      return
-    }
     const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY
     if (!clientKey) {
       alert('토스페이먼츠 설정이 없습니다. 충전을 진행할 수 없습니다.')
@@ -148,31 +130,16 @@ export default function MoneyChargePage() {
 
     setIsSubmitting(true)
     try {
-      const res = await fetch(`${apiUrl}/api/v1/payments`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          orderId,
-          orderNo,
-          totalAmount: chargeAmount,
-          paymentDeadlineAt,
-          providerType: 'TOSS_PAYMENTS',
-          paymentPurpose: 'DEPOSIT_CHARGE',
-        }),
+      const res = await api.post<RequestPaymentApiResponse>('/api/v1/payments', {
+        orderId,
+        orderNo,
+        totalAmount: chargeAmount,
+        paymentDeadlineAt,
+        providerType: 'TOSS_PAYMENTS',
+        paymentPurpose: 'DEPOSIT_CHARGE',
       })
-      const data: RequestPaymentApiResponse = await res.json()
+      const data = res.data
 
-      if (!res.ok) {
-        const message = data.message || '충전 요청에 실패했습니다.'
-        router.replace(
-          `/mypage/money/charge/failure?orderNo=${encodeURIComponent(orderNo)}&amount=${chargeAmount}&message=${encodeURIComponent(message)}`
-        )
-        setIsSubmitting(false)
-        return
-      }
       if (!data.isSuccess || !data.result) {
         const message = data.message || '충전 요청에 실패했습니다.'
         router.replace(
@@ -211,9 +178,14 @@ export default function MoneyChargePage() {
       } else {
         alert('토스 페이먼츠 결제 창을 열 수 없습니다. 결제 SDK를 확인해주세요.')
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('충전 요청 실패:', err)
-      alert(err instanceof Error ? err.message : '충전 요청 중 오류가 발생했습니다.')
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        (err instanceof Error ? err.message : '충전 요청 중 오류가 발생했습니다.')
+      router.replace(
+        `/mypage/money/charge/failure?orderNo=${encodeURIComponent(orderNo)}&amount=${chargeAmount}&message=${encodeURIComponent(message)}`
+      )
     } finally {
       setIsSubmitting(false)
     }

@@ -6,6 +6,7 @@ import static com.modeunsa.global.status.ErrorStatus.PAYMENT_REJECT_TOSS_PAYMENT
 import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmResponse;
 import com.modeunsa.global.exception.GeneralException;
+import com.modeunsa.global.retry.RetryOnExternalApiFailure;
 import jakarta.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -49,6 +50,7 @@ public class RestTossPaymentClient implements TossPaymentClient {
   }
 
   @Override
+  @RetryOnExternalApiFailure
   public TossPaymentsConfirmResponse confirmPayment(
       TossPaymentsConfirmRequest tossPaymentsConfirmRequest) {
     String paymentKey = tossPaymentsConfirmRequest.paymentKey();

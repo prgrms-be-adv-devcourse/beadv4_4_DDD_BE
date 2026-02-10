@@ -22,6 +22,7 @@ import com.modeunsa.shared.payment.dto.PaymentDto;
 import com.modeunsa.shared.payment.event.PaymentRefundSuccessEvent;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -80,7 +81,8 @@ class PaymentRefundUseCaseTest {
     LockedPaymentAccounts lockedAccounts = new LockedPaymentAccounts(accountsMap);
 
     // PaymentAccountLockManager Mock 설정
-    when(paymentAccountLockManager.getEntitiesForUpdateInOrder(HOLDER_ID, buyerMember.getId()))
+    when(paymentAccountLockManager.getEntitiesForUpdateInOrder(
+            List.of(HOLDER_ID, buyerMember.getId())))
         .thenReturn(lockedAccounts);
 
     final BigDecimal holderBalanceBefore = holderAccount.getBalance();
@@ -115,7 +117,8 @@ class PaymentRefundUseCaseTest {
     LockedPaymentAccounts lockedAccounts = new LockedPaymentAccounts(accountsMap);
 
     // PaymentAccountLockManager Mock 설정
-    when(paymentAccountLockManager.getEntitiesForUpdateInOrder(HOLDER_ID, buyerMember.getId()))
+    when(paymentAccountLockManager.getEntitiesForUpdateInOrder(
+            List.of(HOLDER_ID, buyerMember.getId())))
         .thenReturn(lockedAccounts);
 
     final BigDecimal holderBalanceBefore = holderAccount.getBalance();
@@ -154,7 +157,8 @@ class PaymentRefundUseCaseTest {
     LockedPaymentAccounts lockedAccounts = new LockedPaymentAccounts(accountsMap);
 
     // PaymentAccountLockManager Mock 설정
-    when(paymentAccountLockManager.getEntitiesForUpdateInOrder(HOLDER_ID, buyerMember.getId()))
+    when(paymentAccountLockManager.getEntitiesForUpdateInOrder(
+            List.of(HOLDER_ID, buyerMember.getId())))
         .thenReturn(lockedAccounts);
 
     // when, then
@@ -183,7 +187,8 @@ class PaymentRefundUseCaseTest {
     LockedPaymentAccounts lockedAccounts = new LockedPaymentAccounts(accountsMap);
 
     // PaymentAccountLockManager Mock 설정
-    when(paymentAccountLockManager.getEntitiesForUpdateInOrder(HOLDER_ID, buyerMember.getId()))
+    when(paymentAccountLockManager.getEntitiesForUpdateInOrder(
+            List.of(HOLDER_ID, buyerMember.getId())))
         .thenReturn(lockedAccounts);
 
     // when

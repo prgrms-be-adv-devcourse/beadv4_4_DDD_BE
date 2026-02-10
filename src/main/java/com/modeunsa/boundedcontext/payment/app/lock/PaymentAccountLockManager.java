@@ -9,7 +9,6 @@ import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.lock.EntityLockManager;
 import jakarta.persistence.LockTimeoutException;
 import jakarta.persistence.PessimisticLockException;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,12 +34,12 @@ public class PaymentAccountLockManager implements EntityLockManager<PaymentAccou
   private final PaymentAccountSupport paymentAccountSupport;
 
   @Override
-  public LockedPaymentAccounts getEntitiesForUpdateInOrder(Long... memberIds) {
+  public LockedPaymentAccounts getEntitiesForUpdateInOrder(List<Long> memberIds) {
 
     try {
 
       // ID 순서 대로 정렬
-      List<Long> sortedIds = Arrays.stream(memberIds).sorted().toList();
+      List<Long> sortedIds = memberIds.stream().sorted().toList();
 
       // 순서 유지를 위해 LinkedHashMap 사용
       Map<Long, PaymentAccount> paymentAccounts = new LinkedHashMap<>();
