@@ -2,10 +2,10 @@ package com.modeunsa.shared.member.dto.request;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 
 public record MemberProfileCreateRequest(
-    @NotBlank(message = "닉네임은 필수입니다.") String nickname,
+    @NotEmpty(message = "닉네임은 필수입니다.") String nickname,
     String profileImageUrl,
     @Min(value = 50, message = "키는 50cm 이상이어야 합니다.")
         @Max(value = 300, message = "키는 300cm 이하여야 합니다.")
@@ -15,4 +15,4 @@ public record MemberProfileCreateRequest(
         Integer weightKg,
 
     // TODO: Enum으로 변경 예정
-    @NotBlank(message = "피부 타입은 필수입니다.") String skinType) {}
+    String skinType) {}
