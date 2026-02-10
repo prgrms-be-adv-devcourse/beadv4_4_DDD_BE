@@ -8,6 +8,7 @@ import com.modeunsa.shared.order.dto.CartItemsResponseDto;
 import com.modeunsa.shared.order.dto.CreateCartOrderRequestDto;
 import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
 import com.modeunsa.shared.order.dto.DeleteCartItemsRequestDto;
+import com.modeunsa.shared.order.dto.OrderDeliveryRequestDto;
 import com.modeunsa.shared.order.dto.OrderDto;
 import com.modeunsa.shared.order.dto.OrderListResponseDto;
 import com.modeunsa.shared.order.dto.OrderResponseDto;
@@ -42,6 +43,7 @@ public class OrderFacade {
   private final OrderUpdateMemberUseCase orderUpdateMemberUseCase;
   private final OrderCreateDeliveryAddressUseCase orderCreateDeliveryAddressUseCase;
   private final OrderGetOrderUseCase orderGetOrderUseCase;
+  private final OrderAddOrderDeliveryInfoUseCase orderAddOrderDeliveryInfoUseCase;
 
   // 장바구니 아이템 생성
   @Transactional
@@ -169,5 +171,12 @@ public class OrderFacade {
   @Transactional
   public void deleteAllCartItems(Long memberId) {
     orderSupport.softDeleteAllCartItems(memberId);
+  }
+
+  @Transactional
+  public void addOrderDeliveryInfo(
+      Long memberId, Long orderId, OrderDeliveryRequestDto orderDeliveryRequestDto) {
+    orderAddOrderDeliveryInfoUseCase.addOrderDeliveryInfo(
+        memberId, orderId, orderDeliveryRequestDto);
   }
 }

@@ -1,10 +1,4 @@
 # 공통 기본 설정 (환경 공통)
-# 환경별 리소스/서비스 설정은 values-local.yaml 또는 values-prod.yaml 참조
-#
-# 사용법:
-#   helm upgrade --install ... -f values.yaml -f values-local.yaml   (로컬)
-#   helm upgrade --install ... -f values.yaml -f values-prod.yaml    (프로덕션)
-
 mysql:
   enabled: true
   image:
@@ -50,9 +44,6 @@ grafana:
   server:
     serveFromSubPath: true
 
-traefik:
-  enabled: false
-
 kafka:
   enabled: true
   image:
@@ -64,3 +55,12 @@ kafkaui:
     tag: "latest"
   kafka:
     bootstrapServers: "modeunsa-infra-kafka:9092"
+
+ingress:
+  enabled: false        # dev에서는 NodePort 사용, prod에서 true로 덮어씀
+
+cert-manager:
+  enabled: false
+  email: ""
+  server: "https://acme-v02.api.letsencrypt.org/directory"
+  ingressClass: traefik

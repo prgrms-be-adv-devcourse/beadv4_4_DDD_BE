@@ -20,7 +20,7 @@ public class PaymentCreateAccountUseCase {
   private final PaymentAccountReader paymentAccountReader;
   private final PaymentAccountStore paymentAccountStore;
 
-  public void createPaymentAccount(Long memberId) {
+  public void execute(Long memberId) {
 
     boolean exist = paymentAccountReader.existsByMemberId(memberId);
     if (exist) {

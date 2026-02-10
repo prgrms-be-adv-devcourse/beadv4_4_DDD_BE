@@ -1,0 +1,31 @@
+mysql:
+  service:
+    type: ClusterIP
+  storage:
+    size: 10Gi
+redis:
+  service:
+    type: ClusterIP
+elasticsearch:
+  enabled: false
+  service:
+    type: ClusterIP
+kafka:
+  enabled: false
+  service:
+    type: ClusterIP
+kafkaui:
+  enabled: false
+  service:
+    type: ClusterIP
+prometheus:
+  service:
+    type: ClusterIP
+grafana:
+  service:
+    type: ClusterIP
+ingress:
+  enabled: true
+cert-manager:
+  enabled: true
+  email: "ghghfkd52@gmail.com"

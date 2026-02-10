@@ -1,5 +1,7 @@
 package com.modeunsa.global.lock;
 
+import java.util.List;
+
 /**
  * 엔티티 락 관리를 위한 인터페이스
  *
@@ -17,7 +19,10 @@ public interface EntityLockManager<T, K extends Comparable<K>> {
    *
    * <p>전달된 키들을 자연 순서에 따라 정렬한 후, 작은 값부터 큰 값 순서로 락을 획득합니다.
    *
-   * <p>예: getEntitiesForUpdateInOrder(100L, 2L, 50L) 호출 시 내부적으로 [2L, 50L, 100L] 순서로 정렬되어 락을 획득합니다.
+   * <p>예: getEntitiesForUpdateInOrder(List.of(100L, 2L, 50L)) 호출 시 내부적으로 [2L, 50L, 100L] 순서로 정렬되어
+   * 락을 획득합니다.
+   *
+   * @param keys 락을 획득할 엔티티의 키 목록 (vararg 대신 List 사용으로 힙 오염 방지)
    */
-  LockedEntities<T, K> getEntitiesForUpdateInOrder(K... keys);
+  LockedEntities<T, K> getEntitiesForUpdateInOrder(List<K> keys);
 }

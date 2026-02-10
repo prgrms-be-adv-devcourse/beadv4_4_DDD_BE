@@ -1,41 +1,43 @@
 package com.modeunsa.boundedcontext.product.in.api.v2;
 
-import co.elastic.clients.elasticsearch._types.query_dsl.Query;
-import com.modeunsa.boundedcontext.product.elasticsearch.ElasticSearchPageRequest;
-import com.modeunsa.boundedcontext.product.elasticsearch.app.ElasticSearchExecutor;
-import com.modeunsa.boundedcontext.product.elasticsearch.model.ElasticSearchPage;
-import com.modeunsa.boundedcontext.product.elasticsearch.model.ProductSearchDocument;
+import com.modeunsa.boundedcontext.product.app.search.ProductSearchUseCase;
+import com.modeunsa.boundedcontext.product.domain.search.document.ProductSearch;
+import com.modeunsa.shared.product.dto.search.ProductSearchRequest;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Profile("!test")
 @Tag(name = "Product Search", description = "검색 상품 도메인 API")
 @RestController
-@RequestMapping("/api/v1/products/searches")
+@RequestMapping("/api/v2/products/searches")
 @RequiredArgsConstructor
 public class ProductSearchController {
-  private final ElasticSearchExecutor elasticSearchExecutor;
 
+  private final ProductSearchUseCase productSearchUseCase;
+
+  @Operation(summary = "ES 상품 등록", description = "상품을 등록하면 ElasticSearch에도 save된다.")
+  @PostMapping
+  public ProductSearch create(@RequestBody ProductSearchRequest request) {
+    return productSearchUseCase.createProductSearch(
+        request.name(),
+        request.description(),
+        request.category(),
+        request.saleStatus(),
+        request.price());
+  }
+
+  @Operation(summary = "검색 상품 조회", description = "name, description 기준으로 상품을 검색한다.")
   @GetMapping
-  public ResponseEntity<ElasticSearchPage<ProductSearchDocument>> searchProducts(
-      @RequestParam String keyword,
-      @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int size) {
-
-    // 1. ES Query 생성 (상품명 기준)
-    Query query = Query.of(q -> q.match(m -> m.field("name").query(keyword)));
-
-    // 2. page / size
-    ElasticSearchPageRequest pageRequest = ElasticSearchPageRequest.of(page, size);
-
-    // 3. 검색 실행
-    ElasticSearchPage<ProductSearchDocument> result =
-        elasticSearchExecutor.search(query, pageRequest, ProductSearchDocument.class);
-
-    return ResponseEntity.ok(result);
+  public List<ProductSearch> search(@RequestParam String keyword) {
+    return productSearchUseCase.search(keyword);
   }
 }
