@@ -30,6 +30,7 @@ import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentRefundUseC
 import com.modeunsa.boundedcontext.payment.app.usecase.process.complete.PaymentCompleteOrderCompleteUseCase;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
 import com.modeunsa.global.security.CustomUserDetails;
+import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -57,8 +58,8 @@ public class PaymentFacade {
 
   private final PaymentAccountSupport paymentAccountSupport;
 
-  public void createPaymentMember(PaymentMemberSyncRequest paymentMemberSyncRequest) {
-    paymentSyncMemberUseCase.createPaymentMember(paymentMemberSyncRequest);
+  public void createPaymentMember(@Valid PaymentMemberSyncRequest paymentMemberSyncRequest) {
+    paymentSyncMemberUseCase.execute(paymentMemberSyncRequest);
   }
 
   public PaymentMemberDto getMember(Long memberId) {
@@ -66,7 +67,7 @@ public class PaymentFacade {
   }
 
   public void createPaymentAccount(Long memberId) {
-    paymentCreateAccountUseCase.createPaymentAccount(memberId);
+    paymentCreateAccountUseCase.execute(memberId);
   }
 
   public PaymentAccountDepositResponse creditAccount(
