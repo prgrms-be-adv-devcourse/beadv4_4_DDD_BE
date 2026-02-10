@@ -17,7 +17,7 @@ public class PaymentSyncMemberUseCase {
   private final PaymentMemberStore paymentMemberStore;
   private final EventPublisher eventPublisher;
 
-  public void createPaymentMember(PaymentMemberSyncRequest member) {
+  public void execute(PaymentMemberSyncRequest member) {
 
     PaymentMember paymentMember =
         PaymentMember.create(member.id(), member.email(), member.name(), member.status());

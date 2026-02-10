@@ -54,11 +54,20 @@ spring:
 
   elasticsearch:
     uris:
-      - ${SPRING_ELASTICSEARCH_URIS:http://127.0.0.1:30920}
+      - ${SPRING_ELASTICSEARCH_URIS:http://localhost:9200}
+
+management:
+  health:
+    elasticsearch:
+      enabled: false
+
+#  kafka:
+#    listener:
+#      auto-startup: false
 
 custom:
   swagger:
-    serverUrl: ${SWAGGER_SERVER_URL:http://127.0.0.1:8080}
+    serverUrl: ${SWAGGER_SERVER_URL:http://localhost:8080}
     description: "Local Server"
   security:
     permit-all: false
@@ -85,6 +94,10 @@ custom:
 
       # ========== 콘텐츠 ==========
       - /api/v1/contents/**
+
+      # ========== 상품 ===========
+      - /api/v2/products/searches
+
     oauth2:
       allowed-redirect-domains:
         - localhost
@@ -96,4 +109,18 @@ custom:
       - http://127.0.0.1:3000
       - http://localhost:8080
       - http://127.0.0.1:8080
-      - http://localhost:30080
+
+jwt:
+  secret: ${JWT_SECRET:local-test-jwt-secret-key-which-is-long-enough-32bytes}
+  access-token-expiration: 86400000 # 24시간
+  refresh-token-expiration: 604800000 # 7일
+
+springdoc:
+  swagger-ui:
+    persistAuthorization: true
+
+app:
+  cookie:
+    secure: false
+    http-only: true
+    same-site: Lax

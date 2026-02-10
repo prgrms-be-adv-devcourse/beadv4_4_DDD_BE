@@ -12,7 +12,8 @@ export async function GET() {
 
   try {
     // 백엔드 스프링 부트 서버(8080)로 요청 전달
-    const response = await fetch('http://localhost:8080/api/v1/auths/social-accounts/status', {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+    const response = await fetch(`${API_URL}/api/v1/auths/social-accounts/status`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${accessToken}`,

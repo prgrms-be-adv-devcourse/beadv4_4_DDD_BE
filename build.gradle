@@ -82,9 +82,9 @@ dependencies {
     implementation 'software.amazon.awssdk:s3:2.25.0'
 
     // ElasticSearch
-    implementation "org.springframework.boot:spring-boot-starter-data-elasticsearch"
-    implementation 'co.elastic.clients:elasticsearch-java:9.2.4'
-    implementation 'org.elasticsearch.client:elasticsearch-rest-client:9.2.4'
+    implementation'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+
+    testImplementation'org.springframework.boot:spring-boot-starter-data-elasticsearch-test'
 
     implementation 'io.hypersistence:hypersistence-tsid:2.1.1'
 

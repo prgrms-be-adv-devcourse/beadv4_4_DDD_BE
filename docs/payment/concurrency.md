@@ -82,8 +82,9 @@ public void execute(PaymentProcessContext paymentProcessContext) {
     // 1. 결제 계좌에 대한 Lock 획득
     LockedPaymentAccounts accounts =
         paymentAccountLockManager.getEntitiesForUpdateInOrder(
-            paymentAccountConfig.getHolderMemberId(), 
-            paymentProcessContext.buyerId());
+            List.of(
+                paymentAccountConfig.getHolderMemberId(),
+                paymentProcessContext.buyerId()));
     
     // 2. 결제 계좌 영속성 획득 (Lock이 걸린 상태)
     PaymentAccount holderAccount = accounts.get(paymentAccountConfig.getHolderMemberId());

@@ -1,6 +1,6 @@
 'use client'
 
-import {useEffect, useState} from 'react'
+import {Suspense, useEffect, useState} from 'react'
 import Link from 'next/link'
 import MypageLayout from '../../components/MypageLayout'
 import {useSearchParams} from "next/navigation";
@@ -77,7 +77,11 @@ export default function FavoritesPage() {
           </div>
 
         {/* Tab contents */}
-        {activeTab === 'product' ? <ProductFavorites /> : <SnapFavorites />}
+        {activeTab === 'product' ? (
+          <Suspense fallback={<div>로딩 중...</div>}>
+            <ProductFavorites />
+          </Suspense>
+        ) : <SnapFavorites />}
       </div>
     </MypageLayout>
   )

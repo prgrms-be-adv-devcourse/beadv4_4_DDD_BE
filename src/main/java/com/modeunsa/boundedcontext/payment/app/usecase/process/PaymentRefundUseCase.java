@@ -13,6 +13,7 @@ import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.payment.dto.PaymentDto;
 import com.modeunsa.shared.payment.event.PaymentRefundSuccessEvent;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +31,7 @@ public class PaymentRefundUseCase {
 
     LockedPaymentAccounts accounts =
         paymentAccountLockManager.getEntitiesForUpdateInOrder(
-            paymentAccountConfig.getHolderMemberId(), orderInfo.memberId());
+            List.of(paymentAccountConfig.getHolderMemberId(), orderInfo.memberId()));
 
     PaymentAccount holderAccount = accounts.get(paymentAccountConfig.getHolderMemberId());
     PaymentAccount buyerAccount = accounts.get(orderInfo.memberId());
