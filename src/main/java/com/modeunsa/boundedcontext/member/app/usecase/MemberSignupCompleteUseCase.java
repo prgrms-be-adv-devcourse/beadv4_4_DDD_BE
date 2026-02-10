@@ -29,9 +29,9 @@ public class MemberSignupCompleteUseCase {
             .findById(memberId)
             .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
-    // 이미 가입 완료된 회원인지 검증
-    if (member.getStatus() == MemberStatus.ACTIVE) {
-      return;
+    // 가입 대기인 회원만 회원 가입 완료 가능
+    if (member.getStatus() != MemberStatus.PRE_ACTIVE) {
+      throw new GeneralException(ErrorStatus.MEMBER_ALREADY_EXISTS);
     }
 
     // 1. 기본 정보 업데이트
