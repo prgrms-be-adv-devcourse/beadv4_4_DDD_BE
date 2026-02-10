@@ -44,6 +44,7 @@ const getStatusLabel = (status: string) => {
     case 'PREPARING_PRODUCT': return { label: '상품준비중', color: '#3b82f6' }
     case 'SHIPPING': return { label: '배송중', color: '#667eea' }
     case 'SHIPPING_COMPLETED': return { label: '배송완료', color: '#22c55e' }
+    case 'CANCEL_REQUESTED' : return { label: "취소 요청", color: '#ef7777'}
     case 'CANCELED': return { label: '주문취소', color: '#ef4444' }
     default: return { label: status, color: '#999' }
   }
