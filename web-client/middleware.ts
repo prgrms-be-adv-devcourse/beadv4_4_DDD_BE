@@ -16,7 +16,6 @@ const PUBLIC_PATH_PREFIXES = [
   '/products',  // 상품 목록, 상세
   '/categories', // 카테고리
   '/contents',  // 콘텐츠
-  '/cart',      // 장바구니
   '/auth'       // 인증 관련
 ]
 
