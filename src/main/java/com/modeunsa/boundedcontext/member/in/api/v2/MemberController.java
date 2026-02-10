@@ -3,6 +3,7 @@ package com.modeunsa.boundedcontext.member.in.api.v2;
 import com.modeunsa.boundedcontext.member.app.facade.MemberFacade;
 import com.modeunsa.global.config.CookieProperties;
 import com.modeunsa.global.response.ApiResponse;
+import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.global.status.SuccessStatus;
 import com.modeunsa.shared.auth.dto.JwtTokenResponse;
 import com.modeunsa.shared.member.dto.request.MemberSignupCompleteRequest;
@@ -16,7 +17,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,10 +35,10 @@ public class MemberController {
       description = "소셜 로그인 직후(PRE_ACTIVE) 추가 정보를 입력받아 정회원(ACTIVE)으로 전환합니다.")
   @PostMapping("/signup-complete")
   public ResponseEntity<ApiResponse> completeSignup(
-      @Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails,
+      @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails user,
       @RequestBody @Valid MemberSignupCompleteRequest request) {
 
-    Long memberId = Long.parseLong(userDetails.getUsername());
+    Long memberId = user.getMemberId();
 
     // 1. 로직 실행 및 새 토큰 발급 받기
     JwtTokenResponse jwtTokenResponse = memberFacade.completeSignup(memberId, request);
