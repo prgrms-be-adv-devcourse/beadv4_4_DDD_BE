@@ -131,7 +131,7 @@ public class OrderController {
   public ResponseEntity<ApiResponse> getOrder(
       @AuthenticationPrincipal CustomUserDetails user, @PathVariable Long orderId) {
     Long memberId = user.getMemberId();
-    OrderDto dto = orderFacade.getOrder(memberId, orderId);
+    OrderResponseDto dto = orderFacade.getOrder(memberId, orderId);
     return ApiResponse.onSuccess(SuccessStatus.OK, dto);
   }
 }

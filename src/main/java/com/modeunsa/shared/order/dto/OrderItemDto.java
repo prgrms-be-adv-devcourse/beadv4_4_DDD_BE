@@ -10,6 +10,7 @@ public class OrderItemDto {
   private Long id; // 구매상품 ID
   private Long productId; // 상품 ID
   private Long sellerId; // 판매자 ID
+  private String productName;
   private int quantity; // 구매 수량
   private BigDecimal salePrice; // 판매가
 }
