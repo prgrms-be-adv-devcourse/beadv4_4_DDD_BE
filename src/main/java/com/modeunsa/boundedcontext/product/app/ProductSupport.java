@@ -57,6 +57,10 @@ public class ProductSupport {
         pageable);
   }
 
+  public Page<Product> getProducts(String keyword, Pageable pageable) {
+    return productRepository.searchByKeyword(keyword, pageable);
+  }
+
   public Page<Product> getProducts(
       Long sellerId,
       String name,

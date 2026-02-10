@@ -72,6 +72,11 @@ public class ProductFacade {
     return products.map(product -> productMapper.toResponse(product));
   }
 
+  public Page<ProductResponse> getProducts(String keyword, Pageable pageable) {
+    Page<Product> products = productSupport.getProducts(keyword, pageable);
+    return products.map(product -> productMapper.toResponse(product));
+  }
+
   public List<ProductOrderResponse> getProducts(List<Long> productIds) {
     return productValidateOrderUseCase.validateOrder(productIds).stream()
         .map(productMapper::toProductOrderResponse)
