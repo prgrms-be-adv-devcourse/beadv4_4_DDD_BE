@@ -1,8 +1,11 @@
 version: '3.8'
 
-# k6 → InfluxDB → Grafana. 대시보드: http://localhost:3000 (테스트 실행 후 Grafana에서 InfluxDB 데이터 소스 / k6 대시보드 사용)
+# k6 → InfluxDB → Grafana. 대시보드: http://localhost:3010 (테스트 실행 후 Grafana에서 InfluxDB / k6 대시보드 사용)
 networks:
   k6:
+
+volumes:
+  grafana-data:
 
 services:
   influxdb:
@@ -26,8 +29,10 @@ services:
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_BASIC_ENABLED=false
+      - GF_INSTALL_PLUGINS=blackmirror1-singlestat-math-panel
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning
+      - grafana-data:/var/lib/grafana
 
   k6:
     image: grafana/k6
