@@ -178,7 +178,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     // 3. SecurityContext에 저장
-    CustomUserDetails principal = new CustomUserDetails(memberId, role, sellerId); // principal에는 원래 정보 유지
+    CustomUserDetails principal =
+        new CustomUserDetails(memberId, role, sellerId); // principal에는 원래 정보 유지
     UsernamePasswordAuthenticationToken authentication =
         new UsernamePasswordAuthenticationToken(principal, null, authorities); // 권한은 조작됨
 
