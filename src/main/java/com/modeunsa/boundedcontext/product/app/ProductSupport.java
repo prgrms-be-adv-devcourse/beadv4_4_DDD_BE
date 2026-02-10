@@ -75,7 +75,7 @@ public class ProductSupport {
 
   public ProductMemberSeller getProductMemberSeller(Long sellerId) {
     return productMemberSellerRepository
-        .findById(sellerId)
+        .findByMemberId(sellerId)
         .orElseThrow(() -> new GeneralException(ErrorStatus.PRODUCT_SELLER_NOT_FOUND));
   }
 
