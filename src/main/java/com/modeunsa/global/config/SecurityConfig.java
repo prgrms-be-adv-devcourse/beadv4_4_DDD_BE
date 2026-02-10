@@ -115,7 +115,7 @@ public class SecurityConfig {
                   .hasRole("MEMBER")
 
                   // 주문
-                  .requestMatchers("/api/v1/orders/**")
+                  .requestMatchers("/api/*/orders/**")
                   .hasRole("MEMBER")
 
                   // 결제

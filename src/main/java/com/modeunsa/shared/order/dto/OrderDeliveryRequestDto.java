@@ -1,4 +1,4 @@
-package com.modeunsa.shared.order;
+package com.modeunsa.shared.order.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;

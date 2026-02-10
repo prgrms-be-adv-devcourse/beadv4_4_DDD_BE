@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import {useCallback, useEffect, useState} from 'react'
 import Header from '../../components/Header'
+import api from '@/app/lib/axios'
 
 const FASHION_CATEGORIES = [
   { label: '아우터', value: 'outer' },
@@ -52,6 +53,14 @@ interface ApiResponse {
   result: ProductDetailResponse
 }
 
+const getCookie = (name: string) => {
+  if (typeof document === 'undefined') return null
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  if (parts.length === 2) return parts.pop()?.split(';').shift()
+  return null
+}
+
 export default function ProductDetailPage() {
   const params = useParams()
   const router = useRouter()
@@ -62,33 +71,28 @@ export default function ProductDetailPage() {
   const [error, setError] = useState<string | null>(null)
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
 
-
-  const accessToken = localStorage.getItem('accessToken')
-
   const fetchProduct = useCallback(async () => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
     if (!apiUrl || !productId) {
       setProduct(null)
       return
     }
+
     try {
       const url = `${apiUrl}/api/v1/products/${productId}`
-      const res = await fetch(url, {
-        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
-      })
-      const data: ApiResponse = await res.json()
-      if (!res.ok) {
-        setError(data.message || '상품 목록을 불러오지 못했습니다.')
-        setProduct(null)
-        return
-      }
+      const res = await api.get<ApiResponse>(url)
+
+      const data: ApiResponse = res.data
+
       if (data.isSuccess && data.result) {
         setProduct(data.result)
       } else {
+        setError(data.message || '상품 정보를 불러오지 못했습니다.')
         setProduct(null)
       }
-    } catch (e) {
-      setError(e instanceof Error ? e.message : '상품 목록을 불러오지 못했습니다.')
+    } catch (e: any) {
+      console.error(e)
+      setError('상품 정보를 불러오는 중 오류가 발생했습니다.')
       setProduct(null)
     } finally {
       setIsLoading(false)
@@ -121,7 +125,8 @@ export default function ProductDetailPage() {
 
   const handleOrder = async () => {
     if (!product) return
-    
+
+
     if (product.stock <= 0) {
       alert('품절된 상품입니다.')
       return
@@ -135,12 +140,44 @@ export default function ProductDetailPage() {
     setIsCreatingOrder(true)
 
     try {
-      // Mock 데이터로 주문 페이지로 이동
-      router.push('/order')
-    } catch (error) {
-      console.error('주문 생성 실패:', error)
-      const errorMessage = error instanceof Error ? error.message : '주문 생성 중 오류가 발생했습니다.'
-      alert(errorMessage)
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+
+      // 주문 생성 API 호출
+      // 주의: 백엔드 API 주소와 Body 형식을 확인해주세요!
+      const res = await api.post(`${apiUrl}/api/v1/orders`, {
+        productId: product.id,
+        quantity: quantity,
+      })
+
+      const data = res.data
+
+      console.log('주문 생성 API 응답:', data)
+
+      if (res.status === 401 || data.code === 'AUTH_401_002') {
+        alert('로그인 시간이 만료되었습니다. 다시 로그인해주세요.')
+        router.replace('/login')
+        return
+      }
+
+      if (data.isSuccess && data.result) {
+        // 성공 시 이동
+        const orderId = data.result.orderId
+        router.push(`/order?orderId=${orderId}`)
+      } else {
+        alert(data.message || '주문 생성 실패')
+      }
+
+    } catch (error: any) {
+      // 401, 400 에러
+      const status = error.response?.status
+      const errorMsg = error.response?.data?.message || '주문 중 오류가 발생했습니다.'
+
+      if (status === 401) {
+        alert('로그인이 필요하거나 세션이 만료되었습니다.')
+        router.push('/login')
+      } else {
+        alert(errorMsg)
+      }
     } finally {
       setIsCreatingOrder(false)
     }
@@ -182,8 +219,10 @@ export default function ProductDetailPage() {
   const handleToggleFavorite = async () => {
     // API 호출 or optimistic update
     if (!product || isTogglingFavorite) return
-    if (!accessToken?.trim()) {
-      alert('로그인이 필요합니다.')
+    const accessToken = getCookie('accessToken')
+    if (!accessToken) {
+      alert('로그인이 필요한 서비스입니다.')
+      router.push('/login')
       return
     }
 

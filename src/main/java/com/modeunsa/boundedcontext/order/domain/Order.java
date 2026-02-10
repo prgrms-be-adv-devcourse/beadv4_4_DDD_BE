@@ -66,7 +66,7 @@ public class Order extends GeneratedIdAndAuditedEntity {
   private String recipientPhone;
 
   @Convert(converter = EncryptedStringConverter.class)
-  @Column(nullable = false, length = 500)
+  @Column(name = "zip_code", length = 500)
   private String zipCode;
 
   @Convert(converter = EncryptedStringConverter.class)
