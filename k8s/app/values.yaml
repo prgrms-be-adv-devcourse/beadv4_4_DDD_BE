@@ -2,11 +2,11 @@
 # 나중에 멀티모듈 추가 시 여기에 추가
 
 api:
-  enabled: true
+  enabled: false
   image:
     repository: ""      # .env에서 주입 (DOCKER_IMAGE)
     tag: "latest"
-    pullPolicy: IfNotPresent
+    pullPolicy: Always  # TODO: 추후 prod에서는 tag 버전 관리 필요, IfNotPresent로 처리
   replicas: 1
   service:
     type: NodePort
@@ -44,3 +44,24 @@ api:
     limits:
       cpu: 400m
       memory: 1536Mi
+frontend:
+  enabled: false
+  image:
+    repository: ""      # .env에서 주입 (FRONTEND_IMAGE)
+    tag: "latest"
+    pullPolicy: Always
+  replicas: 1
+  service:
+    type: NodePort
+    port: 3000
+    nodePort: 30000
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+ingress:
+  enabled: false        # dev에서는 NodePort 사용, prod에서 true로 덮어씀

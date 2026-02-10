@@ -4,10 +4,11 @@
 
 1. [사전 준비](#사전-준비)
 2. [빠른 시작](#빠른-시작)
-3. [리소스 타입 요약](#리소스-타입-요약)
-4. [환경 변수](#환경-변수-env)
-5. [kubectl 디버깅 명령어](#kubectl-디버깅-명령어)
-6. [트러블슈팅](#트러블슈팅)
+3. [Prod 환경 배포 (EC2 + k3s)](#prod-환경-배포-ec2--k3s)
+4. [리소스 타입 요약](#리소스-타입-요약)
+5. [환경 변수](#환경-변수-env)
+6. [kubectl 디버깅 명령어](#kubectl-디버깅-명령어)
+7. [트러블슈팅](#트러블슈팅)
 
 ---
 
@@ -124,6 +125,43 @@ vi .env.k3s.dev
 | Kafka UI     | `localhost:30085`    | NodePort  |
 | Prometheus   | `localhost:30090`    | NodePort  |
 | Grafana      | `localhost:30300`    | NodePort  |
+
+---
+
+## Prod 환경 배포 (EC2 + k3s)
+
+### 1. EC2에 k3s 설치
+
+```bash
+curl -sfL https://get.k3s.io | sh -
+sudo chmod 644 /etc/rancher/k3s/k3s.yaml
+export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+```
+
+### 2. cert-manager 설치 (HTTPS 인증서 자동 발급)
+
+```bash
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.14.4/cert-manager.yaml
+kubectl wait --for=condition=Available deployment --all -n cert-manager --timeout=120s
+```
+
+### 3. 배포
+
+```bash
+./k8s/infra.sh up prod    # MySQL, Redis, Grafana, Prometheus + ClusterIssuer
+./k8s/app.sh up prod      # API, Frontend + Ingress (TLS)
+```
+
+### Prod 접속 정보
+
+| 서비스 | 접속 주소 |
+|--------|----------|
+| Frontend | `https://modeunsa.store/` |
+| API | `https://modeunsa.store/api` |
+| Grafana | `https://modeunsa.store/grafana` |
+| Prometheus | `https://modeunsa.store/prometheus` |
+
+> Traefik(k3s 내장)이 Ingress Controller로 동작하며, cert-manager가 Let's Encrypt 인증서를 자동 발급/갱신합니다.
 
 ---
 

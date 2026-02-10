@@ -1,0 +1,15 @@
+# prod 환경 - EC2 + k3s (ClusterIP + Ingress)
+api:
+  enabled: true
+  service:
+    type: ClusterIP
+  env:
+    springProfile: "prod"
+
+frontend:
+  enabled: true
+  service:
+    type: ClusterIP
+
+ingress:
+  enabled: true

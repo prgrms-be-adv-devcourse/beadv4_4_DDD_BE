@@ -14,8 +14,10 @@ import com.modeunsa.boundedcontext.payment.domain.types.PaymentPurpose;
 import com.modeunsa.boundedcontext.payment.domain.types.ReferenceType;
 import com.modeunsa.global.config.PaymentAccountConfig;
 import com.modeunsa.global.eventpublisher.EventPublisher;
+import com.modeunsa.global.retry.RetryOnDbFailure;
 import com.modeunsa.shared.payment.dto.PaymentDto;
 import com.modeunsa.shared.payment.event.PaymentSuccessEvent;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,12 +39,13 @@ public class PaymentCompleteOrderCompleteUseCase implements PaymentCompleteProce
   }
 
   @Override
+  @RetryOnDbFailure
   public void execute(PaymentProcessContext paymentProcessContext) {
 
     // 1. 결제 계좌에 대한 Lock 획득
     LockedPaymentAccounts accounts =
         paymentAccountLockManager.getEntitiesForUpdateInOrder(
-            paymentAccountConfig.getHolderMemberId(), paymentProcessContext.buyerId());
+            List.of(paymentAccountConfig.getHolderMemberId(), paymentProcessContext.buyerId()));
 
     // 2. 결제 계좌 영속성 획득
     PaymentAccount holderAccount = accounts.get(paymentAccountConfig.getHolderMemberId());
