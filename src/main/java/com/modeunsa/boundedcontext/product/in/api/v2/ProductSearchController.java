@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Profile("!test")
+@Profile("es")
 @Tag(name = "Product Search", description = "검색 상품 도메인 API")
 @RestController
 @RequestMapping("/api/v2/products/searches")

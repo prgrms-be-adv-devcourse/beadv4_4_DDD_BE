@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
-@Profile("!test")
+@Profile("es")
 @Service
 @RequiredArgsConstructor
 public class ProductSearchUseCase {
