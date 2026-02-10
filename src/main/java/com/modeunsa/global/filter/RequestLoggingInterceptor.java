@@ -62,8 +62,7 @@ public class RequestLoggingInterceptor implements HandlerInterceptor {
     }
 
     Long startTime = (Long) request.getAttribute(EXECUTION_START_TIME);
-    long executionTime =
-        (stopWatch != null && stopWatch.isRunning()) ? stopWatch.getTotalTimeMillis() : 0;
+    long executionTime = (stopWatch != null) ? stopWatch.getTotalTimeMillis() : 0;
 
     RequestInfo requestInfo = extractRequestInfo(request, handler);
     Exception exception = getException(ex, request);
