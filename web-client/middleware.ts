@@ -99,7 +99,7 @@ export async function middleware(request: NextRequest) {
         ? NextResponse.next()
         : NextResponse.redirect(new URL('/login', request.url))
 
-    // 깨진 쿠키 삭제ㅇ
+    // 깨진 쿠키 삭제
     response.cookies.delete('accessToken')
     response.cookies.delete('refreshToken')
 
