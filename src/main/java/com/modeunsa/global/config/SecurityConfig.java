@@ -74,7 +74,7 @@ public class SecurityConfig {
                   .hasRole("PRE_ACTIVE")
 
                   // 기본 정보 조회
-                  .requestMatchers("api/v1/members/me/basic-info")
+                  .requestMatchers("/api/v1/members/me/basic-info")
                   .hasAnyRole("PRE_ACTIVE", "Member")
 
                   // 이미지 업로드 (프로필용)
