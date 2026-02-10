@@ -119,7 +119,7 @@ const handleDeleteAll = async () => {
   if (!confirm('장바구니를 비우시겠습니까?')) return
 
   try {
-    await api.delete('/api/v2/orders/cart/items/all')
+    await api.delete('/api/v2/orders/cart-items/all')
 
     setSelectedItems(new Set())
     await fetchCart()
