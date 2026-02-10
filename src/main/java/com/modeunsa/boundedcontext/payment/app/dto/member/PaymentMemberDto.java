@@ -1,5 +1,12 @@
 package com.modeunsa.boundedcontext.payment.app.dto.member;
 
-import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
+import java.math.BigDecimal;
 
-public record PaymentMemberDto(Long id, String email, String name, MemberStatus status) {}
+public record PaymentMemberDto(
+    String customerKey, String customerEmail, String customerName, BigDecimal balance) {
+
+  public static PaymentMemberDto of(
+      String customerKey, String email, String name, BigDecimal balance) {
+    return new PaymentMemberDto(customerKey, email, name, balance);
+  }
+}

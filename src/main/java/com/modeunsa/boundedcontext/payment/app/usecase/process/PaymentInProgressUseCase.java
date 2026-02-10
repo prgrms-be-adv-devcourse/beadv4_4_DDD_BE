@@ -88,8 +88,8 @@ public class PaymentInProgressUseCase {
    */
   private void processForPaymentConfirm(PaymentProcessContext context) {
 
-    // 1. payment 상태를 IN_PROGRESS로 변경
-    Payment payment = loadAndMarkInProgress(context);
+    // 1. payment 조회 및 유효한 상태 검증
+    Payment payment = loadPayment(context);
 
     // 2. 구매자 검증
     loadAndValidateBuyer(context.buyerId());
@@ -108,6 +108,13 @@ public class PaymentInProgressUseCase {
     PaymentId paymentId = PaymentId.create(context.buyerId(), context.orderNo());
     Payment payment = paymentSupport.getPaymentById(paymentId);
     payment.changeInProgress();
+    return payment;
+  }
+
+  private Payment loadPayment(PaymentProcessContext context) {
+    PaymentId paymentId = PaymentId.create(context.buyerId(), context.orderNo());
+    Payment payment = paymentSupport.getPaymentById(paymentId);
+    payment.validatePgProcess();
     return payment;
   }
 

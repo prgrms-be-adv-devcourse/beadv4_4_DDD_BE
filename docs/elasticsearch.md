@@ -1,77 +1,47 @@
 # ElasticSearch
-* ElasticSearch의 공통 인프라 구조와 사용 방식
-* global 레이어의 기반 구조 정의
-* 검색의 의미(무엇을, 어떻게 검색할지)는 각 Bounded Context에서 정의
+* Product 내부에서 검새 기능 구현
+* app, in, out, domain 내에 각각 search 패키지 만들어 그 안에서 클래스 구현
+`
 
-### 디렉토리 구조
+## 각 클래스별 역할
+### ProductSsearchFacade, ProductSearchUseCase
+* findAll > 상품 전체 리스트 조회
+* findById > 상품 단건 조회
+* search > 검색 조회
+* 이렇게 분류하여 만들었는데 findById는 굳이 필요없을 것 같습니다.
+
+### ProductSearch
+* 검색 조회했을 때 
+* id, name, description, category, saleStatus, price, createAt, updateAt
+* 가 조회되도록 설정하였습니다.
+
+### ProductSearchController
+* create는 상품이 등록되었을 때, ES에도 같이 등록시키기 위해 만든 메서드입니다.
 ```text
-global
-└─ elasticsearch
-├─ app
-│   ├─ ElasticSearchExecutor
-│   └─ ElasticSearchExecutorImpl
-│
-├─ model            ← (기존 domain에서 이름만 변경)
-│   ├─ ElasticSearchHit
-│   └─ ElasticSearchPage
-│
-├─ sort
-│   ├─ ElasticSearchSort
-│   └─ ElasticSearchSortOrder
-│
-└─ ElasticSearchPageRequest
-└─ IndexName
+@Operation(summary = "ES 상품 등록", description = "상품을 등록하면 ElasticSearch에도 save된다.")
+  @PostMapping
+  public ProductSearch create(@RequestBody ProductSearchRequest request) {
+    return productSearchUseCase.createproductSearch(
+        request.name(),
+        request.description(),
+        request.category(),
+        request.saleStatus(),
+        request.price());
+  }
 ```
-* global.elasticsearch는 ElasticSearch와의 연결 및 실행 흐름만을 담당
-* Content, Product 등 도메인별 검색 로직은 해당 Bounded Context 내부에서 구현
-* Content에서 먼저 구현 후 Product에서 따라 구현하면 될 것 같습니다. 
 
-# 각 클래스별 역할
+* 마찬가지로 여기서도 findById는 필요없을 것 같습니다. 추후에 자유롭게 지우셔도 될 것 같습니다.
 
-## app
-### ElasticSearchExecutor
-* ElasticSearch 사용을 위한 공통 인터페이스
-* 도메인 레이어가 ElasticSearch Client에 직접 의존하지 않도록 추상화 역할 수행
-* 검색, 색인, 삭제 등 ElasticSearch의 핵심 동작을 포트(Port)로 제공
-```java
-public interface ElasticSearchExecutor {
-    <T> ElasticSearchPage<T> search(
-        IndexName indexName,
-        Query query,
-        ElasticSearchPageRequest pageRequest,
-        Class<T> clazz
-    );
-}
-```
- 
-### ElasticSearchExecutorImpl
-* ElasticSearchExecutor의 실제 구현체
-* 페이징, 정렬 적용 및 예외 처리 담당
-* ElasticSearch Java Client를 사용해 SearchRequest 생성 및 실행
+### productSearchRequest, Response
+* ES에서 받기 원하는 정보는 
+* id, name, description, category, saleStatus, price
+* 입니다. 
+* 그러나 ProductDto엔 description, category, saleStatus가 없습니다.
+* 그래서 상품이 등록되었을 때 자동으로 ES에도 등록시키는 동기화 과정에 오류가 생겼습니다. (ProductSearchEventListener)
+* 이 부분은 ProductDto와 ProductSearchRequest, Response의 객체를 똑같이 맞춰주시면 될 것 같습니다. 
 
-## model
-### ElasticSearchHit
-* ElasticSearch 검색 결과 단건을 표현하는 모델
-* document id, score, 실제 document(source)를 포함
-
-### ElasticSearchPage
-* ElasticSearch 검색 결과 목록을 페이지 단위로 감싸는 모델
-* 전체 검색 결과 수(total)와 현재 페이지의 hit 목록을 포함
-* 도메인별 검색 결과 변환의 기준 모델로 사용
-
-## sort
-### ElasticSearchSort
-* 검색 결과 정렬 조건을 표현하는 모델
-* 정렬 대상 필드와 정렬 방향을 함께 정의
-
-### ElasticSearchSortOrder
-* 정렬 방향(ASC, DESC)을 표현하는 enum
-
-## none
-
-### IndexName
-* ElasticSearch 인덱스 이름을 중앙에서 관리하기 위한 enum
-
-### ElasticSearchPageRequest
-* ElasticSearch 검색 시 사용하는 공통 페이징 요청 객체
-
+### 현재 검색 기능 상황
+* Product와 ProductSearch의 동기화 과정에서 문제가 생기는 바람에 Datainit 8개 중 4개밖에 ES로 들어오지 못했습니다.
+* 들어온 4개의 정보는 검색하였을 때 정상적으로 잘 검색 조회가 됩니다. (pr에 캡처본 올려두었습니다.)
+* ProductDto와 ProductSearchRequest, Response의 객체를 잘 맞춰주시고,
+* ProductSearchEventListener 만 다시 수정해주시면 될 것 같습니다.

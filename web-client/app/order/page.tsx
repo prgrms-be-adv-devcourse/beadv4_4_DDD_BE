@@ -1,5 +1,6 @@
 'use client'
 
+import api from '../lib/axios'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
@@ -51,49 +52,36 @@ export default function OrderPage() {
   const [isAuthChecked, setIsAuthChecked] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // 로그인 여부 확인: 비로그인 시 로그인 페이지로 이동
+  // 쿠키 기반 인증: 결제 회원 정보 조회 (401/403 시 로그인 페이지로 이동)
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    const accessToken = localStorage.getItem('accessToken')
-    if (!accessToken || accessToken.trim() === '') {
-      router.replace('/login')
-      return
-    }
-    setIsAuthChecked(true)
-  }, [router])
-
-  // 결제 계좌 정보(사용 가능 금액 등) 조회
-  useEffect(() => {
-    if (!isAuthChecked) return
-    const accessToken = localStorage.getItem('accessToken')
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
-    if (!accessToken?.trim() || !apiUrl) {
-      setMemberError('API 설정을 확인해주세요.')
-      setIsLoadingMember(false)
-      return
-    }
+    let redirecting = false
     const fetchMemberInfo = async () => {
       try {
-        const res = await fetch(`${apiUrl}/api/v1/payments/accounts`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        })
-        const data: PaymentMemberApiResponse = await res.json()
-        if (res.ok && data.isSuccess && data.result != null) {
+        const res = await api.get<PaymentMemberApiResponse>('/api/v1/payments/members')
+        const data = res.data
+        if (data.isSuccess && data.result != null) {
           setMemberInfo(data.result)
           setMemberError(null)
         } else {
           setMemberError(data.message || '회원 정보를 불러오지 못했습니다.')
           setMemberInfo(null)
         }
-      } catch {
+      } catch (err: unknown) {
+        const status = (err as { response?: { status?: number } })?.response?.status
+        if (status === 401 || status === 403) {
+          redirecting = true
+          router.replace('/login')
+          return
+        }
         setMemberError('회원 정보를 불러오지 못했습니다.')
         setMemberInfo(null)
       } finally {
         setIsLoadingMember(false)
+        if (!redirecting) setIsAuthChecked(true)
       }
     }
     fetchMemberInfo()
-  }, [isAuthChecked])
+  }, [router])
 
   // 토스페이먼츠 위젯 스크립트 로드
   useEffect(() => {
@@ -129,12 +117,6 @@ export default function OrderPage() {
       alert('회원 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.')
       return
     }
-    const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
-    if (!accessToken?.trim() || !apiUrl) {
-      alert('로그인 또는 API 설정을 확인해주세요.')
-      return
-    }
 
     const totalAmount = 19800
     const orderNo = `ORD-${Date.now()}`
@@ -157,32 +139,16 @@ export default function OrderPage() {
 
     setIsSubmitting(true)
     try {
-      const res = await fetch(`${apiUrl}/api/v1/payments`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          orderId,
-          orderNo,
-          totalAmount,
-          paymentDeadlineAt,
-          providerType,
-          paymentPurpose: 'PRODUCT_PURCHASE',
-        }),
+      const res = await api.post<RequestPaymentApiResponse>('/api/v1/payments', {
+        orderId,
+        orderNo,
+        totalAmount,
+        paymentDeadlineAt,
+        providerType,
+        paymentPurpose: 'PRODUCT_PURCHASE',
       })
-      const data: RequestPaymentApiResponse = await res.json()
+      const data = res.data
 
-      if (!res.ok) {
-        const code = data.code || ''
-        const message = data.message || '결제 요청에 실패했습니다.'
-        router.replace(
-          `/order/failure?orderNo=${encodeURIComponent(orderNo)}&amount=${totalAmount}&code=${encodeURIComponent(code)}&message=${encodeURIComponent(message)}`
-        )
-        setIsSubmitting(false)
-        return
-      }
       if (!data.isSuccess || !data.result) {
         const code = data.code || ''
         const message = data.message || '결제 요청에 실패했습니다.'
@@ -230,9 +196,14 @@ export default function OrderPage() {
       } else {
         alert('토스 페이먼츠 결제 창을 열 수 없습니다. 결제 SDK를 확인해주세요.')
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('결제 요청 실패:', err)
-      alert(err instanceof Error ? err.message : '결제 요청 중 오류가 발생했습니다.')
+      const ax = err as { response?: { data?: RequestPaymentApiResponse; status?: number } }
+      const code = ax.response?.data?.code || ''
+      const message = ax.response?.data?.message || (err instanceof Error ? err.message : '결제 요청 중 오류가 발생했습니다.')
+      router.replace(
+        `/order/failure?orderNo=${encodeURIComponent(orderNo)}&amount=${totalAmount}&code=${encodeURIComponent(code)}&message=${encodeURIComponent(message)}`
+      )
     } finally {
       setIsSubmitting(false)
     }
