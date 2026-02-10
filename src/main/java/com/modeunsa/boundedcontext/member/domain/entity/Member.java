@@ -40,13 +40,11 @@ public class Member extends GeneratedIdAndAuditedEntity {
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  @Builder.Default
-  private MemberRole role = MemberRole.MEMBER;
+  private MemberRole role;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  @Builder.Default
-  private MemberStatus status = MemberStatus.PRE_ACTIVE;
+  private MemberStatus status;
 
   @Convert(converter = EncryptedStringConverter.class)
   private String email;
