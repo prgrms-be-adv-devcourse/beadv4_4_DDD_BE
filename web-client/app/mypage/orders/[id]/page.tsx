@@ -111,7 +111,7 @@ export default function OrderDetailPage() {
     fetchOrderDetail()
   }, [orderId])
 
-  // --- 취소/환불 핸들러 ---
+  // --- 취소 핸들러 ---
   const handleCancel = async () => {
     if (!order) return
     if (!confirm('정말 주문을 취소하시겠습니까?')) return
@@ -121,6 +121,19 @@ export default function OrderDetailPage() {
       alert('취소 요청이 접수되었습니다.')
     } catch (e) {
       alert('취소 요청 실패')
+    }
+  }
+
+  // --- 환불 핸들러 ---
+  const handleRefund = async () => {
+    if (!order) return
+    if (!confirm('정말 주문을 환불하시겠습니까?')) return
+
+    try {
+      await api.post(`/api/v1/orders/${order.orderId}/refund`)
+      alert('환불 요청이 접수되었습니다.')
+    } catch (e) {
+      alert('환불 요청 실패')
     }
   }
 
@@ -214,7 +227,7 @@ export default function OrderDetailPage() {
                   {(order.status === 'SHIPPING' || order.status === 'DELIVERED') && (
                       <button
                           type="button"
-                          onClick={handleCancel}
+                          onClick={handleRefund}
                           style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid #e0e0e0', background: 'white', color: '#333', fontSize: '14px', fontWeight: 500, cursor: 'pointer' }}
                       >
                         환불 요청
