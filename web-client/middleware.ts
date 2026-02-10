@@ -57,10 +57,10 @@ export async function middleware(request: NextRequest) {
     const status = payload.status as string
 
     // --------------------------------------------------------
-    // Case 1: PRE_ACTIVE 상태 (가입 미완료)
+    // Case 1: PRE_ACTIVE 상태 (가입 대기)
     // --------------------------------------------------------
     if (status === 'PRE_ACTIVE') {
-      // 1. 가입 완료 페이지는 통과 (무한 루프 방지)
+      // 1. 가입 완료 페이지는 통과
       if (pathname.startsWith('/signup/complete')) {
         return NextResponse.next()
       }
