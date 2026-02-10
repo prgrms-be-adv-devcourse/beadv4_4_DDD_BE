@@ -2,6 +2,7 @@ package com.modeunsa.boundedcontext.auth.app.usecase;
 
 import com.modeunsa.boundedcontext.auth.domain.entity.OAuthAccount;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
+import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.boundedcontext.member.domain.types.MemberStatus;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
 import com.modeunsa.shared.auth.dto.OAuthUserInfo;
@@ -30,6 +31,7 @@ public class OAuthMemberRegisterUseCase {
             .email(userInfo.email())
             .realName(userInfo.name())
             .phoneNumber(userInfo.phoneNumber())
+            .role(MemberRole.MEMBER)
             .status(MemberStatus.PRE_ACTIVE)
             .build();
 
