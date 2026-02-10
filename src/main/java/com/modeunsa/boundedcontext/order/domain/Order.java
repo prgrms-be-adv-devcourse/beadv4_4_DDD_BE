@@ -53,6 +53,9 @@ public class Order extends GeneratedIdAndAuditedEntity {
   @Column(name = "status", nullable = false, length = 30)
   private OrderStatus status = OrderStatus.PENDING_PAYMENT;
 
+  @Column(name = "total_cnt", nullable = false)
+  private Integer totalCnt;
+
   @Column(name = "total_amount", nullable = false)
   private BigDecimal totalAmount;
 
@@ -105,12 +108,15 @@ public class Order extends GeneratedIdAndAuditedEntity {
   // 정적 메서드
   public static Order createOrder(OrderMember member, List<OrderItem> orderItems) {
 
+    int totalCnt = orderItems.stream().mapToInt(OrderItem::getQuantity).sum();
+
     // 주문 껍데기 생성
     Order order =
         Order.builder()
             .orderMember(member)
             .orderNo(generateOrderNo())
             .status(OrderStatus.PENDING_PAYMENT)
+            .totalCnt(totalCnt)
             .build();
 
     for (OrderItem item : orderItems) {
