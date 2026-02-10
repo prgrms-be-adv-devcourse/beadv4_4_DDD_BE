@@ -1,9 +1,17 @@
 'use client'
 
-import { useEffect, useRef, useCallback } from 'react'
+import { Suspense, useEffect, useRef, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function SocialCallbackPage() {
+  return (
+    <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}><p>로딩 중...</p></div>}>
+      <KakaoCallbackContent />
+    </Suspense>
+  )
+}
+
+function KakaoCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const isProcessing = useRef(false)

@@ -2,7 +2,7 @@ enabled: true
 image:
   repository: ""
   tag: "latest"
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 replicas: 1
 service:
   type: NodePort
