@@ -23,9 +23,11 @@ export default function Header() {
       const response = await api.get('/api/v1/auths/me');
       if (response.data.isSuccess) {
         setIsLoggedIn(true);
-        // 로그인 상태이면 기본정보와 프로필도 조회
-        fetchBasicInfo();
-        fetchProfile();
+        // 로그인 상태이면 기본정보와 프로필도 병렬로 조회
+        await Promise.all([
+          fetchBasicInfo(),
+          fetchProfile()
+        ]);
       } else {
         setIsLoggedIn(false);
       }
