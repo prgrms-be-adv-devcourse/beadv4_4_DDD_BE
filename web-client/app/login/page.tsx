@@ -1,3 +1,5 @@
+// app/login/oauth2
+
 'use client'
 
 import api from '../lib/axios';

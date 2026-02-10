@@ -23,6 +23,8 @@ public class AuthRefreshToken {
   @TimeToLive(unit = TimeUnit.MILLISECONDS)
   private Long expiration;
 
+  private String status;
+
   public boolean isTokenMatching(String inputToken) {
     return this.refreshToken.equals(inputToken);
   }

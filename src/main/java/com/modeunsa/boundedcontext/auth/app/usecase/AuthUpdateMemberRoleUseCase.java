@@ -36,9 +36,11 @@ public class AuthUpdateMemberRoleUseCase {
     // 4. 변경된 Role을 바탕으로 새 토큰 세트 생성
     Long sellerId = memberSupport.getSellerIdByMemberId(memberId);
     String accessToken =
-        jwtTokenProvider.createAccessToken(member.getId(), member.getRole(), sellerId);
+        jwtTokenProvider.createAccessToken(
+            member.getId(), member.getRole(), sellerId, member.getStatus().name());
     String refreshToken =
-        jwtTokenProvider.createRefreshToken(member.getId(), member.getRole(), sellerId);
+        jwtTokenProvider.createRefreshToken(
+            member.getId(), member.getRole(), sellerId, member.getStatus().name());
 
     return new MemberRoleUpdateResponse(accessToken, refreshToken);
   }

@@ -30,6 +30,7 @@ public class AuthTokenReissueUseCase {
     Long memberId = jwtTokenProvider.getMemberIdFromToken(refreshToken);
     MemberRole role = jwtTokenProvider.getRoleFromToken(refreshToken);
     Long sellerId = jwtTokenProvider.getSellerIdFromToken(refreshToken);
+    String status = jwtTokenProvider.getStatusFromToken(refreshToken);
 
     // 2. Redis 조회 및 검증
     AuthRefreshToken savedToken =
@@ -45,7 +46,7 @@ public class AuthTokenReissueUseCase {
     authRefreshTokenRepository.deleteById(memberId);
 
     // 4. 새 토큰 세트 발급 (AuthTokenIssueUseCase 위임)
-    return authTokenIssueUseCase.execute(memberId, role, sellerId);
+    return authTokenIssueUseCase.execute(memberId, role, sellerId, status);
   }
 
   private void validateRefreshToken(String refreshToken) {

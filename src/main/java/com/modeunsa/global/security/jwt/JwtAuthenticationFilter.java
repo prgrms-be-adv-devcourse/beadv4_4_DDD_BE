@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -58,6 +59,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     if (StringUtils.hasText(token)) {
       try {
+        // 1. 토큰 검증
         jwtTokenProvider.validateTokenOrThrow(token);
 
         if (!jwtTokenProvider.isAccessToken(token)) {
@@ -68,6 +70,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
           throw new GeneralException(ErrorStatus.AUTH_BLACKLISTED_TOKEN);
         }
 
+        // 2. 상태 기반 접근 제어 (PRE_ACTIVE 체크)
+        String status = jwtTokenProvider.getStatusFromToken(token);
+
+        // 3. 인증 객체 설정
         setAuthentication(token, request);
 
       } catch (GeneralException e) {
@@ -154,19 +160,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   }
 
   private void setAuthentication(String token, HttpServletRequest request) {
+    // 토큰에서 정보 추출
     Long memberId = jwtTokenProvider.getMemberIdFromToken(token);
     MemberRole role = jwtTokenProvider.getRoleFromToken(token);
     Long sellerId = jwtTokenProvider.getSellerIdFromToken(token);
+    String status = jwtTokenProvider.getStatusFromToken(token);
 
-    CustomUserDetails principal = new CustomUserDetails(memberId, role, sellerId);
+    List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+
+    // 2. 상태에 따른 권한 부여 로직 (Dynamic Authority)
+    if ("PRE_ACTIVE".equals(status)) {
+      // DB Role이 뭐든 상관없이, 상태가 PRE_ACTIVE면 'ROLE_PRE_ACTIVE'만 줌
+      authorities.add(new SimpleGrantedAuthority("ROLE_PRE_ACTIVE"));
+    } else {
+      // ACTIVE 상태라면 원래 Role(MEMBER, SELLER 등)을 그대로 부여
+      authorities.add(new SimpleGrantedAuthority("ROLE_" + role.name()));
+    }
+
+    // 3. SecurityContext에 저장
+    CustomUserDetails principal =
+        new CustomUserDetails(memberId, role, sellerId); // principal에는 원래 정보 유지
     UsernamePasswordAuthenticationToken authentication =
-        new UsernamePasswordAuthenticationToken(
-            principal, null, List.of(new SimpleGrantedAuthority(ROLE_PREFIX + role.name())));
+        new UsernamePasswordAuthenticationToken(principal, null, authorities); // 권한은 조작됨
 
     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
     SecurityContextHolder.getContext().setAuthentication(authentication);
 
-    log.debug("인증 정보 저장 완료 - memberId: {}, role: {}", memberId, role);
+    log.debug("인증 정보 저장 완료 - memberId: {}, role: {}, sellerId: {}", memberId, role, sellerId);
   }
 
   private JwtTokenResponse attemptTokenRefresh(String refreshToken) {

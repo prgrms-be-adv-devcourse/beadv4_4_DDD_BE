@@ -1,3 +1,5 @@
+// app/mypage/basic-info
+
 'use client'
 
 import { useEffect, useState } from 'react'
