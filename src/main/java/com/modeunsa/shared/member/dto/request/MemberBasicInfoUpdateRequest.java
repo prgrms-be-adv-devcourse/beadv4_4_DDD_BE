@@ -1,7 +1,7 @@
 package com.modeunsa.shared.member.dto.request;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,13 +11,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MemberBasicInfoUpdateRequest {
-  @NotEmpty private String realName;
+  @NotBlank private String realName;
 
-  @NotEmpty
+  @NotBlank
   @Pattern(regexp = "^010-\\d{4}-\\d{4}$", message = "올바른 전화번호 형식이 아닙니다.")
   private String phoneNumber;
 
-  @NotEmpty
+  @NotBlank
   @Email(message = "올바른 이메일 형식이 아닙니다.")
   private String email;
 }
