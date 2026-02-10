@@ -14,6 +14,7 @@ import com.modeunsa.boundedcontext.payment.domain.types.PaymentPurpose;
 import com.modeunsa.boundedcontext.payment.domain.types.ReferenceType;
 import com.modeunsa.global.config.PaymentAccountConfig;
 import com.modeunsa.global.eventpublisher.EventPublisher;
+import com.modeunsa.global.retry.RetryOnDbFailure;
 import com.modeunsa.shared.payment.dto.PaymentDto;
 import com.modeunsa.shared.payment.event.PaymentSuccessEvent;
 import java.util.List;
@@ -38,6 +39,7 @@ public class PaymentCompleteOrderCompleteUseCase implements PaymentCompleteProce
   }
 
   @Override
+  @RetryOnDbFailure
   public void execute(PaymentProcessContext paymentProcessContext) {
 
     // 1. 결제 계좌에 대한 Lock 획득
