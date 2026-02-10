@@ -15,4 +15,4 @@ public record MemberProfileCreateRequest(
         Integer weightKg,
 
     // TODO: Enum으로 변경 예정
-    @NotBlank(message = "피부 타입은 필수입니다.") String skinType) {}
+    String skinType) {}

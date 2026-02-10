@@ -1,7 +1,6 @@
 package com.modeunsa.boundedcontext.member.app.facade;
 
 import com.modeunsa.boundedcontext.file.app.S3UploadService;
-import com.modeunsa.boundedcontext.file.domain.DomainType;
 import com.modeunsa.boundedcontext.member.app.support.MemberSupport;
 import com.modeunsa.boundedcontext.member.app.usecase.AdminApproveSellerUseCase;
 import com.modeunsa.boundedcontext.member.app.usecase.MemberBasicInfoUpdateUseCase;
@@ -12,13 +11,14 @@ import com.modeunsa.boundedcontext.member.app.usecase.MemberDeliveryAddressUpdat
 import com.modeunsa.boundedcontext.member.app.usecase.MemberProfileCreateUseCase;
 import com.modeunsa.boundedcontext.member.app.usecase.MemberProfileUpdateImageUseCase;
 import com.modeunsa.boundedcontext.member.app.usecase.MemberProfileUpdateUseCase;
+import com.modeunsa.boundedcontext.member.app.usecase.MemberSignupCompleteUseCase;
 import com.modeunsa.boundedcontext.member.app.usecase.SellerRegisterUseCase;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.entity.MemberProfile;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.security.jwt.JwtTokenProvider;
 import com.modeunsa.global.status.ErrorStatus;
-import com.modeunsa.shared.file.dto.PresignedUrlRequest;
+import com.modeunsa.shared.auth.dto.JwtTokenResponse;
 import com.modeunsa.shared.file.dto.PresignedUrlResponse;
 import com.modeunsa.shared.file.dto.PublicUrlRequest;
 import com.modeunsa.shared.file.dto.PublicUrlResponse;
@@ -27,6 +27,7 @@ import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressCreateRequest
 import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressUpdateRequest;
 import com.modeunsa.shared.member.dto.request.MemberProfileCreateRequest;
 import com.modeunsa.shared.member.dto.request.MemberProfileUpdateRequest;
+import com.modeunsa.shared.member.dto.request.MemberSignupCompleteRequest;
 import com.modeunsa.shared.member.dto.request.SellerRegisterRequest;
 import com.modeunsa.shared.member.dto.response.MemberBasicInfoResponse;
 import com.modeunsa.shared.member.dto.response.MemberDeliveryAddressResponse;
@@ -55,6 +56,13 @@ public class MemberFacade {
   private final S3UploadService s3UploadService;
   private final MemberProfileUpdateImageUseCase memberProfileUpdateImageUseCase;
   private final JwtTokenProvider jwtTokenProvider;
+  private final MemberSignupCompleteUseCase memberSignupCompleteUseCase;
+
+  /** 회원 가입 */
+  @Transactional
+  public JwtTokenResponse completeSignup(Long memberId, MemberSignupCompleteRequest request) {
+    return memberSignupCompleteUseCase.execute(memberId, request);
+  }
 
   /** 생성 (Create) */
   @Transactional
@@ -139,10 +147,6 @@ public class MemberFacade {
       throw new GeneralException(ErrorStatus.IMAGE_FILE_REQUIRED);
     }
 
-    PresignedUrlRequest presignedUrlRequest =
-        new PresignedUrlRequest(
-            DomainType.SELLER, request.licenseImageRawKey(), request.licenseContentType());
-
     PresignedUrlResponse s3Response = s3UploadService.getPresignedUrl(request.licenseImageRawKey());
 
     sellerRegisterUseCase.execute(memberId, request, s3Response.presignedUrl());
@@ -151,9 +155,11 @@ public class MemberFacade {
     Long sellerId = memberSupport.getSellerIdByMemberId(memberId);
 
     String accessToken =
-        jwtTokenProvider.createAccessToken(member.getId(), member.getRole(), sellerId);
+        jwtTokenProvider.createAccessToken(
+            member.getId(), member.getRole(), sellerId, member.getStatus().name());
     String refreshToken =
-        jwtTokenProvider.createRefreshToken(member.getId(), member.getRole(), sellerId);
+        jwtTokenProvider.createRefreshToken(
+            member.getId(), member.getRole(), sellerId, member.getStatus().name());
 
     return new SellerRegisterResponse(accessToken, refreshToken);
   }

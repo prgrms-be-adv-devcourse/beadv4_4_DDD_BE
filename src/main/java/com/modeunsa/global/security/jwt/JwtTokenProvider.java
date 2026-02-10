@@ -26,6 +26,7 @@ public class JwtTokenProvider {
   private static final String TYPE_ACCESS = "access";
   private static final String TYPE_REFRESH = "refresh";
   private static final String KEY_SELLER_ID = "sellerId";
+  private static final String KEY_STATUS = "status";
 
   private SecretKey secretKey;
 
@@ -42,7 +43,7 @@ public class JwtTokenProvider {
   }
 
   /** Access Token 생성 */
-  public String createAccessToken(Long memberId, MemberRole role, Long sellerId) {
+  public String createAccessToken(Long memberId, MemberRole role, Long sellerId, String status) {
     Date now = new Date();
     Date expiry = new Date(now.getTime() + jwtProperties.accessTokenExpiration());
 
@@ -51,6 +52,7 @@ public class JwtTokenProvider {
         .claim(KEY_ROLE, role.name())
         .claim(KEY_TYPE, TYPE_ACCESS)
         .claim(KEY_SELLER_ID, sellerId)
+        .claim(KEY_STATUS, status)
         .issuedAt(now)
         .expiration(expiry)
         .signWith(secretKey)
@@ -58,7 +60,8 @@ public class JwtTokenProvider {
   }
 
   /** Refresh Token 생성 */
-  public String createRefreshToken(Long memberId, MemberRole role, Long sellerId) {
+  // TODO: Member 모듈을 참고하지 않고자, MemberRole을 String 타입으로 수정 예정
+  public String createRefreshToken(Long memberId, MemberRole role, Long sellerId, String status) {
     Date now = new Date();
     Date expiry = new Date(now.getTime() + jwtProperties.refreshTokenExpiration());
 
@@ -67,6 +70,7 @@ public class JwtTokenProvider {
         .claim(KEY_ROLE, role.name())
         .claim(KEY_TYPE, TYPE_REFRESH)
         .claim(KEY_SELLER_ID, sellerId)
+        .claim(KEY_STATUS, status)
         .issuedAt(now)
         .expiration(expiry)
         .signWith(secretKey)
@@ -142,6 +146,13 @@ public class JwtTokenProvider {
     }
 
     return Long.valueOf(String.valueOf(sellerIdObj));
+  }
+
+  /** 토큰에서 status 추출 */
+  public String getStatusFromToken(String token) {
+    Claims claims = parseClaims(token);
+    // String으로 저장했으므로 String으로 꺼냄
+    return claims.get(KEY_STATUS, String.class);
   }
 
   /** Claims 파싱 */

@@ -18,15 +18,16 @@ public class AuthTokenIssueUseCase {
   private final JwtProperties jwtProperties;
 
   /** Access Token + Refresh Token 발급 및 Redis 저장 */
-  public JwtTokenResponse execute(Long memberId, MemberRole role, Long sellerId) {
-    String accessToken = jwtTokenProvider.createAccessToken(memberId, role, sellerId);
-    String refreshToken = jwtTokenProvider.createRefreshToken(memberId, role, sellerId);
+  public JwtTokenResponse execute(Long memberId, MemberRole role, Long sellerId, String status) {
+    String accessToken = jwtTokenProvider.createAccessToken(memberId, role, sellerId, status);
+    String refreshToken = jwtTokenProvider.createRefreshToken(memberId, role, sellerId, status);
 
     AuthRefreshToken tokenEntity =
         AuthRefreshToken.builder()
             .memberId(memberId)
             .refreshToken(refreshToken)
             .expiration(jwtProperties.refreshTokenExpiration())
+            .status(status)
             .build();
 
     authRefreshTokenRepository.save(tokenEntity);
@@ -35,6 +36,7 @@ public class AuthTokenIssueUseCase {
         accessToken,
         refreshToken,
         jwtTokenProvider.getAccessTokenExpiration(),
-        jwtTokenProvider.getRefreshTokenExpiration());
+        jwtTokenProvider.getRefreshTokenExpiration(),
+        status);
   }
 }

@@ -9,13 +9,12 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
-import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -39,9 +38,9 @@ public class SecurityConfig {
   private final InternalApiKeyFilter internalApiKeyFilter;
 
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) {
     http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-        .csrf(csrf -> csrf.disable())
+        .csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .headers(headers -> headers.frameOptions(FrameOptionsConfig::sameOrigin))
@@ -62,13 +61,28 @@ public class SecurityConfig {
                   .permitAll()
 
                   // ========================================
-                  // 1. 공개 URL (yml에서 관리)
+                  // 공개 URL (yml에서 관리)
                   // ========================================
                   .requestMatchers(permitUrls)
                   .permitAll()
 
                   // ========================================
-                  // 2. 상품 API - GET만 공개
+                  // 가입 대기(PRE_ACTIVE) 회원 관련 API
+                  // ========================================
+                  // 회원 가입 완료 페이지
+                  .requestMatchers(HttpMethod.POST, "/api/v2/members/signup-complete")
+                  .hasRole("PRE_ACTIVE")
+
+                  // 기본 정보 조회
+                  .requestMatchers("/api/v1/members/me/basic-info")
+                  .hasAnyRole("PRE_ACTIVE", "MEMBER")
+
+                  // 이미지 업로드 (프로필용)
+                  .requestMatchers("/api/v1/files/**")
+                  .hasAnyRole("PRE_ACTIVE", "MEMBER")
+
+                  // ========================================
+                  // 상품 API - GET만 공개
                   // ========================================
                   .requestMatchers(HttpMethod.GET, "/api/v1/products")
                   .permitAll()
@@ -81,13 +95,13 @@ public class SecurityConfig {
                   .requestMatchers(HttpMethod.GET, "/api/v2/inventories/*/available-quantity")
                   .permitAll()
                   // ========================================
-                  // 3. 관리자 전용
+                  // 관리자 전용
                   // ========================================
                   .requestMatchers("/api/v1/admin/**")
                   .hasRole("ADMIN")
 
                   // ========================================
-                  // 4. 판매자 전용
+                  // 판매자 전용
                   // ========================================
                   // 상품 CUD
                   .requestMatchers(HttpMethod.POST, "/api/v1/products")
@@ -100,7 +114,7 @@ public class SecurityConfig {
                   .hasRole("SELLER")
 
                   // ========================================
-                  // 5. 회원 전용
+                  // 회원 전용
                   // ========================================
                   // 마이페이지
                   .requestMatchers("/api/v1/members/me/**")
@@ -132,7 +146,7 @@ public class SecurityConfig {
                   .hasRole("MEMBER")
 
                   // ========================================
-                  // 6. 나머지는 인증 필요
+                  // 나머지는 인증 필요
                   // ========================================
                   .anyRequest()
                   .authenticated());
@@ -154,16 +168,8 @@ public class SecurityConfig {
         .implies("SELLER") // ADMIN은 SELLER의 모든 권한을 가짐
         .role("SELLER")
         .implies("MEMBER") // SELLER는 MEMBER의 모든 권한을 가짐
+        // GUEST는 여기에 포함시키지 않습니다. (독립적)
         .build();
-  }
-
-  /** Method Security에도 Role 계층 적용 */
-  @Bean
-  public MethodSecurityExpressionHandler methodSecurityExpressionHandler(
-      RoleHierarchy roleHierarchy) {
-    DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
-    handler.setRoleHierarchy(roleHierarchy);
-    return handler;
   }
 
   @Bean

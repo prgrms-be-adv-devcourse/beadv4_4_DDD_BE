@@ -40,8 +40,8 @@ public class AuthFacade {
 
   /** 로그인 성공 후 토큰 발급 */
   @Transactional
-  public JwtTokenResponse login(Long memberId, MemberRole role, Long sellerId) {
-    return authTokenIssueUseCase.execute(memberId, role, sellerId);
+  public JwtTokenResponse login(Long memberId, MemberRole role, Long sellerId, String status) {
+    return authTokenIssueUseCase.execute(memberId, role, sellerId, status);
   }
 
   /** 토큰 재발급 */

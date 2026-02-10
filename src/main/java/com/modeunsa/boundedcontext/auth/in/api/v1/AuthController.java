@@ -8,12 +8,12 @@ import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.global.status.SuccessStatus;
+import com.modeunsa.shared.auth.dto.AuthStatusResponse;
 import com.modeunsa.shared.auth.dto.JwtTokenResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.Duration;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -154,22 +154,30 @@ public class AuthController {
         .body(ApiResponse.onSuccess(SuccessStatus.AUTH_LOGOUT_SUCCESS).getBody());
   }
 
-  @Operation(summary = "인증 확인", description = "Access Token 유효성을 확인하고 인증된 사용자 정보를 반환합니다.")
+  @Operation(summary = "인증 확인", description = "현재 로그인 상태를 확인합니다.")
   @GetMapping("/me")
   public ResponseEntity<ApiResponse> checkAuth() {
     // SecurityContext에서 인증 정보 가져오기
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-    if (authentication == null || !authentication.isAuthenticated()) {
-      throw new GeneralException(ErrorStatus.AUTH_UNAUTHORIZED);
+    // 비로그인 상태 - 200 OK로 응답
+    if (authentication == null
+        || !authentication.isAuthenticated()
+        || "anonymousUser".equals(authentication.getPrincipal())) {
+
+      AuthStatusResponse response =
+          AuthStatusResponse.builder().isAuthenticated(false).memberId(null).build();
+
+      return ApiResponse.onSuccess(SuccessStatus.OK, response);
     }
 
-    // 인증된 사용자 정보 반환
-    Map<String, Object> userInfo =
-        Map.of(
-            "memberId", authentication.getName(),
-            "authorities", authentication.getAuthorities());
+    // 로그인 상태 - 200 OK로 응답
+    AuthStatusResponse response =
+        AuthStatusResponse.builder()
+            .isAuthenticated(true)
+            .memberId(authentication.getName())
+            .build();
 
-    return ApiResponse.onSuccess(SuccessStatus.OK, userInfo);
+    return ApiResponse.onSuccess(SuccessStatus.OK, response);
   }
 }

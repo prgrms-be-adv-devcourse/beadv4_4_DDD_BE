@@ -14,7 +14,7 @@ spring:
     open-in-view: false
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     properties:
       hibernate:
         format_sql: true
@@ -82,6 +82,7 @@ custom:
       - /favicon.ico
 
       # ========== 인증 API ==========
+      - /api/v1/auths/me
       - /api/v1/auths/oauth/*/url
       - /api/v1/auths/login/**
       - /api/v1/auths/reissue
