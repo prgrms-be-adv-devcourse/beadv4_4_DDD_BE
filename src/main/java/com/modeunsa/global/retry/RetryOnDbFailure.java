@@ -9,6 +9,10 @@ import org.springframework.dao.TransientDataAccessException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 
+/**
+ * 일시적 DB 접근 오류 발생 시 재시도 어노테이션 TransientDataAccessException : DB 커넥션 문제, 타임아웃 등 일시적 오류
+ * DataAccessResourceFailureException : DB 리소스 접근 실패 등 일시적 오류 Retry 는 멱등성이 보장된 메서드에만 적용해야 함
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Retryable(

@@ -37,7 +37,7 @@ public class PaymentPayoutCompleteUseCase {
 
     LockedPaymentAccounts accounts =
         paymentAccountLockManager.getEntitiesForUpdateInOrder(
-            paymentAccountConfig.getHolderMemberId(), payout.payeeId());
+            List.of(paymentAccountConfig.getHolderMemberId(), payout.payeeId()));
 
     // TODO: 이벤트 타입에 대한 처리 필요 - 정산 측에 요청
     PaymentEventType eventType = PaymentEventType.fromPayoutEventType(payout.payoutEventType());

@@ -22,6 +22,7 @@ import com.modeunsa.shared.payment.dto.PaymentDto;
 import com.modeunsa.shared.payment.event.PaymentSuccessEvent;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -85,7 +86,7 @@ class PaymentCompleteProcessUseCaseTest {
     LockedPaymentAccounts lockedAccounts = new LockedPaymentAccounts(accountsMap);
 
     // PaymentAccountLockManager Mock 설정
-    when(paymentAccountLockManager.getEntitiesForUpdateInOrder(HOLDER_ID, buyerId))
+    when(paymentAccountLockManager.getEntitiesForUpdateInOrder(List.of(HOLDER_ID, buyerId)))
         .thenReturn(lockedAccounts);
 
     PaymentId paymentId = PaymentId.create(buyerId, paymentProcessContext.orderNo());
@@ -100,7 +101,7 @@ class PaymentCompleteProcessUseCaseTest {
 
     // then
     // PaymentAccountLockManager가 올바른 순서로 호출되었는지 확인
-    verify(paymentAccountLockManager).getEntitiesForUpdateInOrder(HOLDER_ID, buyerId);
+    verify(paymentAccountLockManager).getEntitiesForUpdateInOrder(List.of(HOLDER_ID, buyerId));
 
     // 잔액 변경 확인
     assertThat(buyerAccount.getBalance())
@@ -141,7 +142,7 @@ class PaymentCompleteProcessUseCaseTest {
     LockedPaymentAccounts lockedAccounts = new LockedPaymentAccounts(accountsMap);
 
     // PaymentAccountLockManager Mock 설정
-    when(paymentAccountLockManager.getEntitiesForUpdateInOrder(HOLDER_ID, buyerId))
+    when(paymentAccountLockManager.getEntitiesForUpdateInOrder(List.of(HOLDER_ID, buyerId)))
         .thenReturn(lockedAccounts);
 
     PaymentId paymentId = PaymentId.create(buyerId, paymentProcessContext.orderNo());
@@ -156,7 +157,7 @@ class PaymentCompleteProcessUseCaseTest {
 
     // then
     // PaymentAccountLockManager가 올바른 순서로 호출되었는지 확인
-    verify(paymentAccountLockManager).getEntitiesForUpdateInOrder(HOLDER_ID, buyerId);
+    verify(paymentAccountLockManager).getEntitiesForUpdateInOrder(List.of(HOLDER_ID, buyerId));
 
     // 잔액 변경 확인
     // buyerAccount: PG 충전(credit) → 결제(debit)
@@ -201,7 +202,7 @@ class PaymentCompleteProcessUseCaseTest {
     LockedPaymentAccounts lockedAccounts = new LockedPaymentAccounts(accountsMap);
 
     // PaymentAccountLockManager Mock 설정
-    when(paymentAccountLockManager.getEntitiesForUpdateInOrder(HOLDER_ID, buyerId))
+    when(paymentAccountLockManager.getEntitiesForUpdateInOrder(List.of(HOLDER_ID, buyerId)))
         .thenReturn(lockedAccounts);
 
     // payment Mock 설정
