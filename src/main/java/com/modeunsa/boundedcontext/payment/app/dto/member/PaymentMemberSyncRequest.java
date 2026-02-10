@@ -6,6 +6,6 @@ import jakarta.validation.constraints.NotNull;
 
 public record PaymentMemberSyncRequest(
     @NotNull Long id,
-    @NotNull @NotEmpty String email,
-    @NotNull @NotEmpty String name,
+    @NotEmpty String email,
+    @NotEmpty String name,
     @NotNull MemberStatus status) {}
