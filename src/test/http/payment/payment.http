@@ -1,6 +1,6 @@
 ### 환경 변수 설정
 @baseUrl = http://localhost:8080
-@memberId = 4
+@memberId = 1
 
 ### 결제 회원 조회
 GET {{baseUrl}}/api/v1/payments/members/{{memberId}}
