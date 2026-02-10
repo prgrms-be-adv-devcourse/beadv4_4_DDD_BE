@@ -53,6 +53,8 @@ spring:
       initialize-schema: never
 
   elasticsearch:
+    repositories:
+      enabled: false
     uris:
       - ${SPRING_ELASTICSEARCH_URIS:http://localhost:9200}
 
