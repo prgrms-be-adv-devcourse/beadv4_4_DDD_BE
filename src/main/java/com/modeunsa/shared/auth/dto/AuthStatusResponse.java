@@ -9,5 +9,6 @@ import lombok.Getter;
 public class AuthStatusResponse {
   @JsonProperty("isAuthenticated")
   private boolean isAuthenticated;
+
   private String memberId;
 }

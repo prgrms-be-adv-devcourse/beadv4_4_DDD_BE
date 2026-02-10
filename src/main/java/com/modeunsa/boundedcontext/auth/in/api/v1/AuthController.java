@@ -165,19 +165,18 @@ public class AuthController {
         || !authentication.isAuthenticated()
         || "anonymousUser".equals(authentication.getPrincipal())) {
 
-      AuthStatusResponse response = AuthStatusResponse.builder()
-          .isAuthenticated(false)
-          .memberId(null)
-          .build();
+      AuthStatusResponse response =
+          AuthStatusResponse.builder().isAuthenticated(false).memberId(null).build();
 
       return ApiResponse.onSuccess(SuccessStatus.OK, response);
     }
 
     // 로그인 상태 - 200 OK로 응답
-    AuthStatusResponse response = AuthStatusResponse.builder()
-        .isAuthenticated(true)
-        .memberId(authentication.getName())
-        .build();
+    AuthStatusResponse response =
+        AuthStatusResponse.builder()
+            .isAuthenticated(true)
+            .memberId(authentication.getName())
+            .build();
 
     return ApiResponse.onSuccess(SuccessStatus.OK, response);
   }

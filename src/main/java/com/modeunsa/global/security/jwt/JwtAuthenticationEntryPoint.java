@@ -40,11 +40,11 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     }
 
     // 인증 체크 엔드포인트는 로그 레벨을 낮춤
-    String requestURI = request.getRequestURI();
-    if (requestURI.equals("/api/v1/auths/me")) {
-      log.debug("인증 체크 - URI: {}, Code: {}", requestURI, errorStatus.getCode());
+    String requestUri = request.getRequestURI();
+    if (requestUri.equals("/api/v1/auths/me")) {
+      log.debug("인증 체크 - URI: {}, Code: {}", requestUri, errorStatus.getCode());
     } else {
-      log.warn("인증 실패 - URI: {}, Code: {}", requestURI, errorStatus.getCode());
+      log.warn("인증 실패 - URI: {}, Code: {}", requestUri, errorStatus.getCode());
     }
 
     response.setStatus(errorStatus.getHttpStatus().value());

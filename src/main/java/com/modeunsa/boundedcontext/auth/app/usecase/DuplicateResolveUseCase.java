@@ -16,8 +16,6 @@ public class DuplicateResolveUseCase {
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public OAuthAccount findExistingAccount(OAuthProvider provider, String providerId) {
-    return repository
-        .findByOauthProviderAndProviderId(provider, providerId)
-        .orElse(null);
+    return repository.findByOauthProviderAndProviderId(provider, providerId).orElse(null);
   }
 }
