@@ -35,6 +35,7 @@ spec:
             backend:
               service:
                 name: {{ .Release.Name }}-api
+                port:
                   number: 8080
           - path: /actuator
             pathType: Prefix
