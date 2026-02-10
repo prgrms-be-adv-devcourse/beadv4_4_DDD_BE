@@ -41,7 +41,7 @@ public class OAuthAccountResolveUseCase {
         return existing;
       }
 
-      throw new GeneralException(ErrorStatus.INTERNAL_SERVER_ERROR);
+      throw new GeneralException(ErrorStatus.AUTH_CONFLICT_LOGIN_PROGRESS);
     }
   }
 }

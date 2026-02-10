@@ -40,6 +40,9 @@ public enum ErrorStatus {
   AUTH_TOKEN_REFRESH_FAILED(HttpStatus.UNAUTHORIZED, "AUTH_401_008", "토큰 재발급에 실패했습니다."),
   // Auth 403
   AUTH_ACCESS_DENIED(HttpStatus.FORBIDDEN, "AUTH_403_001", "접근 권한이 없습니다."),
+  // Auth 409
+  AUTH_CONFLICT_LOGIN_PROGRESS(
+      HttpStatus.CONFLICT, "AUTH_409", "이미 가입 처리가 진행 중입니다. 잠시 후 다시 로그인해 주세요."),
   // Auth 429
   AUTH_TOO_MANY_REQUESTS(
       HttpStatus.TOO_MANY_REQUESTS,
