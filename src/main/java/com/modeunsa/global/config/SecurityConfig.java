@@ -67,10 +67,15 @@ public class SecurityConfig {
                   .permitAll()
 
                   // ========================================
-                  // 가입 대기(PRE_ACTIVE) 회원 전용 API
+                  // 가입 대기(PRE_ACTIVE) 회원 관련 API
                   // ========================================
+                  // 회원 가입 완료 페이지
                   .requestMatchers(HttpMethod.POST, "/api/v2/members/signup-complete")
                   .hasRole("PRE_ACTIVE")
+
+                  // 기본 정보 조회
+                  .requestMatchers("api/v1/members/me/basic-info")
+                  .hasAnyRole("PRE_ACTIVE", "Member")
 
                   // 이미지 업로드 (프로필용)
                   .requestMatchers("/api/v1/files/**")
