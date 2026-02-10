@@ -38,7 +38,7 @@ public class OrderController {
 
   private final OrderFacade orderFacade;
 
-  @Operation(summary = "장바구니에 상품 추가 기능", description = "장바구니에 상품을 추가하는 기능입니다.")
+  @Operation(summary = "장바구니에 상품 생성/수정 기능", description = "장바구니에 상품을 생성하거나 수정하는 기능입니다.")
   @PostMapping("/cart/item")
   public ResponseEntity<ApiResponse> syncCartItem(
       @AuthenticationPrincipal CustomUserDetails user,
