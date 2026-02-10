@@ -27,6 +27,11 @@ RELEASE="modeunsa-app"
 CHART_DIR="$(dirname "$0")/app"
 ROOT_DIR="$(dirname "$0")/.."
 
+# k3s 환경에서 KUBECONFIG 자동 설정
+if [ -z "$KUBECONFIG" ] && [ -f /etc/rancher/k3s/k3s.yaml ]; then
+  export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+fi
+
 # 환경 인자 처리 (dev/prod, 기본값: dev)
 get_env_file() {
   local env="${1:-dev}"
@@ -151,7 +156,7 @@ case "$1" in
 
     # Pod가 Ready 될 때까지 대기
     echo "Waiting for pods to be ready..."
-    kubectl wait --for=condition=ready pod -l app=$RELEASE-api -n $NAMESPACE --timeout=120s
+    kubectl wait --for=condition=ready pod -l app=$RELEASE-api -n $NAMESPACE --timeout=300s
 
     if [ "$FRONTEND_ENABLED" = "true" ]; then
       kubectl wait --for=condition=ready pod -l app=$RELEASE-frontend -n $NAMESPACE --timeout=120s

@@ -3,7 +3,7 @@ enabled: true
 image:
   repository: ""        # .env에서 주입 (FRONTEND_IMAGE)
   tag: "latest"
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 replicas: 1
 

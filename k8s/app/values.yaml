@@ -6,7 +6,7 @@ api:
   image:
     repository: ""      # .env에서 주입 (DOCKER_IMAGE)
     tag: "latest"
-    pullPolicy: IfNotPresent
+    pullPolicy: Always  # TODO: 추후 prod에서는 tag 버전 관리 필요, IfNotPresent로 처리
   replicas: 1
   service:
     type: NodePort
@@ -49,7 +49,7 @@ frontend:
   image:
     repository: ""      # .env에서 주입 (FRONTEND_IMAGE)
     tag: "latest"
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   replicas: 1
   service:
     type: NodePort
