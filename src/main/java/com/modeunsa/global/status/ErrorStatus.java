@@ -64,6 +64,7 @@ public enum ErrorStatus {
   MEMBER_WITHDRAWN(HttpStatus.FORBIDDEN, "MEMBER_403_002", "탈퇴한 회원입니다."),
   ADDRESS_ACCESS_DENIED(HttpStatus.FORBIDDEN, "MEMBER_403_003", "배송지에 대한 접근 권한이 없습니다."),
   MEMBER_NOT_ACTIVATED(HttpStatus.FORBIDDEN, "MEMBER_403_004", "ACTIVE 상태가 아닌 회원입니다."),
+  MEMBER_NOT_PREACTIVE(HttpStatus.FORBIDDEN, "MEMBER_403_005", "PRE_ACTIVE 상태가 아닌 회원입니다."),
   // Member 404
   MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER_404_001", "회원을 찾을 수 없습니다."),
   SELLER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER_404_002", "판매자 정보가 없습니다."),

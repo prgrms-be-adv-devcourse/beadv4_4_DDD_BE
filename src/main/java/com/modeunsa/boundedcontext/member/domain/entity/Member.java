@@ -151,8 +151,8 @@ public class Member extends GeneratedIdAndAuditedEntity {
   }
 
   public void activate() {
-    if (this.status == MemberStatus.ACTIVE) {
-      throw new GeneralException(ErrorStatus.MEMBER_ALREADY_ACTIVE);
+    if (this.status != MemberStatus.PRE_ACTIVE) {
+      throw new GeneralException(ErrorStatus.MEMBER_NOT_PREACTIVE);
     }
     this.status = MemberStatus.ACTIVE;
   }
