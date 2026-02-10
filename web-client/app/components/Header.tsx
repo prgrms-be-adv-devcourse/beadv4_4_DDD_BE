@@ -32,7 +32,7 @@ export default function Header() {
         setIsLoggedIn(false);
       }
     } catch (error) {
-      // 401 에러 등이 발생하면 비로그인 상태로 간주
+      // 401은 정상 케이스이므로 에러 로그 출력 안 함
       setIsLoggedIn(false);
     }
   }
