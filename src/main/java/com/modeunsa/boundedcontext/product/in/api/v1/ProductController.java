@@ -137,8 +137,9 @@ public class ProductController {
       @RequestParam(name = "keyword", required = false) String keyword,
       @RequestParam(name = "page") int page,
       @RequestParam(name = "size") int size,
-      @RequestParam(name = "sort", defaultValue = "LATEST") ProductSortType sort) {
-    Pageable pageable = PageRequest.of(page, size, sort.getSort());
+      @RequestParam(name = "sort", required = false) ProductSortType sort) {
+    ProductSortType resolvedSort = sort != null ? sort : ProductSortType.LATEST;
+    Pageable pageable = PageRequest.of(page, size, resolvedSort.getSort());
     Page<ProductResponse> productResponses = productFacade.getProducts(keyword, pageable);
     return ApiResponse.onSuccess(SuccessStatus.OK, productResponses);
   }
