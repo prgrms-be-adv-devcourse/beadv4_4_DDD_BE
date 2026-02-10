@@ -51,7 +51,7 @@ export default function SignupCompletePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // 필수값만 검사 (skinType 제외)
+    // 필수값만 검사
     if (!formData.nickname || !formData.phoneNumber || !formData.realName || !formData.email) {
       alert('필수 정보를 모두 입력해주세요.')
       return
@@ -67,7 +67,7 @@ export default function SignupCompletePage() {
         nickname: formData.nickname,
         heightCm: formData.heightCm ? Number(formData.heightCm) : null,
         weightKg: formData.weightKg ? Number(formData.weightKg) : null,
-        skinType: formData.skinType ? formData.skinType : null, // ✅ optional 처리
+        skinType: formData.skinType ? formData.skinType : null,
         profileImageUrl: null
       }
 
