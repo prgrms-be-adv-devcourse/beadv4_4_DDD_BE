@@ -75,11 +75,11 @@ public class SecurityConfig {
 
                   // 기본 정보 조회
                   .requestMatchers("/api/v1/members/me/basic-info")
-                  .hasAnyRole("PRE_ACTIVE", "Member")
+                  .hasAnyRole("PRE_ACTIVE", "MEMBER")
 
                   // 이미지 업로드 (프로필용)
                   .requestMatchers("/api/v1/files/**")
-                  .hasAnyRole("PRE_ACTIVE", "Member")
+                  .hasAnyRole("PRE_ACTIVE", "MEMBER")
 
                   // ========================================
                   // 상품 API - GET만 공개
