@@ -9,13 +9,12 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
-import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -39,9 +38,9 @@ public class SecurityConfig {
   private final InternalApiKeyFilter internalApiKeyFilter;
 
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) {
     http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-        .csrf(csrf -> csrf.disable())
+        .csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .headers(headers -> headers.frameOptions(FrameOptionsConfig::sameOrigin))
@@ -165,18 +164,8 @@ public class SecurityConfig {
         .implies("SELLER") // ADMIN은 SELLER의 모든 권한을 가짐
         .role("SELLER")
         .implies("MEMBER") // SELLER는 MEMBER의 모든 권한을 가짐
-        .role("MEMBER")
-        .implies("GUEST") // MEMBER는 GUEST 모든 권한을 가짐
+        // GUEST는 여기에 포함시키지 않습니다. (독립적)
         .build();
-  }
-
-  /** Method Security에도 Role 계층 적용 */
-  @Bean
-  public MethodSecurityExpressionHandler methodSecurityExpressionHandler(
-      RoleHierarchy roleHierarchy) {
-    DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
-    handler.setRoleHierarchy(roleHierarchy);
-    return handler;
   }
 
   @Bean
