@@ -2,56 +2,112 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { jwtVerify } from 'jose'
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET)
+// 1. JWT_SECRET 환경변수 강제 검증
+const secretKey = process.env.JWT_SECRET
+if (!secretKey || secretKey.length === 0) {
+  throw new Error('❌ FATAL ERROR: JWT_SECRET 환경변수가 설정되지 않았습니다.')
+}
+const JWT_SECRET = new TextEncoder().encode(secretKey)
 
-// 로그인이 꼭 필요한 페이지 (마이페이지, 주문 등)
-const PROTECTED_PATHS = ['/mypage', '/orders', '/members']
+// 2. 공개 페이지 목록 (비회원 & PRE_ACTIVE 모두 접근 가능)
+// 이 경로로 '시작하는' 모든 하위 경로가 허용됩니다.
+const PUBLIC_PATH_PREFIXES = [
+  '/login',
+  '/products',  // 상품 목록, 상세
+  '/categories', // 카테고리
+  '/contents',  // 콘텐츠
+  '/cart',      // 장바구니
+  '/auth'       // 인증 관련
+]
+
+// 3. 정확히 일치해야 하는 공개 페이지
+const PUBLIC_EXACT_PATHS = [
+  '/' // 홈 화면
+]
+
+// 경로가 공개 페이지인지 확인하는 함수
+function isPublicPath(pathname: string) {
+  if (PUBLIC_EXACT_PATHS.includes(pathname)) return true
+  return PUBLIC_PATH_PREFIXES.some(prefix => pathname.startsWith(prefix))
+}
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const token = request.cookies.get('accessToken')?.value
 
-  // 1. 비회원이 보호된 페이지 접근 시 -> 로그인으로
+  // ============================================================
+  // A. 비회원 처리 (토큰 없음)
+  // ============================================================
   if (!token) {
-    if (PROTECTED_PATHS.some(path => pathname.startsWith(path))) {
-      return NextResponse.redirect(new URL('/login', request.url))
+    // 공개 페이지라면 통과
+    if (isPublicPath(pathname)) {
+      return NextResponse.next()
     }
-    return NextResponse.next()
+    // 그 외(마이페이지, 주문 등)는 로그인 페이지로 리다이렉트
+    const loginUrl = new URL('/login', request.url)
+    loginUrl.searchParams.set('redirect', pathname) // 로그인 후 돌아올 경로 저장
+    return NextResponse.redirect(loginUrl)
   }
 
-  // 2. 회원 상태 체크
+  // ============================================================
+  // B. 회원 처리 (토큰 검증)
+  // ============================================================
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET)
     const status = payload.status as string
 
-    // PRE_ACTIVE 상태인 경우
+    // --------------------------------------------------------
+    // Case 1: PRE_ACTIVE 상태 (가입 미완료)
+    // --------------------------------------------------------
     if (status === 'PRE_ACTIVE') {
-      // 가입 완료 페이지는 통과
+      // 1. 가입 완료 페이지는 통과 (무한 루프 방지)
       if (pathname.startsWith('/signup/complete')) {
         return NextResponse.next()
       }
 
-      // 보호된 페이지 접근 시 -> 가입 완료 페이지로
-      if (PROTECTED_PATHS.some(path => pathname.startsWith(path))) {
-        return NextResponse.redirect(new URL('/signup/complete', request.url))
+      // 2. 공개 페이지(홈, 상품 등)는 통과
+      if (isPublicPath(pathname)) {
+        return NextResponse.next()
       }
 
-      // **[중요]** 홈(/)이나 상품 목록 등은 통과!
+      // 3. 그 외 모든 페이지 -> 가입 완료 페이지로 강제 리다이렉트
+      return NextResponse.redirect(new URL('/signup/complete', request.url))
+    }
+
+    // --------------------------------------------------------
+    // Case 2: ACTIVE 상태 (정회원)
+    // --------------------------------------------------------
+    if (status === 'ACTIVE') {
+      // 이미 가입된 회원이 가입 완료 페이지 접근 시 -> 홈으로
+      if (pathname.startsWith('/signup/complete')) {
+        return NextResponse.redirect(new URL('/', request.url))
+      }
+      // 나머지는 통과
       return NextResponse.next()
     }
 
-    // ACTIVE 상태인데 가입 완료 페이지 접근 시 -> 홈으로
-    if (status === 'ACTIVE' && pathname.startsWith('/signup/complete')) {
-      return NextResponse.redirect(new URL('/', request.url))
-    }
+    return NextResponse.next()
 
   } catch (error) {
-    // 토큰 에러 시 쿠키 삭제 등 처리...
-  }
+    // ============================================================
+    // C. 토큰 에러 처리 (만료, 변조 등)
+    // ============================================================
+    console.error('Middleware Token Error:', error)
 
-  return NextResponse.next()
+    // 공개 페이지가 아니라면 로그인 페이지로 리다이렉트
+    const response = isPublicPath(pathname)
+        ? NextResponse.next()
+        : NextResponse.redirect(new URL('/login', request.url))
+
+    // 깨진 쿠키 삭제ㅇ
+    response.cookies.delete('accessToken')
+    response.cookies.delete('refreshToken')
+
+    return response
+  }
 }
 
+// 미들웨어 적용 경로 설정 (API, 정적 파일 제외)
 export const config = {
   matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 }
