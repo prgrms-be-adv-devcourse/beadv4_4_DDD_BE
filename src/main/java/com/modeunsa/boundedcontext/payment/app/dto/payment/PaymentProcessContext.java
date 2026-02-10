@@ -51,7 +51,6 @@ public record PaymentProcessContext(
       Long memberId, String orderNo, ConfirmPaymentRequest confirmPaymentRequest) {
     return PaymentProcessContext.builder()
         .buyerId(memberId)
-        .orderId(Long.valueOf(confirmPaymentRequest.orderId()))
         .orderNo(orderNo)
         .needsPgPayment(true)
         .requestPgAmount(BigDecimal.valueOf(confirmPaymentRequest.amount()))

@@ -53,28 +53,31 @@ public class Order extends GeneratedIdAndAuditedEntity {
   @Column(name = "status", nullable = false, length = 30)
   private OrderStatus status = OrderStatus.PENDING_PAYMENT;
 
+  @Column(name = "total_cnt", nullable = false)
+  private Integer totalCnt;
+
   @Column(name = "total_amount", nullable = false)
   private BigDecimal totalAmount;
 
   // --- 배송 정보 ---
   @Convert(converter = EncryptedStringConverter.class)
-  @Column(name = "recipient_name", nullable = false, length = 500)
+  @Column(name = "recipient_name", length = 500)
   private String recipientName;
 
   @Convert(converter = EncryptedStringConverter.class)
-  @Column(name = "recipient_phone", nullable = false, length = 500)
+  @Column(name = "recipient_phone", length = 500)
   private String recipientPhone;
 
   @Convert(converter = EncryptedStringConverter.class)
-  @Column(nullable = false, length = 500)
+  @Column(name = "zip_code", length = 500)
   private String zipCode;
 
   @Convert(converter = EncryptedStringConverter.class)
-  @Column(name = "address", nullable = false, length = 500)
+  @Column(name = "address", length = 500)
   private String address;
 
   @Convert(converter = EncryptedStringConverter.class)
-  @Column(name = "address_detail", nullable = false, length = 500)
+  @Column(name = "address_detail", length = 500)
   private String addressDetail;
 
   // --- 시간 정보 ---
@@ -103,14 +106,9 @@ public class Order extends GeneratedIdAndAuditedEntity {
   }
 
   // 정적 메서드
-  public static Order createOrder(
-      OrderMember member,
-      List<OrderItem> orderItems,
-      String recipientName,
-      String recipientPhone,
-      String zipCode,
-      String address,
-      String addressDetail) {
+  public static Order createOrder(OrderMember member, List<OrderItem> orderItems) {
+
+    int totalCnt = orderItems.stream().mapToInt(OrderItem::getQuantity).sum();
 
     // 주문 껍데기 생성
     Order order =
@@ -118,11 +116,7 @@ public class Order extends GeneratedIdAndAuditedEntity {
             .orderMember(member)
             .orderNo(generateOrderNo())
             .status(OrderStatus.PENDING_PAYMENT)
-            .recipientName(recipientName)
-            .recipientPhone(recipientPhone)
-            .zipCode(zipCode)
-            .address(address)
-            .addressDetail(addressDetail)
+            .totalCnt(totalCnt)
             .build();
 
     for (OrderItem item : orderItems) {
@@ -171,6 +165,19 @@ public class Order extends GeneratedIdAndAuditedEntity {
 
   public void confirm() {
     this.status = OrderStatus.PURCHASE_CONFIRMED;
+  }
+
+  public void addDeliveryInfo(
+      String recipientName,
+      String recipientPhone,
+      String zipCode,
+      String address,
+      String addressDetail) {
+    this.recipientName = recipientName;
+    this.recipientPhone = recipientPhone;
+    this.zipCode = zipCode;
+    this.address = address;
+    this.addressDetail = addressDetail;
   }
 
   public void confirmCancellation() {

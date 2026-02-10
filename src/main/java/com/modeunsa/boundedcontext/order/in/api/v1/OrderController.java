@@ -128,9 +128,10 @@ public class OrderController {
 
   @Operation(summary = "주문 조회 기능", description = "클라이언트에서 결제 요청을 하기 위한 주문 상세 조회 API입니다.")
   @GetMapping("/{orderId}")
-  public OrderDto getOrder(
+  public ResponseEntity<ApiResponse> getOrder(
       @AuthenticationPrincipal CustomUserDetails user, @PathVariable Long orderId) {
     Long memberId = user.getMemberId();
-    return orderFacade.getOrder(memberId, orderId);
+    OrderResponseDto dto = orderFacade.getOrder(memberId, orderId);
+    return ApiResponse.onSuccess(SuccessStatus.OK, dto);
   }
 }

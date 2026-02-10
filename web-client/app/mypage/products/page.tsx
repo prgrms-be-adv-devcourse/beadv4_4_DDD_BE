@@ -77,7 +77,7 @@ export default function ProductsPage() {
   const [productStatus, setProductStatus] = useState('')
   const [currentPage, setCurrentPage] = useState(0)
 
-  const accessToken = localStorage.getItem('accessToken')
+  const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
 
   const handleSearch = async () => {
     setCurrentPage(0)

@@ -6,15 +6,18 @@ import com.modeunsa.boundedcontext.payment.app.lock.LockedPaymentAccounts;
 import com.modeunsa.boundedcontext.payment.app.lock.PaymentAccountLockManager;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentSupport;
+import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
+import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentPurpose;
-import com.modeunsa.boundedcontext.payment.domain.types.PaymentStatus;
 import com.modeunsa.boundedcontext.payment.domain.types.ReferenceType;
 import com.modeunsa.global.config.PaymentAccountConfig;
 import com.modeunsa.global.eventpublisher.EventPublisher;
+import com.modeunsa.global.retry.RetryOnDbFailure;
 import com.modeunsa.shared.payment.dto.PaymentDto;
 import com.modeunsa.shared.payment.event.PaymentSuccessEvent;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,12 +39,13 @@ public class PaymentCompleteOrderCompleteUseCase implements PaymentCompleteProce
   }
 
   @Override
+  @RetryOnDbFailure
   public void execute(PaymentProcessContext paymentProcessContext) {
 
     // 1. 결제 계좌에 대한 Lock 획득
     LockedPaymentAccounts accounts =
         paymentAccountLockManager.getEntitiesForUpdateInOrder(
-            paymentAccountConfig.getHolderMemberId(), paymentProcessContext.buyerId());
+            List.of(paymentAccountConfig.getHolderMemberId(), paymentProcessContext.buyerId()));
 
     // 2. 결제 계좌 영속성 획득
     PaymentAccount holderAccount = accounts.get(paymentAccountConfig.getHolderMemberId());
@@ -96,25 +100,28 @@ public class PaymentCompleteOrderCompleteUseCase implements PaymentCompleteProce
   }
 
   private void processPayment(
-      PaymentAccount holderAccount,
-      PaymentAccount buyerAccount,
-      PaymentProcessContext paymentProcessContext) {
+      PaymentAccount holderAccount, PaymentAccount buyerAccount, PaymentProcessContext context) {
     buyerAccount.debit(
-        paymentProcessContext.totalAmount(),
+        context.totalAmount(),
         PaymentEventType.USE_ORDER_PAYMENT,
-        paymentProcessContext.orderId(),
+        context.orderId(),
         ReferenceType.ORDER);
 
     holderAccount.credit(
-        paymentProcessContext.totalAmount(),
+        context.totalAmount(),
         PaymentEventType.HOLD_STORE_ORDER_PAYMENT,
-        paymentProcessContext.orderId(),
+        context.orderId(),
         ReferenceType.ORDER);
 
-    paymentSupport.changePaymentStatus(
-        paymentProcessContext.buyerId(), paymentProcessContext.orderNo(), PaymentStatus.COMPLETED);
+    Payment payment = loadPayment(context.buyerId(), context.orderNo());
+    payment.changeSuccess();
 
-    publishPaymentSuccessEvent(paymentProcessContext);
+    publishPaymentSuccessEvent(context);
+  }
+
+  private Payment loadPayment(Long memberId, String orderNo) {
+    PaymentId paymentId = PaymentId.create(memberId, orderNo);
+    return paymentSupport.getPaymentById(paymentId);
   }
 
   private void publishPaymentSuccessEvent(PaymentProcessContext paymentProcessContext) {

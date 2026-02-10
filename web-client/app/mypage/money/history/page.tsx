@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import MypageLayout from '../../../components/MypageLayout'
+import api from '@/app/lib/axios'
 
 interface PaymentMemberResponse {
   customerKey: string
@@ -71,23 +72,10 @@ export default function MoneyHistoryPage() {
 
   useEffect(() => {
     const fetchBalance = async () => {
-      if (typeof window === 'undefined') return
-      const accessToken = localStorage.getItem('accessToken')
-      if (!accessToken?.trim()) {
-        setBalanceLoading(false)
-        return
-      }
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
-      if (!apiUrl) {
-        setBalanceLoading(false)
-        return
-      }
       try {
-        const res = await fetch(`${apiUrl}/api/v1/payments/accounts`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        })
-        const data: PaymentAccountApiResponse = await res.json()
-        if (res.ok && data.isSuccess && data.result != null) {
+        const response = await api.get<PaymentAccountApiResponse>('/api/v1/payments/members')
+        const data = response.data
+        if (data.isSuccess && data.result != null) {
           setBalance(Number(data.result.balance))
           setBalanceError(null)
         } else {
@@ -103,43 +91,22 @@ export default function MoneyHistoryPage() {
   }, [])
 
   const fetchHistory = async (page: number, from: string, to: string) => {
-    if (typeof window === 'undefined') return
-
-    const accessToken = localStorage.getItem('accessToken')
-    if (!accessToken?.trim()) {
-      setHistory([])
-      setTotalPages(1)
-      return
-    }
-
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
-    if (!apiUrl) {
-      setHistory([])
-      setTotalPages(1)
-      return
-    }
-
     setHistoryLoading(true)
     setHistoryError(null)
 
     const params = new URLSearchParams()
-    params.set('page', String(page)) // 0-based
+    params.set('page', String(page))
     params.set('size', String(PAGE_SIZE))
     if (from) params.set('from', `${from}T00:00:00`)
     if (to) params.set('to', `${to}T23:59:59`)
 
     try {
-      const res = await fetch(
-        `${apiUrl}/api/v1/payments/accounts/logs?${params.toString()}`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        },
+      const res = await api.get<ApiResponsePage<PaymentAccountLedgerItem>>(
+        `/api/v1/payments/accounts/logs?${params.toString()}`
       )
-      const data: ApiResponsePage<PaymentAccountLedgerItem> = await res.json()
+      const data = res.data
 
-      if (!res.ok || !data.isSuccess || !Array.isArray(data.result)) {
+      if (!data.isSuccess || !Array.isArray(data.result)) {
         setHistoryError(data.message || '사용 내역을 불러오지 못했습니다.')
         setHistory([])
         setTotalPages(1)

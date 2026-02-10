@@ -74,6 +74,8 @@ public class SecurityConfig {
                   .permitAll()
                   .requestMatchers(HttpMethod.GET, "/api/v1/products/{id}")
                   .permitAll()
+                  .requestMatchers(HttpMethod.GET, "/api/v2/products/searches/{id}")
+                  .permitAll()
 
                   // 재고
                   .requestMatchers(HttpMethod.GET, "/api/v2/inventories/*/available-quantity")
@@ -115,7 +117,7 @@ public class SecurityConfig {
                   .hasRole("MEMBER")
 
                   // 주문
-                  .requestMatchers("/api/v1/orders/**")
+                  .requestMatchers("/api/*/orders/**")
                   .hasRole("MEMBER")
 
                   // 결제

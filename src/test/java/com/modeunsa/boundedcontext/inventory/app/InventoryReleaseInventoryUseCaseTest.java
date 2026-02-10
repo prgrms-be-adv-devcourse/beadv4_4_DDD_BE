@@ -81,6 +81,7 @@ public class InventoryReleaseInventoryUseCaseTest {
                 1L, // orderItemId
                 productId,
                 1L, // sellerId
+                "상품이름",
                 3, // quantity
                 BigDecimal.valueOf(10000))));
 
@@ -175,6 +176,7 @@ public class InventoryReleaseInventoryUseCaseTest {
                                         0L,
                                         item.productId(),
                                         1L,
+                                        "상품이름",
                                         item.quantity(),
                                         BigDecimal.valueOf(10000)))
                             .toList();

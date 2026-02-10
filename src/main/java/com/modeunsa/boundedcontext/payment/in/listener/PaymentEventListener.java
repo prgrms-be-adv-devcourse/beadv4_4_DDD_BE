@@ -2,9 +2,10 @@ package com.modeunsa.boundedcontext.payment.in.listener;
 
 import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
+import static org.springframework.transaction.event.TransactionPhase.BEFORE_COMMIT;
 
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
-import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
+import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberSyncRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.order.PaymentOrderInfo;
 import com.modeunsa.boundedcontext.payment.app.dto.settlement.PaymentPayoutInfo;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentFailedEvent;
@@ -27,10 +28,9 @@ public class PaymentEventListener {
   private final PaymentFacade paymentFacade;
   private final PaymentMapper paymentMapper;
 
-  @TransactionalEventListener(phase = AFTER_COMMIT)
-  @Transactional(propagation = REQUIRES_NEW)
+  @TransactionalEventListener(phase = BEFORE_COMMIT)
   public void handleMemberCreateEvent(MemberSignupEvent memberSignupEvent) {
-    PaymentMemberDto member = paymentMapper.toPaymentMemberDto(memberSignupEvent);
+    PaymentMemberSyncRequest member = paymentMapper.toPaymentMemberSyncRequest(memberSignupEvent);
     paymentFacade.createPaymentMember(member);
   }
 

@@ -1,0 +1,7 @@
+### 환경 변수 설정
+@baseUrl = http://localhost:8080
+@memberId = 2
+
+### dev 로그인 (응답의 accessToken을 복사해 payment.http 상단 @accessToken 에 붙여넣기)
+POST {{baseUrl}}/api/v1/auths/dev/login?memberId={{memberId}}
+Accept: application/json

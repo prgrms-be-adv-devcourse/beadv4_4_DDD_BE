@@ -9,6 +9,7 @@ import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
 import com.modeunsa.boundedcontext.payment.out.PaymentStore;
 import com.modeunsa.global.exception.GeneralException;
+import com.modeunsa.global.retry.RetryOnDbFailure;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -27,6 +28,7 @@ public class PaymentInitializeUseCase {
    * 결제 초기화 : 기존 결제 건이 있으면 재시도, 없으면 신규 생성
    * 동시성 이슈를 대비해 복합키 중복 예외 처리 포함
    */
+  @RetryOnDbFailure
   public PaymentProcessContext execute(Long memberId, PaymentRequest paymentRequest) {
     PaymentId paymentId = PaymentId.create(memberId, paymentRequest.orderNo());
 

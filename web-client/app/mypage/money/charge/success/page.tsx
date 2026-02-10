@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState, Suspense } from 'react'
 import Header from '../../../../components/Header'
+import api from '@/app/lib/axios'
 
 interface ConfirmPaymentResponse {
   orderNo: string
@@ -46,44 +47,29 @@ function ChargeSuccessContent() {
       }
 
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
-        const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
-        if (!apiUrl || !accessToken?.trim()) {
-          setConfirmError('API 설정 또는 로그인을 확인해주세요.')
-          setIsConfirming(false)
-          return
-        }
-        const res = await fetch(
-          `${apiUrl}/api/v1/payments/${encodeURIComponent(orderNo!)}/payment/confirm/by/tossPayments`,
-          {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              paymentKey,
-              orderId,
-              amount: Number(amount),
-              pgCustomerName: pgCustomerName || '',
-              pgCustomerEmail: pgCustomerEmail || '',
-            }),
-          }
-        )
-        const data = await res.json()
-        if (!res.ok) {
-          setConfirmError(data?.message || '결제 승인에 실패했습니다.')
-          setIsConfirming(false)
-          return
-        }
+        const res = await api.post<{
+          isSuccess: boolean
+          message?: string
+          result?: ConfirmPaymentResponse
+        }>(`/api/v1/payments/${encodeURIComponent(orderNo!)}/payment/confirm/by/tossPayments`, {
+          paymentKey,
+          orderId,
+          amount: Number(amount),
+          pgCustomerName: pgCustomerName || '',
+          pgCustomerEmail: pgCustomerEmail || '',
+        })
+        const data = res.data
         if (data?.isSuccess && data?.result) {
           setPaymentInfo({ orderNo: data.result.orderNo ?? orderNo ?? 'N/A' })
           setConfirmError(null)
         } else {
           setConfirmError(data?.message || '결제 승인에 실패했습니다.')
         }
-      } catch (error) {
-        setConfirmError(error instanceof Error ? error.message : '결제 승인 중 오류가 발생했습니다.')
+      } catch (error: unknown) {
+        const message =
+          (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+          (error instanceof Error ? error.message : '결제 승인 중 오류가 발생했습니다.')
+        setConfirmError(message)
       } finally {
         setIsConfirming(false)
       }

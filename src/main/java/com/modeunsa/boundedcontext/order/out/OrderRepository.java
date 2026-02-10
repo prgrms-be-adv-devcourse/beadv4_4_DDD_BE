@@ -24,4 +24,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
   Optional<Order> findTopByOrderMemberIdOrderByIdDesc(Long memberId);
 
   List<Order> findAllByStatusAndPaidAtBefore(OrderStatus status, LocalDateTime cutoff);
+
+  Optional<Order> findByIdAndOrderMemberId(Long orderId, Long memberId);
 }

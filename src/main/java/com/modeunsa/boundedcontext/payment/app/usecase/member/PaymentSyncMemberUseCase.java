@@ -1,6 +1,6 @@
 package com.modeunsa.boundedcontext.payment.app.usecase.member;
 
-import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
+import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberSyncRequest;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentMemberCreatedEvent;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.out.PaymentMemberStore;
@@ -17,7 +17,7 @@ public class PaymentSyncMemberUseCase {
   private final PaymentMemberStore paymentMemberStore;
   private final EventPublisher eventPublisher;
 
-  public void createPaymentMember(PaymentMemberDto member) {
+  public void execute(PaymentMemberSyncRequest member) {
 
     PaymentMember paymentMember =
         PaymentMember.create(member.id(), member.email(), member.name(), member.status());
