@@ -98,6 +98,7 @@ custom:
       - /api/v1/contents/**
 
       # ========== 상품 ===========
+      - /api/v1/products/search
       - /api/v2/products/searches
 
     oauth2:

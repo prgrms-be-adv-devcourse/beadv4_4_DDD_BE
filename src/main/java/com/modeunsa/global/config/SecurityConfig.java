@@ -86,11 +86,8 @@ public class SecurityConfig {
                   // ========================================
                   .requestMatchers(HttpMethod.GET, "/api/v1/products")
                   .permitAll()
-                  .requestMatchers(HttpMethod.GET, "/api/v1/products/{id}")
+                  .requestMatchers(HttpMethod.GET, "/api/v1/products/{id:[0-9]+}")
                   .permitAll()
-                  .requestMatchers(HttpMethod.GET, "/api/v2/products/searches/{id}")
-                  .permitAll()
-
                   // 재고
                   .requestMatchers(HttpMethod.GET, "/api/v2/inventories/*/available-quantity")
                   .permitAll()
