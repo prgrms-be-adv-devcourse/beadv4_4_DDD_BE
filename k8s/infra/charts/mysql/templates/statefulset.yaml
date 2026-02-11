@@ -29,8 +29,19 @@ spec:
           volumeMounts:
             - name: mysql-data
               mountPath: /var/lib/mysql
+            {{- if and .Values.slowQuery .Values.slowQuery.enabled }}
+            - name: slow-query-config
+              mountPath: /etc/mysql/conf.d/slow-query.cnf
+              subPath: slow-query.cnf
+              readOnly: true
+            {{- end }}
       volumes:
         - name: mysql-data
           persistentVolumeClaim:
             claimName: {{ include "mysql.fullname" . }}-pvc
+        {{- if and .Values.slowQuery .Values.slowQuery.enabled }}
+        - name: slow-query-config
+          configMap:
+            name: {{ include "mysql.fullname" . }}-slow-query-config
+        {{- end }}
 {{- end }}

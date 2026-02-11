@@ -16,3 +16,8 @@ resources:
   limits:
     cpu: 250m
     memory: 768Mi
+
+slowQuery:
+  enabled: true
+  longQueryTime: 1
+  logFile: /var/lib/mysql/slow.log
