@@ -24,10 +24,9 @@ public class MemberDataInitProd {
 
   private final MemberRepository memberRepository;
   private final EventPublisher eventPublisher;
-  private final JdbcTemplate jdbcTemplate; // ID 리셋을 위해 추가
-  private final MemberDataInitProd self; // 자기 자신 주입 필드 추가
+  private final JdbcTemplate jdbcTemplate;
+  private final MemberDataInitProd self;
 
-  // 생성자에서 @Lazy로 자기 자신(Proxy) 주입
   public MemberDataInitProd(
       MemberRepository memberRepository,
       EventPublisher eventPublisher,
@@ -43,25 +42,29 @@ public class MemberDataInitProd {
   @Order(1)
   public ApplicationRunner initSystemAccounts() {
     return args -> {
-      // 데이터가 하나라도 있으면 초기화 로직 스킵 (운영 환경 데이터 보호)
       if (memberRepository.count() > 0) {
         log.info("[Init] 회원이 존재하여 초기화를 건너뜁니다.");
         return;
       }
 
-      // 데이터가 0개일 때만 실행
-      resetAutoIncrement(); // ID를 1번부터 시작하도록 강제 리셋
+      // 1. 초기화 시작 전: ID를 1번부터 시작하도록 리셋 (시스템 계정용)
+      setSafeAutoIncrement(1);
+
+      // 2. 시스템 계정 3개 생성 (ID 1, 2, 3 점유)
       self.createBaseAccounts();
+
+      // 3. 초기화 완료 후: 다음 ID가 무조건 4번부터 시작하도록 강제 설정 (예약 영역 확보)
+      // 만약 createBaseAccounts에서 2개만 만들었더라도, 다음 유저는 4번이 됨.
+      setSafeAutoIncrement(4);
     };
   }
 
-  // ID 카운터를 1로 리셋하는 메서드
-  private void resetAutoIncrement() {
-    log.info("[Init] ID Sequence를 1로 리셋합니다.");
+  private void setSafeAutoIncrement(long startValue) {
+    log.info("[Init] ID AutoIncrement 값을 {}로 설정합니다.", startValue);
     try {
-      jdbcTemplate.execute("ALTER TABLE member_member AUTO_INCREMENT = 1");
+      jdbcTemplate.execute("ALTER TABLE member_member AUTO_INCREMENT = " + startValue);
     } catch (Exception e) {
-      log.warn("[Init] AutoIncrement 리셋 실패: {}", e.getMessage());
+      log.warn("[Init] AutoIncrement 설정 실패 (DB 권한 확인 필요): {}", e.getMessage());
     }
   }
 

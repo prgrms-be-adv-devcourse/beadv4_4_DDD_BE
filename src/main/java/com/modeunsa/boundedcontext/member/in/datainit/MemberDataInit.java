@@ -35,7 +35,7 @@ public class MemberDataInit {
   private final MemberRepository memberRepository;
   private final MemberSellerRepository memberSellerRepository;
   private final EventPublisher eventPublisher;
-  private final JdbcTemplate jdbcTemplate; // ID 리셋을 위해 추가
+  private final JdbcTemplate jdbcTemplate;
 
   public MemberDataInit(
       @Lazy MemberDataInit self,
@@ -54,32 +54,37 @@ public class MemberDataInit {
   @Order(1)
   public ApplicationRunner memberDataInitRunner() {
     return args -> {
-      // 데이터가 이미 있으면 초기화 건너뜀
       if (memberRepository.count() > 0) {
         log.info("[Init] Member data already exists, skipping initialization");
         return;
       }
 
-      // ID를 1부터 시작하도록 강제 리셋 (System=1, Holder=2, Admin=3 보장)
-      resetAutoIncrement();
+      // 1. 초기화 시작 전: ID 1번부터 시작
+      setSafeAutoIncrement(1);
 
-      // 데이터 생성 시작
-      self.initBaseData();
+      // 2. 시스템 계정 3개 생성 (1~3번 점유)
+      self.initSystemAccounts();
+
+      // 3. 시스템 계정 생성 직후: ID 4번부터 시작하도록 강제 설정 (예약 영역 확보)
+      setSafeAutoIncrement(4);
+
+      // 4. 일반/판매자 테스트 데이터 생성 (4번부터 시작)
+      self.initDevData();
     };
   }
 
-  private void resetAutoIncrement() {
-    log.info("[Init] Resetting AutoIncrement to 1...");
+  private void setSafeAutoIncrement(long startValue) {
+    log.info("[Init] ID AutoIncrement 값을 {}로 설정합니다.", startValue);
     try {
-      jdbcTemplate.execute("ALTER TABLE member_member AUTO_INCREMENT = 1");
+      jdbcTemplate.execute("ALTER TABLE member_member AUTO_INCREMENT = " + startValue);
     } catch (Exception e) {
-      log.warn("[Init] Failed to reset AutoIncrement. (Check DB permissions): {}", e.getMessage());
+      log.warn("[Init] AutoIncrement 설정 실패 (DB 권한 확인 필요): {}", e.getMessage());
     }
   }
 
   @Transactional
-  public void initBaseData() {
-    log.info("[Init] Initializing member base data...");
+  public void initSystemAccounts() {
+    log.info("[Init] 시스템 계정(System, Holder, Admin) 생성 시작");
 
     // 1. 시스템 계정 (ID: 1)
     Member systemMember =
@@ -99,9 +104,14 @@ public class MemberDataInit {
     memberRepository.save(admin);
     publishSignupEvent(admin);
 
-    // --- 여기부터 개발용 일반/판매자 데이터 (ID: 4~) ---
+    log.info("[Init] 시스템 계정(System, Holder, Admin) 생성 완료");
+  }
 
-    // 일반 회원 1 - 카카오 로그인
+  @Transactional
+  public void initDevData() {
+    log.info("[Init] Initializing Dev/Test Data (Users, Sellers)...");
+
+    // 일반 회원 1 - 카카오 로그인 (ID: 4 예상)
     Member user1 = createMember("user1@example.com", "김모든", "010-1111-1111", MemberRole.MEMBER);
     createProfile(user1, "모든이", "https://example.com/profile1.jpg", 175, 70, "지성");
     createDefaultAddress(
@@ -137,15 +147,13 @@ public class MemberDataInit {
     publishSignupEvent(user4);
 
     // 판매자 회원
-    Member seller1 =
-        createMember(
-            "seller1@example.com", "최판매", "010-4444-4444", MemberRole.MEMBER); // 초기 생성은 MEMBER로
+    Member seller1 = createMember("seller1@example.com", "최판매", "010-4444-4444", MemberRole.MEMBER);
     createProfile(seller1, "판매왕", "https://example.com/seller1.jpg", null, null, null);
     createDefaultAddress(
         seller1, "최판매", "010-4444-4444", "07281", "서울시 영등포구 여의대로 108", "1201호", "사무실");
     addOAuthAccount(seller1, OAuthProvider.KAKAO, "kakao_seller1");
     memberRepository.save(seller1);
-    publishSignupEvent(seller1); // 멤버 가입 이벤트 먼저 발행
+    publishSignupEvent(seller1);
 
     // 판매자 정보 생성 및 승인
     MemberSeller activeSeller =
@@ -159,13 +167,12 @@ public class MemberDataInit {
             .requestedAt(LocalDateTime.now().minusDays(30))
             .build();
 
-    // approve() 호출 시 member의 role이 SELLER로 변경됨
     activeSeller.approve();
     memberSellerRepository.save(activeSeller);
     publishSellerRegisteredEvent(activeSeller);
 
     log.info(
-        "[Init] Member base data initialization completed. Total members: {}",
+        "[Init] Member dev data initialization completed. Total members: {}",
         memberRepository.count());
   }
 
@@ -194,7 +201,6 @@ public class MemberDataInit {
             seller.getStatus().name()));
   }
 
-  // Status 기본값을 ACTIVE로 설정
   private Member createMember(String email, String realName, String phoneNumber, MemberRole role) {
     return Member.builder()
         .email(email)
