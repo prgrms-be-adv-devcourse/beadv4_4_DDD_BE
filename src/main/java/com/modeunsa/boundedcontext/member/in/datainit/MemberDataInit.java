@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Profile("dev")
 @ConditionalOnProperty(name = "app.data-init.enabled", havingValue = "true", matchIfMissing = true)
 @Slf4j
-// @Configuration // 필요 시 주석 해제
+//@Configuration // 필요 시 주석 해제
 public class MemberDataInit {
 
   private final MemberDataInit self;
