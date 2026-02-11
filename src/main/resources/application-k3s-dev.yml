@@ -33,14 +33,14 @@ spring:
           kakao:
             client-id: ${KAKAO_CLIENT_ID:dummy}
             client-secret: ${KAKAO_CLIENT_SECRET:dummy}
-            redirect-uri: ${KAKAO_CLIENT_URI:dummy}
+            redirect-uri: ${KAKAO_REDIRECT_URI:dummy}
             authorization-grant-type: authorization_code
             client-authentication-method: client_secret_post
             client-name: KAKAO
           naver:
             client-id: ${NAVER_CLIENT_ID:dummy}
             client-secret: ${NAVER_CLIENT_SECRET:dummy}
-            redirect-uri: ${NAVER_CLIENT_URI:dummy}
+            redirect-uri: ${NAVER_REDIRECT_URI:dummy}
             authorization-grant-type: authorization_code
             client-name: NAVER
             scope:
