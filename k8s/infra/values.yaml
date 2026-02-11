@@ -7,6 +7,15 @@ mysql:
     rootPassword: ""    # .env에서 주입
     database: ""        # .env에서 주입
 
+# MySQL Exporter (Prometheus 메트릭, 별도 차트)
+mysql-exporter:
+  enabled: true
+  mysql:
+    host: "modeunsa-infra-mysql"
+    port: 3306
+    user: "root"
+    password: ""        # .env에서 주입 (mysql.auth.rootPassword 와 동일하게)
+
 redis:
   enabled: true
   image:
@@ -33,6 +42,12 @@ prometheus:
       scrapeTimeout: "10s"
       targets:
         - "modeunsa-app:8080"
+    - jobName: "mysql"
+      metricsPath: "/metrics"
+      scrapeInterval: "15s"
+      scrapeTimeout: "10s"
+      targets:
+        - "modeunsa-infra-mysql-exporter:9104"
 
 grafana:
   enabled: true
