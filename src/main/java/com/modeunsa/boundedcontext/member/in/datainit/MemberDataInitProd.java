@@ -7,25 +7,38 @@ import com.modeunsa.boundedcontext.member.domain.types.MemberStatus;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
 import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.shared.member.event.MemberSignupEvent;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 @Configuration
-@RequiredArgsConstructor
-@Profile("prod") // 혹은 "dev", "!test" 등 원하는 프로필
+@Profile("prod") // 필요 시 "dev", "!test" 등 원하는 프로필 지정
 public class MemberDataInitProd {
 
   private final MemberRepository memberRepository;
   private final EventPublisher eventPublisher;
   private final JdbcTemplate jdbcTemplate; // ID 리셋을 위해 추가
+  private final MemberDataInitProd self; // 자기 자신 주입 필드 추가
+
+  // 생성자에서 @Lazy로 자기 자신(Proxy) 주입
+  public MemberDataInitProd(
+      MemberRepository memberRepository,
+      EventPublisher eventPublisher,
+      JdbcTemplate jdbcTemplate,
+      @Lazy MemberDataInitProd self) {
+    this.memberRepository = memberRepository;
+    this.eventPublisher = eventPublisher;
+    this.jdbcTemplate = jdbcTemplate;
+    this.self = self;
+  }
 
   @Bean
   @Order(1)
