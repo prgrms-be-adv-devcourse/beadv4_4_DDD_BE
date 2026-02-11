@@ -7,6 +7,7 @@ import com.modeunsa.boundedcontext.member.domain.types.MemberStatus;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
 import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.shared.member.event.MemberSignupEvent;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,8 +16,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Configuration
@@ -71,40 +70,41 @@ public class MemberDataInitProd {
     log.info("[Init] 시스템 계정(System, Holder, Admin) 생성 시작");
 
     // 1. System (ID: 1)
-    Member systemUser = Member.builder()
-        .role(MemberRole.SYSTEM)
-        .status(MemberStatus.ACTIVE)
-        .email("system@modeunsa.com")
-        .realName("SYSTEM")
-        .phoneNumber("010-0000-0001")
-        .build();
+    Member systemUser =
+        Member.builder()
+            .role(MemberRole.SYSTEM)
+            .status(MemberStatus.ACTIVE)
+            .email("system@modeunsa.com")
+            .realName("SYSTEM")
+            .phoneNumber("010-0000-0001")
+            .build();
     memberRepository.save(systemUser);
     publishSignupEvent(systemUser);
 
     // 2. Holder (ID: 2)
-    Member holderUser = Member.builder()
-        .role(MemberRole.HOLDER)
-        .status(MemberStatus.ACTIVE)
-        .email("holder@modeunsa.com")
-        .realName("HOLDER")
-        .phoneNumber("010-0000-0002")
-        .build();
+    Member holderUser =
+        Member.builder()
+            .role(MemberRole.HOLDER)
+            .status(MemberStatus.ACTIVE)
+            .email("holder@modeunsa.com")
+            .realName("HOLDER")
+            .phoneNumber("010-0000-0002")
+            .build();
     memberRepository.save(holderUser);
     publishSignupEvent(holderUser);
 
     // 3. Admin (ID: 3)
-    Member adminUser = Member.builder()
-        .role(MemberRole.ADMIN)
-        .status(MemberStatus.ACTIVE)
-        .email("admin@modeunsa.com")
-        .realName("관리자")
-        .phoneNumber("010-0000-0003")
-        .build();
+    Member adminUser =
+        Member.builder()
+            .role(MemberRole.ADMIN)
+            .status(MemberStatus.ACTIVE)
+            .email("admin@modeunsa.com")
+            .realName("관리자")
+            .phoneNumber("010-0000-0003")
+            .build();
 
     // Admin 프로필 추가
-    MemberProfile profile = MemberProfile.builder()
-        .nickname("MainAdmin")
-        .build();
+    MemberProfile profile = MemberProfile.builder().nickname("MainAdmin").build();
     adminUser.setProfile(profile);
 
     memberRepository.save(adminUser);
@@ -121,8 +121,6 @@ public class MemberDataInitProd {
             member.getEmail(),
             member.getPhoneNumber(),
             member.getRole().name(),
-            member.getStatus().name()
-        )
-    );
+            member.getStatus().name()));
   }
 }

@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Profile("dev")
 @ConditionalOnProperty(name = "app.data-init.enabled", havingValue = "true", matchIfMissing = true)
 @Slf4j
-//@Configuration // 필요 시 주석 해제
+// @Configuration // 필요 시 주석 해제
 public class MemberDataInit {
 
   private final MemberDataInit self;
@@ -71,7 +71,7 @@ public class MemberDataInit {
     log.info("[Init] Resetting AutoIncrement to 1...");
     try {
       jdbcTemplate.execute("ALTER TABLE member_member AUTO_INCREMENT = 1");
-} catch (Exception e) {
+    } catch (Exception e) {
       log.warn("[Init] Failed to reset AutoIncrement. (Check DB permissions): {}", e.getMessage());
     }
   }
@@ -81,12 +81,14 @@ public class MemberDataInit {
     log.info("[Init] Initializing member base data...");
 
     // 1. 시스템 계정 (ID: 1)
-    Member systemMember = createMember("system@modeunsa.com", "SYSTEM", "010-0000-0001", MemberRole.SYSTEM);
+    Member systemMember =
+        createMember("system@modeunsa.com", "SYSTEM", "010-0000-0001", MemberRole.SYSTEM);
     memberRepository.save(systemMember);
     publishSignupEvent(systemMember);
 
     // 2. 홀더 계정 (ID: 2)
-    Member holderMember = createMember("holder@modeunsa.com", "HOLDER", "010-0000-0002", MemberRole.HOLDER);
+    Member holderMember =
+        createMember("holder@modeunsa.com", "HOLDER", "010-0000-0002", MemberRole.HOLDER);
     memberRepository.save(holderMember);
     publishSignupEvent(holderMember);
 
@@ -134,7 +136,9 @@ public class MemberDataInit {
     publishSignupEvent(user4);
 
     // 판매자 회원
-    Member seller1 = createMember("seller1@example.com", "최판매", "010-4444-4444", MemberRole.MEMBER); // 초기 생성은 MEMBER로
+    Member seller1 =
+        createMember(
+            "seller1@example.com", "최판매", "010-4444-4444", MemberRole.MEMBER); // 초기 생성은 MEMBER로
     createProfile(seller1, "판매왕", "https://example.com/seller1.jpg", null, null, null);
     createDefaultAddress(
         seller1, "최판매", "010-4444-4444", "07281", "서울시 영등포구 여의대로 108", "1201호", "사무실");
@@ -159,7 +163,9 @@ public class MemberDataInit {
     memberSellerRepository.save(activeSeller);
     publishSellerRegisteredEvent(activeSeller);
 
-    log.info("[Init] Member base data initialization completed. Total members: {}", memberRepository.count());
+    log.info(
+        "[Init] Member base data initialization completed. Total members: {}",
+        memberRepository.count());
   }
 
   // --- Helper Methods ---
