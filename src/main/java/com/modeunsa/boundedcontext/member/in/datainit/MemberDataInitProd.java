@@ -51,7 +51,7 @@ public class MemberDataInitProd {
 
       // 데이터가 0개일 때만 실행
       resetAutoIncrement(); // ID를 1번부터 시작하도록 강제 리셋
-      createBaseAccounts();
+      self.createBaseAccounts();
     };
   }
 
