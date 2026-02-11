@@ -18,7 +18,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, Long> {
+public interface ProductRepository extends JpaRepository<Product, Long>, ProductRepositoryCustom {
 
   Page<Product> findAllByCategoryAndSaleStatusInAndProductStatusIn(
       ProductCategory category,
