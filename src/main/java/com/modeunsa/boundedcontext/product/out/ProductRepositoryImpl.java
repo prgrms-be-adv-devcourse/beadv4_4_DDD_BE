@@ -1,8 +1,10 @@
 package com.modeunsa.boundedcontext.product.out;
 
 import static com.modeunsa.boundedcontext.product.domain.QProduct.product;
+import static com.modeunsa.boundedcontext.product.domain.QProductMemberSeller.productMemberSeller;
 
 import com.modeunsa.boundedcontext.product.domain.Product;
+import com.modeunsa.boundedcontext.product.domain.ProductCategory;
 import com.modeunsa.boundedcontext.product.domain.ProductPolicy;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
@@ -29,6 +31,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     List<Product> content =
         queryFactory
             .selectFrom(product)
+            .leftJoin(product.seller, productMemberSeller)
             .where(keywordCondition(keyword), saleStatusIn(), productStatusIn())
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())
@@ -39,6 +42,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         queryFactory
             .select(product.count())
             .from(product)
+            .leftJoin(product.seller, productMemberSeller)
             .where(keywordCondition(keyword), saleStatusIn(), productStatusIn())
             .fetchOne();
     return new PageImpl<>(content, pageable, total == null ? 0 : total);
@@ -49,11 +53,22 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
       return null;
     }
 
-    return product
-        .name
-        .containsIgnoreCase(keyword)
-        .or(product.description.containsIgnoreCase(keyword))
-        .or(product.category.stringValue().containsIgnoreCase(keyword));
+    // 상품 기본 검색
+    BooleanExpression nameOrDescriptionCondition =
+        product
+            .name
+            .containsIgnoreCase(keyword)
+            .or(product.description.containsIgnoreCase(keyword));
+
+    List<ProductCategory> matchedCategories = ProductCategory.fromDescriptionKeyword(keyword);
+    BooleanExpression categoryCondition =
+        matchedCategories.isEmpty() ? null : product.category.in(matchedCategories);
+
+    // 판매자명 검색
+    BooleanExpression sellerCondition =
+        productMemberSeller.businessName.containsIgnoreCase(keyword);
+
+    return nameOrDescriptionCondition.or(categoryCondition).or(sellerCondition);
   }
 
   private BooleanExpression saleStatusIn() {
