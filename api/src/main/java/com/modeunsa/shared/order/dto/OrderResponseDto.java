@@ -16,6 +16,7 @@ public class OrderResponseDto {
   private String orderNo;
   private BigDecimal totalAmount;
   private String status;
+  private LocalDateTime paymentDeadlineAt;
 
   private List<OrderItemResponseDto> orderItems;
 
