@@ -4,7 +4,7 @@
 
 ## 1. 전체 아키텍처
 
-* **Compute**: EC2 (Ubuntu 22.04 LTS) + **Elastic IP (탄력적 IP)**
+* **Compute**: EC2 (Linux/UNIX) + **Elastic IP (탄력적 IP)**
 * **Web Server**: **Nginx** (Reverse Proxy & SSL Termination)
 * **Database**: **Self-hosted MySQL** (EC2 내부 설치) - 모든 도메인 데이터 저장
 * **Storage**: **AWS S3** (`team01-storage`) - 상품, 회원, 콘텐츠 이미지 저장
