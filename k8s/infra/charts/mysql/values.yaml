@@ -20,4 +20,4 @@ resources:
 slowQuery:
   enabled: true
   longQueryTime: 1
-  logFile: /home/ec2-user/app/mysql/slow_query/slow_query.log
+  logFile: /var/lib/mysql/slow.log

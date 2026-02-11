@@ -41,7 +41,7 @@ prometheus:
       scrapeInterval: "15s"
       scrapeTimeout: "10s"
       targets:
-        - "modeunsa-app:8080"
+        - "modeunsa-app-api:8080"
     - jobName: "mysql"
       metricsPath: "/metrics"
       scrapeInterval: "15s"
