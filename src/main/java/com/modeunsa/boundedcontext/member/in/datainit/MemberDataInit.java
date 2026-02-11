@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
@@ -27,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Profile("dev")
 @ConditionalOnProperty(name = "app.data-init.enabled", havingValue = "true", matchIfMissing = true)
 @Slf4j
-// @Configuration // 필요 시 주석 해제
+@Configuration // 필요 시 주석 처리
 public class MemberDataInit {
 
   private final MemberDataInit self;
