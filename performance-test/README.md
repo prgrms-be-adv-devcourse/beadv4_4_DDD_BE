@@ -1,5 +1,7 @@
 # k6 부하 테스트
 
+- **상품 검색 API** 단계적 부하·TPS 측정: [scripts/product/README.md](scripts/product/README.md)
+
 ## 1. 대시보드 보기 (InfluxDB + Grafana)
 
 ### 인프라 기동
@@ -16,6 +18,8 @@ docker-compose up -d influxdb grafana
 make test-payment-member
 # 또는
 make test-payment-request
+# 상품 검색 (단계적 부하, TPS 측정)
+make test-product-search
 ```
 
 ### Grafana에서 보기

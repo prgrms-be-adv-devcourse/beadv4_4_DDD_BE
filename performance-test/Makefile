@@ -4,9 +4,10 @@
 
 PAYMENT_SCRIPT=scripts/payment/payment_request.js
 PAYMENT_MEMBER_SCRIPT=scripts/payment/payment_member.js
+PRODUCT_SEARCH_SCRIPT=scripts/product/product_search.js
 K6_OUT = --out influxdb=http://influxdb:8086/k6
 
-.PHONY: test-payment-request test-payment-member up down
+.PHONY: test-payment-request test-payment-member test-product-search up down
 up:
 	docker-compose up -d influxdb grafana
 
@@ -18,4 +19,7 @@ test-payment-request:
 
 test-payment-member:
 	docker-compose run --rm k6 run $(K6_OUT) /$(PAYMENT_MEMBER_SCRIPT)
+
+test-product-search:
+	docker-compose run --rm k6 run $(K6_OUT) /$(PRODUCT_SEARCH_SCRIPT)
 
