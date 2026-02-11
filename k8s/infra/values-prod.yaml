@@ -1,6 +1,7 @@
 mysql:
   service:
-    type: ClusterIP
+    type: NodePort
+    nodePort: 30306
   storage:
     size: 10Gi
 redis:
