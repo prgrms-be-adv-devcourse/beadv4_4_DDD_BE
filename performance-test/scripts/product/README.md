@@ -134,7 +134,7 @@ TARGET_URL=http://host.docker.internal:8080 make test-product-search
 | `TARGET_URL`      | http://localhost:8080  | 상품 API 베이스 URL |
 | `SCENARIO`        | staged                 | `staged` = 단계적 부하, `constant` = 고정 부하, `arrival` = 고정 RPS 부하 |
 | `ARRIVAL_RATE`    | 50                     | `SCENARIO=arrival`일 때 목표 RPS (초당 요청 수) |
-| `ARRIVAL_DURATION`| 1m                     | `SCENARIO=arrival`일 때 테스트 지속 시간 |
+| `ARRIVAL_DURATION`| 5m                     | `SCENARIO=arrival`일 때 테스트 지속 시간 |
 
 스크립트 동작:
 - `keyword`: KEYWORDS 배열에서 랜덤 선택 (빈 값이면 키워드 없이 검색)
@@ -151,5 +151,6 @@ Thresholds:
 - `http_reqs`: rate > 1 (TPS 최소 1)
 - `http_req_duration`: p95 < 5000 ms
 - `checks`: rate > 0.90
+- `dropped_iterations`: rate < 0.01  (`SCENARIO=arrival`일 때 드롭 비율이 1% 미만인지 확인)
 
 필요하면 `scripts/product/product_search.js` 안의 `stages` / `thresholds` 를 수정해 부하 구간이나 기준을 조정하면 됩니다.

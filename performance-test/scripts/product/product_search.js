@@ -11,7 +11,7 @@ const BASE_URL = __ENV.TARGET_URL || 'http://localhost:8080';
 // TPS: 실행 후 요약에 나오는 http_reqs 의 rate 값 = 초당 요청 수 = TPS
 const SCENARIO = __ENV.SCENARIO || 'staged';
 const ARRIVAL_RATE = Number(__ENV.ARRIVAL_RATE || '50');      // 초당 요청 수(target RPS)
-const ARRIVAL_DURATION = __ENV.ARRIVAL_DURATION || '1m';      // 테스트 지속 시간
+const ARRIVAL_DURATION = __ENV.ARRIVAL_DURATION || '5m';      // 테스트 지속 시간
 
 // 검색에 사용할 키워드 풀 (가상 사용자별로 다양한 검색 시뮬레이션)
 const KEYWORDS = [
@@ -62,11 +62,14 @@ const ARRIVAL_OPTIONS = {
       rate: ARRIVAL_RATE,          // RPS
       timeUnit: '1s',
       duration: ARRIVAL_DURATION,
-      preAllocatedVUs: Math.max(ARRIVAL_RATE * 2, 20),
-      maxVUs: Math.max(ARRIVAL_RATE * 4, 50),
+      // k6 자체 병목 방지를 위해 RPS 대비 충분한 VU 수 확보
+      preAllocatedVUs: Math.max(Math.ceil(ARRIVAL_RATE / 2), 50),
+      maxVUs: Math.max(ARRIVAL_RATE * 2, 200),
     },
   },
   thresholds: {
+    // dropped_iterations 비율이 1% 미만이면 (대략) 목표 RPS 달성으로 간주
+    dropped_iterations: ['rate<0.01'],
     http_reqs: ['rate>1'],
     http_req_duration: ['p(95)<5000'],
     checks: ['rate>0.90'],
