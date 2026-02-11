@@ -145,6 +145,7 @@ case "$1" in
     helm upgrade --install $RELEASE $CHART_DIR -n $NAMESPACE $VALUES_FILES \
       --set mysql.auth.rootPassword="$MYSQL_ROOT_PASSWORD" \
       --set mysql.auth.database="$MYSQL_DATABASE" \
+      --set mysql-exporter.mysql.password="$MYSQL_ROOT_PASSWORD" \
       --set redis.auth.password="$REDIS_PASSWORD" \
       --set grafana.auth.adminUser="$GF_SECURITY_ADMIN_USER" \
       --set grafana.auth.adminPassword="$GF_SECURITY_ADMIN_PASSWORD" \
