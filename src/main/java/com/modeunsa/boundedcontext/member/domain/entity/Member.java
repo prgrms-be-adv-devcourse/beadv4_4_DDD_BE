@@ -50,7 +50,7 @@ public class Member extends GeneratedIdAndAuditedEntity {
   private String email;
 
   @Convert(converter = EncryptedStringConverter.class)
-  @Column(length = 500)
+  @Column(nullable = false, length = 500)
   private String realName;
 
   @Convert(converter = EncryptedStringConverter.class)
