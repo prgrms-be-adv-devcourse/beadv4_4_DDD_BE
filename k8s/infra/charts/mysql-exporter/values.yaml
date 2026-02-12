@@ -2,7 +2,7 @@ enabled: true
 
 image:
   repository: prom/mysqld-exporter
-  tag: "v0.15.0"
+  tag: "v0.14.0"
 
 # 연결할 MySQL 서비스 (동일 네임스페이스 기준)
 # Release 이름이 modeunsa-infra 일 때 MySQL 서비스: modeunsa-infra-mysql
