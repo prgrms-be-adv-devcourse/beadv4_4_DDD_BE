@@ -8,7 +8,7 @@
 
 ### 빠른 실행
 1. 모듈 생성
-   2. (모듈 생성 시 package name: com.modeunsa 로 통일)
+   1. (모듈 생성 시 package name: com.modeunsa 로 통일)
 2. build.gradle 수정
     1. build.gradle 파일 제외 기본적으로 생성되는 파일은 삭제해도됨. ex. gradle 디렉토리, .gitignore 등
     2. application-{env}.yml 파일 추가
@@ -19,7 +19,9 @@
 3. root/settings.gradle 에 도메인 추가 `include 'product'`
 4. {module}Application 어노테이션 추가
     1. `@EnableJpaAuditing(auditorAwareRef = "userAuditorAware")`
-5. securityconfig 추가 (임시)
+5. 인증 관련 설정 (둘 중 선택)
+   1. 기본 SecurityConfig 파일 추가 (인증 필요 없는 경우)
+   2. 각 모듈 build.gradle 의존성에 `implementation project(":member")` 추가
 6. com/modeunsa/boundedcontext/{module} path 맞춰서 패키지 이동
 7. common 모듈로 global, shared 관련 내용 이동
 8. api 모듈에 남아있는 기존 모듈 패키지 삭제

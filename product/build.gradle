@@ -31,7 +31,7 @@ repositories {
 dependencies {
 
     implementation project(":common")
-    implementation project(":member")
+    implementation project(":member") // todo: 나중에 auth 분리되면 제거
 
     // spring boot
     implementation 'org.springframework.boot:spring-boot-h2console'
