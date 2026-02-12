@@ -146,19 +146,6 @@ public class MemberController {
     return ApiResponse.onSuccess(SuccessStatus.MEMBER_ADDRESS_DELETE_SUCCESS);
   }
 
-  /** 판매자 등록 요청 */
-  @Operation(summary = "판매자 등록 요청", description = "업로드된 사업자등록증 키(rawKey)를 포함하여 판매자 등록을 요청합니다.")
-  @PostMapping("/sellers/register")
-  public ResponseEntity<ApiResponse> registerSeller(
-      @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails user,
-      @RequestBody @Valid SellerRegisterRequest request) {
-
-    Long memberId = user.getMemberId();
-    SellerRegisterResponse response = memberFacade.registerSeller(memberId, request);
-
-    return ApiResponse.onSuccess(SuccessStatus.SELLER_REGISTER_SUCCESS, response);
-  }
-
   /** 프로필 이미지 */
   @Operation(summary = "프로필 이미지 적용", description = "S3 업로드 완료 후, 해당 이미지를 실제 프로필로 적용합니다.")
   @PatchMapping("/profile/image")
@@ -169,5 +156,18 @@ public class MemberController {
     Long memberId = user.getMemberId();
     memberFacade.updateProfileImage(memberId, request.imageUrl());
     return ApiResponse.onSuccess(SuccessStatus.MEMBER_PROFILE_UPDATE_SUCCESS);
+  }
+
+  /** 판매자 등록 요청 */
+  @Operation(summary = "판매자 등록 요청", description = "판매자 등록을 요청합니다.")
+  @PostMapping("/seller/register")
+  public ResponseEntity<ApiResponse> registerSeller(
+      @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails user,
+      @RequestBody @Valid SellerRegisterRequest request) {
+
+    Long memberId = user.getMemberId();
+    SellerRegisterResponse response = memberFacade.registerSeller(memberId, request);
+
+    return ApiResponse.onSuccess(SuccessStatus.SELLER_REGISTER_SUCCESS, response);
   }
 }
