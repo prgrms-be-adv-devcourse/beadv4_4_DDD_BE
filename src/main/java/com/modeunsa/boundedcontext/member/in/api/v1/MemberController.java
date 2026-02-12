@@ -1,16 +1,14 @@
 package com.modeunsa.boundedcontext.member.in.api.v1;
 
-import com.modeunsa.boundedcontext.file.domain.DomainType;
 import com.modeunsa.boundedcontext.member.app.facade.MemberFacade;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.global.status.SuccessStatus;
-import com.modeunsa.shared.file.dto.PublicUrlRequest;
-import com.modeunsa.shared.file.dto.PublicUrlResponse;
 import com.modeunsa.shared.member.dto.request.MemberBasicInfoUpdateRequest;
 import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressCreateRequest;
 import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressUpdateRequest;
 import com.modeunsa.shared.member.dto.request.MemberProfileCreateRequest;
+import com.modeunsa.shared.member.dto.request.MemberProfileUpdateImageRequest;
 import com.modeunsa.shared.member.dto.request.MemberProfileUpdateRequest;
 import com.modeunsa.shared.member.dto.request.SellerRegisterRequest;
 import com.modeunsa.shared.member.dto.response.MemberBasicInfoResponse;
@@ -166,13 +164,10 @@ public class MemberController {
   @PatchMapping("/profile/image")
   public ResponseEntity<ApiResponse> updateProfileImage(
       @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails user,
-      @RequestBody @Valid PublicUrlRequest request) {
+      @RequestBody @Valid MemberProfileUpdateImageRequest request) {
 
     Long memberId = user.getMemberId();
-    PublicUrlRequest secureRequest =
-        new PublicUrlRequest(request.rawKey(), DomainType.MEMBER, request.contentType());
-
-    PublicUrlResponse response = memberFacade.updateProfileImage(memberId, secureRequest);
-    return ApiResponse.onSuccess(SuccessStatus.MEMBER_PROFILE_UPDATE_SUCCESS, response);
+    memberFacade.updateProfileImage(memberId, request.imageUrl());
+    return ApiResponse.onSuccess(SuccessStatus.MEMBER_PROFILE_UPDATE_SUCCESS);
   }
 }
