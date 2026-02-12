@@ -5,13 +5,18 @@ const BASE_URL = __ENV.TARGET_URL || 'http://localhost:8080';
 
 // SCENARIO:
 // - 'staged'   (기본)   : 가변 부하(5→10→20→30 VU)
-// - 'constant'          : 고정 부하(VU 10, 30초)
+// - 'constant'          : 고정 부하(VU 고정, closed-loop)
 // - 'arrival'           : 고정 RPS(도착률 기반), constant-arrival-rate 사용
 //
 // TPS: 실행 후 요약에 나오는 http_reqs 의 rate 값 = 초당 요청 수 = TPS
 const SCENARIO = __ENV.SCENARIO || 'staged';
 const ARRIVAL_RATE = Number(__ENV.ARRIVAL_RATE || '50');      // 초당 요청 수(target RPS)
 const ARRIVAL_DURATION = __ENV.ARRIVAL_DURATION || '5m';      // 테스트 지속 시간
+
+// 고정 VU 시나리오(150 RPS 목표용)
+// 응답 ~200ms + sleep 1s 기준: VU ≈ 150 × (0.2 + 1) ≈ 180
+const CONSTANT_VUS = Number(__ENV.CONSTANT_VUS || '180');
+const CONSTANT_DURATION = __ENV.CONSTANT_DURATION || '5m';
 
 // 검색에 사용할 키워드 풀 (가상 사용자별로 다양한 검색 시뮬레이션)
 const KEYWORDS = [
@@ -43,10 +48,10 @@ const STAGED_OPTIONS = {
   },
 };
 
-// 고정 부하 (기존 방식)
+// 고정 부하 (closed-loop, VU 고정)
 const CONSTANT_OPTIONS = {
-  vus: 10,
-  duration: '30s',
+  vus: CONSTANT_VUS,
+  duration: CONSTANT_DURATION,
   thresholds: {
     http_reqs: ['rate>1'],
     http_req_duration: ['p(95)<5000'],
@@ -76,12 +81,33 @@ const ARRIVAL_OPTIONS = {
   },
 };
 
+// STEP 시나리오: 목표 RPS 기준으로 VU를 단계적으로 올리는 부하 (대략 RPS 기반)
+// 가정: 평균 응답시간 ~200ms + sleep 1s => 1.2초당 1회, VU ≈ RPS × 1.2
+const STEP_TARGET_RPS = Number(__ENV.TARGET_RPS || '200');
+const STEP_FINAL_VUS = Math.max(Math.ceil(STEP_TARGET_RPS * 1.2), 1);
+const STEP_OPTIONS = {
+  stages: [
+    { duration: '1m', target: Math.ceil(STEP_FINAL_VUS * 0.25) }, // ~25% RPS
+    { duration: '1m', target: Math.ceil(STEP_FINAL_VUS * 0.5) },  // ~50% RPS
+    { duration: '1m', target: Math.ceil(STEP_FINAL_VUS * 0.75) }, // ~75% RPS
+    { duration: '2m', target: STEP_FINAL_VUS },                    // ~100% RPS
+    { duration: '30s', target: 0 },                                // 램프 다운
+  ],
+  thresholds: {
+    http_reqs: ['rate>1'],
+    http_req_duration: ['p(95)<5000'],
+    checks: ['rate>0.90'],
+  },
+};
+
 export const options =
-  SCENARIO === 'constant'
-    ? CONSTANT_OPTIONS
-    : SCENARIO === 'arrival'
-    ? ARRIVAL_OPTIONS
-    : STAGED_OPTIONS;
+    SCENARIO === 'constant'
+        ? CONSTANT_OPTIONS
+        : SCENARIO === 'arrival'
+            ? ARRIVAL_OPTIONS
+            : SCENARIO === 'step'
+                ? STEP_OPTIONS
+                : STAGED_OPTIONS;
 
 export default function () {
   const keyword = KEYWORDS[Math.floor(Math.random() * KEYWORDS.length)];
