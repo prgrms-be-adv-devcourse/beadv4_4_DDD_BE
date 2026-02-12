@@ -17,8 +17,10 @@ public class SellerInfoGetUseCase {
   private final MemberSellerRepository memberSellerRepository;
 
   public SellerInfoResponse execute(Long memberId) {
-    MemberSeller seller = memberSellerRepository.findByMemberId(memberId)
-        .orElseThrow(() -> new GeneralException(ErrorStatus.SELLER_NOT_FOUND));
+    MemberSeller seller =
+        memberSellerRepository
+            .findByMemberId(memberId)
+            .orElseThrow(() -> new GeneralException(ErrorStatus.SELLER_NOT_FOUND));
 
     return SellerInfoResponse.from(seller);
   }

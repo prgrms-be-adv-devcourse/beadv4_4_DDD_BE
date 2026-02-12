@@ -10,8 +10,7 @@ public record SellerInfoResponse(
     String settlementBankName,
     String settlementBankAccount,
     String businessLicenseUrl,
-    SellerStatus status
-) {
+    SellerStatus status) {
   public static SellerInfoResponse from(MemberSeller seller) {
     return new SellerInfoResponse(
         seller.getId(),
@@ -20,7 +19,6 @@ public record SellerInfoResponse(
         seller.getSettlementBankName(),
         seller.getSettlementBankAccount(),
         seller.getBusinessLicenseUrl(),
-        seller.getStatus()
-    );
+        seller.getStatus());
   }
 }
