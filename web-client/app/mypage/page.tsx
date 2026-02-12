@@ -392,22 +392,41 @@ export default function MyPage() {
                     판매자 전환 후 상품을 등록하고 관리할 수 있어요.
                   </p>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                    {isSeller ? ( <Link
-                        // 판매자일 때: 정보 조회 버튼
-                        href="/mypage/seller-info"
-                        style={{
-                          padding: '8px 14px',
-                          borderRadius: '8px',
-                          border: '1px solid #e0e0ff',
-                          background: '#f8f8ff',
-                          color: '#667eea',
-                          fontSize: '13px',
-                          fontWeight: 500,
-                          textDecoration: 'none',
-                        }}
-                    >
-                      판매자 정보
-                    </Link> ) : (
+                    {isSeller ? (
+                        <>
+                          <Link
+                          // 판매자일 때: 정보 조회 버튼
+                          href="/mypage/seller-info"
+                          style={{
+                            padding: '8px 14px',
+                            borderRadius: '8px',
+                            border: '1px solid #e0e0ff',
+                            background: '#f8f8ff',
+                            color: '#667eea',
+                            fontSize: '13px',
+                            fontWeight: 500,
+                            textDecoration: 'none',
+                          }}
+                          >
+                            판매자 정보
+                          </Link>
+                          <Link
+                              href="/mypage/products"
+                              style={{
+                                padding: '8px 14px',
+                                borderRadius: '8px',
+                                border: '1px solid #e0e0ff',
+                                background: '#f8f8ff',
+                                color: '#667eea',
+                                fontSize: '13px',
+                                fontWeight: 500,
+                                textDecoration: 'none',
+                              }}
+                          >
+                            상품 관리
+                          </Link>
+                        </>
+                    ) : (
                     // 일반 회원일 때: 전환 신청 버튼
                     <Link
                         href="/mypage/seller-request"
