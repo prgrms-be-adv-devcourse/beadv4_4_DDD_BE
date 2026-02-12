@@ -34,7 +34,6 @@ export default function SellerInfoPage() {
         }
       } catch (err: any) {
         console.error(err)
-        // 권한 없음(403) 처리
         if (err.response && err.response.status === 403) {
           alert('판매자만 접근할 수 있는 페이지입니다.')
           router.replace('/mypage')
@@ -58,8 +57,7 @@ export default function SellerInfoPage() {
             <h1 style={{ fontSize: '32px', fontWeight: '700', marginBottom: '32px' }}>마이페이지</h1>
 
             <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
-              {/* 사이드바 */}
-              <MypageNav role="SELLER" />
+              <MypageNav />
 
               {/* Right Content */}
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -117,6 +115,7 @@ export default function SellerInfoPage() {
                               <Link
                                   href={info.businessLicenseUrl}
                                   target="_blank"
+                                  rel="noopener noreferrer"
                                   style={{
                                     color: '#667eea',
                                     textDecoration: 'underline',
