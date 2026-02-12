@@ -39,7 +39,13 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
       errorStatus = ErrorStatus.AUTH_INVALID_TOKEN;
     }
 
-    log.warn("인증 실패 - URI: {}, Code: {}", request.getRequestURI(), errorStatus.getCode());
+    // 인증 체크 엔드포인트는 로그 레벨을 낮춤
+    String requestUri = request.getRequestURI();
+    if (requestUri.equals("/api/v1/auths/me")) {
+      log.debug("인증 체크 - URI: {}, Code: {}", requestUri, errorStatus.getCode());
+    } else {
+      log.warn("인증 실패 - URI: {}, Code: {}", requestUri, errorStatus.getCode());
+    }
 
     response.setStatus(errorStatus.getHttpStatus().value());
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);

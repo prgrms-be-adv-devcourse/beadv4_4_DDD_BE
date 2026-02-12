@@ -45,7 +45,8 @@ public class DevAuthController {
             .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
     Long sellerId = memberSupport.getSellerIdByMemberId(memberId);
-    JwtTokenResponse tokenResponse = authFacade.login(member.getId(), member.getRole(), sellerId);
+    JwtTokenResponse tokenResponse =
+        authFacade.login(member.getId(), member.getRole(), sellerId, member.getStatus().name());
 
     addCookie(
         response, "accessToken", tokenResponse.accessToken(), tokenResponse.accessTokenExpiresIn());

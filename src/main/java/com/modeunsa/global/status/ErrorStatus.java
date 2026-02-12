@@ -40,6 +40,9 @@ public enum ErrorStatus {
   AUTH_TOKEN_REFRESH_FAILED(HttpStatus.UNAUTHORIZED, "AUTH_401_008", "토큰 재발급에 실패했습니다."),
   // Auth 403
   AUTH_ACCESS_DENIED(HttpStatus.FORBIDDEN, "AUTH_403_001", "접근 권한이 없습니다."),
+  // Auth 409
+  AUTH_CONFLICT_LOGIN_PROGRESS(
+      HttpStatus.CONFLICT, "AUTH_409", "이미 가입 처리가 진행 중입니다. 잠시 후 다시 로그인해 주세요."),
   // Auth 429
   AUTH_TOO_MANY_REQUESTS(
       HttpStatus.TOO_MANY_REQUESTS,
@@ -63,6 +66,8 @@ public enum ErrorStatus {
   MEMBER_SUSPENDED(HttpStatus.FORBIDDEN, "MEMBER_403_001", "정지된 회원입니다."),
   MEMBER_WITHDRAWN(HttpStatus.FORBIDDEN, "MEMBER_403_002", "탈퇴한 회원입니다."),
   ADDRESS_ACCESS_DENIED(HttpStatus.FORBIDDEN, "MEMBER_403_003", "배송지에 대한 접근 권한이 없습니다."),
+  MEMBER_NOT_ACTIVATED(HttpStatus.FORBIDDEN, "MEMBER_403_004", "ACTIVE 상태가 아닌 회원입니다."),
+  MEMBER_NOT_PREACTIVE(HttpStatus.FORBIDDEN, "MEMBER_403_005", "PRE_ACTIVE 상태가 아닌 회원입니다."),
   // Member 404
   MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER_404_001", "회원을 찾을 수 없습니다."),
   SELLER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER_404_002", "판매자 정보가 없습니다."),
@@ -78,8 +83,9 @@ public enum ErrorStatus {
   SOCIAL_ACCOUNT_ALREADY_LINKED(HttpStatus.CONFLICT, "MEMBER_409_005", "이미 연동된 소셜 계정입니다."),
   SOCIAL_ACCOUNT_ALREADY_IN_USE(HttpStatus.CONFLICT, "MEMBER_409_006", "다른 회원이 사용 중인 소셜 계정입니다."),
   MEMBER_PROFILE_ALREADY_EXISTS(HttpStatus.CONFLICT, "MEMBER_409_007", "이미 프로필이 존재합니다."),
-  ADDRESS_ALREADY_DEFAULT(HttpStatus.CONFLICT, "ADDRESS_409_008", "이미 기본 배송지로 설정되어 있습니다."),
+  ADDRESS_ALREADY_DEFAULT(HttpStatus.CONFLICT, "MEMBER_409_008", "이미 기본 배송지로 설정되어 있습니다."),
   MEMBER_ALREADY_HAS_DEFAULT_ADDRESS(HttpStatus.CONFLICT, "MEMBER_409_009", "이미 기본 배송지가 존재합니다."),
+  MEMBER_ALREADY_ACTIVE(HttpStatus.CONFLICT, "MEMBER_409_010", "이미 이 회원은 ACTIVE 상태입니다."),
 
   // Order
   ORDER_STOCK_NOT_ENOUGH(HttpStatus.BAD_REQUEST, "ORDER_400_001", "상품의 재고가 부족합니다."),

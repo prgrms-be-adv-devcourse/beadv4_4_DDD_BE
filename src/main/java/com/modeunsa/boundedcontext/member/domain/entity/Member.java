@@ -40,13 +40,11 @@ public class Member extends GeneratedIdAndAuditedEntity {
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  @Builder.Default
-  private MemberRole role = MemberRole.MEMBER;
+  private MemberRole role;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  @Builder.Default
-  private MemberStatus status = MemberStatus.ACTIVE;
+  private MemberStatus status;
 
   @Convert(converter = EncryptedStringConverter.class)
   private String email;
@@ -118,6 +116,12 @@ public class Member extends GeneratedIdAndAuditedEntity {
     newDefault.setAsDefault();
   }
 
+  public void updateBasicInfo(String realName, String email, String phoneNumber) {
+    this.realName = realName;
+    this.email = email;
+    this.phoneNumber = phoneNumber;
+  }
+
   public Member updateRealName(String realName) {
     if (realName != null) {
       this.realName = realName;
@@ -144,6 +148,13 @@ public class Member extends GeneratedIdAndAuditedEntity {
 
   public void changeStatus(MemberStatus status) {
     this.status = status;
+  }
+
+  public void activate() {
+    if (this.status != MemberStatus.PRE_ACTIVE) {
+      throw new GeneralException(ErrorStatus.MEMBER_NOT_PREACTIVE);
+    }
+    this.status = MemberStatus.ACTIVE;
   }
 
   public void addOAuthAccount(OAuthAccount oauth) {

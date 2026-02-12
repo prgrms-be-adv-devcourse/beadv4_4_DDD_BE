@@ -4,11 +4,11 @@ import com.modeunsa.boundedcontext.product.domain.search.document.ProductSearch;
 import com.modeunsa.shared.product.dto.search.ProductSearchRequest;
 import com.modeunsa.shared.product.dto.search.ProductSearchResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Profile;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Profile("!test")
+@ConditionalOnProperty(name = "app.elasticsearch.enabled", havingValue = "true")
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)

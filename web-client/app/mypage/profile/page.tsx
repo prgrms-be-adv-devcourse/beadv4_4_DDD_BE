@@ -1,3 +1,5 @@
+// app/mypage/profile
+
 'use client'
 
 import { useEffect, useState } from 'react'

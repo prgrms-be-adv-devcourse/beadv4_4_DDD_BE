@@ -21,16 +21,19 @@ export default function Header() {
     try {
       // HttpOnly 쿠키가 자동으로 전송됩니다.
       const response = await api.get('/api/v1/auths/me');
-      if (response.data.isSuccess) {
+      if (response.data.isSuccess && response.data.result.isAuthenticated) {
         setIsLoggedIn(true);
-        // 로그인 상태이면 기본정보와 프로필도 조회
-        fetchBasicInfo();
-        fetchProfile();
+        // 로그인 상태이면 기본정보와 프로필도 병렬로 조회
+        await Promise.all([
+          fetchBasicInfo(),
+          fetchProfile()
+        ]);
       } else {
         setIsLoggedIn(false);
       }
     } catch (error) {
-      // 401 에러 등이 발생하면 비로그인 상태로 간주
+      // 네트워크 에러 등 실제 문제만 여기로
+      console.error('인증 체크 실패:', error);
       setIsLoggedIn(false);
     }
   }
