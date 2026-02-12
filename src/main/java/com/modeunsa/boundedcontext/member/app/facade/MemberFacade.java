@@ -1,6 +1,5 @@
 package com.modeunsa.boundedcontext.member.app.facade;
 
-import com.modeunsa.boundedcontext.file.app.S3UploadService;
 import com.modeunsa.boundedcontext.member.app.support.MemberSupport;
 import com.modeunsa.boundedcontext.member.app.usecase.AdminApproveSellerUseCase;
 import com.modeunsa.boundedcontext.member.app.usecase.MemberBasicInfoUpdateUseCase;
@@ -15,13 +14,8 @@ import com.modeunsa.boundedcontext.member.app.usecase.MemberSignupCompleteUseCas
 import com.modeunsa.boundedcontext.member.app.usecase.SellerRegisterUseCase;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.entity.MemberProfile;
-import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.security.jwt.JwtTokenProvider;
-import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.auth.dto.JwtTokenResponse;
-import com.modeunsa.shared.file.dto.PresignedUrlResponse;
-import com.modeunsa.shared.file.dto.PublicUrlRequest;
-import com.modeunsa.shared.file.dto.PublicUrlResponse;
 import com.modeunsa.shared.member.dto.request.MemberBasicInfoUpdateRequest;
 import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressCreateRequest;
 import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressUpdateRequest;
@@ -38,7 +32,6 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -53,7 +46,6 @@ public class MemberFacade {
   private final MemberDeliveryAddressSetAsDefaultUseCase memberDeliveryAddressSetAsDefaultUseCase;
   private final MemberDeliveryAddressDeleteUseCase memberDeliveryAddressDeleteUseCase;
   private final MemberSupport memberSupport;
-  private final S3UploadService s3UploadService;
   private final MemberProfileUpdateImageUseCase memberProfileUpdateImageUseCase;
   private final JwtTokenProvider jwtTokenProvider;
   private final MemberSignupCompleteUseCase memberSignupCompleteUseCase;
@@ -132,24 +124,15 @@ public class MemberFacade {
 
   /** 회원 프로필 이미지 관련 */
   @Transactional
-  public PublicUrlResponse updateProfileImage(Long memberId, PublicUrlRequest request) {
-    PublicUrlResponse s3Response = s3UploadService.getPublicUrl(request);
-    memberProfileUpdateImageUseCase.execute(memberId, s3Response.imageUrl());
+  public void updateProfileImage(Long memberId, String imageUrl) {
+    memberProfileUpdateImageUseCase.execute(memberId, imageUrl);
     // TODO: 새 이미지와 다르고, 기존 이미지가 존재할 경우 삭제하여 비용 절감
-    return s3Response;
   }
 
   /** 판매자 등록 관련 */
   @Transactional
   public SellerRegisterResponse registerSeller(Long memberId, SellerRegisterRequest request) {
-    if (!StringUtils.hasText(request.licenseImageRawKey())
-        || !StringUtils.hasText(request.licenseContentType())) {
-      throw new GeneralException(ErrorStatus.IMAGE_FILE_REQUIRED);
-    }
-
-    PresignedUrlResponse s3Response = s3UploadService.getPresignedUrl(request.licenseImageRawKey());
-
-    sellerRegisterUseCase.execute(memberId, request, s3Response.presignedUrl());
+    sellerRegisterUseCase.execute(memberId, request, request.businessLicenseUrl());
 
     Member member = memberSupport.getMember(memberId);
     Long sellerId = memberSupport.getSellerIdByMemberId(memberId);

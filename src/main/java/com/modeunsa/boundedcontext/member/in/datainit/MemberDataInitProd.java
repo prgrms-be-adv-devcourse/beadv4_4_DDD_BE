@@ -81,6 +81,13 @@ public class MemberDataInitProd {
             .realName("SYSTEM")
             .phoneNumber("010-0000-0001")
             .build();
+    MemberProfile systemProfile =
+        MemberProfile.builder()
+            .nickname("시스템")
+            .profileImageUrl(
+                "https://team01-storage.s3.ap-northeast-2.amazonaws.com/dev/member/e7534e74-61ff-4a1f-b10d-1fb5ff6a3dc0.jpg")
+            .build();
+    systemUser.setProfile(systemProfile);
     memberRepository.save(systemUser);
     publishSignupEvent(systemUser);
 
@@ -93,6 +100,13 @@ public class MemberDataInitProd {
             .realName("HOLDER")
             .phoneNumber("010-0000-0002")
             .build();
+    MemberProfile holderProfile =
+        MemberProfile.builder()
+            .nickname("홀더")
+            .profileImageUrl(
+                "https://team01-storage.s3.ap-northeast-2.amazonaws.com/dev/member/e7534e74-61ff-4a1f-b10d-1fb5ff6a3dc0.jpg")
+            .build();
+    holderUser.setProfile(holderProfile);
     memberRepository.save(holderUser);
     publishSignupEvent(holderUser);
 
@@ -105,11 +119,13 @@ public class MemberDataInitProd {
             .realName("관리자")
             .phoneNumber("010-0000-0003")
             .build();
-
-    // Admin 프로필 추가
-    MemberProfile profile = MemberProfile.builder().nickname("MainAdmin").build();
-    adminUser.setProfile(profile);
-
+    MemberProfile adminProfile =
+        MemberProfile.builder()
+            .nickname("관리자")
+            .profileImageUrl(
+                "https://team01-storage.s3.ap-northeast-2.amazonaws.com/dev/member/e7534e74-61ff-4a1f-b10d-1fb5ff6a3dc0.jpg")
+            .build();
+    adminUser.setProfile(adminProfile);
     memberRepository.save(adminUser);
     publishSignupEvent(adminUser);
 
