@@ -126,7 +126,33 @@ export default function ProfilePage() {
 
     try {
       setUploading(true);
-      const ext = file.name.split('.').pop();
+
+      let ext = '';
+      const nameParts = file.name.split('.');
+
+      // 1. 파일명에 점(.)이 존재하고 분리된 배열 길이가 2 이상인 경우 확장자 추출
+      if (nameParts.length > 1) {
+        ext = nameParts.pop() || '';
+      }
+
+      // 2. 확장자가 없거나 빈 문자열인 경우 MIME Type 기반 매핑
+      if (!ext) {
+        const mimeToExt: { [key: string]: string } = {
+          'image/jpeg': 'jpg',
+          'image/jpg': 'jpg',
+          'image/png': 'png',
+          'image/gif': 'gif',
+          'image/webp': 'webp',
+          'image/svg+xml': 'svg',
+          'image/bmp': 'bmp'
+        };
+        // 매핑된 타입이 없으면 기본값 'jpg' 사용
+        ext = mimeToExt[file.type] || 'jpg';
+      }
+
+      // 3. 소문자 정규화
+      ext = ext.toLowerCase();
+
       console.log('1. 파일 선택됨:', file.name, file.type);
 
       // 1. URL 발급
