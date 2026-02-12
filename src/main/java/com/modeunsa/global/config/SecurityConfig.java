@@ -102,7 +102,7 @@ public class SecurityConfig {
                   // 판매자 전용
                   // ========================================
                   // 판매자 정보
-                  .requestMatchers(HttpMethod.GET, "api/v2/members/seller")
+                  .requestMatchers(HttpMethod.GET, "/api/v2/members/seller")
                   .hasRole("SELLER")
 
                   // 상품 CUD
