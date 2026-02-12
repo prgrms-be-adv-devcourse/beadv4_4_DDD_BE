@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.file.domain;
+package com.modeunsa.shared.file;
 
 public enum DomainType {
   PRODUCT,

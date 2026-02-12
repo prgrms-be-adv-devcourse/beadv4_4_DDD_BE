@@ -1,11 +1,11 @@
 package com.modeunsa.boundedcontext.file.app;
 
-import com.modeunsa.boundedcontext.file.domain.DomainType;
 import com.modeunsa.boundedcontext.file.domain.UploadPolicy;
 import com.modeunsa.boundedcontext.file.out.s3.S3Properties;
 import com.modeunsa.boundedcontext.file.out.s3.S3UploadExecutor;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
+import com.modeunsa.shared.file.DomainType;
 import com.modeunsa.shared.file.dto.PresignedUrlRequest;
 import com.modeunsa.shared.file.dto.PresignedUrlResponse;
 import com.modeunsa.shared.file.dto.PublicUrlRequest;

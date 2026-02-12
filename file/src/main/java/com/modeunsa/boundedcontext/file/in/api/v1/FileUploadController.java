@@ -1,9 +1,9 @@
 package com.modeunsa.boundedcontext.file.in.api.v1;
 
 import com.modeunsa.boundedcontext.file.app.S3UploadService;
-import com.modeunsa.boundedcontext.file.domain.DomainType;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.status.SuccessStatus;
+import com.modeunsa.shared.file.DomainType;
 import com.modeunsa.shared.file.dto.PresignedUrlRequest;
 import com.modeunsa.shared.file.dto.PresignedUrlResponse;
 import com.modeunsa.shared.file.dto.PublicUrlRequest;
