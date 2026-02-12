@@ -7,6 +7,7 @@ import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.global.status.SuccessStatus;
 import com.modeunsa.shared.auth.dto.JwtTokenResponse;
 import com.modeunsa.shared.member.dto.request.MemberSignupCompleteRequest;
+import com.modeunsa.shared.member.dto.response.SellerInfoResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,6 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -68,5 +70,16 @@ public class MemberController {
         .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
         .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
         .body(ApiResponse.onSuccess(SuccessStatus.OK, jwtTokenResponse).getBody());
+  }
+
+  @Operation(summary = "판매자 정보 조회", description = "판매자 등록 정보를 조회합니다.")
+  @GetMapping("/seller")
+  public ResponseEntity<ApiResponse> getSellerInfo(
+      @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails user) {
+
+    Long memberId = user.getMemberId();
+    SellerInfoResponse response = memberFacade.getSellerInfo(memberId);
+
+    return ApiResponse.onSuccess(SuccessStatus.SELLER_INFO_GET_SUCCESS, response);
   }
 }
