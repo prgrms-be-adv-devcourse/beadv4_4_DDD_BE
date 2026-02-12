@@ -1,6 +1,8 @@
 # prod 환경 - EC2 + k3s (ClusterIP + Ingress)
 api:
   enabled: true
+  image:
+    pullPolicy: IfNotPresent
   service:
     type: ClusterIP
   env:
@@ -12,6 +14,8 @@ api:
 
 frontend:
   enabled: true
+  image:
+    pullPolicy: IfNotPresent
   service:
     type: ClusterIP
 
