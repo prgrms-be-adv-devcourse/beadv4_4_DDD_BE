@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.global.config;
+package com.modeunsa.global.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
