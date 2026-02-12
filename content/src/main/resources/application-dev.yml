@@ -69,7 +69,7 @@ management:
 
 custom:
   swagger:
-    serverUrl: "http://localhost:8085"
+    serverUrl: "http://localhost:8089"
     description: "Content Local Server"
   security:
     permit-all: false
@@ -110,8 +110,8 @@ custom:
     allowed-origins:
       - http://localhost:3000
       - http://127.0.0.1:3000
-      - http://localhost:8085
-      - http://127.0.0.1:8085
+      - http://localhost:8089
+      - http://127.0.0.1:8089
 
 jwt:
   secret: ${JWT_SECRET:local-test-jwt-secret-key-which-is-long-enough-32bytes}
