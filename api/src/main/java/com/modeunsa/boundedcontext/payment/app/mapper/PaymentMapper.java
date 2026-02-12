@@ -27,12 +27,12 @@ public interface PaymentMapper {
   PaymentMemberSyncRequest toPaymentMemberSyncRequest(MemberSignupEvent memberSignupEvent);
 
   @Named("mapMemberStatus")
-  default MemberStatus mapMemberStatus(
-      com.modeunsa.boundedcontext.member.domain.types.MemberStatus status) {
+  default MemberStatus mapMemberStatus(MemberStatus status) {
     if (status == null) {
       return MemberStatus.ACTIVE;
     }
     return switch (status) {
+      case INACTIVE -> null;
       case PRE_ACTIVE, SUSPENDED, WITHDRAWN_PENDING -> MemberStatus.INACTIVE;
       case ACTIVE -> MemberStatus.ACTIVE;
       case WITHDRAWN -> MemberStatus.WITHDRAWN;

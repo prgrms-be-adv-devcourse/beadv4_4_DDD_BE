@@ -5,7 +5,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberDto;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberResponse;
@@ -14,6 +13,7 @@ import com.modeunsa.boundedcontext.payment.in.BasePaymentControllerTest;
 import com.modeunsa.boundedcontext.payment.in.api.v1.PaymentMemberController;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
+import com.modeunsa.shared.member.MemberRole;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

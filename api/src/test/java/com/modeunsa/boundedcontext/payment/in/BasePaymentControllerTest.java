@@ -2,9 +2,9 @@ package com.modeunsa.boundedcontext.payment.in;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.modeunsa.boundedcontext.member.domain.types.MemberRole;
 import com.modeunsa.global.exception.ExceptionAdvice;
 import com.modeunsa.global.security.CustomUserDetails;
+import com.modeunsa.shared.member.MemberRole;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
