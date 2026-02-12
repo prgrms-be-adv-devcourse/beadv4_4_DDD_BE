@@ -8,6 +8,7 @@
 
 ### 빠른 실행
 1. 모듈 생성
+   2. (모듈 생성 시 package name: com.modeunsa 로 통일)
 2. build.gradle 수정
     1. build.gradle 파일 제외 기본적으로 생성되는 파일은 삭제해도됨. ex. gradle 디렉토리, .gitignore 등
     2. application-{env}.yml 파일 추가
