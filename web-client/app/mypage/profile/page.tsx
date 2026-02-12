@@ -116,60 +116,74 @@ export default function ProfilePage() {
   }
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    // 프로필 부재 시 업로드 차단 (이전 리뷰 반영)
     if (!hasProfile) {
       alert('프로필 정보를 먼저 저장(생성)한 후 이미지를 업로드할 수 있습니다.');
-      e.target.value = '';
       return;
     }
 
-    const file = e.target.files?.[0]
-    if (!file) return
+    const file = e.target.files?.[0];
+    if (!file) return;
 
     try {
-      setUploading(true)
-      const ext = file.type.split('/')[1]
+      setUploading(true);
+      const ext = file.name.split('.').pop();
+      console.log('1. 파일 선택됨:', file.name, file.type);
 
+      // 1. URL 발급
       const presignedResponse = await api.post('/api/v1/files/presigned-url', {
         domainType: 'MEMBER',
         contentType: file.type,
         ext: ext,
-      })
+      });
 
-      const result = presignedResponse.data.result
-      const presignedUrl = result.presignedUrl || result.url
-      const rawKey = result.key || result.rawKey || result.objectKey
+      // 응답 데이터 구조 확인
+      console.log('2. Presigned Response:', presignedResponse.data);
+      const { presignedUrl, key } = presignedResponse.data.result;
 
+      if (!presignedUrl) throw new Error('Presigned URL이 없습니다!');
+
+      // 2. S3 업로드
+      console.log('3. S3 업로드 시작:', presignedUrl);
       const s3Response = await fetch(presignedUrl, {
         method: 'PUT',
         headers: { 'Content-Type': file.type },
         body: file,
-      })
+      });
 
-      if (!s3Response.ok) throw new Error('S3 업로드 실패')
+      console.log('4. S3 응답 상태:', s3Response.status);
+      if (!s3Response.ok) {
+        const errorText = await s3Response.text(); // AWS 에러 메시지 확인
+        console.error('S3 에러 상세:', errorText);
+        throw new Error(`S3 업로드 실패: ${s3Response.status}`);
+      }
 
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
-      const updateResponse = await api.patch('/api/v1/members/me/profile/image', {
-        rawKey: rawKey,
+      // 3. Public URL 전환
+      const publicUrlResponse = await api.post('/api/v1/files/public-url', {
+        rawKey: key,
         domainType: 'MEMBER',
-        contentType: file.type,
-      })
+        contentType: file.type
+      });
 
-      const imageUrl = updateResponse.data.result?.imageUrl || updateResponse.data.result?.publicUrl
-      if (imageUrl) setProfileImageUrl(imageUrl)
+      const finalImageUrl = publicUrlResponse.data.result.imageUrl;
 
-      alert('프로필 이미지가 업로드되었습니다.')
-      await fetchData()
-    } catch (error: any) {
-      console.error('이미지 업로드 실패:', error)
-      alert('이미지 업로드에 실패했습니다.')
+      console.log('최종 이미지 URL:', finalImageUrl);
+
+      // 4. 최종 URL을 Member 도메인에 저장
+      await api.patch('/api/v1/members/me/profile/image', {
+        imageUrl: finalImageUrl
+      });
+
+      setProfileImageUrl(finalImageUrl);
+      alert('프로필 이미지가 업로드되었습니다.');
+      await fetchData();
+      window.dispatchEvent(new Event('loginStatusChanged'));
+    } catch (error) {
+      console.error('업로드 실패:', error);
+      alert('이미지 업로드에 실패했습니다.');
     } finally {
-      setUploading(false)
-      e.target.value = ''
+      setUploading(false);
     }
-    window.dispatchEvent(new Event('loginStatusChanged'));
-  }
+  };
 
   if (loading) {
     return (
