@@ -45,6 +45,7 @@ public class OrderFacade {
   private final OrderGetOrderUseCase orderGetOrderUseCase;
   private final OrderAddOrderDeliveryInfoUseCase orderAddOrderDeliveryInfoUseCase;
   private final OrderConfirmOrderCancellationUseCase orderConfirmOrderCancellationUseCase;
+  private final OrderApproveOrderUseCase orderApproveOrderUseCase;
 
   // 장바구니 아이템 생성
   @Transactional
@@ -127,8 +128,7 @@ public class OrderFacade {
 
   @Transactional
   public void approveOrder(PaymentDto payment) {
-    Order order = orderSupport.findByOrderId(payment.orderId());
-    order.approve();
+    orderApproveOrderUseCase.approveOrder(payment);
   }
 
   @Transactional

@@ -13,6 +13,7 @@ import com.modeunsa.shared.member.event.MemberSignupEvent;
 import com.modeunsa.shared.member.event.SellerRegisteredEvent;
 import com.modeunsa.shared.order.event.OrderCancelRequestEvent;
 import com.modeunsa.shared.order.event.OrderCancellationConfirmedEvent;
+import com.modeunsa.shared.order.event.OrderPaidEvent;
 import com.modeunsa.shared.order.event.OrderPurchaseConfirmedEvent;
 import com.modeunsa.shared.order.event.RefundRequestedEvent;
 import com.modeunsa.shared.payment.event.PaymentFinalFailureEvent;
@@ -56,7 +57,8 @@ public class KafkaResolver {
     }
 
     // order
-    if (event instanceof OrderPurchaseConfirmedEvent
+    if (event instanceof OrderPaidEvent
+        || event instanceof OrderPurchaseConfirmedEvent
         || event instanceof OrderCancelRequestEvent
         || event instanceof RefundRequestedEvent
         || event instanceof OrderCancellationConfirmedEvent) {
@@ -109,6 +111,9 @@ public class KafkaResolver {
       return "member-%d-seller-%d".formatted(e.memberId(), e.memberSellerId());
     }
 
+    if (event instanceof OrderPaidEvent e) {
+      return "order-%d".formatted(e.orderDto().getOrderId());
+    }
     if (event instanceof OrderCancelRequestEvent e) {
       return "order-%d".formatted(e.orderDto().getOrderId());
     }
