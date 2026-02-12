@@ -6,6 +6,25 @@
 * 실행 모듈만 SpringBoot Application을 가진다.
 * 의존성 방향은 단방향으로 유지한다.
 
+### 빠른 실행
+1. 모듈 생성
+2. build.gradle 수정
+    1. build.gradle 파일 제외 기본적으로 생성되는 파일은 삭제해도됨. ex. gradle 디렉토리, .gitignore 등
+    2. application-{env}.yml 파일 추가
+        1. application.yml → port 수정
+        2. application-dev.yml
+            1. `cors:allowed-origins` 추가
+            2. `custom:swagger:serverUrl` 수정
+3. root/settings.gradle 에 도메인 추가 `include 'product'`
+4. {module}Application 어노테이션 추가
+    1. `@EnableJpaAuditing(auditorAwareRef = "userAuditorAware")`
+5. securityconfig 추가 (임시)
+6. com/modeunsa/boundedcontext/{module} path 맞춰서 패키지 이동
+7. common 모듈로 global, shared 관련 내용 이동
+8. api 모듈에 남아있는 기존 모듈 패키지 삭제
+9. 모듈 관련 test 이동
+10. {module}Application 실행 후 swagger 정상 진입 & port 확인
+
 ## 1. 목적
 
 기존 모놀리식 구조에서 점진적으로 서비스 분리를 진행하기 위함
@@ -43,19 +62,19 @@ modeunsa (Monorepo)
 - 화면 단위 집계 로직
 - 내부 서비스 호출 (HTTP)
 
-### ❌ 금지 사항
+### 금지 사항
 - 도메인 로직 직접 처리
 - 타 모듈 DB 직접 접근
 
 ---
 
-### domain 모듈 (8081~8088)
+### domain 모듈 (8081~8089)
 
 - 개별 도메인 책임
 - 내부 API 제공 (`/internal/**`)
 - 독립 실행 가능
 
-### ❌ 금지 사항
+### 금지 사항
 - 도메인 로직 직접 처리
 - 타 모듈 DB 직접 접근
 
@@ -68,7 +87,7 @@ modeunsa (Monorepo)
 - 공통 인터페이스
 - 유틸 클래스
 
-### ❌ 금지 사항
+### 금지 사항
 - SpringBootApplication
 - SecurityConfig
 - RestClient 구현체
@@ -126,7 +145,13 @@ custom:
 ### 현재 단계
 * 각 서비스 독립 Swagger 유지
 * 필요 시 api에서 aggregation
-
+```yaml
+# application-dev.yml
+custom:
+  swagger:
+    serverUrl: http://localhost:{port}
+    description: "{module_name} Local Server"
+```
 
 ## 8. Security 원칙
 ### 기본 모듈
@@ -147,7 +172,9 @@ custom:
 * gradlew
 * gradle/wrapper
 * settings.gradle
-각 모듈에는 build.gradle만 존재한다.
+
+
+각 모듈에는 **build.gradle**만 존재한다.
 
 ## 11. Git 관리 전략
 * Monorepo 유지
