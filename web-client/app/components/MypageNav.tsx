@@ -46,10 +46,15 @@ const cardStyle = {
   boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
 }
 
-export default function MypageNav() {
+interface MypageNavProps {
+  role?: string;
+}
+
+export default function MypageNav({ role: externalRole }: MypageNavProps) {
   const [realName, setRealName] = useState('')
   const [email, setEmail] = useState('')
   const [profileImageUrl, setProfileImageUrl] = useState('')
+  const [internalRole, setInternalRole] = useState('')
   const [loading, setLoading] = useState(true)
 
   const fetchInfo = async () => {
@@ -60,11 +65,14 @@ export default function MypageNav() {
           api.get('/api/v1/members/me/profile')
       ])
 
-      if (basicRes.status === 'fulfilled') {
-        setRealName(basicRes.value.data.result.realName || '')
-        setEmail(basicRes.value.data.result.email || '')
+      if (basicRes.status === 'fulfilled' && basicRes.value.data.isSuccess) {
+        const result = basicRes.value.data.result;
+        setRealName(result.realName || '')
+        setEmail(result.email || '')
+        setInternalRole(result.role || 'MEMBER')
       }
-      if (profileRes.status === 'fulfilled') {
+
+      if (profileRes.status === 'fulfilled' && profileRes.value.data.isSuccess) {
         setProfileImageUrl(profileRes.value.data.result.profileImageUrl || '')
       }
     } finally {
@@ -77,26 +85,12 @@ export default function MypageNav() {
     fetchInfo()
     window.addEventListener('loginStatusChanged', fetchInfo)
     return () => {
-      // 언마운트 시 이벤트 제거
       window.removeEventListener('loginStatusChanged', fetchInfo)
     }
   }, [])
 
-  const getUserRoleFromToken = () => {
-    if (typeof window === 'undefined') return null
-
-    const token = localStorage.getItem('accessToken')
-    if (!token) return null
-
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]))
-      return payload.role ?? null
-    } catch {
-      return null
-    }
-  }
-
-  const isSeller = getUserRoleFromToken() === 'SELLER'
+  const finalRole = externalRole || internalRole;
+  const isSeller = finalRole === 'SELLER'
 
   // 아바타 글자 (realName의 첫 글자)
   const avatarLetter = realName ? realName.charAt(0).toUpperCase() : 'U'
@@ -168,7 +162,7 @@ export default function MypageNav() {
             <aside style={cardStyle}>
               <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '14px' }}>
                 <div style={{ fontSize: '12px', color: '#999', margin: '8px 0 4px' }}>판매</div>
-                <NavLink href="/mypage/seller-request">판매자정보</NavLink>
+                <NavLink href="/mypage/seller-info">판매자 정보</NavLink>
                 <NavLink href="/mypage/products">상품 관리</NavLink>
                 <NavLink href="/mypage/stock">재고 관리</NavLink>
                 <NavLink href="/mypage/settlement">정산 내역</NavLink>

@@ -17,10 +17,14 @@ interface MemberBasicInfo {
   realName: string
   email: string
   phoneNumber: string
+  role: string
 }
 
 export default function MyPage() {
-  // 기본 정보 상태
+    // 회원 role
+  const [role, setRole] = useState('')
+
+  // 기본 정보
   const [realName, setRealName] = useState('')
   const [email, setEmail] = useState('')
   const [basicInfoLoading, setBasicInfoLoading] = useState(true)
@@ -43,13 +47,18 @@ export default function MyPage() {
           api.get('/api/v1/members/me/profile')
         ])
 
-        if (basicRes.status === 'fulfilled') {
-          setRealName(basicRes.value.data.result.realName || '')
-          setEmail(basicRes.value.data.result.email || '')
+        if (basicRes.status === 'fulfilled' && basicRes.value.data.isSuccess) {
+          const result = basicRes.value.data.result;
+          setRealName(result.realName || '')
+          setEmail(result.email || '')
+          setRole(result.role || 'MEMBER')
         }
-        if (profileRes.status === 'fulfilled') {
+
+        if (profileRes.status === 'fulfilled' && profileRes.value.data.isSuccess) {
           setProfileImageUrl(profileRes.value.data.result.profileImageUrl || '')
         }
+      } catch (e) {
+        console.error(e)
       } finally {
         setBasicInfoLoading(false)
       }
@@ -92,6 +101,9 @@ export default function MyPage() {
   // 이름의 첫 글자 (아바타용)
   const avatarLetter = realName ? realName.charAt(0).toUpperCase() : 'U'
 
+  // Role 판단
+  const isSeller = role === 'SELLER'
+
   return (
       <div className="home-page">
         <Header />
@@ -101,7 +113,7 @@ export default function MyPage() {
             <h1 style={{ fontSize: '32px', fontWeight: '700', marginBottom: '32px' }}>마이페이지</h1>
 
             <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
-              <MypageNav />
+              <MypageNav role={role} />
 
               {/* Right Content */}
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -380,6 +392,23 @@ export default function MyPage() {
                     판매자 전환 후 상품을 등록하고 관리할 수 있어요.
                   </p>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {isSeller ? ( <Link
+                        // 판매자일 때: 정보 조회 버튼
+                        href="/mypage/seller-info"
+                        style={{
+                          padding: '8px 14px',
+                          borderRadius: '8px',
+                          border: '1px solid #e0e0ff',
+                          background: '#f8f8ff',
+                          color: '#667eea',
+                          fontSize: '13px',
+                          fontWeight: 500,
+                          textDecoration: 'none',
+                        }}
+                    >
+                      판매자 정보
+                    </Link> ) : (
+                    // 일반 회원일 때: 전환 신청 버튼
                     <Link
                         href="/mypage/seller-request"
                         style={{
@@ -393,23 +422,8 @@ export default function MyPage() {
                           textDecoration: 'none',
                         }}
                     >
-                      판매자정보
-                    </Link>
-                    <Link
-                        href="/mypage/products"
-                        style={{
-                          padding: '8px 14px',
-                          borderRadius: '8px',
-                          border: '1px solid #e0e0ff',
-                          background: '#f8f8ff',
-                          color: '#667eea',
-                          fontSize: '13px',
-                          fontWeight: 500,
-                          textDecoration: 'none',
-                        }}
-                    >
-                      상품 관리
-                    </Link>
+                      판매자 전환
+                    </Link>)}
                   </div>
                 </div>
               </div>
