@@ -7,6 +7,10 @@ api:
     type: ClusterIP
   env:
     springProfile: "prod"
+  resources:
+    limits:
+      cpu: 1
+      memory: 1536Mi
 
 frontend:
   enabled: true
