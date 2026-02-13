@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Payment Account", description = "결제 계좌 도메인 API")
+@Tag(name = "Payment", description = "결제 도메인 API")
 @RestController("PaymentAccountControllerV1")
 @RequestMapping("/api/v1/payments/accounts")
 @RequiredArgsConstructor
