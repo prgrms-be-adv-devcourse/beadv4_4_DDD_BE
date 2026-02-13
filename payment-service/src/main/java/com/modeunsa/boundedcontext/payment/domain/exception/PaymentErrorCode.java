@@ -17,9 +17,8 @@ public enum PaymentErrorCode {
   INVALID_PAYMENT_STATUS("PAYMENT_4005", "Payment status is invalid for this operation."),
   OVERDUE_PAYMENT_DEADLINE("PAYMENT_4006", "Payment deadline has been exceeded."),
   INVALID_PAYMENT_PURPOSE("PAYMENT_4007", "Invalid payment purpose."),
-  PG_PAYMENT_ABORTED("PAYMENT_4008", "Payment was aborted by the payment gateway."),
-  PG_PAYMENT_EXPIRED("PAYMENT_4008", "Payment expired at the payment gateway."),
-  ;
+  PG_PAYMENT_ABORTED("PAYMENT_4008", "Payment was aborted by pg"),
+  PG_PAYMENT_EXPIRED("PAYMENT_4008", "Payment expired by pg");
 
   private final String code;
   private final String message;
