@@ -54,6 +54,7 @@ export default function MypageNav({ role: externalRole }: MypageNavProps) {
   const [realName, setRealName] = useState('')
   const [email, setEmail] = useState('')
   const [profileImageUrl, setProfileImageUrl] = useState('')
+  // 초기값을 빈 문자열로 두어 로딩 중임을 암시하거나, 안전하게 처리
   const [internalRole, setInternalRole] = useState('')
   const [loading, setLoading] = useState(true)
 
@@ -69,6 +70,7 @@ export default function MypageNav({ role: externalRole }: MypageNavProps) {
         const result = basicRes.value.data.result;
         setRealName(result.realName || '')
         setEmail(result.email || '')
+        // API에서 role이 오지 않을 경우 안전하게 MEMBER로 처리
         setInternalRole(result.role || 'MEMBER')
       }
 
@@ -89,14 +91,15 @@ export default function MypageNav({ role: externalRole }: MypageNavProps) {
     }
   }, [])
 
+  // 외부에서 주입된 role이 있다면 우선 사용, 없다면 내부 fetch state 사용
   const finalRole = externalRole || internalRole;
-  const isSeller = finalRole === 'SELLER'
 
   // 아바타 글자 (realName의 첫 글자)
   const avatarLetter = realName ? realName.charAt(0).toUpperCase() : 'U'
 
   return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '220px', flexShrink: 0 }}>
+        {/* 상단 프로필 및 일반 메뉴 섹션 */}
         <aside style={cardStyle}>
           <div style={{ marginBottom: '16px' }}>
             <div
@@ -158,20 +161,22 @@ export default function MypageNav({ role: externalRole }: MypageNavProps) {
           </nav>
         </aside>
 
-        {/* 판매 관련 섹션: 판매자 여부에 따라 내용 분기 */}
+        {/* 판매 관련 섹션 */}
         <aside style={cardStyle}>
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '14px' }}>
             <div style={{ fontSize: '12px', color: '#999', margin: '8px 0 4px' }}>판매</div>
-            {isSeller ? (
+
+            {finalRole === 'MEMBER' ? (
+                // MEMBER인 경우 -> 판매자 전환 페이지 링크 노출
+                <NavLink href="/mypage/seller-request">판매자 전환</NavLink>
+            ) : (
+                // MEMBER가 아닌 경우 (SELLER 등) -> 판매자 관리 메뉴 노출
                 <>
                   <NavLink href="/mypage/seller-info">판매자 정보</NavLink>
                   <NavLink href="/mypage/products">상품 관리</NavLink>
                   <NavLink href="/mypage/stock">재고 관리</NavLink>
                   <NavLink href="/mypage/settlement">정산 내역</NavLink>
                 </>
-            ) : (
-                // 판매자가 아닐 경우 표시되는 링크
-                <NavLink href="/mypage/seller-request">판매자 전환</NavLink>
             )}
           </nav>
         </aside>
