@@ -6,7 +6,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @ActiveProfiles("test")
-public class ApiApplicationTests {
+public class PaymentApiApplicationTests {
 
   @MockitoBean(name = "orderDataInitApplicationRunner")
   private ApplicationRunner runner;
