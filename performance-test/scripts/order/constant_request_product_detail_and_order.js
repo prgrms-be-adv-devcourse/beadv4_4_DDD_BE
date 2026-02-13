@@ -1,33 +1,23 @@
 import http from 'k6/http';
-import { check, sleep } from 'k6';
-import exec from 'k6/execution';
+import { check } from 'k6';
 
 const BASE_URL = __ENV.TARGET_URL || 'http://localhost:8080';
 const MEMBER_ID = __ENV.MEMBER_ID || '2';
 const PRODUCT_ID = Number(__ENV.PRODUCT_ID || '1');
 
-// 점차 동시 주문 수를 늘리는 부하 (ramping-vus)
-const PEAK_VUS = Number(__ENV.PEAK_VUS || '200');
-
-// 현재 VU 수 추적 (stage 변경 감지용 - 각 VU마다 독립적)
-let lastVUCount = 0;
+// 100명이 1초 간격으로 1명씩 시작, 각 1번만 주문 (총 100건)
+const TOTAL_USERS = Number(__ENV.TOTAL_USERS || '100');
+const INTERVAL_SEC = __ENV.INTERVAL_SEC || '1s';
 
 export const options = {
   scenarios: {
-    ramping_orders: {
-      executor: 'ramping-vus',
-      startVUs: 0,
-      stages: [
-        { duration: '30s', target: 5 },
-        { duration: '10s', target: 10 },
-        { duration: '10s', target: 50 },
-        { duration: '30s', target: 100 },
-        { duration: '30s', target: 150 },
-        { duration: '30s', target: PEAK_VUS },
-        { duration: '2m', target: PEAK_VUS },
-        { duration: '30s', target: 0 },
-      ],
-      gracefulRampDown: '10s',
+    one_order_per_user: {
+      executor: 'constant-arrival-rate',
+      rate: 1,
+      timeUnit: INTERVAL_SEC,
+      duration: `${TOTAL_USERS}s`,
+      preAllocatedVUs: 10,
+      maxVUs: 50,
     },
   },
   thresholds: {
@@ -66,19 +56,6 @@ export function setup() {
 }
 
 export default function (data) {
-  // 현재 VU 수 확인 및 stage 변경 감지
-  const currentVUs = exec.scenario?.currentVUs || exec.scenarioInTest?.currentVUs || 0;
-  
-  // stage 변경 감지: VU 수가 변경되었을 때 로그 (각 VU의 첫 iteration에서만)
-  if (currentVUs !== lastVUCount && currentVUs > 0) {
-    if (exec.scenario.iterationInInstance === 0) {
-      console.log(`[STAGE CHANGE] 현재 동시 VU 수: ${currentVUs}`);
-      // 각 stage 시작 시 10초 대기 (첫 번째 VU만)
-      sleep(10);
-    }
-    lastVUCount = currentVUs;
-  }
-
   const headers = {
     Accept: 'application/json',
     'Content-Type': 'application/json',
@@ -102,6 +79,4 @@ export default function (data) {
   check(orderRes, {
     'order create status is 200': (r) => r.status === 200,
   });
-
-  sleep(1);
 }
