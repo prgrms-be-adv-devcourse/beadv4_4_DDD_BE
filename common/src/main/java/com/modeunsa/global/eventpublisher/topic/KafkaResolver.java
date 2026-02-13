@@ -14,6 +14,7 @@ import com.modeunsa.shared.payment.event.PaymentFinalFailureEvent;
 import com.modeunsa.shared.payment.event.PaymentMemberCreatedEvent;
 import com.modeunsa.shared.payment.event.PaymentSuccessEvent;
 import com.modeunsa.shared.product.event.ProductCreatedEvent;
+import com.modeunsa.shared.product.event.ProductOrderAvailabilityChangedEvent;
 import com.modeunsa.shared.product.event.ProductUpdatedEvent;
 import com.modeunsa.shared.settlement.event.SettlementCompletedPayoutEvent;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -64,10 +65,9 @@ public class KafkaResolver {
     }
 
     // product
-    if (event instanceof ProductCreatedEvent) {
-      return PRODUCT_EVENTS_TOPIC;
-    }
-    if (event instanceof ProductUpdatedEvent) {
+    if (event instanceof ProductCreatedEvent
+        || event instanceof ProductUpdatedEvent
+        || event instanceof ProductOrderAvailabilityChangedEvent) {
       return PRODUCT_EVENTS_TOPIC;
     }
 
@@ -126,6 +126,9 @@ public class KafkaResolver {
     }
     if (event instanceof ProductUpdatedEvent e) {
       return "product-%d".formatted(e.productDto().getId());
+    }
+    if (event instanceof ProductOrderAvailabilityChangedEvent e) {
+      return "product-%d".formatted(e.productOrderAvailableDto().productId());
     }
 
     return "unexpected-key";
