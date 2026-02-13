@@ -14,8 +14,8 @@ import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
-import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
+import com.modeunsa.boundedcontext.payment.domain.types.PaymentMemberStatus;
 import com.modeunsa.global.config.PaymentAccountConfig;
 import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.shared.payment.dto.PaymentDto;
@@ -52,9 +52,9 @@ class PaymentCompleteProcessUseCaseTest {
   @BeforeEach
   void setUp() {
     PaymentMember holderMember =
-        PaymentMember.create(HOLDER_ID, "holder@example.com", "홀더", MemberStatus.ACTIVE);
+        PaymentMember.create(HOLDER_ID, "holder@example.com", "홀더", PaymentMemberStatus.ACTIVE);
     PaymentMember buyerMember =
-        PaymentMember.create(1000L, "user1@example.com", "구매자", MemberStatus.ACTIVE);
+        PaymentMember.create(1000L, "user1@example.com", "구매자", PaymentMemberStatus.ACTIVE);
 
     holderAccount = PaymentAccount.create(holderMember);
 

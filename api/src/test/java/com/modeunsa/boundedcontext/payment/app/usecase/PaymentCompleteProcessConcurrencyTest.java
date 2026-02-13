@@ -9,7 +9,7 @@ import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
-import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
+import com.modeunsa.boundedcontext.payment.domain.types.PaymentMemberStatus;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentPurpose;
 import com.modeunsa.boundedcontext.payment.domain.types.ProviderType;
 import com.modeunsa.boundedcontext.payment.out.persistence.account.PaymentAccountRepository;
@@ -72,7 +72,7 @@ class PaymentCompleteProcessConcurrencyTest {
                 paymentAccountConfig.getHolderMemberId(),
                 "holder@example.com",
                 "Holder",
-                MemberStatus.ACTIVE));
+                PaymentMemberStatus.ACTIVE));
     paymentAccountRepository.save(PaymentAccount.create(holderMember));
     this.holderId = holderMember.getId();
 
@@ -86,7 +86,7 @@ class PaymentCompleteProcessConcurrencyTest {
       PaymentMember buyerMember =
           paymentMemberRepository.save(
               PaymentMember.create(
-                  1000L + i, "buyer" + i + "@example.com", "구매자" + i, MemberStatus.ACTIVE));
+                  1000L + i, "buyer" + i + "@example.com", "구매자" + i, PaymentMemberStatus.ACTIVE));
 
       // buyer 계정 생성 (잔액 20_000)
       PaymentAccount buyerAccount =

@@ -5,7 +5,8 @@ import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberResponse;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberSyncRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.order.PaymentOrderInfo;
 import com.modeunsa.boundedcontext.payment.app.dto.settlement.PaymentPayoutInfo;
-import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
+import com.modeunsa.boundedcontext.payment.domain.types.PaymentMemberStatus;
+import com.modeunsa.shared.member.MemberStatus;
 import com.modeunsa.shared.member.event.MemberSignupEvent;
 import com.modeunsa.shared.order.dto.OrderDto;
 import com.modeunsa.shared.settlement.dto.SettlementCompletedPayoutDto;
@@ -27,15 +28,14 @@ public interface PaymentMapper {
   PaymentMemberSyncRequest toPaymentMemberSyncRequest(MemberSignupEvent memberSignupEvent);
 
   @Named("mapMemberStatus")
-  default MemberStatus mapMemberStatus(MemberStatus status) {
+  default PaymentMemberStatus mapMemberStatus(MemberStatus status) {
     if (status == null) {
-      return MemberStatus.ACTIVE;
+      return PaymentMemberStatus.ACTIVE;
     }
     return switch (status) {
-      case INACTIVE -> null;
-      case PRE_ACTIVE, SUSPENDED, WITHDRAWN_PENDING -> MemberStatus.INACTIVE;
-      case ACTIVE -> MemberStatus.ACTIVE;
-      case WITHDRAWN -> MemberStatus.WITHDRAWN;
+      case PRE_ACTIVE, SUSPENDED, WITHDRAWN_PENDING -> PaymentMemberStatus.INACTIVE;
+      case ACTIVE -> PaymentMemberStatus.ACTIVE;
+      case WITHDRAWN -> PaymentMemberStatus.WITHDRAWN;
     };
   }
 

@@ -11,8 +11,8 @@ import com.modeunsa.boundedcontext.payment.app.lock.PaymentAccountLockManager;
 import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentRefundUseCase;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
-import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
+import com.modeunsa.boundedcontext.payment.domain.types.PaymentMemberStatus;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
 import com.modeunsa.global.config.PaymentAccountConfig;
 import com.modeunsa.global.eventpublisher.EventPublisher;
@@ -51,8 +51,10 @@ class PaymentRefundUseCaseTest {
 
   @BeforeEach
   void setUp() {
-    holderMember = PaymentMember.create(HOLDER_ID, "holder@example.com", "홀더", MemberStatus.ACTIVE);
-    buyerMember = PaymentMember.create(1000L, "user1@example.com", "구매자", MemberStatus.ACTIVE);
+    holderMember =
+        PaymentMember.create(HOLDER_ID, "holder@example.com", "홀더", PaymentMemberStatus.ACTIVE);
+    buyerMember =
+        PaymentMember.create(1000L, "user1@example.com", "구매자", PaymentMemberStatus.ACTIVE);
 
     holderAccount = PaymentAccount.create(holderMember);
     holderAccount.credit(BigDecimal.valueOf(100000), PaymentEventType.CHARGE_BANK_TRANSFER);

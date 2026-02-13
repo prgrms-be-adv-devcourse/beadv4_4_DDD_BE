@@ -2,10 +2,10 @@ package com.modeunsa.boundedcontext.member.in.datainit;
 
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.entity.MemberProfile;
-import com.modeunsa.boundedcontext.member.domain.types.MemberStatus;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
 import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.shared.member.MemberRole;
+import com.modeunsa.shared.member.MemberStatus;
 import com.modeunsa.shared.member.event.MemberSignupEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;

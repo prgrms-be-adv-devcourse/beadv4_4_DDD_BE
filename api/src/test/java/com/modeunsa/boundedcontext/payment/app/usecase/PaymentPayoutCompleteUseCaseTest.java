@@ -9,8 +9,8 @@ import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
 import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentPayoutCompleteUseCase;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
-import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
+import com.modeunsa.boundedcontext.payment.domain.types.PaymentMemberStatus;
 import com.modeunsa.boundedcontext.payment.domain.types.PayoutEventType;
 import com.modeunsa.global.config.PaymentAccountConfig;
 import java.math.BigDecimal;
@@ -41,9 +41,11 @@ class PaymentPayoutCompleteUseCaseTest {
 
   @BeforeEach
   void setUp() {
-    systemMember = PaymentMember.create(1L, "system@example.com", "시스템", MemberStatus.ACTIVE);
-    holderMember = PaymentMember.create(2L, "holder@example.com", "홀더", MemberStatus.ACTIVE);
-    payeeMember = PaymentMember.create(1000L, "user1@example.com", "수령인", MemberStatus.ACTIVE);
+    systemMember =
+        PaymentMember.create(1L, "system@example.com", "시스템", PaymentMemberStatus.ACTIVE);
+    holderMember = PaymentMember.create(2L, "holder@example.com", "홀더", PaymentMemberStatus.ACTIVE);
+    payeeMember =
+        PaymentMember.create(1000L, "user1@example.com", "수령인", PaymentMemberStatus.ACTIVE);
 
     holderAccount = PaymentAccount.create(holderMember);
     holderAccount.credit(BigDecimal.valueOf(100000), PaymentEventType.CHARGE_BANK_TRANSFER);

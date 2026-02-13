@@ -2,10 +2,10 @@ package com.modeunsa.boundedcontext.auth.app.usecase;
 
 import com.modeunsa.boundedcontext.auth.domain.entity.OAuthAccount;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
-import com.modeunsa.boundedcontext.member.domain.types.MemberStatus;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
 import com.modeunsa.shared.auth.dto.OAuthUserInfo;
 import com.modeunsa.shared.member.MemberRole;
+import com.modeunsa.shared.member.MemberStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

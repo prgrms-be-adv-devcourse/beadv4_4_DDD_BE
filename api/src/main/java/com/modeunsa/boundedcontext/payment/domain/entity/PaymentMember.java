@@ -2,7 +2,7 @@ package com.modeunsa.boundedcontext.payment.domain.entity;
 
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentDomainException;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode;
-import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
+import com.modeunsa.boundedcontext.payment.domain.types.PaymentMemberStatus;
 import com.modeunsa.global.jpa.converter.EncryptedStringConverter;
 import com.modeunsa.global.jpa.entity.ManualIdAndAuditedEntity;
 import jakarta.persistence.Column;
@@ -41,9 +41,10 @@ public class PaymentMember extends ManualIdAndAuditedEntity {
   @Builder.Default
   @Column(nullable = false, length = 20)
   @Enumerated(EnumType.STRING)
-  private MemberStatus status = MemberStatus.ACTIVE;
+  private PaymentMemberStatus status = PaymentMemberStatus.ACTIVE;
 
-  public static PaymentMember create(Long id, String email, String name, MemberStatus status) {
+  public static PaymentMember create(
+      Long id, String email, String name, PaymentMemberStatus status) {
     return PaymentMember.builder()
         .id(id)
         .email(email)
@@ -66,6 +67,6 @@ public class PaymentMember extends ManualIdAndAuditedEntity {
   }
 
   private boolean canOrder() {
-    return this.status == MemberStatus.ACTIVE;
+    return this.status == PaymentMemberStatus.ACTIVE;
   }
 }

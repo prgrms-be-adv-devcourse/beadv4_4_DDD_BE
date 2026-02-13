@@ -1,8 +1,10 @@
-package com.modeunsa.boundedcontext.payment.domain.types;
+package com.modeunsa.shared.member;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
+@RequiredArgsConstructor
 public enum MemberStatus {
   PRE_ACTIVE("가입 대기"), // 소셜 로그인만 완료, 필수 정보 미입력
   ACTIVE("활성"), // 필수 정보 입력 완료 → 정상 회원
@@ -12,8 +14,4 @@ public enum MemberStatus {
   WITHDRAWN("탈퇴"); // 일정 기간 이후 탈퇴
 
   private final String description;
-
-  MemberStatus(String description) {
-    this.description = description;
-  }
 }

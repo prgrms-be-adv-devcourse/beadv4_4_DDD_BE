@@ -14,7 +14,7 @@ import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentInProgress
 import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
-import com.modeunsa.boundedcontext.payment.domain.types.MemberStatus;
+import com.modeunsa.boundedcontext.payment.domain.types.PaymentMemberStatus;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentPurpose;
 import com.modeunsa.boundedcontext.payment.domain.types.ProviderType;
 import com.modeunsa.global.eventpublisher.EventPublisher;
@@ -69,7 +69,7 @@ class PaymentInProgressUseCaseTest {
             PaymentPurpose.PRODUCT_PURCHASE);
 
     PaymentMember buyer =
-        PaymentMember.create(buyerId, "buyer@example.com", "구매자", MemberStatus.ACTIVE);
+        PaymentMember.create(buyerId, "buyer@example.com", "구매자", PaymentMemberStatus.ACTIVE);
 
     when(paymentSupport.getPaymentById(paymentId)).thenReturn(payment);
     when(paymentMemberSupport.getPaymentMemberById(buyerId)).thenReturn(buyer);

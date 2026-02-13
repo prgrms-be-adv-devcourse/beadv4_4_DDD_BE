@@ -4,12 +4,12 @@ import static com.modeunsa.global.status.ErrorStatus.MEMBER_ADDRESS_LIMIT_EXCEED
 import static com.modeunsa.global.status.ErrorStatus.MEMBER_DEFAULT_ADDRESS_REQUIRED;
 
 import com.modeunsa.boundedcontext.auth.domain.entity.OAuthAccount;
-import com.modeunsa.boundedcontext.member.domain.types.MemberStatus;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.jpa.converter.EncryptedStringConverter;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.member.MemberRole;
+import com.modeunsa.shared.member.MemberStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
