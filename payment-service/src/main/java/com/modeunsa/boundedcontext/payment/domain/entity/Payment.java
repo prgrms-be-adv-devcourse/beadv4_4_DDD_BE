@@ -29,6 +29,7 @@ import jakarta.persistence.UniqueConstraint;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import lombok.AccessLevel;
@@ -124,14 +125,14 @@ public class Payment extends AuditedEntity {
 
   @Lob private String pgFailureReason;
 
-  private static final Set<PaymentStatus> ALLOWED_FOR_IN_PROGRESS =
-      Set.of(PaymentStatus.PENDING, PaymentStatus.FAILED);
+  private static final EnumSet<PaymentStatus> ALLOWED_FOR_IN_PROGRESS =
+      EnumSet.of(PaymentStatus.PENDING, PaymentStatus.FAILED);
 
-  private static final Set<PaymentStatus> ALLOWED_FOR_SUCCESS =
-      Set.of(PaymentStatus.IN_PROGRESS, PaymentStatus.APPROVED);
+  private static final EnumSet<PaymentStatus> ALLOWED_FOR_SUCCESS =
+      EnumSet.of(PaymentStatus.IN_PROGRESS, PaymentStatus.APPROVED);
 
-  private static final Set<PaymentStatus> FINAL_TERMINAL_STATUSES =
-      Set.of(
+  private static final EnumSet<PaymentStatus> FINAL_TERMINAL_STATUSES =
+      EnumSet.of(
           PaymentStatus.SUCCESS,
           PaymentStatus.FINAL_FAILED,
           PaymentStatus.CANCELED,
