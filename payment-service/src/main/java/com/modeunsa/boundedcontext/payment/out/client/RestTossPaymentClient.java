@@ -88,7 +88,7 @@ public class RestTossPaymentClient implements TossPaymentClient {
         throw new GeneralException(PAYMENT_INVALID_REQUEST_TOSS_API);
       }
 
-      log.info(
+      log.debug(
           "[토스페이먼츠 결제 승인 성공] paymentKey: {}, orderId: {}, amount: {}", paymentKey, orderId, amount);
       return objectMapper.convertValue(responseBody, TossPaymentsConfirmResponse.class);
     } catch (RestClientResponseException e) {

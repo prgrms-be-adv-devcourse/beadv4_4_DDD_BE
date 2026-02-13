@@ -20,7 +20,7 @@ public class OAuthMemberRegisterUseCase {
 
   @Transactional
   public OAuthAccount execute(OAuthUserInfo userInfo) {
-    log.info(
+    log.debug(
         "신규 회원 가입 (PRE_ACTIVE) - provider: {}, providerId: {}",
         userInfo.provider(),
         userInfo.providerId());
