@@ -1,7 +1,5 @@
-package com.modeunsa.boundedcontext.payment.app.event;
+package com.modeunsa.shared.payment.event;
 
-import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentProcessContext;
-import com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode;
 import com.modeunsa.global.event.EventUtils;
 import com.modeunsa.global.event.TraceableEvent;
 import java.math.BigDecimal;
@@ -11,7 +9,7 @@ public record PaymentFailedEvent(
     Long orderId,
     String orderNo,
     BigDecimal amount,
-    PaymentErrorCode errorCode,
+    String errorCode,
     String failureMessage,
     String traceId)
     implements TraceableEvent {
@@ -23,21 +21,21 @@ public record PaymentFailedEvent(
       Long orderId,
       String orderNo,
       BigDecimal amount,
-      PaymentErrorCode errorCode,
+      String errorCode,
       String failureMessage) {
     this(
         memberId, orderId, orderNo, amount, errorCode, failureMessage, EventUtils.extractTraceId());
   }
 
   public static PaymentFailedEvent from(
-      PaymentProcessContext context, PaymentErrorCode errorCode, String failureMessage) {
+      Long buyerId,
+      Long orderId,
+      String orderNo,
+      BigDecimal totalAmount,
+      String errorCode,
+      String failureMessage) {
     return new PaymentFailedEvent(
-        context.buyerId(),
-        context.orderId(),
-        context.orderNo(),
-        context.totalAmount(),
-        errorCode,
-        failureMessage);
+        buyerId, orderId, orderNo, totalAmount, errorCode, failureMessage);
   }
 
   @Override

@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.payment.app.event;
+package com.modeunsa.shared.payment.event;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.modeunsa.global.event.EventUtils;

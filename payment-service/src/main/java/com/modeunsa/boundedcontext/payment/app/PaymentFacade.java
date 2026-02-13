@@ -13,7 +13,6 @@ import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentProcessContext
 import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentResponse;
 import com.modeunsa.boundedcontext.payment.app.dto.settlement.PaymentPayoutInfo;
-import com.modeunsa.boundedcontext.payment.app.event.PaymentFailedEvent;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
 import com.modeunsa.boundedcontext.payment.app.usecase.account.PaymentCreateAccountUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.account.PaymentCreditAccountUseCase;
@@ -30,6 +29,7 @@ import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentRefundUseC
 import com.modeunsa.boundedcontext.payment.app.usecase.process.complete.PaymentCompleteOrderCompleteUseCase;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
 import com.modeunsa.global.security.CustomUserDetails;
+import com.modeunsa.shared.payment.event.PaymentFailedEvent;
 import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.util.List;

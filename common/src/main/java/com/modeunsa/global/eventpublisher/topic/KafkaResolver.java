@@ -9,6 +9,10 @@ import com.modeunsa.shared.member.event.MemberProfileCreatedEvent;
 import com.modeunsa.shared.member.event.MemberProfileUpdatedEvent;
 import com.modeunsa.shared.member.event.MemberSignupEvent;
 import com.modeunsa.shared.member.event.SellerRegisteredEvent;
+import com.modeunsa.shared.payment.event.PaymentFailedEvent;
+import com.modeunsa.shared.payment.event.PaymentFinalFailureEvent;
+import com.modeunsa.shared.payment.event.PaymentMemberCreatedEvent;
+import com.modeunsa.shared.payment.event.PaymentSuccessEvent;
 import com.modeunsa.shared.product.event.ProductCreatedEvent;
 import com.modeunsa.shared.product.event.ProductUpdatedEvent;
 import com.modeunsa.shared.settlement.event.SettlementCompletedPayoutEvent;
@@ -39,13 +43,13 @@ public class KafkaResolver {
       return MEMBER_EVENTS_TOPIC;
     }
 
-    //    // payment
-    //    if (event instanceof PaymentMemberCreatedEvent
-    //        || event instanceof PaymentFailedEvent
-    //        || event instanceof PaymentSuccessEvent
-    //        || event instanceof PaymentFinalFailureEvent) {
-    //      return PAYMENT_EVENTS_TOPIC;
-    //    }
+    // payment
+    if (event instanceof PaymentMemberCreatedEvent
+        || event instanceof PaymentFailedEvent
+        || event instanceof PaymentSuccessEvent
+        || event instanceof PaymentFinalFailureEvent) {
+      return PAYMENT_EVENTS_TOPIC;
+    }
 
     // order
     //    if (event instanceof OrderPurchaseConfirmedEvent
@@ -108,12 +112,12 @@ public class KafkaResolver {
     //    if (event instanceof RefundRequestedEvent e) {
     //      return "order-%d".formatted(e.orderDto().getOrderId());
     //    }
-    //    if (event instanceof PaymentMemberCreatedEvent e) {
-    //      return "payment-member-%d".formatted(e.memberId());
-    //    }
-    //    if (event instanceof PaymentFailedEvent e) {
-    //      return "payment-%d-%s".formatted(e.memberId(), e.orderNo());
-    //    }
+    if (event instanceof PaymentMemberCreatedEvent e) {
+      return "payment-member-%d".formatted(e.memberId());
+    }
+    if (event instanceof PaymentFailedEvent e) {
+      return "payment-%d-%s".formatted(e.memberId(), e.orderNo());
+    }
     if (event instanceof SettlementCompletedPayoutEvent e) {
       return "settlement";
     }

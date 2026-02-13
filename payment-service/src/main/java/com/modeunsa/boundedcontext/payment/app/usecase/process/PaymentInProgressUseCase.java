@@ -1,7 +1,6 @@
 package com.modeunsa.boundedcontext.payment.app.usecase.process;
 
 import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentProcessContext;
-import com.modeunsa.boundedcontext.payment.app.event.PaymentFailedEvent;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentMemberSupport;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentSupport;
@@ -10,8 +9,10 @@ import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentDomainException;
+import com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode;
 import com.modeunsa.boundedcontext.payment.domain.types.ProviderType;
 import com.modeunsa.global.eventpublisher.EventPublisher;
+import com.modeunsa.shared.payment.event.PaymentFailedEvent;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,7 +32,7 @@ public class PaymentInProgressUseCase {
     try {
       return processForPaymentRequest(context);
     } catch (PaymentDomainException e) {
-      handleFailure(context, e);
+      handleFailure(context, e.getErrorCode());
       throw e;
     }
   }
@@ -40,7 +41,7 @@ public class PaymentInProgressUseCase {
     try {
       processForPaymentConfirm(context);
     } catch (PaymentDomainException e) {
-      handleFailure(context, e);
+      handleFailure(context, e.getErrorCode());
       throw e;
     }
   }
@@ -128,8 +129,14 @@ public class PaymentInProgressUseCase {
     return paymentAccountSupport.getPaymentAccountByMemberId(buyerId);
   }
 
-  private void handleFailure(PaymentProcessContext context, PaymentDomainException exception) {
+  private void handleFailure(PaymentProcessContext context, PaymentErrorCode exception) {
     eventPublisher.publish(
-        PaymentFailedEvent.from(context, exception.getErrorCode(), exception.getMessage()));
+        PaymentFailedEvent.from(
+            context.buyerId(),
+            context.orderId(),
+            context.orderNo(),
+            context.totalAmount(),
+            exception.getErrorCode(),
+            exception.getMessage()));
   }
 }
