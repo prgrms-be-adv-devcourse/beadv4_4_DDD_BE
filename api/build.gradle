@@ -31,15 +31,18 @@ repositories {
 dependencies {
     // 모듈 의존성 추가
     implementation project(":common")
-    implementation project(":member") // todo: 나중에 auth 분리되면 제거
+
     // spring boot
     implementation 'org.springframework.boot:spring-boot-h2console'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-batch'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-kafka'
+
+    // API Gateway
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
 
     // aop
     implementation 'org.springframework:spring-aop'
