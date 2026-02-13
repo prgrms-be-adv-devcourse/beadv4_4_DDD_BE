@@ -27,6 +27,7 @@ public class InventoryFacade {
   private final InventoryGetAvailableQuantityUseCase inventoryGetAvailableQuantityUseCase;
   private final InventoryReleaseInventoryUseCase inventoryReleaseInventoryUseCase;
   private final InventoryDecreaseStockUseCase inventoryDecreaseStockUseCase;
+  private final InventoryIncreaseStockUseCase inventoryIncreaseStockUseCase;
 
   @Transactional
   public void registerSeller(Long sellerId, String businessName, String representativeName) {
@@ -67,5 +68,10 @@ public class InventoryFacade {
   @Transactional
   public void decreaseStock(List<OrderItemDto> orderItems) {
     inventoryDecreaseStockUseCase.decreaseStock(orderItems);
+  }
+
+  @Transactional
+  public void increaseStock(List<OrderItemDto> orderItems) {
+    inventoryIncreaseStockUseCase.increaseStock(orderItems);
   }
 }

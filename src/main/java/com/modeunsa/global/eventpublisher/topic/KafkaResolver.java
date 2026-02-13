@@ -2,6 +2,7 @@ package com.modeunsa.global.eventpublisher.topic;
 
 import com.modeunsa.boundedcontext.payment.app.event.PaymentFailedEvent;
 import com.modeunsa.boundedcontext.payment.app.event.PaymentMemberCreatedEvent;
+import com.modeunsa.shared.inventory.event.InventoryStockRecoverEvent;
 import com.modeunsa.shared.member.event.MemberBasicInfoUpdatedEvent;
 import com.modeunsa.shared.member.event.MemberDeliveryAddressAddedEvent;
 import com.modeunsa.shared.member.event.MemberDeliveryAddressDeletedEvent;
@@ -125,6 +126,10 @@ public class KafkaResolver {
     }
     if (event instanceof RefundRequestedEvent e) {
       return "order-%d".formatted(e.orderDto().getOrderId());
+    }
+
+    if (event instanceof InventoryStockRecoverEvent e) {
+      return "inventory-%d".formatted(e.orderItems().get(0).getProductId());
     }
 
     if (event instanceof PaymentMemberCreatedEvent e) {
