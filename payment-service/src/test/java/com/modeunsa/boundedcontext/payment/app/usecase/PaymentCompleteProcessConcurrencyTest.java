@@ -182,7 +182,8 @@ class PaymentCompleteProcessConcurrencyTest {
     }
 
     // Holder 는 동시에 여러 트랜잭션이 하나의 Row 에 접근한 것으로 동시성 문제 발생
-    log.debug("Holder balance: {}, expected: {}", holderAccount.getBalance(), expectedHolderBalance);
+    log.debug(
+        "Holder balance: {}, expected: {}", holderAccount.getBalance(), expectedHolderBalance);
 
     // 동시성 문제로 인해 잔액이 일치하지 않아야 함
     assertThat(holderAccount.getBalance()).isNotEqualByComparingTo(expectedHolderBalance);
@@ -239,7 +240,8 @@ class PaymentCompleteProcessConcurrencyTest {
     }
 
     // 동시에 여러 트랜잭션이 하나의 Row 에 접근했지만 락 적용으로 인해 잔액이 일치해야 함
-    log.debug("Holder balance: {}, expected: {}", holderAccount.getBalance(), expectedHolderBalance);
+    log.debug(
+        "Holder balance: {}, expected: {}", holderAccount.getBalance(), expectedHolderBalance);
 
     assertThat(holderAccount.getBalance()).isEqualByComparingTo(expectedHolderBalance);
   }

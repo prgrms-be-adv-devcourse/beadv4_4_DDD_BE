@@ -48,7 +48,8 @@ public class AuthLogoutUseCase {
       AuthAccessTokenBlacklist blacklist =
           AuthAccessTokenBlacklist.of(accessToken, memberId, remainingExpiration);
       blacklistRepository.save(blacklist);
-      log.debug("Access Token 블랙리스트 등록 완료 - memberId: {}, TTL: {}ms", memberId, remainingExpiration);
+      log.debug(
+          "Access Token 블랙리스트 등록 완료 - memberId: {}, TTL: {}ms", memberId, remainingExpiration);
     }
   }
 }
