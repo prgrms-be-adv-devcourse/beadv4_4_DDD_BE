@@ -29,7 +29,7 @@ public class ApiResponse {
   private final Object result;
 
   // 성공한 경우 응답 생성
-  public static <T> ResponseEntity<ApiResponse> onSuccess(
+  public static ResponseEntity<ApiResponse> onSuccess(
       SuccessStatus status, PageInfo pageInfo, CursorInfo cursorInfo, Object result) {
     return new ResponseEntity<>(
         new ApiResponse(true, status.getCode(), status.getMessage(), pageInfo, cursorInfo, result),
