@@ -29,7 +29,8 @@ public class SellerRegisterUseCase {
   private final EventPublisher eventPublisher;
   private final AuthTokenIssueUseCase authTokenIssueUseCase;
 
-  public JwtTokenResponse execute(Long memberId, SellerRegisterRequest request, String finalLicenseUrl) {
+  public JwtTokenResponse execute(
+      Long memberId, SellerRegisterRequest request, String finalLicenseUrl) {
     // 1. 회원 조회
     Member member =
         memberRepository
@@ -98,7 +99,6 @@ public class SellerRegisterUseCase {
         member.getId(),
         member.getRole(), // SELLER
         seller.getId(),
-        member.getStatus().name()
-    );
+        member.getStatus().name());
   }
 }

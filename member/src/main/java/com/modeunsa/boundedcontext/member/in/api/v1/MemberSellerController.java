@@ -66,6 +66,7 @@ public class MemberSellerController {
     return ResponseEntity.ok()
         .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
         .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
-        .body(ApiResponse.onSuccess(SuccessStatus.SELLER_REGISTER_SUCCESS, jwtTokenResponse).getBody());
+        .body(ApiResponse.onSuccess(
+            SuccessStatus.SELLER_REGISTER_SUCCESS, jwtTokenResponse).getBody());
   }
 }
