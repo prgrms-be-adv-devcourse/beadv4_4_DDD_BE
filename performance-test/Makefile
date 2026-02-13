@@ -30,8 +30,6 @@ test-payment-member:
 
 test-product-detail-and-order:
 	docker-compose run --rm \
-		-e TARGET_URL=$(TARGET_URL) \
-		-e MEMBER_ID=$(MEMBER_ID) \
 		k6 run $(K6_OUT) /$(ORDER_SCRIPT)
 
 test-product-search:
