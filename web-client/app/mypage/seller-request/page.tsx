@@ -95,7 +95,33 @@ export default function SellerRequestPage() {
   // 파일 업로드 로직
   const uploadImageProcess = async (selectedFile: File): Promise<string> => {
     const FILE_SERVICE_URL = process.env.NEXT_PUBLIC_FILE_API_URL || 'http://localhost:8088';
-    const ext = selectedFile.name.split('.').pop() || 'jpg';
+    let ext = selectedFile.name.split('.').pop()?.toLowerCase() || '';
+
+    // 확장자가 없거나 파일명 전체가 반환된 경우 MIME 타입으로 매핑
+    if (!ext || ext === selectedFile.name.toLowerCase()) {
+      const mimeType = selectedFile.type;
+      switch (mimeType) {
+        case 'application/pdf':
+          ext = 'pdf';
+          break;
+        case 'image/jpeg':
+          ext = 'jpg';
+          break;
+        case 'image/png':
+          ext = 'png';
+          break;
+        case 'image/gif':
+          ext = 'gif';
+          break;
+        case 'image/webp':
+          ext = 'webp';
+          break;
+        default:
+          ext = 'jpg';
+      }
+    }
+    // jpeg의 경우 통일성을 위해 jpg로 변환
+    if (ext === 'jpeg') ext = 'jpg';
 
     // [Step 1] Presigned URL 발급
     const presignRes = await api.post<ApiResponse<PresignedUrlResult>>(`${FILE_SERVICE_URL}/api/v1/files/presigned-url`, {
