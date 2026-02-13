@@ -10,11 +10,9 @@ import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressUpdateRequest
 import com.modeunsa.shared.member.dto.request.MemberProfileCreateRequest;
 import com.modeunsa.shared.member.dto.request.MemberProfileUpdateImageRequest;
 import com.modeunsa.shared.member.dto.request.MemberProfileUpdateRequest;
-import com.modeunsa.shared.member.dto.request.SellerRegisterRequest;
 import com.modeunsa.shared.member.dto.response.MemberBasicInfoResponse;
 import com.modeunsa.shared.member.dto.response.MemberDeliveryAddressResponse;
 import com.modeunsa.shared.member.dto.response.MemberProfileResponse;
-import com.modeunsa.shared.member.dto.response.SellerRegisterResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -156,18 +154,5 @@ public class MemberController {
     Long memberId = user.getMemberId();
     memberFacade.updateProfileImage(memberId, request.imageUrl());
     return ApiResponse.onSuccess(SuccessStatus.MEMBER_PROFILE_UPDATE_SUCCESS);
-  }
-
-  /** 판매자 등록 요청 */
-  @Operation(summary = "판매자 등록 요청", description = "판매자 등록을 요청합니다.")
-  @PostMapping("/seller/register")
-  public ResponseEntity<ApiResponse> registerSeller(
-      @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails user,
-      @RequestBody @Valid SellerRegisterRequest request) {
-
-    Long memberId = user.getMemberId();
-    SellerRegisterResponse response = memberFacade.registerSeller(memberId, request);
-
-    return ApiResponse.onSuccess(SuccessStatus.SELLER_REGISTER_SUCCESS, response);
   }
 }
