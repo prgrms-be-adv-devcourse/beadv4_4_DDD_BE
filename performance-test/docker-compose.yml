@@ -41,6 +41,8 @@ services:
       - k6
     volumes:
       - ./scripts:/scripts
+    env_file:
+      - .env
     environment:
       - TARGET_URL=${TARGET_URL}
     extra_hosts:
