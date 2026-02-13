@@ -72,11 +72,11 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
   }
 
   private BooleanExpression saleStatusIn() {
-    return product.saleStatus.in(ProductPolicy.DISPLAYABLE_SALE_STATUES_FOR_ALL);
+    return product.saleStatus.in(ProductPolicy.ORDERABLE_SALE_STATUES);
   }
 
   private BooleanExpression productStatusIn() {
-    return product.productStatus.in(ProductPolicy.DISPLAYABLE_PRODUCT_STATUSES_FOR_ALL);
+    return product.productStatus.in(ProductPolicy.ORDERABLE_PRODUCT_STATUES);
   }
 
   private OrderSpecifier<?>[] getOrderSpecifiers(Pageable pageable) {
