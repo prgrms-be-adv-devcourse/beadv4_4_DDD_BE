@@ -43,7 +43,7 @@ public class Inventory extends GeneratedIdAndAuditedEntity {
     return true;
   }
 
-  public int getStockQuantity() {
+  public int getInventoryQuantity() {
     return this.quantity;
   }
 }

@@ -96,7 +96,7 @@ public class InventoryRedisAdapter implements InventoryCommandPort, InventoryQue
       throw new GeneralException(ErrorStatus.INTERNAL_SERVER_ERROR);
     }
 
-    int availableQuantity = Math.max(inventory.getStockQuantity() - pendingQuantity, 0);
+    int availableQuantity = Math.max(inventory.getInventoryQuantity() - pendingQuantity, 0);
 
     // Redis에 저장 시도 (SETNX)
     // redis에 키 있으면 데이터 버리기
