@@ -2,7 +2,6 @@
 
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { useEffect, useState, ChangeEvent } from 'react'
 import MypageLayout from '../../components/MypageLayout'
 import api from "@/app/lib/axios"
@@ -36,7 +35,6 @@ interface MemberBasicInfo {
 const DOMAIN_TYPE = "SELLER";
 
 export default function SellerRequestPage() {
-  const router = useRouter()
   const [loading, setLoading] = useState(false)
 
   const [userInfo, setUserInfo] = useState<MemberBasicInfo | null>(null)
