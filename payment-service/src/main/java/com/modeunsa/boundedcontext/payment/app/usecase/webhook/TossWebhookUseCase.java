@@ -2,6 +2,7 @@ package com.modeunsa.boundedcontext.payment.app.usecase.webhook;
 
 import com.modeunsa.boundedcontext.payment.app.dto.toss.TossWebhookRequest.TossWebhookData;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentSupport;
+import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
 import com.modeunsa.boundedcontext.payment.domain.exception.TossWebhookErrorCode;
 import com.modeunsa.boundedcontext.payment.domain.exception.TossWebhookException;
 import jakarta.validation.constraints.NotNull;
@@ -17,6 +18,8 @@ public class TossWebhookUseCase {
   private final PaymentSupport paymentSupport;
 
   public void execute(@NotNull TossWebhookData data) {
+
+    Payment payment = paymentSupport.getPaymentByOrderNo(data.orderId());
 
     switch (data.status()) {
       case READY, WAITING_FOR_DEPOSIT -> System.out.println("Waiting for deposit");

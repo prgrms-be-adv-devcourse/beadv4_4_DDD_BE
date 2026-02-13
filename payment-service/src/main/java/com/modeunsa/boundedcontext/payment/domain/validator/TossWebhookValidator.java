@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.payment.domain.validation;
+package com.modeunsa.boundedcontext.payment.domain.validator;
 
 import com.modeunsa.boundedcontext.payment.domain.exception.TossWebhookErrorCode;
 import com.modeunsa.boundedcontext.payment.domain.exception.TossWebhookException;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class TossWebhookValidate {
+public class TossWebhookValidator {
 
   private static final int MAX_RETRY_COUNT = 3;
 

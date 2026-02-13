@@ -30,7 +30,7 @@ import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentRefundUseC
 import com.modeunsa.boundedcontext.payment.app.usecase.process.complete.PaymentCompleteOrderCompleteUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.webhook.TossWebhookUseCase;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
-import com.modeunsa.boundedcontext.payment.domain.validation.TossWebhookValidate;
+import com.modeunsa.boundedcontext.payment.domain.validator.TossWebhookValidator;
 import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.shared.payment.event.PaymentFailedEvent;
 import jakarta.validation.Valid;
@@ -63,7 +63,7 @@ public class PaymentFacade {
   private final PaymentAccountLedgerUseCase paymentAccountLedgerUseCase;
 
   private final TossWebhookUseCase tossWebhookUseCase;
-  private final TossWebhookValidate tossWebhookValidate;
+  private final TossWebhookValidator tossWebhookValidator;
   private final PaymentAccountSupport paymentAccountSupport;
 
   public void createPaymentMember(@Valid PaymentMemberSyncRequest paymentMemberSyncRequest) {
@@ -169,7 +169,7 @@ public class PaymentFacade {
       int retryCount,
       @Valid TossWebhookRequest request) {
 
-    if (!tossWebhookValidate.validate(
+    if (!tossWebhookValidator.validate(
         transmissionId, transmissionTime, retryCount, request.eventType())) {
       return;
     }
