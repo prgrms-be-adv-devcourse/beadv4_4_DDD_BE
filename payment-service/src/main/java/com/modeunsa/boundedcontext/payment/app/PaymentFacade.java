@@ -13,6 +13,7 @@ import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentProcessContext
 import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentResponse;
 import com.modeunsa.boundedcontext.payment.app.dto.settlement.PaymentPayoutInfo;
+import com.modeunsa.boundedcontext.payment.app.dto.toss.TossWebhookRequest;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
 import com.modeunsa.boundedcontext.payment.app.usecase.account.PaymentCreateAccountUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.account.PaymentCreditAccountUseCase;
@@ -27,11 +28,16 @@ import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentInitialize
 import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentPayoutCompleteUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentRefundUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.process.complete.PaymentCompleteOrderCompleteUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.webhook.TossWebhookUseCase;
+import com.modeunsa.boundedcontext.payment.domain.exception.TossWebhookErrorCode;
+import com.modeunsa.boundedcontext.payment.domain.exception.TossWebhookException;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
+import com.modeunsa.boundedcontext.payment.domain.types.TossWebhookEventType;
 import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.shared.payment.event.PaymentFailedEvent;
 import jakarta.validation.Valid;
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -56,6 +62,7 @@ public class PaymentFacade {
   private final PaymentCompleteUseCase paymentCompleteUseCase;
   private final PaymentAccountLedgerUseCase paymentAccountLedgerUseCase;
 
+  private final TossWebhookUseCase tossWebhookUseCase;
   private final PaymentAccountSupport paymentAccountSupport;
 
   public void createPaymentMember(@Valid PaymentMemberSyncRequest paymentMemberSyncRequest) {
@@ -153,5 +160,19 @@ public class PaymentFacade {
   public Page<PaymentAccountLogDto> getAccountLogPageListBySearch(
       Long memberId, PaymentAccountSearchRequest paymentAccountSearchRequest) {
     return paymentAccountLedgerUseCase.execute(memberId, paymentAccountSearchRequest);
+  }
+
+  public void handleTossWebhookEvent(
+      String transmissionId,
+      OffsetDateTime transmissionTime,
+      int retryCount,
+      @Valid TossWebhookRequest request) {
+
+    TossWebhookEventType eventType = TossWebhookEventType.from(request.eventType());
+    if (eventType != TossWebhookEventType.PAYMENT_STATUS_CHANGED) {
+      throw new TossWebhookException(TossWebhookErrorCode.INVALID_EVENT_TYPE);
+    }
+
+    tossWebhookUseCase.execute(request.data());
   }
 }
