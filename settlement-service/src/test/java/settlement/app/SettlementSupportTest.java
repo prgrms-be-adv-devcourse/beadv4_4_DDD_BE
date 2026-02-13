@@ -1,9 +1,10 @@
-package com.modeunsa.boundedcontext.settlement.app;
+package settlement.app;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
+import com.modeunsa.boundedcontext.settlement.app.SettlementSupport;
 import com.modeunsa.boundedcontext.settlement.domain.entity.Settlement;
 import com.modeunsa.boundedcontext.settlement.domain.policy.SettlementPolicy;
 import com.modeunsa.boundedcontext.settlement.domain.types.SettlementEventType;

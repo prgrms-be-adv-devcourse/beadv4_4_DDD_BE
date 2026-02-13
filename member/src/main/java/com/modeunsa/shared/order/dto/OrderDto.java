@@ -1,6 +1,5 @@
 package com.modeunsa.shared.order.dto;
 
-import com.modeunsa.shared.order.OrderStatus;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,7 +14,7 @@ public class OrderDto {
   private Long orderId;
   private Long memberId;
   private String orderNo;
-  private OrderStatus status;
+  private String status;
   private BigDecimal totalAmount;
   private LocalDateTime paymentDeadlineAt;
   private LocalDateTime paidAt;

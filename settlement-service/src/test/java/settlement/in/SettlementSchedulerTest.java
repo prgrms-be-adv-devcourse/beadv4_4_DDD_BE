@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.settlement.in;
+package settlement.in;
 
 import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.atLeastOnce;

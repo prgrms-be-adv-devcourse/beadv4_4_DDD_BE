@@ -1,7 +1,8 @@
-package com.modeunsa.boundedcontext.settlement.app;
+package settlement.app;
 
 import static org.mockito.Mockito.verify;
 
+import com.modeunsa.boundedcontext.settlement.app.SettlementSaveItemsUseCase;
 import com.modeunsa.boundedcontext.settlement.domain.entity.Settlement;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementItem;
 import com.modeunsa.boundedcontext.settlement.domain.types.SettlementEventType;
