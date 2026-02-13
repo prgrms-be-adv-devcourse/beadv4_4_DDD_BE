@@ -29,7 +29,7 @@
 10. {module}Application 실행 후 swagger 정상 진입 & port 확인
 11. 프론트 연동 시 
     1. .env.{environment} 파일에 `NEXT_PUBLIC_API_URL` 확인 필요
-    2. 여러 모듈 호출할 시 다중으록 관리 필요 -> 추후 API Gateway 적용 시 해결될 문제
+    2. 여러 모듈 호출할 시 다중으로 관리 필요 -> 추후 API Gateway 적용 시 해결될 문제
 
 ## 1. 목적
 
