@@ -8,7 +8,6 @@ import com.modeunsa.boundedcontext.payment.domain.exception.TossWebhookErrorCode
 import com.modeunsa.boundedcontext.payment.domain.exception.TossWebhookException;
 import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.shared.payment.event.PaymentFailedEvent;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,12 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class TossWebhookUseCase {
+public class SyncTossPaymentStatusUseCase {
 
   private final PaymentSupport paymentSupport;
   private final EventPublisher eventPublisher;
 
-  public void execute(@NotNull TossWebhookData data) {
+  public void execute(TossWebhookData data) {
 
     Payment payment = paymentSupport.getPaymentByOrderNo(data.orderId());
 

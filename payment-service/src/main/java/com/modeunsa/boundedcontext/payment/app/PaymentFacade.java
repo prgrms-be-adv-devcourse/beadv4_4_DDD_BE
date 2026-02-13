@@ -28,7 +28,8 @@ import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentInitialize
 import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentPayoutCompleteUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentRefundUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.process.complete.PaymentCompleteOrderCompleteUseCase;
-import com.modeunsa.boundedcontext.payment.app.usecase.webhook.TossWebhookUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.webhook.SyncTossPaymentStatusUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.webhook.TossWebhookLogUseCase;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
 import com.modeunsa.boundedcontext.payment.domain.validator.TossWebhookValidator;
 import com.modeunsa.global.security.CustomUserDetails;
@@ -62,7 +63,8 @@ public class PaymentFacade {
   private final PaymentCompleteUseCase paymentCompleteUseCase;
   private final PaymentAccountLedgerUseCase paymentAccountLedgerUseCase;
 
-  private final TossWebhookUseCase tossWebhookUseCase;
+  private final SyncTossPaymentStatusUseCase syncTossPaymentStatusUseCase;
+  private final TossWebhookLogUseCase tossWebhookLogUseCase;
   private final TossWebhookValidator tossWebhookValidator;
   private final PaymentAccountSupport paymentAccountSupport;
 
@@ -174,6 +176,7 @@ public class PaymentFacade {
       return;
     }
 
-    tossWebhookUseCase.execute(request.data());
+    tossWebhookLogUseCase.execute(transmissionId, transmissionTime, retryCount, request);
+    syncTossPaymentStatusUseCase.execute(request.data());
   }
 }
