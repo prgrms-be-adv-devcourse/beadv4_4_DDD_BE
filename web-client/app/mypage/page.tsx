@@ -1,3 +1,5 @@
+// web-client/app/mypage/page.tsx
+
 'use client'
 
 import Link from 'next/link'
