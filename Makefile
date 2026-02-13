@@ -47,3 +47,51 @@ multi-docker-build-push:
       --platform linux/amd64,linux/arm64 \
       -t $(DOCKER_IMAGE) \
       --push .
+
+# =========================
+# Backend: Build & Push
+# =========================
+release-backend:
+	@set -e; \
+	CURRENT_IMG=$$(grep '^DOCKER_IMAGE=' .env.k3s-prod | head -1 | cut -d= -f2); \
+	CURRENT_TAG=$$(echo "$$CURRENT_IMG" | sed 's/.*://'); \
+	REPO=$$(echo "$$CURRENT_IMG" | sed 's/:.*//'); \
+	echo ""; \
+	echo "=== Backend Release ==="; \
+	echo "현재 버전: $$CURRENT_IMG"; \
+	echo ""; \
+	read -p "새 버전을 입력하세요 (예: 0.0.1): " VERSION; \
+	if [ -z "$$VERSION" ]; then echo "❌ 버전을 입력해주세요."; exit 1; fi; \
+	echo ""; \
+	echo "🔨 [1/2] Gradle clean build..."; \
+	./gradlew clean build -x test && \
+	echo "🐳 [2/2] Docker build & push: $$REPO:$$VERSION" && \
+	docker buildx build --platform linux/amd64,linux/arm64 -t $$REPO:$$VERSION --push . && \
+	sed -i '' "s|DOCKER_IMAGE=.*|DOCKER_IMAGE=$$REPO:$$VERSION|" .env.k3s-prod && \
+	echo "" && \
+	echo "✅ Backend release 완료: $$REPO:$$VERSION" && \
+	echo "   .env.k3s-prod 업데이트 완료"
+
+# =========================
+# Frontend: Build & Push
+# =========================
+release-frontend:
+	@set -e; \
+	CURRENT_IMG=$$(grep '^FRONTEND_IMAGE=' .env.k3s-prod | head -1 | cut -d= -f2); \
+	CURRENT_TAG=$$(echo "$$CURRENT_IMG" | sed 's/.*://'); \
+	REPO=$$(echo "$$CURRENT_IMG" | sed 's/:.*//'); \
+	echo ""; \
+	echo "=== Frontend Release ==="; \
+	echo "현재 버전: $$CURRENT_IMG"; \
+	echo ""; \
+	read -p "새 버전을 입력하세요 (예: 0.0.1): " VERSION; \
+	if [ -z "$$VERSION" ]; then echo "❌ 버전을 입력해주세요."; exit 1; fi; \
+	echo ""; \
+	echo "🔨 [1/2] Frontend build..."; \
+	cd web-client && npm run build && cd .. && \
+	echo "🐳 [2/2] Docker build & push: $$REPO:$$VERSION" && \
+	docker buildx build --platform linux/amd64,linux/arm64 -t $$REPO:$$VERSION --push web-client/ && \
+	sed -i '' "s|FRONTEND_IMAGE=.*|FRONTEND_IMAGE=$$REPO:$$VERSION|" .env.k3s-prod && \
+	echo "" && \
+	echo "✅ Frontend release 완료: $$REPO:$$VERSION" && \
+	echo "   .env.k3s-prod 업데이트 완료"

@@ -46,25 +46,35 @@ const cardStyle = {
   boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
 }
 
-export default function MypageNav() {
+interface MypageNavProps {
+  role?: string;
+}
+
+export default function MypageNav({ role: externalRole }: MypageNavProps) {
   const [realName, setRealName] = useState('')
   const [email, setEmail] = useState('')
   const [profileImageUrl, setProfileImageUrl] = useState('')
+  // 초기값을 빈 문자열로 두어 로딩 중임을 암시하거나, 안전하게 처리
+  const [internalRole, setInternalRole] = useState('')
   const [loading, setLoading] = useState(true)
 
   const fetchInfo = async () => {
     try {
       setLoading(true)
       const [basicRes, profileRes] = await Promise.allSettled([
-          api.get('/api/v1/members/me/basic-info'),
-          api.get('/api/v1/members/me/profile')
+        api.get('/api/v1/members/me/basic-info'),
+        api.get('/api/v1/members/me/profile')
       ])
 
-      if (basicRes.status === 'fulfilled') {
-        setRealName(basicRes.value.data.result.realName || '')
-        setEmail(basicRes.value.data.result.email || '')
+      if (basicRes.status === 'fulfilled' && basicRes.value.data.isSuccess) {
+        const result = basicRes.value.data.result;
+        setRealName(result.realName || '')
+        setEmail(result.email || '')
+        // API에서 role이 오지 않을 경우 안전하게 MEMBER로 처리
+        setInternalRole(result.role || 'MEMBER')
       }
-      if (profileRes.status === 'fulfilled') {
+
+      if (profileRes.status === 'fulfilled' && profileRes.value.data.isSuccess) {
         setProfileImageUrl(profileRes.value.data.result.profileImageUrl || '')
       }
     } finally {
@@ -77,32 +87,19 @@ export default function MypageNav() {
     fetchInfo()
     window.addEventListener('loginStatusChanged', fetchInfo)
     return () => {
-      // 언마운트 시 이벤트 제거
       window.removeEventListener('loginStatusChanged', fetchInfo)
     }
   }, [])
 
-  const getUserRoleFromToken = () => {
-    if (typeof window === 'undefined') return null
-
-    const token = localStorage.getItem('accessToken')
-    if (!token) return null
-
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]))
-      return payload.role ?? null
-    } catch {
-      return null
-    }
-  }
-
-  const isSeller = getUserRoleFromToken() === 'SELLER'
+  // 외부에서 주입된 role이 있다면 우선 사용, 없다면 내부 fetch state 사용
+  const finalRole = externalRole || internalRole;
 
   // 아바타 글자 (realName의 첫 글자)
   const avatarLetter = realName ? realName.charAt(0).toUpperCase() : 'U'
 
   return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '220px', flexShrink: 0 }}>
+        {/* 상단 프로필 및 일반 메뉴 섹션 */}
         <aside style={cardStyle}>
           <div style={{ marginBottom: '16px' }}>
             <div
@@ -164,17 +161,25 @@ export default function MypageNav() {
           </nav>
         </aside>
 
-        {isSeller && (
-            <aside style={cardStyle}>
-              <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '14px' }}>
-                <div style={{ fontSize: '12px', color: '#999', margin: '8px 0 4px' }}>판매</div>
-                <NavLink href="/mypage/seller-request">판매자정보</NavLink>
-                <NavLink href="/mypage/products">상품 관리</NavLink>
-                <NavLink href="/mypage/stock">재고 관리</NavLink>
-                <NavLink href="/mypage/settlement">정산 내역</NavLink>
-              </nav>
-            </aside>
-        )}
+        {/* 판매 관련 섹션 */}
+        <aside style={cardStyle}>
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '14px' }}>
+            <div style={{ fontSize: '12px', color: '#999', margin: '8px 0 4px' }}>판매</div>
+
+            {finalRole === 'MEMBER' ? (
+                // MEMBER인 경우 -> 판매자 전환 페이지 링크 노출
+                <NavLink href="/mypage/seller-request">판매자 전환</NavLink>
+            ) : (
+                // MEMBER가 아닌 경우 (SELLER 등) -> 판매자 관리 메뉴 노출
+                <>
+                  <NavLink href="/mypage/seller-info">판매자 정보</NavLink>
+                  <NavLink href="/mypage/products">상품 관리</NavLink>
+                  <NavLink href="/mypage/stock">재고 관리</NavLink>
+                  <NavLink href="/mypage/settlement">정산 내역</NavLink>
+                </>
+            )}
+          </nav>
+        </aside>
       </div>
   )
 }
