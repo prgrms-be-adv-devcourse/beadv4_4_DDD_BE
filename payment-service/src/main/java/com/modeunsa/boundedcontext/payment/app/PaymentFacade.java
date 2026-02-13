@@ -39,11 +39,9 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymentFacade {
@@ -171,12 +169,23 @@ public class PaymentFacade {
       int retryCount,
       @Valid TossWebhookRequest request) {
 
+    // 1. 웹훅 유효성 검사
     if (!tossWebhookValidator.validate(
         transmissionId, transmissionTime, retryCount, request.eventType())) {
       return;
     }
 
-    tossWebhookLogUseCase.execute(transmissionId, transmissionTime, retryCount, request);
-    syncTossPaymentStatusUseCase.execute(request.data());
+    // 2. 로그 생성
+    Long webhookLogId =
+        tossWebhookLogUseCase.save(transmissionId, transmissionTime, retryCount, request);
+
+    // 3. 결제 상태 동기화 처리
+    try {
+      syncTossPaymentStatusUseCase.execute(request.data());
+      tossWebhookLogUseCase.markAsSuccess(webhookLogId);
+    } catch (Exception e) {
+      tossWebhookLogUseCase.markAsFailed(webhookLogId, e.getMessage());
+      throw e;
+    }
   }
 }

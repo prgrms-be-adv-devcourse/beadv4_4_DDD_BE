@@ -8,6 +8,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -40,6 +41,10 @@ public class PaymentTossWebhookLog extends GeneratedIdAndAuditedEntity {
 
   @Lob private String failureReason;
 
+  private LocalDateTime succeededAt;
+
+  private LocalDateTime failedAt;
+
   public static PaymentTossWebhookLog create(
       String transmissionId,
       OffsetDateTime transmissionTime,
@@ -53,5 +58,22 @@ public class PaymentTossWebhookLog extends GeneratedIdAndAuditedEntity {
         .eventType(eventType)
         .payload(payload)
         .build();
+  }
+
+  public void markSuccess() {
+    this.status = TossWebhookStatus.SUCCESS;
+    this.succeededAt = LocalDateTime.now();
+  }
+
+  public void markFailed(String message) {
+    this.status = TossWebhookStatus.FAILED;
+    this.failureReason = message;
+    this.failedAt = LocalDateTime.now();
+  }
+
+  public void update(int retryCount, OffsetDateTime transmissionTime, String payload) {
+    this.retryCount = retryCount;
+    this.transmissionTime = transmissionTime;
+    this.payload = payload;
   }
 }
