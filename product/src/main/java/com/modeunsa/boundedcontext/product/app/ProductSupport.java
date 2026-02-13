@@ -1,5 +1,6 @@
 package com.modeunsa.boundedcontext.product.app;
 
+import com.modeunsa.api.pagination.CursorDto;
 import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
 import com.modeunsa.boundedcontext.product.domain.ProductFavorite;
@@ -8,7 +9,6 @@ import com.modeunsa.boundedcontext.product.domain.ProductMemberSeller;
 import com.modeunsa.boundedcontext.product.domain.ProductPolicy;
 import com.modeunsa.boundedcontext.product.domain.ProductStatus;
 import com.modeunsa.boundedcontext.product.domain.SaleStatus;
-import com.modeunsa.boundedcontext.product.in.dto.ProductCursorDto;
 import com.modeunsa.boundedcontext.product.out.ProductFavoriteRepository;
 import com.modeunsa.boundedcontext.product.out.ProductMemberRepository;
 import com.modeunsa.boundedcontext.product.out.ProductMemberSellerRepository;
@@ -59,7 +59,7 @@ public class ProductSupport {
         pageable);
   }
 
-  public Slice<Product> getProducts(String keyword, ProductCursorDto cursor, int size) {
+  public Slice<Product> getProducts(String keyword, CursorDto cursor, int size) {
     return productRepository.searchByKeyword(keyword, cursor, size);
   }
 

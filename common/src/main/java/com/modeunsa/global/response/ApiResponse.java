@@ -1,7 +1,6 @@
 package com.modeunsa.global.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.global.status.SuccessStatus;
@@ -13,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 
 @Getter
 @RequiredArgsConstructor
-@JsonPropertyOrder({"isSuccess", "code", "message", "pageInfo", "result"})
+@JsonPropertyOrder({"isSuccess", "code", "message", "pageInfo", "cursorInfo", "result"})
 public class ApiResponse {
 
   private final Boolean isSuccess;
@@ -23,7 +22,7 @@ public class ApiResponse {
   @JsonInclude(JsonInclude.Include.NON_NULL)
   private final PageInfo pageInfo;
 
-  @JsonInclude(Include.NON_NULL)
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   private final CursorInfo cursorInfo;
 
   @JsonInclude(JsonInclude.Include.NON_NULL)

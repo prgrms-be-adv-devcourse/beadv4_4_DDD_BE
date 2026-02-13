@@ -3,18 +3,14 @@ package com.modeunsa.boundedcontext.product.out;
 import static com.modeunsa.boundedcontext.product.domain.QProduct.product;
 import static com.modeunsa.boundedcontext.product.domain.QProductMemberSeller.productMemberSeller;
 
+import com.modeunsa.api.pagination.CursorDto;
 import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
 import com.modeunsa.boundedcontext.product.domain.ProductPolicy;
-import com.modeunsa.boundedcontext.product.in.dto.ProductCursorDto;
-import com.querydsl.core.types.Order;
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -25,11 +21,10 @@ import org.springframework.util.StringUtils;
 @RequiredArgsConstructor
 public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
-  private static final PathBuilder<Product> PRODUCT = new PathBuilder<>(Product.class, "product");
   private final JPAQueryFactory queryFactory;
 
   @Override
-  public Slice<Product> searchByKeyword(String keyword, ProductCursorDto cursor, int size) {
+  public Slice<Product> searchByKeyword(String keyword, CursorDto cursor, int size) {
     List<Product> content =
         queryFactory
             .selectFrom(product)
@@ -39,17 +34,16 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 saleStatusIn(),
                 productStatusIn(),
                 cursorCondition(cursor))
-            .orderBy(product.createdAt.desc(), product.id.desc()) // 복합 정렬
+            .orderBy(product.createdAt.desc(), product.id.desc()) // cursor 기반으로 정렬 고정
             .limit(size + 1) // 다음 페이지 존재 여부 확인
             .fetch();
 
-    boolean hasNext = false;
-    if (content.size() > size) {
-      hasNext = true;
-      content.remove(size);
+    boolean hasNext = content.size() > size;
+    if (hasNext) {
+      content = content.subList(0, size);
     }
 
-    return new SliceImpl<>(content, PageRequest.of(0, size), hasNext);
+    return new SliceImpl<>(content, Pageable.unpaged(), hasNext);
   }
 
   private BooleanExpression keywordCondition(String keyword) {
@@ -83,23 +77,14 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     return product.productStatus.in(ProductPolicy.ORDERABLE_PRODUCT_STATUES);
   }
 
-  private BooleanExpression cursorCondition(ProductCursorDto cursor) {
+  private BooleanExpression cursorCondition(CursorDto cursor) {
     if (cursor == null) {
+      // 첫 조회 시 null
       return null;
     }
     return product
         .createdAt
         .lt(cursor.createdAt())
         .or(product.createdAt.eq(cursor.createdAt()).and(product.id.lt(cursor.id())));
-  }
-
-  private OrderSpecifier<?>[] getOrderSpecifiers(Pageable pageable) {
-    return pageable.getSort().stream()
-        .map(
-            order -> {
-              return new OrderSpecifier(
-                  order.isAscending() ? Order.ASC : Order.DESC, PRODUCT.get(order.getProperty()));
-            })
-        .toArray(OrderSpecifier[]::new);
   }
 }
