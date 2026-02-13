@@ -1,3 +1,5 @@
+// app/mypage/seller-info
+
 'use client'
 
 import { useEffect, useState } from 'react'
