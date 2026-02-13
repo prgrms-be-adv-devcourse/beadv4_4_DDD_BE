@@ -3,7 +3,7 @@
 import api from '@/app/lib/axios'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import {useEffect, useRef, useState} from 'react'
+import {Suspense, useEffect, useRef, useState} from 'react'
 import Header from '../components/Header'
 
 declare global {
@@ -89,6 +89,14 @@ const getCookie = (name: string) => {
 }
 
 export default function OrderPage() {
+  return (
+    <Suspense>
+      <OrderContent />
+    </Suspense>
+  )
+}
+
+function OrderContent() {
   const router = useRouter()
   const searchParams = useSearchParams() // URL 파라미터 읽기용
   const orderId = searchParams.get('orderId') // URL에서 orderId 가져오기
