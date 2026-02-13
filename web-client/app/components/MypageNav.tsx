@@ -61,8 +61,8 @@ export default function MypageNav({ role: externalRole }: MypageNavProps) {
     try {
       setLoading(true)
       const [basicRes, profileRes] = await Promise.allSettled([
-          api.get('/api/v1/members/me/basic-info'),
-          api.get('/api/v1/members/me/profile')
+        api.get('/api/v1/members/me/basic-info'),
+        api.get('/api/v1/members/me/profile')
       ])
 
       if (basicRes.status === 'fulfilled' && basicRes.value.data.isSuccess) {
@@ -158,17 +158,23 @@ export default function MypageNav({ role: externalRole }: MypageNavProps) {
           </nav>
         </aside>
 
-        {isSeller && (
-            <aside style={cardStyle}>
-              <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '14px' }}>
-                <div style={{ fontSize: '12px', color: '#999', margin: '8px 0 4px' }}>판매</div>
-                <NavLink href="/mypage/seller-info">판매자 정보</NavLink>
-                <NavLink href="/mypage/products">상품 관리</NavLink>
-                <NavLink href="/mypage/stock">재고 관리</NavLink>
-                <NavLink href="/mypage/settlement">정산 내역</NavLink>
-              </nav>
-            </aside>
-        )}
+        {/* 판매 관련 섹션: 판매자 여부에 따라 내용 분기 */}
+        <aside style={cardStyle}>
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '14px' }}>
+            <div style={{ fontSize: '12px', color: '#999', margin: '8px 0 4px' }}>판매</div>
+            {isSeller ? (
+                <>
+                  <NavLink href="/mypage/seller-info">판매자 정보</NavLink>
+                  <NavLink href="/mypage/products">상품 관리</NavLink>
+                  <NavLink href="/mypage/stock">재고 관리</NavLink>
+                  <NavLink href="/mypage/settlement">정산 내역</NavLink>
+                </>
+            ) : (
+                // 판매자가 아닐 경우 표시되는 링크
+                <NavLink href="/mypage/seller-request">판매자 전환</NavLink>
+            )}
+          </nav>
+        </aside>
       </div>
   )
 }
