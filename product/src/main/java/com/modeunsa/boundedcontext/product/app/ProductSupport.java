@@ -8,6 +8,7 @@ import com.modeunsa.boundedcontext.product.domain.ProductMemberSeller;
 import com.modeunsa.boundedcontext.product.domain.ProductPolicy;
 import com.modeunsa.boundedcontext.product.domain.ProductStatus;
 import com.modeunsa.boundedcontext.product.domain.SaleStatus;
+import com.modeunsa.boundedcontext.product.in.dto.ProductCursorDto;
 import com.modeunsa.boundedcontext.product.out.ProductFavoriteRepository;
 import com.modeunsa.boundedcontext.product.out.ProductMemberRepository;
 import com.modeunsa.boundedcontext.product.out.ProductMemberSellerRepository;
@@ -18,6 +19,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -57,8 +59,8 @@ public class ProductSupport {
         pageable);
   }
 
-  public Page<Product> getProducts(String keyword, Pageable pageable) {
-    return productRepository.searchByKeyword(keyword, pageable);
+  public Slice<Product> getProducts(String keyword, ProductCursorDto cursor, int size) {
+    return productRepository.searchByKeyword(keyword, cursor, size);
   }
 
   public Page<Product> getProducts(
