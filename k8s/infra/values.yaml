@@ -49,7 +49,6 @@ prometheus:
       targets:
         - "modeunsa-infra-mysql-exporter:9104"
 
-
 grafana:
   enabled: true
   image:

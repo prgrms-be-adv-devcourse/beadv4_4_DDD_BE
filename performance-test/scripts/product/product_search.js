@@ -7,6 +7,7 @@ const BASE_URL = __ENV.TARGET_URL || 'http://localhost:8080';
 // - 'staged'   (기본)   : 가변 부하(5→10→20→30 VU)
 // - 'constant'          : 고정 부하(VU 고정, closed-loop)
 // - 'arrival'           : 고정 RPS(도착률 기반), constant-arrival-rate 사용
+// - 'step'              : 단계적 RPS/VU 증가 시나리오(STEP_OPTIONS 사용)
 //
 // TPS: 실행 후 요약에 나오는 http_reqs 의 rate 값 = 초당 요청 수 = TPS
 const SCENARIO = __ENV.SCENARIO || 'staged';
@@ -73,7 +74,6 @@ const ARRIVAL_OPTIONS = {
     },
   },
   thresholds: {
-    // dropped_iterations 비율이 1% 미만이면 (대략) 목표 RPS 달성으로 간주
     dropped_iterations: ['rate<0.01'],
     http_reqs: ['rate>1'],
     http_req_duration: ['p(95)<5000'],
