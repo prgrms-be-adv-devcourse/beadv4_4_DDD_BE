@@ -39,11 +39,18 @@ out/
 ### Custom ###
 db_dev.mv.db
 db_dev.trace.db
+
+# Environment files
 .env
-.env.prod
 .env.local
+.env.dev
+.env.prod
+.env.k3s-dev
+.env.k3s-prod
 config/env/*
 
 # .gitignore 파일에 추가
 generated/
 src/main/generated/
+
+.DS_Store

@@ -1,12 +1,24 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import Header from '../components/Header'
 
 export default function MagazinePage() {
+  const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('전체')
   const [sortBy, setSortBy] = useState<'popular' | 'recent'>('popular')
+
+  const handleWriteClick = () => {
+    const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
+    if (!accessToken?.trim()) {
+      router.push('/login')
+      return
+    }
+    router.push('/magazine/write')
+  }
   
   const allPosts = Array.from({ length: 18 }, (_, i) => ({
     id: i + 1,
@@ -43,23 +55,7 @@ export default function MagazinePage() {
 
   return (
     <div className="home-page">
-      {/* Header */}
-      <header className="header">
-        <div className="header-container">
-          <div className="logo">
-            <Link href="/">뭐든사</Link>
-          </div>
-          <nav className="nav">
-            <Link href="/fashion">패션</Link>
-            <Link href="/beauty">뷰티</Link>
-            <Link href="/magazine">매거진</Link>
-          </nav>
-          <div className="header-actions">
-            <Link href="/cart" className="cart-btn">장바구니</Link>
-            <Link href="/login" className="user-btn">로그인</Link>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Page Header */}
       <div className="page-header">
@@ -156,12 +152,12 @@ export default function MagazinePage() {
       </section>
 
       {/* Write Button */}
-      <Link href="/magazine/write" className="magazine-write-button">
+      <button type="button" className="magazine-write-button" onClick={handleWriteClick}>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
         <span>글쓰기</span>
-      </Link>
+      </button>
 
       {/* Footer */}
       <footer className="footer">

@@ -1,10 +1,21 @@
 'use client'
 
-import { useState } from 'react'
+import {Suspense, useEffect, useState} from 'react'
 import Link from 'next/link'
 import MypageLayout from '../../components/MypageLayout'
+import {useSearchParams} from "next/navigation";
 
 type TabKey = 'product' | 'snap'
+
+interface FavoriteProduct {
+  productId: number
+  productName: string
+  sellerBusinessName: string
+  salePrice: number
+  primaryImageUrl?: string
+}
+
+const PAGE_SIZE = 12
 
 export default function FavoritesPage() {
   const [activeTab, setActiveTab] = useState<TabKey>('product')
@@ -66,28 +77,88 @@ export default function FavoritesPage() {
           </div>
 
         {/* Tab contents */}
-        {activeTab === 'product' ? <ProductFavorites /> : <SnapFavorites />}
+        {activeTab === 'product' ? (
+          <Suspense fallback={<div>로딩 중...</div>}>
+            <ProductFavorites />
+          </Suspense>
+        ) : <SnapFavorites />}
       </div>
     </MypageLayout>
   )
 }
 
 function ProductFavorites() {
+  const [products, setProducts] = useState<FavoriteProduct[]>([])
+  const [isLoading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const searchParams = useSearchParams()
+  const pageParam = searchParams.get('page')
+  const currentPage = Math.max(0, parseInt(pageParam ?? '0', 10) || 0)
+
+
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      try {
+        const accessToken = localStorage.getItem('accessToken')
+        if (!accessToken?.trim()) {
+          setLoading(false)
+          return
+        }
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+        if (!apiUrl) return
+
+        const res = await fetch(`${apiUrl}/api/v1/products/favorites?page=${currentPage}&size=${PAGE_SIZE}`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        })
+
+        const data = await res.json()
+
+        if (!res.ok || !data.isSuccess) {
+          setError(data.message || '관심상품을 불러오지 못했습니다.')
+          return
+        }
+
+        setProducts(data.result ?? [])
+      } catch (e) {
+        setError(e instanceof Error ? e.message : '관심상품을 불러오지 못했습니다.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchFavorites()
+  }, [])
+
   return (
-    <div className="products-grid">
-      {[1, 2, 3, 4, 5, 6].map((item) => (
-        <Link key={item} href={`/products/${item}`} className="product-card">
-          <div className="product-image">
-            <div className="image-placeholder">이미지</div>
-          </div>
-          <div className="product-info">
-            <div className="product-brand">브랜드명</div>
-            <div className="product-name">좋아요한 상품 {item}</div>
-            <div className="product-price">₩{((item * 10000) + 9000).toLocaleString()}</div>
-          </div>
-        </Link>
-      ))}
-    </div>
+      <div className="products-grid">
+        {products.map((product) => (
+            <Link
+                key={product.productId}
+                href={`/products/${product.productId}`}
+                className="product-card"
+            >
+              <div className="product-image">
+                {product.primaryImageUrl ? (
+                    <img
+                        src={product.primaryImageUrl}
+                        alt={product.productName}
+                        className="image-placeholder"
+                    />
+                ) : (
+                    <div className="image-placeholder">이미지</div>
+                )}
+              </div>
+
+              <div className="product-info">
+                <div className="product-brand">{product.sellerBusinessName}</div>
+                <div className="product-name">{product.productName}</div>
+                <div className="product-price">
+                  ₩{product.salePrice.toLocaleString()}
+                </div>
+              </div>
+            </Link>
+        ))}
+      </div>
   )
 }
 

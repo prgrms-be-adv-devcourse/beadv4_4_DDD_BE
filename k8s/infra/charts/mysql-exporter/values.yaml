@@ -1,0 +1,21 @@
+enabled: true
+
+image:
+  repository: prom/mysqld-exporter
+  tag: "v0.14.0"
+
+# 연결할 MySQL 서비스 (동일 네임스페이스 기준)
+# Release 이름이 modeunsa-infra 일 때 MySQL 서비스: modeunsa-infra-mysql
+mysql:
+  host: "modeunsa-infra-mysql"
+  port: 3306
+  user: "root"
+  password: ""   # 상위 values에서 주입 (mysql.auth.rootPassword 와 동일 권장)
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    cpu: 50m
+    memory: 64Mi

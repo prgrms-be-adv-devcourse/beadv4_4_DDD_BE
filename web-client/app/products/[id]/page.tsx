@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import {useCallback, useEffect, useState} from 'react'
 import Header from '../../components/Header'
+import api from '@/app/lib/axios'
 
 const FASHION_CATEGORIES = [
   { label: '아우터', value: 'outer' },
@@ -52,54 +53,67 @@ interface ApiResponse {
   result: ProductDetailResponse
 }
 
+const getCookie = (name: string) => {
+  if (typeof document === 'undefined') return null
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  if (parts.length === 2) return parts.pop()?.split(';').shift()
+  return null
+}
+
 export default function ProductDetailPage() {
   const params = useParams()
   const router = useRouter()
   const productId = params.id as string
 
-  const fetchProduct = useCallback(async () => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
-    if (!apiUrl) {
-      setProduct(null)
-      return
-    }
-    try {
-      const url = `${apiUrl}/api/v1/products/${productId}`
-      const res = await fetch(url)
-      const data: ApiResponse = await res.json()
-      if (!res.ok) {
-        setError(data.message || '상품 목록을 불러오지 못했습니다.')
-        setProduct(null)
-        return
-      }
-      if (data.isSuccess && data.result) {
-        setProduct(data.result)
-      } else {
-        setProduct(null)
-      }
-    } catch (e) {
-      setError(e instanceof Error ? e.message : '상품 목록을 불러오지 못했습니다.')
-      setProduct(null)
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
-  
   const [product, setProduct] = useState<ProductDetailResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
 
+  const fetchProduct = useCallback(async () => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+    if (!apiUrl || !productId) {
+      setProduct(null)
+      return
+    }
+
+    try {
+      const url = `${apiUrl}/api/v1/products/${productId}`
+      const res = await api.get<ApiResponse>(url)
+
+      const data: ApiResponse = res.data
+
+      if (data.isSuccess && data.result) {
+        setProduct(data.result)
+      } else {
+        setError(data.message || '상품 정보를 불러오지 못했습니다.')
+        setProduct(null)
+      }
+    } catch (e: any) {
+      console.error(e)
+      setError('상품 정보를 불러오는 중 오류가 발생했습니다.')
+      setProduct(null)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [productId])
+
   useEffect(() => {
     fetchProduct()
+  }, [fetchProduct])
+
+  useEffect(() => {
     if (!selectedImageUrl && product?.images && product.images.length > 0) {
       setSelectedImageUrl(product.images[0].imageUrl);
     }
-  }, [fetchProduct, product?.images, selectedImageUrl])
+  }, [product, selectedImageUrl])
 
   const [quantity, setQuantity] = useState(1)
   const [isCreatingOrder, setIsCreatingOrder] = useState(false)
   const [isAddingToCart, setIsAddingToCart] = useState(false)
+  const [isTogglingFavorite, setIsTogglingFavorite] = useState(false)
+
 
   const getCategoryLabel = (category: string): string => {
     const found = FASHION_CATEGORIES.find(
@@ -111,7 +125,8 @@ export default function ProductDetailPage() {
 
   const handleOrder = async () => {
     if (!product) return
-    
+
+
     if (product.stock <= 0) {
       alert('품절된 상품입니다.')
       return
@@ -125,12 +140,44 @@ export default function ProductDetailPage() {
     setIsCreatingOrder(true)
 
     try {
-      // Mock 데이터로 주문 페이지로 이동
-      router.push('/order')
-    } catch (error) {
-      console.error('주문 생성 실패:', error)
-      const errorMessage = error instanceof Error ? error.message : '주문 생성 중 오류가 발생했습니다.'
-      alert(errorMessage)
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+
+      // 주문 생성 API 호출
+      // 주의: 백엔드 API 주소와 Body 형식을 확인해주세요!
+      const res = await api.post(`${apiUrl}/api/v1/orders`, {
+        productId: product.id,
+        quantity: quantity,
+      })
+
+      const data = res.data
+
+      console.log('주문 생성 API 응답:', data)
+
+      if (res.status === 401 || data.code === 'AUTH_401_002') {
+        alert('로그인 시간이 만료되었습니다. 다시 로그인해주세요.')
+        router.replace('/login')
+        return
+      }
+
+      if (data.isSuccess && data.result) {
+        // 성공 시 이동
+        const orderId = data.result.orderId
+        router.push(`/order?orderId=${orderId}`)
+      } else {
+        alert(data.message || '주문 생성 실패')
+      }
+
+    } catch (error: any) {
+      // 401, 400 에러
+      const status = error.response?.status
+      const errorMsg = error.response?.data?.message || '주문 중 오류가 발생했습니다.'
+
+      if (status === 401) {
+        alert('로그인이 필요하거나 세션이 만료되었습니다.')
+        router.push('/login')
+      } else {
+        alert(errorMsg)
+      }
     } finally {
       setIsCreatingOrder(false)
     }
@@ -155,19 +202,73 @@ export default function ProductDetailPage() {
           width="24"
           height="24"
           viewBox="0 0 24 24"
-          fill={active ? '#e60023' : 'none'}
           xmlns="http://www.w3.org/2000/svg"
       >
         <path
             d="M12 21s-6.716-4.514-9.428-7.226C.78 11.98.78 8.993 2.69 7.083c1.91-1.91 4.897-1.91 6.807 0L12 9.586l2.503-2.503c1.91-1.91 4.897-1.91 6.807 0 1.91 1.91 1.91 4.897 0 6.807C18.716 16.486 12 21 12 21z"
-            stroke={active ? '#e60023' : '#999'}
+            fill={active ? '#e60023' : 'none'}
+            stroke={active ? 'none' : '#999'}
             strokeWidth="1.6"
+            style={{
+              fillOpacity: active ? 1 : 0,
+            }}
         />
       </svg>
   );
 
-  const handleToggleFavorite = () => {
+  const handleToggleFavorite = async () => {
     // API 호출 or optimistic update
+    if (!product || isTogglingFavorite) return
+    const accessToken = getCookie('accessToken')
+    if (!accessToken) {
+      alert('로그인이 필요한 서비스입니다.')
+      router.push('/login')
+      return
+    }
+
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+    if (!apiUrl) return
+
+    const prevIsFavorite = product.isFavorite
+    const prevCount = product.favoriteCount
+
+    // ✅ optimistic update
+    setProduct({
+      ...product,
+      isFavorite: !prevIsFavorite,
+      favoriteCount: prevIsFavorite
+          ? prevCount - 1
+          : prevCount + 1,
+    })
+
+    setIsTogglingFavorite(true)
+
+    try {
+      const method = prevIsFavorite ? 'DELETE' : 'POST'
+      const res = await fetch(
+          `${apiUrl}/api/v1/products/favorites/${product.id}`,
+          {
+            method,
+            headers: { Authorization: `Bearer ${accessToken}` },
+          }
+      )
+
+      if (!res.ok) {
+        throw new Error('관심상품 처리 실패')
+      }
+    } catch (e) {
+      // ❌ rollback
+      setProduct({
+        ...product,
+        isFavorite: prevIsFavorite,
+        favoriteCount: prevCount,
+      })
+
+      alert('관심상품 처리 중 오류가 발생했습니다.')
+    } finally {
+      setIsTogglingFavorite(false)
+    }
+
     console.log('관심상품 토글');
   };
 
@@ -346,20 +447,6 @@ export default function ProductDetailPage() {
 
               {/* Action Buttons */}
               <div className="action-buttons">
-                {/*/!* Favorite (Heart) *!/*/}
-                {/*<button*/}
-                {/*    className={`favorite-button ${product.isFavorite ? 'active' : ''}`}*/}
-                {/*    aria-label="관심상품"*/}
-                {/*>*/}
-                {/*  <span*/}
-                {/*      className="favorite-icon"*/}
-                {/*      onClick={handleToggleFavorite}*/}
-                {/*  >*/}
-                {/*    <HeartIcon active={product.isFavorite} />*/}
-                {/*  </span>*/}
-
-                {/*  <span className="favorite-count">{formatCount(product.favoriteCount)}</span>*/}
-                {/*</button>*/}
                 <button
                     className={`favorite-button ${product.isFavorite ? 'active' : ''}`}
                     aria-label="관심상품"
@@ -392,7 +479,7 @@ export default function ProductDetailPage() {
                   onClick={handleOrder}
                   disabled={isCreatingOrder || product.stock <= 0}
                 >
-                  {isCreatingOrder ? '주문 처리 중...' : product.stock <= 0 ? '품절' : '구매하기'}
+                  {isCreatingOrder ? '주문 처리 중...' : product.stock <= 0 ? '재입고 요청' : '구매하기'}
                 </button>
               </div>
             </div>

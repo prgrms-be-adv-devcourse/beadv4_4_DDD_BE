@@ -1,0 +1,13 @@
+apiVersion: v2
+name: modeunsa-app
+description: Modeunsa Application
+type: application
+version: 0.1.0
+
+dependencies:
+  - name: api
+    version: "0.1.0"
+    condition: api.enabled
+  - name: frontend
+    version: 0.1.0
+    condition: frontend.enabled
