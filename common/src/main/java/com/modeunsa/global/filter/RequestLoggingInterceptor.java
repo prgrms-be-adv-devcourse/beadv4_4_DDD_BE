@@ -71,7 +71,7 @@ public class RequestLoggingInterceptor implements HandlerInterceptor {
     if (exception != null) {
       logErrorRequest(requestInfo, startTime, executionTime, statusCode, exception);
     } else {
-      log.info(
+      log.debug(
           LOG_FORMAT_REQUEST_COMPLETED,
           requestInfo.controllerName(),
           requestInfo.traceId(),

@@ -62,13 +62,13 @@ public class InventoryUpdateInventoryUseCaseTest {
     // [Interception] 사장이 조회하면 잠시 붙잡아두기
     doAnswer(
             invocation -> {
-              System.out.println("👨‍💼 사장님: 조회 요청 진입");
+              System.out.println("사장님: 조회 요청 진입");
               sellerReadLatch.countDown();
 
-              System.out.println("👨‍💼 사장님: 잠시 대기 중... (고객이 수정하길 기다림)");
+              System.out.println("사장님: 잠시 대기 중... (고객이 수정하길 기다림)");
               customerUpdateLatch.await();
 
-              System.out.println("👨‍💼 사장님: 다시 작업 재개! (이제 DB 조회함)");
+              System.out.println("사장님: 다시 작업 재개! (이제 DB 조회함)");
 
               // 수동으로 쿼리를 날려서 진짜 데이터(버전 1)를 가져와서 리턴해줌.
               String query = "select i from Inventory i where i.productId = :productId";
@@ -90,7 +90,7 @@ public class InventoryUpdateInventoryUseCaseTest {
                 // 사장님은 5개로 줄이려고 시도 (여기서 Spy가 동작해서 중간에 멈춤)
                 sellerService.updateInventory(sellerId, productId, new InventoryUpdateRequest(5));
               } catch (Exception e) {
-                System.out.println("🏁 사장님 최종 결과: " + e.getMessage());
+                System.out.println("사장님 최종 결과: " + e.getMessage());
                 throw e;
               }
             });

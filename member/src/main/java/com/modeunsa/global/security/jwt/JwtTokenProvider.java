@@ -39,7 +39,7 @@ public class JwtTokenProvider {
     }
 
     this.secretKey = Keys.hmacShaKeyFor(keyBytes);
-    log.info("JWT SecretKey initialized successfully");
+    log.debug("JWT SecretKey initialized successfully");
   }
 
   /** Access Token 생성 */
