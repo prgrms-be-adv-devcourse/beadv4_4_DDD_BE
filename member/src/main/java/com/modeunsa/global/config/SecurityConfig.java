@@ -91,6 +91,7 @@ public class SecurityConfig {
                   // 재고
                   .requestMatchers(HttpMethod.GET, "/api/v2/inventories/*/available-quantity")
                   .permitAll()
+
                   // ========================================
                   // 관리자 전용
                   // ========================================
@@ -100,6 +101,10 @@ public class SecurityConfig {
                   // ========================================
                   // 판매자 전용
                   // ========================================
+                  // 판매자 정보
+                  .requestMatchers(HttpMethod.GET, "/api/v2/members/seller")
+                  .hasRole("SELLER")
+
                   // 상품 CUD
                   .requestMatchers(HttpMethod.POST, "/api/v1/products")
                   .hasRole("SELLER")
@@ -115,10 +120,6 @@ public class SecurityConfig {
                   // ========================================
                   // 마이페이지
                   .requestMatchers("/api/v1/members/me/**")
-                  .hasRole("MEMBER")
-
-                  // 판매자 등록 신청
-                  .requestMatchers(HttpMethod.POST, "/api/v1/members/me/sellers/register")
                   .hasRole("MEMBER")
 
                   // 관심상품
@@ -165,7 +166,6 @@ public class SecurityConfig {
         .implies("SELLER") // ADMIN은 SELLER의 모든 권한을 가짐
         .role("SELLER")
         .implies("MEMBER") // SELLER는 MEMBER의 모든 권한을 가짐
-        // GUEST는 여기에 포함시키지 않습니다. (독립적)
         .build();
   }
 
