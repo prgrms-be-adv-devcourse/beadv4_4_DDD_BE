@@ -1,5 +1,6 @@
 package com.modeunsa.boundedcontext.member.app.usecase;
 
+import com.modeunsa.boundedcontext.auth.app.usecase.AuthTokenIssueUseCase;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.entity.MemberSeller;
 import com.modeunsa.boundedcontext.member.domain.types.SellerStatus;
@@ -8,6 +9,7 @@ import com.modeunsa.boundedcontext.member.out.repository.MemberSellerRepository;
 import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
+import com.modeunsa.shared.auth.dto.JwtTokenResponse;
 import com.modeunsa.shared.member.MemberRole;
 import com.modeunsa.shared.member.dto.request.SellerRegisterRequest;
 import com.modeunsa.shared.member.event.SellerRegisteredEvent;
@@ -25,8 +27,9 @@ public class SellerRegisterUseCase {
   private final MemberRepository memberRepository;
   private final MemberSellerRepository memberSellerRepository;
   private final EventPublisher eventPublisher;
+  private final AuthTokenIssueUseCase authTokenIssueUseCase;
 
-  public void execute(Long memberId, SellerRegisterRequest request, String finalLicenseUrl) {
+  public JwtTokenResponse execute(Long memberId, SellerRegisterRequest request, String finalLicenseUrl) {
     // 1. 회원 조회
     Member member =
         memberRepository
@@ -90,5 +93,12 @@ public class SellerRegisterUseCase {
             seller.getSettlementBankName(),
             seller.getSettlementBankAccount(),
             seller.getStatus().name()));
+
+    return authTokenIssueUseCase.execute(
+        member.getId(),
+        member.getRole(), // SELLER
+        seller.getId(),
+        member.getStatus().name()
+    );
   }
 }
