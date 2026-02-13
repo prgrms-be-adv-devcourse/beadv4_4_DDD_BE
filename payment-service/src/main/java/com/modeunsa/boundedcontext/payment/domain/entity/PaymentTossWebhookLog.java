@@ -24,6 +24,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class PaymentTossWebhookLog extends GeneratedIdAndAuditedEntity {
 
+  @Column(nullable = false, unique = true)
   private String transmissionId;
 
   private OffsetDateTime transmissionTime;

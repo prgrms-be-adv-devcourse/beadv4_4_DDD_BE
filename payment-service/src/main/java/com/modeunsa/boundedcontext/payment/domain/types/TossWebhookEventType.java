@@ -13,7 +13,7 @@ public enum TossWebhookEventType {
 
   public static TossWebhookEventType from(String raw) {
     if (!StringUtils.hasText(raw)) {
-      throw new TossWebhookException(TossWebhookErrorCode.INVALID_EVENT_TYPE);
+      throw new TossWebhookException(TossWebhookErrorCode.UNSUPPORTED_STATUS);
     }
 
     for (TossWebhookEventType type : values()) {
@@ -22,6 +22,6 @@ public enum TossWebhookEventType {
       }
     }
 
-    throw new TossWebhookException(TossWebhookErrorCode.INVALID_EVENT_TYPE);
+    throw new TossWebhookException(TossWebhookErrorCode.UNSUPPORTED_STATUS);
   }
 }

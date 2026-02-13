@@ -16,23 +16,24 @@ public class TossWebhookValidator {
   public boolean validate(
       String transmissionId, OffsetDateTime transmissionTime, int retryCount, String rawEventType) {
 
+    log.error(
+        "[toss webhook exceed retry count] "
+            + "transmissionId: {}, "
+            + "transmissionTime: {}, "
+            + "retryCount: {}, "
+            + "eventType: {}",
+        transmissionId,
+        transmissionTime,
+        retryCount,
+        rawEventType);
+
     if (retryCount > MAX_RETRY_COUNT) {
-      log.error(
-          "[toss webhook exceed retry count] "
-              + "transmissionId: {}, "
-              + "transmissionTime: {}, "
-              + "retryCount: {}, "
-              + "eventType: {}",
-          transmissionId,
-          transmissionTime,
-          retryCount,
-          rawEventType);
       return false;
     }
 
     TossWebhookEventType eventType = TossWebhookEventType.from(rawEventType);
     if (eventType != TossWebhookEventType.PAYMENT_STATUS_CHANGED) {
-      throw new TossWebhookException(TossWebhookErrorCode.INVALID_EVENT_TYPE);
+      throw new TossWebhookException(TossWebhookErrorCode.UNSUPPORTED_STATUS);
     }
 
     return true;

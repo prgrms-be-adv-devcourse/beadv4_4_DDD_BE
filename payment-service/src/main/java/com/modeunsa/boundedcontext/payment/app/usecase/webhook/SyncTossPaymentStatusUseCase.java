@@ -31,12 +31,18 @@ public class SyncTossPaymentStatusUseCase {
       case CANCELED, PARTIAL_CANCELED -> payment.syncToCanceled();
       case ABORTED -> handleFailure(payment, PaymentErrorCode.PG_PAYMENT_ABORTED, data.failure());
       case EXPIRED -> handleFailure(payment, PaymentErrorCode.PG_PAYMENT_EXPIRED, data.failure());
-      default -> throw new TossWebhookException(TossWebhookErrorCode.INVALID_EVENT_TYPE);
+      default -> throw new TossWebhookException(TossWebhookErrorCode.UNSUPPORTED_STATUS);
     }
   }
 
   private void handleFailure(
       Payment payment, PaymentErrorCode paymentErrorCode, TossWebhookData.FailureInfo failure) {
+
+    String failureMessage =
+        failure != null
+            ? String.format("error_code : %s, message : %s", failure.code(), failure.message())
+            : paymentErrorCode.getMessage();
+
     eventPublisher.publish(
         PaymentFailedEvent.from(
             payment.getId().getMemberId(),
@@ -44,6 +50,6 @@ public class SyncTossPaymentStatusUseCase {
             payment.getId().getOrderNo(),
             payment.getTotalAmount(),
             paymentErrorCode.getCode(),
-            failure.message()));
+            failureMessage));
   }
 }

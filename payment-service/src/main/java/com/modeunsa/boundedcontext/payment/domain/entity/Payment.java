@@ -266,7 +266,7 @@ public class Payment extends AuditedEntity {
 
   public void syncToApproved() {
     validateNotTerminalStatus();
-    if (this.status == PaymentStatus.IN_PROGRESS) {
+    if (this.status == PaymentStatus.IN_PROGRESS || this.status == PaymentStatus.PENDING) {
       changeStatus(PaymentStatus.APPROVED);
     }
   }
