@@ -7,8 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum SaleStatus {
   SALE("판매중"),
-  NOT_SALE("판매중지"),
-  SOLD_OUT("품절");
+  NOT_SALE("판매중지");
 
   private final String description;
 }
