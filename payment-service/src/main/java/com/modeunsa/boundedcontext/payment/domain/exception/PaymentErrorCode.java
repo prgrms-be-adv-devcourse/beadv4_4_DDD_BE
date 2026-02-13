@@ -10,13 +10,13 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum PaymentErrorCode {
-  MEMBER_IN_ACTIVE("PAYMENT_4001", "Member is not active."),
+  PAYMENT_MEMBER_IN_ACTIVE("PAYMENT_4001", "Member is not active."),
   DUPLICATE_PAYMENT("PAYMENT_4002", "Duplicate payment detected."),
-  INVALID_PAYMENT("PAYMENT_4001", "Invalid payment details."),
-  INVALID_CHARGE_AMOUNT("PAYMENT_4003", "Charge amount is invalid."),
-  INVALID_PAYMENT_STATUS("PAYMENT_4004", "Payment status is invalid for this operation."),
-  OVERDUE_PAYMENT_DEADLINE("PAYMENT_4005", "Payment deadline has been exceeded."),
-  INVALID_PAYMENT_PURPOSE("PAYMENT_4006", "Invalid payment purpose.");
+  INVALID_PAYMENT("PAYMENT_4003", "Invalid payment details."),
+  INVALID_CHARGE_AMOUNT("PAYMENT_4004", "Charge amount is invalid."),
+  INVALID_PAYMENT_STATUS("PAYMENT_4005", "Payment status is invalid for this operation."),
+  OVERDUE_PAYMENT_DEADLINE("PAYMENT_4006", "Payment deadline has been exceeded."),
+  INVALID_PAYMENT_PURPOSE("PAYMENT_4007", "Invalid payment purpose.");
 
   private final String errorCode;
   private final String message;
