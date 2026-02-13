@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.settlement.in;
+package settlement.in;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
