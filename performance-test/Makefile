@@ -5,6 +5,7 @@
 PAYMENT_SCRIPT=scripts/payment/payment_request.js
 PAYMENT_MEMBER_SCRIPT=scripts/payment/payment_member.js
 PRODUCT_SEARCH_SCRIPT=scripts/product/product_search.js
+ORDER_SCRIPT=scripts/order/product_detail_and_order.js
 
 # arrival 모드 기본 값 (원하면 make 호출 시 ARRIVAL_RATE=... 로 override)
 ARRIVAL_RATE?=100
@@ -14,7 +15,7 @@ TARGET_RPS?=200
 
 K6_OUT = --out influxdb=http://influxdb:8086/k6
 
-.PHONY: test-payment-request test-payment-member test-product-search test-product-search-arrival test-product-search-step up down
+.PHONY: test-payment-request test-payment-member test-product-search test-product-search-arrival test-product-search-step test-product-detail-and-order up down
 up:
 	docker-compose up -d influxdb grafana
 
@@ -26,6 +27,12 @@ test-payment-request:
 
 test-payment-member:
 	docker-compose run --rm k6 run $(K6_OUT) /$(PAYMENT_MEMBER_SCRIPT)
+
+test-product-detail-and-order:
+	docker-compose run --rm \
+		-e TARGET_URL=$(TARGET_URL) \
+		-e MEMBER_ID=$(MEMBER_ID) \
+		k6 run $(K6_OUT) /$(ORDER_SCRIPT)
 
 test-product-search:
 	docker-compose run --rm k6 run $(K6_OUT) /$(PRODUCT_SEARCH_SCRIPT)
