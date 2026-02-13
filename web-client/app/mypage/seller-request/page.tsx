@@ -34,6 +34,9 @@ interface MemberBasicInfo {
 // 3. 도메인 타입 상수
 const DOMAIN_TYPE = "SELLER";
 
+// 4. 최대 파일 크기 제한 (10MB)
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
 export default function SellerRequestPage() {
   const [loading, setLoading] = useState(false)
 
@@ -84,9 +87,20 @@ export default function SellerRequestPage() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
+  // 파일 선택 및 크기 검증 로직
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0])
+      const selectedFile = e.target.files[0];
+
+      // 파일 크기 10MB 제한 검증
+      if (selectedFile.size > MAX_FILE_SIZE) {
+        alert('파일 크기는 10MB를 초과할 수 없습니다.');
+        e.target.value = ''; // input 필드 초기화
+        setFile(null);
+        return;
+      }
+
+      setFile(selectedFile);
     }
   }
 
@@ -162,6 +176,12 @@ export default function SellerRequestPage() {
     }
     if (!file) {
       alert('사업자등록증 파일을 첨부해 주세요.')
+      return
+    }
+
+    // 제출 전 한 번 더 파일 크기 방어 로직 추가
+    if (file.size > MAX_FILE_SIZE) {
+      alert('파일 크기가 10MB를 초과하여 업로드할 수 없습니다.')
       return
     }
 
@@ -263,7 +283,7 @@ export default function SellerRequestPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <input
                     type="file"
-                    accept="image/*, .pdf, application/pdf"
+                    accept="image/*, .pdf"
                     onChange={handleFileChange}
                     style={{ fontSize: '13px' }}
                 />
@@ -275,7 +295,7 @@ export default function SellerRequestPage() {
                 )}
               </div>
               <p style={{ marginTop: '6px', fontSize: '12px', color: '#777' }}>
-                사업자등록증 사본 파일을 업로드해 주세요. (이미지 또는 PDF)
+                사업자등록증 사본 파일을 업로드해 주세요. (이미지 또는 PDF, 최대 10MB)
               </p>
             </div>
 
