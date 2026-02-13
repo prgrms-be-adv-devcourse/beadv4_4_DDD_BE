@@ -126,7 +126,7 @@ public class Product extends GeneratedIdAndAuditedEntity {
     this.images.clear();
   }
 
-  public void changeSaleStatus(SaleStatus saleStatus) {
-    this.saleStatus = saleStatus;
+  public boolean isOrderAvailable() {
+    return ProductPolicy.isOrderable(this.saleStatus, this.productStatus);
   }
 }

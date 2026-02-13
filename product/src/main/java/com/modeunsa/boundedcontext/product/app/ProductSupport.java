@@ -52,8 +52,8 @@ public class ProductSupport {
   public Page<Product> getProducts(ProductCategory category, Pageable pageable) {
     return productRepository.findAllByCategoryAndSaleStatusInAndProductStatusIn(
         category,
-        ProductPolicy.DISPLAYABLE_SALE_STATUES_FOR_ALL,
-        ProductPolicy.DISPLAYABLE_PRODUCT_STATUSES_FOR_ALL,
+        ProductPolicy.ORDERABLE_SALE_STATUES,
+        ProductPolicy.ORDERABLE_PRODUCT_STATUES,
         pageable);
   }
 

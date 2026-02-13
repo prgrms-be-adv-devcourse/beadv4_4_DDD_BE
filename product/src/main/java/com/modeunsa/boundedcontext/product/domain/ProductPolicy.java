@@ -10,13 +10,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class ProductPolicy {
 
-  public static final Set<SaleStatus> DISPLAYABLE_SALE_STATUES_FOR_ALL =
-      EnumSet.of(SaleStatus.SALE, SaleStatus.SOLD_OUT);
-
-  public static final Set<ProductStatus> DISPLAYABLE_PRODUCT_STATUSES_FOR_ALL =
-      EnumSet.of(ProductStatus.COMPLETED);
-
   public static final Set<SaleStatus> ORDERABLE_SALE_STATUES = EnumSet.of(SaleStatus.SALE);
+
+  public static final Set<ProductStatus> ORDERABLE_PRODUCT_STATUES =
+      EnumSet.of(ProductStatus.COMPLETED);
 
   private static final EnumSet<ProductUpdatableField> DRAFT_ALLOWED =
       EnumSet.allOf(ProductUpdatableField.class);
@@ -28,6 +25,11 @@ public class ProductPolicy {
 
   private static final EnumSet<ProductStatus> DRAFT_ALLOWED_STATUSES =
       EnumSet.of(ProductStatus.COMPLETED, ProductStatus.CANCELED);
+
+  public static boolean isOrderable(SaleStatus saleStatus, ProductStatus productStatus) {
+    return ORDERABLE_SALE_STATUES.contains(saleStatus)
+        && ORDERABLE_PRODUCT_STATUES.contains(productStatus);
+  }
 
   public void validate(ProductStatus productStatus, ProductUpdatableRequest request) {
     // 1. 수정 가능 필드 검증
