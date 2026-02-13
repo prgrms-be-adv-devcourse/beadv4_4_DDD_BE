@@ -130,6 +130,13 @@ public class Payment extends AuditedEntity {
   private static final Set<PaymentStatus> ALLOWED_FOR_SUCCESS =
       Set.of(PaymentStatus.IN_PROGRESS, PaymentStatus.APPROVED);
 
+  private static final Set<PaymentStatus> FINAL_TERMINAL_STATUSES =
+      Set.of(
+          PaymentStatus.SUCCESS,
+          PaymentStatus.FINAL_FAILED,
+          PaymentStatus.CANCELED,
+          PaymentStatus.REFUNDED);
+
   public static Payment create(
       PaymentId id,
       Long orderId,
@@ -205,6 +212,7 @@ public class Payment extends AuditedEntity {
   }
 
   public void changeInProgress() {
+    validateNotTerminalStatus();
     validateCanChangeToInProgress();
     changeStatus(PaymentStatus.IN_PROGRESS);
   }
@@ -249,6 +257,29 @@ public class Payment extends AuditedEntity {
     this.pgOrderId = context.pgOrderId();
   }
 
+  public void syncToInProgress() {
+    validateNotTerminalStatus();
+    if (this.status == PaymentStatus.PENDING) {
+      changeInProgress();
+    }
+  }
+
+  public void syncToApproved() {
+    validateNotTerminalStatus();
+    if (this.status == PaymentStatus.IN_PROGRESS) {
+      changeStatus(PaymentStatus.APPROVED);
+    }
+  }
+
+  public void syncToCanceled() {
+    validateNotTerminalStatus();
+    changeStatus(PaymentStatus.CANCELED);
+  }
+
+  private boolean isTerminalStatus() {
+    return FINAL_TERMINAL_STATUSES.contains(this.status);
+  }
+
   private void addPaymentLog(PaymentStatus beforeStatus, PaymentStatus afterStatus) {
     PaymentLog paymentLog = PaymentLog.addLog(this, beforeStatus, afterStatus);
     this.paymentLogs.add(paymentLog);
@@ -267,7 +298,8 @@ public class Payment extends AuditedEntity {
   }
 
   private boolean isRetryable() {
-    return this.status == PaymentStatus.PENDING || this.status == PaymentStatus.FAILED;
+    return !isTerminalStatus()
+        && (this.status == PaymentStatus.PENDING || this.status == PaymentStatus.FAILED);
   }
 
   private void validateCanChangeToInProgress() {
@@ -303,6 +335,16 @@ public class Payment extends AuditedEntity {
           String.format(
               "결제 유효기간이 만료되어 결제 진행상태로 변경할 수 없습니다. 회원 ID: %d, 주문 번호: %s, 결제 마감일: %s",
               getId().getMemberId(), getId().getOrderNo(), this.paymentDeadlineAt));
+    }
+  }
+
+  private void validateNotTerminalStatus() {
+    if (isTerminalStatus()) {
+      throw new PaymentDomainException(
+          INVALID_PAYMENT,
+          String.format(
+              "최종 상태의 결제 건은 변경할 수 없습니다. 더 이상 상태 변경이 불가능합니다. 회원 ID: %d, 주문 번호: %s, 현재 상태: %s",
+              getId().getMemberId(), getId().getOrderNo(), this.status));
     }
   }
 }

@@ -16,18 +16,22 @@ public enum PaymentErrorCode {
   INVALID_CHARGE_AMOUNT("PAYMENT_4004", "Charge amount is invalid."),
   INVALID_PAYMENT_STATUS("PAYMENT_4005", "Payment status is invalid for this operation."),
   OVERDUE_PAYMENT_DEADLINE("PAYMENT_4006", "Payment deadline has been exceeded."),
-  INVALID_PAYMENT_PURPOSE("PAYMENT_4007", "Invalid payment purpose.");
+  INVALID_PAYMENT_PURPOSE("PAYMENT_4007", "Invalid payment purpose."),
+  PG_PAYMENT_ABORTED("PAYMENT_4008", "Payment was aborted by the payment gateway."),
+  PG_PAYMENT_EXPIRED("PAYMENT_4008", "Payment expired at the payment gateway."),
+  ;
 
-  private final String errorCode;
+  private final String code;
   private final String message;
 
-  private static final Set<PaymentErrorCode> FINAL_FAILURE_CODES = Set.of(OVERDUE_PAYMENT_DEADLINE);
+  private static final Set<PaymentErrorCode> FINAL_FAILURE_CODES =
+      Set.of(OVERDUE_PAYMENT_DEADLINE, PG_PAYMENT_EXPIRED);
 
   private static final Map<String, PaymentErrorCode> BY_CODE = new HashMap<>();
 
   static {
     for (PaymentErrorCode e : values()) {
-      BY_CODE.putIfAbsent(e.getErrorCode(), e);
+      BY_CODE.putIfAbsent(e.getCode(), e);
     }
   }
 

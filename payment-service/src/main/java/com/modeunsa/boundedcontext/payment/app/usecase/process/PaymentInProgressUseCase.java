@@ -136,7 +136,7 @@ public class PaymentInProgressUseCase {
             context.orderId(),
             context.orderNo(),
             context.totalAmount(),
-            exception.getErrorCode(),
+            exception.getCode(),
             exception.getMessage()));
   }
 }
