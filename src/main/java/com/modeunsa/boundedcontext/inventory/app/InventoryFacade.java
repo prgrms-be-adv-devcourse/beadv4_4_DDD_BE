@@ -4,8 +4,6 @@ import com.modeunsa.boundedcontext.inventory.domain.InventoryProduct;
 import com.modeunsa.shared.inventory.dto.InventoryAvailableQuantityResponse;
 import com.modeunsa.shared.inventory.dto.InventoryDto;
 import com.modeunsa.shared.inventory.dto.InventoryReserveRequest;
-import com.modeunsa.shared.inventory.dto.InventoryUpdateRequest;
-import com.modeunsa.shared.inventory.dto.InventoryUpdateResponse;
 import com.modeunsa.shared.order.dto.OrderItemDto;
 import com.modeunsa.shared.product.dto.ProductDto;
 import java.util.List;
@@ -20,7 +18,7 @@ public class InventoryFacade {
   private final InventoryRegisterSellerUseCase inventoryRegisterSellerUseCase;
   private final InventoryCreateProductUseCase inventoryCreateProductUseCase;
   private final InventoryCreateInventoryUseCase inventoryCreateInventoryUseCase;
-  private final InventoryUpdateInventoryUseCase invertoryUpdateInventoryUseCase;
+  private final InventoryUpdateInventoryUseCase inventoryUpdateInventoryUseCase;
   private final InventorySupport inventorySupport;
   private final InventoryMapper inventoryMapper;
   private final InventoryReserveInventoryUseCase inventoryReserveInventoryUseCase;
@@ -40,12 +38,14 @@ public class InventoryFacade {
     inventoryCreateInventoryUseCase.createInventory(product);
   }
 
+  /* TODO: 업데이트 로직 분리
   @Transactional
   public InventoryUpdateResponse updateInventory(
       Long sellerId, Long productId, InventoryUpdateRequest inventoryUpdateRequest) {
-    return invertoryUpdateInventoryUseCase.updateInventory(
+    return inventoryUpdateInventoryUseCase.updateInventory(
         sellerId, productId, inventoryUpdateRequest);
   }
+   */
 
   public InventoryDto getInventory(Long productId) {
     return inventoryMapper.toInventoryDto(inventorySupport.getInventory(productId));

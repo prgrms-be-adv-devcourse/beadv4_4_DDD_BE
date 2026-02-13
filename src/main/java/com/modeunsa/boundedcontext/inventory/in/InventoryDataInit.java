@@ -1,7 +1,6 @@
 package com.modeunsa.boundedcontext.inventory.in;
 
 import com.modeunsa.boundedcontext.inventory.app.InventoryFacade;
-import com.modeunsa.shared.inventory.dto.InventoryUpdateRequest;
 import jakarta.transaction.Transactional;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -36,6 +35,7 @@ public class InventoryDataInit {
   @Transactional
   public void makeBaseInventory() {
 
+    /*
     inventoryFacade.updateInventory(1L, 2L, new InventoryUpdateRequest(100));
 
     inventoryFacade.updateInventory(1L, 3L, new InventoryUpdateRequest(100));
@@ -51,5 +51,6 @@ public class InventoryDataInit {
     inventoryFacade.updateInventory(1L, 8L, new InventoryUpdateRequest(100));
 
     inventoryFacade.updateInventory(1L, 1L, new InventoryUpdateRequest(100));
+     */
   }
 }

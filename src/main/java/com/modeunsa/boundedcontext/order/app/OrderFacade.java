@@ -18,11 +18,8 @@ import com.modeunsa.shared.payment.dto.PaymentDto;
 import com.modeunsa.shared.product.dto.ProductDto;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,20 +59,12 @@ public class OrderFacade {
   }
 
   // 단건 주문 생성
-  @Retryable(
-      retryFor = DataIntegrityViolationException.class,
-      maxAttempts = 3,
-      backoff = @Backoff(delay = 100))
   @Transactional
   public OrderResponseDto createOrder(Long memberId, CreateOrderRequestDto requestDto) {
     return orderCreateOrderUseCase.createOrder(memberId, requestDto);
   }
 
   // 장바구니 주문 생성
-  @Retryable(
-      retryFor = DataIntegrityViolationException.class,
-      maxAttempts = 3,
-      backoff = @Backoff(delay = 100))
   @Transactional
   public OrderResponseDto createCartOrder(Long memberId, CreateCartOrderRequestDto requestDto) {
     return orderCreateCartOrderUseCase.createCartOrder(memberId, requestDto);
@@ -183,5 +172,9 @@ public class OrderFacade {
 
   public void confirmOrderCancellation(PaymentDto payment) {
     orderConfirmOrderCancellationUseCase.confirmOrderCancellation(payment.orderId());
+  }
+
+  public int getPendingCount(Long productId) {
+    return orderSupport.getPendingCount(productId);
   }
 }

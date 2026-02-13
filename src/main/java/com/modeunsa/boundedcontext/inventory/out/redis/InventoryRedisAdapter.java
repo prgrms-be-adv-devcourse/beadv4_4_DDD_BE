@@ -1,8 +1,13 @@
 package com.modeunsa.boundedcontext.inventory.out.redis;
 
 import com.modeunsa.boundedcontext.inventory.app.InventoryCommandPort;
+import com.modeunsa.boundedcontext.inventory.app.InventoryQueryPort;
+import com.modeunsa.boundedcontext.inventory.domain.Inventory;
+import com.modeunsa.boundedcontext.inventory.out.InventoryRepository;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
+import com.modeunsa.shared.order.out.OrderApiClient;
+import java.time.Duration;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -11,8 +16,10 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class InventoryRedisAdapter implements InventoryCommandPort {
+public class InventoryRedisAdapter implements InventoryCommandPort, InventoryQueryPort {
   private final RedisTemplate<String, String> redisTemplate;
+  private final InventoryRepository inventoryRepository;
+  private final OrderApiClient orderApiClient;
 
   private static final String RESERVE_MULTI_LUA =
       """
@@ -57,7 +64,54 @@ public class InventoryRedisAdapter implements InventoryCommandPort {
         String.valueOf(quantity));
   }
 
+  @Override
+  public int getAvailableQuantity(Long productId) {
+    String key = inventoryKey(productId);
+    String value = redisTemplate.opsForValue().get(key);
+
+    // Redis에 값이 있으면 그대로 반환
+    if (value != null) {
+      return Integer.parseInt(value);
+    }
+
+    //  Redis에 값이 없을 때(만료되었거나 최초 조회 시)
+    // DB에서 조회하여 Redis에 채워넣고 반환해야 함
+    return refreshRedisFromDb(productId, key);
+  }
+
   private String inventoryKey(Long productId) {
     return "inventory:available:" + productId;
+  }
+
+  private int refreshRedisFromDb(Long productId, String key) {
+    // DB에서 계산
+    Inventory inventory =
+        inventoryRepository
+            .findById(productId)
+            .orElseThrow(() -> new GeneralException(ErrorStatus.INVENTORY_NOT_FOUND));
+    int pendingQuantity = 0;
+    try {
+      pendingQuantity = orderApiClient.getPendingCount(productId);
+    } catch (Exception e) {
+      throw new GeneralException(ErrorStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    int availableQuantity = Math.max(inventory.getStockQuantity() - pendingQuantity, 0);
+
+    // Redis에 저장 시도 (SETNX)
+    // redis에 키 있으면 데이터 버리기
+    Boolean isSet =
+        redisTemplate
+            .opsForValue()
+            .setIfAbsent(key, String.valueOf(availableQuantity), Duration.ofMinutes(5));
+
+    // 이미 키가 있을 때
+    if (Boolean.FALSE.equals(isSet)) {
+      // Redis에 있는 최신 값을 가져와서 반환
+      String recentValue = redisTemplate.opsForValue().get(key);
+      return recentValue != null ? Integer.parseInt(recentValue) : availableQuantity;
+    }
+
+    return availableQuantity;
   }
 }
