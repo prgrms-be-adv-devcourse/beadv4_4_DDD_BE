@@ -72,7 +72,7 @@ export default function ProductDetailPage() {
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
 
   const fetchProduct = useCallback(async () => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+    const apiUrl = process.env.NEXT_PUBLIC_PRODUCT_API_URL || ''
     if (!apiUrl || !productId) {
       setProduct(null)
       return

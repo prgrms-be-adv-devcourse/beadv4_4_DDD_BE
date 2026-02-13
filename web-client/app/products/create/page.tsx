@@ -146,10 +146,10 @@ export default function ProductCreatePage() {
 
   // Presigned URL 요청 및 S3 업로드
   const uploadImageToS3 = async (file: File): Promise<string> => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL!
+    const fileApiUrl = process.env.NEXT_PUBLIC_FILE_API_URL!
 
     /** 1. presigned url 요청 */
-    const presignedRes = await fetch(`${apiUrl}/api/v1/files/presigned-url`, {
+    const presignedRes = await fetch(`${fileApiUrl}/api/v1/files/presigned-url`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -183,7 +183,7 @@ export default function ProductCreatePage() {
     }
 
     /** 3. public-read URL 반환 */
-    const publicUrlApi = `${apiUrl}/api/v1/files/public-url`;
+    const publicUrlApi = `${fileApiUrl}/api/v1/files/public-url`;
     const downloadRes = await fetch(publicUrlApi, {
       method: 'POST',
       headers: {

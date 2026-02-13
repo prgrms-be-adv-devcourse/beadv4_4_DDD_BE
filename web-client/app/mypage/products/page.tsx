@@ -25,7 +25,6 @@ const PRODUCT_STATUS_OPTIONS = [
 const SALE_STATUS_OPTIONS = [
   { value: '', label: '판매상태 전체' },
   { value: 'SALE', label: '판매중' },
-  { value: 'SOLD_OUT', label: '품절' },
   { value: 'NOT_SALE', label: '판매중지' },
 ]
 

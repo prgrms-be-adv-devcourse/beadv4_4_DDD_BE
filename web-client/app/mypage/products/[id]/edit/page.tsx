@@ -7,7 +7,7 @@ import MypageLayout from '../../../../components/MypageLayout'
 
 type ProductCategory = 'OUTER' | 'UPPER' | 'LOWER' | 'CAP' | 'SHOES' | 'BAG' | 'BEAUTY'
 type ProductStatus = 'CANCELED' | 'DRAFT' | 'COMPLETED'
-type SaleStatus = 'SALE' | 'NOT_SALE' | 'SOLD_OUT'
+type SaleStatus = 'SALE' | 'NOT_SALE'
 
 type PresignedUrlResponse = {
   presignedUrl: string
@@ -84,7 +84,6 @@ const categoryOptions: { value: ProductCategory; label: string }[] = [
 const saleStatusOptions: { value: SaleStatus; label: string }[] = [
   { value: 'SALE', label: '판매중' },
   { value: 'NOT_SALE', label: '판매중지' },
-  { value: 'SOLD_OUT', label: '품절' },
 ]
 
 const baseButtonStyle = {
