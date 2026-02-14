@@ -3,7 +3,7 @@ package com.modeunsa.boundedcontext.payment.out.persistence.outbox;
 import static com.modeunsa.boundedcontext.payment.domain.entity.QPaymentOutboxEvent.paymentOutboxEvent;
 
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentOutboxEvent;
-import com.modeunsa.boundedcontext.payment.domain.types.PaymentOutboxStatus;
+import com.modeunsa.global.kafka.outbox.OutboxStatus;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -20,11 +20,10 @@ public class PaymentOutboxQueryRepository {
 
   private final JPAQueryFactory queryFactory;
 
-  public List<PaymentOutboxEvent> getOutboxEventPageByStatus(
-      PaymentOutboxStatus status, Pageable pageable) {
+  public List<PaymentOutboxEvent> findPendingEvents(Pageable pageable) {
 
     BooleanBuilder where = new BooleanBuilder();
-    where.and(eqStatus(status));
+    where.and(eqStatus(OutboxStatus.PENDING));
 
     JPAQuery<PaymentOutboxEvent> contentQuery =
         this.queryFactory
@@ -44,7 +43,7 @@ public class PaymentOutboxQueryRepository {
             .select(paymentOutboxEvent.id)
             .from(paymentOutboxEvent)
             .where(
-                eqStatus(PaymentOutboxStatus.SENT),
+                eqStatus(OutboxStatus.SENT),
                 paymentOutboxEvent.sentAt.isNotNull(),
                 beforeSentAt(before))
             .orderBy(paymentOutboxEvent.sentAt.asc(), paymentOutboxEvent.id.asc())
@@ -54,7 +53,7 @@ public class PaymentOutboxQueryRepository {
     return contentQuery.fetch();
   }
 
-  private BooleanExpression eqStatus(PaymentOutboxStatus status) {
+  private BooleanExpression eqStatus(OutboxStatus status) {
     return status != null ? paymentOutboxEvent.status.eq(status) : null;
   }
 

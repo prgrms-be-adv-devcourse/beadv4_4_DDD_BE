@@ -1,7 +1,8 @@
 package com.modeunsa.boundedcontext.payment.domain.entity;
 
-import com.modeunsa.boundedcontext.payment.domain.types.PaymentOutboxStatus;
 import com.modeunsa.global.jpa.entity.AuditedEntity;
+import com.modeunsa.global.kafka.outbox.OutboxEventView;
+import com.modeunsa.global.kafka.outbox.OutboxStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -25,7 +26,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class PaymentOutboxEvent extends AuditedEntity {
+public class PaymentOutboxEvent extends AuditedEntity implements OutboxEventView {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,7 +51,7 @@ public class PaymentOutboxEvent extends AuditedEntity {
   @Builder.Default
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 20)
-  private PaymentOutboxStatus status = PaymentOutboxStatus.PENDING;
+  private OutboxStatus status = OutboxStatus.PENDING;
 
   private LocalDateTime sentAt;
 
@@ -71,24 +72,5 @@ public class PaymentOutboxEvent extends AuditedEntity {
         .topic(topic)
         .payload(payload)
         .build();
-  }
-
-  public void markAsProcessing() {
-    this.status = PaymentOutboxStatus.PROCESSING;
-  }
-
-  public void markAsSent() {
-    this.status = PaymentOutboxStatus.SENT;
-    this.sentAt = LocalDateTime.now();
-  }
-
-  public void markAsFailed(String errorMessage) {
-    this.lastErrorMessage = errorMessage;
-    this.retryCount++;
-    if (this.retryCount >= MAX_RETRY_COUNT) {
-      this.status = PaymentOutboxStatus.FAILED;
-    } else {
-      this.status = PaymentOutboxStatus.PENDING;
-    }
   }
 }

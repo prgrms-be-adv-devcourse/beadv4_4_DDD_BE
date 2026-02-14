@@ -1,7 +1,6 @@
 package com.modeunsa.boundedcontext.payment.out.persistence.outbox;
 
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentOutboxEvent;
-import com.modeunsa.boundedcontext.payment.domain.types.PaymentOutboxStatus;
 import com.modeunsa.boundedcontext.payment.out.PaymentOutboxReader;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,9 +15,8 @@ public class JpaPaymentOutboxReader implements PaymentOutboxReader {
   private final PaymentOutboxQueryRepository queryRepository;
 
   @Override
-  public List<PaymentOutboxEvent> findOutboxEventPage(
-      PaymentOutboxStatus status, Pageable pageable) {
-    return queryRepository.getOutboxEventPageByStatus(status, pageable);
+  public List<PaymentOutboxEvent> findPendingEvents(Pageable pageable) {
+    return queryRepository.findPendingEvents(pageable);
   }
 
   @Override
