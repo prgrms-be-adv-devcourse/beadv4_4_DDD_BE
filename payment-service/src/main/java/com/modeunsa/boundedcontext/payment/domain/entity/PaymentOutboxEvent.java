@@ -59,4 +59,36 @@ public class PaymentOutboxEvent extends AuditedEntity {
   private String lastErrorMessage;
 
   @Version private Long version;
+
+  private static final int MAX_RETRY_COUNT = 5;
+
+  public static PaymentOutboxEvent create(
+      String aggregateType, String aggregateId, String eventType, String topic, String payload) {
+    return PaymentOutboxEvent.builder()
+        .aggregateType(aggregateType)
+        .aggregateId(aggregateId)
+        .eventType(eventType)
+        .topic(topic)
+        .payload(payload)
+        .build();
+  }
+
+  public void markAsProcessing() {
+    this.status = PaymentOutboxStatus.PROCESSING;
+  }
+
+  public void markAsSent() {
+    this.status = PaymentOutboxStatus.SENT;
+    this.sentAt = LocalDateTime.now();
+  }
+
+  public void markAsFailed(String errorMessage) {
+    this.lastErrorMessage = errorMessage;
+    this.retryCount++;
+    if (this.retryCount >= MAX_RETRY_COUNT) {
+      this.status = PaymentOutboxStatus.FAILED;
+    } else {
+      this.status = PaymentOutboxStatus.PENDING;
+    }
+  }
 }
