@@ -137,3 +137,13 @@ app:
 
 internal:
   api-key: ${INTERNAL_API_KEY}
+
+
+outbox:
+  poller:
+    enabled: false          # 폴러 활성화
+    interval-ms: 5000      # 폴링 주기 (5초)
+    batch-size: 100        # 배치 크기
+    max-retry: 5           # 최대 재시도 횟수
+  cleanup:
+    cron: "0 0 3 * * *"    # 정리 스케줄 (매일 새벽 3시)

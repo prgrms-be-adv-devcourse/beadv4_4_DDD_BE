@@ -11,8 +11,6 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
@@ -22,7 +20,7 @@ public class PaymentOutboxQueryRepository {
 
   private final JPAQueryFactory queryFactory;
 
-  public Page<PaymentOutboxEvent> getOutboxEventPageByStatus(
+  public List<PaymentOutboxEvent> getOutboxEventPageByStatus(
       PaymentOutboxStatus status, Pageable pageable) {
 
     BooleanBuilder where = new BooleanBuilder();
@@ -36,18 +34,7 @@ public class PaymentOutboxQueryRepository {
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize());
 
-    List<PaymentOutboxEvent> content = contentQuery.fetch();
-
-    Long total =
-        this.queryFactory
-            .select(paymentOutboxEvent.count())
-            .from(paymentOutboxEvent)
-            .where(where)
-            .fetchOne();
-
-    long totalCount = total != null ? total : 0;
-
-    return new PageImpl<>(content, pageable, totalCount);
+    return contentQuery.fetch();
   }
 
   public List<Long> findDeleteTargetIds(LocalDateTime before, Pageable pageable) {

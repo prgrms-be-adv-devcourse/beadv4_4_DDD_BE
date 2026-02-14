@@ -6,7 +6,6 @@ import com.modeunsa.boundedcontext.payment.out.PaymentOutboxReader;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +16,7 @@ public class JpaPaymentOutboxReader implements PaymentOutboxReader {
   private final PaymentOutboxQueryRepository queryRepository;
 
   @Override
-  public Page<PaymentOutboxEvent> findOutboxEventPage(
+  public List<PaymentOutboxEvent> findOutboxEventPage(
       PaymentOutboxStatus status, Pageable pageable) {
     return queryRepository.getOutboxEventPageByStatus(status, pageable);
   }
