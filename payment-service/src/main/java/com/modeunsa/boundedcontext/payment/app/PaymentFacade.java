@@ -13,6 +13,7 @@ import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentProcessContext
 import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentResponse;
 import com.modeunsa.boundedcontext.payment.app.dto.settlement.PaymentPayoutInfo;
+import com.modeunsa.boundedcontext.payment.app.dto.toss.TossWebhookRequest;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
 import com.modeunsa.boundedcontext.payment.app.usecase.account.PaymentCreateAccountUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.account.PaymentCreditAccountUseCase;
@@ -27,11 +28,15 @@ import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentInitialize
 import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentPayoutCompleteUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentRefundUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.process.complete.PaymentCompleteOrderCompleteUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.webhook.SyncTossPaymentStatusUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.webhook.TossWebhookLogUseCase;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
+import com.modeunsa.boundedcontext.payment.domain.validator.TossWebhookValidator;
 import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.shared.payment.event.PaymentFailedEvent;
 import jakarta.validation.Valid;
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -56,6 +61,9 @@ public class PaymentFacade {
   private final PaymentCompleteUseCase paymentCompleteUseCase;
   private final PaymentAccountLedgerUseCase paymentAccountLedgerUseCase;
 
+  private final SyncTossPaymentStatusUseCase syncTossPaymentStatusUseCase;
+  private final TossWebhookLogUseCase tossWebhookLogUseCase;
+  private final TossWebhookValidator tossWebhookValidator;
   private final PaymentAccountSupport paymentAccountSupport;
 
   public void createPaymentMember(@Valid PaymentMemberSyncRequest paymentMemberSyncRequest) {
@@ -153,5 +161,31 @@ public class PaymentFacade {
   public Page<PaymentAccountLogDto> getAccountLogPageListBySearch(
       Long memberId, PaymentAccountSearchRequest paymentAccountSearchRequest) {
     return paymentAccountLedgerUseCase.execute(memberId, paymentAccountSearchRequest);
+  }
+
+  public void handleTossWebhookEvent(
+      String transmissionId,
+      OffsetDateTime transmissionTime,
+      int retryCount,
+      @Valid TossWebhookRequest request) {
+
+    // 1. 웹훅 유효성 검사
+    if (!tossWebhookValidator.validate(
+        transmissionId, transmissionTime, retryCount, request.eventType())) {
+      return;
+    }
+
+    // 2. 로그 생성
+    Long webhookLogId =
+        tossWebhookLogUseCase.save(transmissionId, transmissionTime, retryCount, request);
+
+    // 3. 결제 상태 동기화 처리
+    try {
+      syncTossPaymentStatusUseCase.execute(request.data());
+      tossWebhookLogUseCase.markAsSuccess(webhookLogId);
+    } catch (Exception e) {
+      tossWebhookLogUseCase.markAsFailed(webhookLogId, e.getMessage());
+      throw e;
+    }
   }
 }

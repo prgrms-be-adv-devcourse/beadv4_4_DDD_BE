@@ -17,4 +17,9 @@ public class JpaPaymentReader implements PaymentReader {
   public Optional<Payment> findById(PaymentId paymentId) {
     return queryRepository.findById(paymentId);
   }
+
+  @Override
+  public Optional<Payment> findByOrderNo(String orderNo) {
+    return queryRepository.findByOrderNo(orderNo);
+  }
 }
