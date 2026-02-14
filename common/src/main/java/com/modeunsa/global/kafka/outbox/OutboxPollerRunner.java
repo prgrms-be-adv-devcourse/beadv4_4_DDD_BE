@@ -38,7 +38,7 @@ public class OutboxPollerRunner {
   public void runCleanup(
       OutboxReader reader, OutboxStore store, LocalDateTime before, int batchSize) {
     List<Long> ids = reader.findDeleteTargetIds(before, PageRequest.of(0, batchSize));
-    int deleted = store.deleteAlreadySentEventByIds(ids);
+    long deleted = store.deleteAlreadySentEventByIds(ids);
     if (deleted > 0) {
       log.info("Outbox cleanup: deleted {} events", deleted);
     }

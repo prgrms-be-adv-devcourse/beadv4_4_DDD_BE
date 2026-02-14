@@ -8,7 +8,7 @@ public interface PaymentOutboxStore extends OutboxStore {
   PaymentOutboxEvent store(PaymentOutboxEvent newPaymentOutboxEvent);
 
   @Override
-  int deleteAlreadySentEventByIds(List<Long> ids);
+  long deleteAlreadySentEventByIds(List<Long> ids);
 
   @Override
   void markProcessing(Long id);

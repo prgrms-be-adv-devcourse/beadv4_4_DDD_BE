@@ -12,31 +12,30 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class JpaPaymentOutboxStore implements PaymentOutboxStore {
 
-  private final PaymentOutboxRepository paymentOutboxRepository;
+  private final PaymentOutboxCommandRepository paymentOutboxCommandRepository;
 
   @Override
   public PaymentOutboxEvent store(PaymentOutboxEvent newPaymentOutboxEvent) {
-    return paymentOutboxRepository.save(newPaymentOutboxEvent);
+    return paymentOutboxCommandRepository.store(newPaymentOutboxEvent);
   }
 
   @Override
-  public int deleteAlreadySentEventByIds(List<Long> ids) {
-    return paymentOutboxRepository.deleteAlreadySentEventBefore(ids);
+  public long deleteAlreadySentEventByIds(List<Long> ids) {
+    return paymentOutboxCommandRepository.deleteAlreadySentEventBefore(ids);
   }
 
   @Override
   public void markProcessing(Long id) {
-    paymentOutboxRepository.updateStatus(id, OutboxStatus.PROCESSING, LocalDateTime.now());
+    paymentOutboxCommandRepository.updateStatus(id, OutboxStatus.PROCESSING, LocalDateTime.now());
   }
 
   @Override
   public void markSent(Long id) {
-    paymentOutboxRepository.markSent(id, OutboxStatus.SENT, LocalDateTime.now());
+    paymentOutboxCommandRepository.markSent(id, OutboxStatus.SENT, LocalDateTime.now());
   }
 
   @Override
   public void markFailed(Long id, String errorMessage, int maxRetry) {
-    paymentOutboxRepository.markFailed(
-        id, errorMessage, LocalDateTime.now(), maxRetry, OutboxStatus.PENDING, OutboxStatus.FAILED);
+    paymentOutboxCommandRepository.markFailed(id, errorMessage, LocalDateTime.now(), maxRetry);
   }
 }
