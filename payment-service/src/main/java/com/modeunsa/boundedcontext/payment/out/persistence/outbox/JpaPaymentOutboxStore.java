@@ -38,4 +38,20 @@ public class JpaPaymentOutboxStore implements PaymentOutboxStore {
   public void markFailed(Long id, String errorMessage, int maxRetry) {
     paymentOutboxCommandRepository.markFailed(id, errorMessage, LocalDateTime.now(), maxRetry);
   }
+
+  @Override
+  public void markProcessing(Long id) {
+    paymentOutboxRepository.updateStatus(id, OutboxStatus.PROCESSING, LocalDateTime.now());
+  }
+
+  @Override
+  public void markSent(Long id) {
+    paymentOutboxRepository.markSent(id, OutboxStatus.SENT, LocalDateTime.now());
+  }
+
+  @Override
+  public void markFailed(Long id, String errorMessage, int maxRetry) {
+    paymentOutboxRepository.markFailed(
+        id, errorMessage, LocalDateTime.now(), maxRetry, OutboxStatus.PENDING, OutboxStatus.FAILED);
+  }
 }
