@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import MypageLayout from '../../../../components/MypageLayout'
+import api from "@/app/lib/axios";
 
 type ProductCategory = 'OUTER' | 'UPPER' | 'LOWER' | 'CAP' | 'SHOES' | 'BAG' | 'BEAUTY'
 type ProductStatus = 'CANCELED' | 'DRAFT' | 'COMPLETED'
@@ -117,30 +118,21 @@ const completeStyle = {
   fontWeight: 600,
 }
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+const apiUrl = process.env.NEXT_PUBLIC_PRODUCT_API_URL || ''
 
 export default function ProductEditPage() {
   const params = useParams()
   const router = useRouter()
   const productId = typeof params?.id === 'string' ? params.id : undefined
 
-  const accessToken = localStorage.getItem('accessToken')
-
   const fetchProductDetail = async (productId: string) => {
     if (!apiUrl) throw new Error('API URL 없음')
 
-    const res = await fetch(
-        `${apiUrl}/api/v1/products/${productId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-    )
+    const res = await api.get(`${apiUrl}/api/v1/products/${productId}`)
 
-    const data = await res.json()
+    const data = await res.data
 
-    if (!res.ok || !data.isSuccess) {
+    if (!data.isSuccess) {
       throw new Error(data.message || '상품 정보를 불러오지 못했습니다.')
     }
 
@@ -250,28 +242,23 @@ export default function ProductEditPage() {
 
   // Presigned URL 요청 및 S3 업로드
   const uploadImageToS3 = async (file: File): Promise<string> => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL!
+    const apiUrl = process.env.NEXT_PUBLIC_FILE_API_URL!
 
     /** 1. presigned url 요청 */
-    const presignedRes = await fetch(`${apiUrl}/api/v1/files/presigned-url`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    const presignedRes = await api.post(`${apiUrl}/api/v1/files/presigned-url`,
+      JSON.stringify({
         domainType: 'PRODUCT',
         // fileName: file.name,
         ext: 'png',
         contentType: file.type,
-      }),
-    })
+      })
+    )
 
-    if (!presignedRes.ok) {
+    if (!presignedRes.data.isSuccess) {
       throw new Error('Presigned URL 발급 실패')
     }
 
-    const data: PresignedUrlApiResponse = await presignedRes.json()
+    const data: PresignedUrlApiResponse = await presignedRes.data
 
     /** 2. S3에 직접 PUT 업로드 */
     const uploadRes = await fetch(data.result.presignedUrl, {
@@ -288,24 +275,19 @@ export default function ProductEditPage() {
 
     /** 3. public-read URL 반환 */
     const publicUrlApi = `${apiUrl}/api/v1/files/public-url`;
-    const downloadRes = await fetch(publicUrlApi, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    const downloadRes = await api.post(publicUrlApi,
+      JSON.stringify({
         rawKey: data.result.key,
         domainType: 'PRODUCT',
         contentType: file.type,
-      }),
-    })
+      })
+    )
 
-    if (!downloadRes.ok) {
+    if (!downloadRes.data.isSuccess) {
       throw new Error('S3 다운로드 실패')
     }
 
-    const downloadData: PublicUrlApiResponse = await downloadRes.json()
+    const downloadData: PublicUrlApiResponse = await downloadRes.data
 
 
     return downloadData.result.imageUrl
@@ -394,14 +376,9 @@ export default function ProductEditPage() {
 
       // 등록 취소
       if (submitAction === 'CANCELED') {
-        const cancelResponse = await fetch(statusChangeUrl, {
-          method: 'PATCH',
-          headers: {
-            Authorization: `Bearer ${accessToken}`
-          },
-        });
-        if (!cancelResponse.ok) {
-          const errData = await cancelResponse.json().catch(() => ({}))
+        const cancelResponse = await api.patch(statusChangeUrl,);
+        if (!cancelResponse.data.isSuccess) {
+          const errData = await cancelResponse.data.catch(() => ({}))
           const errorMessage = errData.message
           setErrorMessage(errorMessage)
           setIsSubmitting(false)
@@ -418,17 +395,10 @@ export default function ProductEditPage() {
           return
         }
 
-        const res = await fetch(updateUrl, {
-          method: 'PATCH',
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(payload),
-        })
+        const res = await api.patch(updateUrl, JSON.stringify(payload))
 
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({}))
+        if (!res.data.isSuccess) {
+          const errData = await res.data.catch(() => ({}))
           const errorMessage = errData.message
           alert(errorMessage)
           setErrorMessage(errorMessage)
@@ -452,13 +422,8 @@ export default function ProductEditPage() {
           alert('판매가는 정가보다 크거나 같아야 합니다.')
           return
         }
-        const completeResponse = await fetch(statusChangeUrl, {
-          method: 'PATCH',
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
+        const completeResponse = await api.patch(statusChangeUrl,
+          JSON.stringify({
             name: formData.name,
             category: formData.category,
             description: formData.description,
@@ -466,10 +431,10 @@ export default function ProductEditPage() {
             salePrice: formData.salePrice,
             images: uploadedImageUrls
           })
-        });
+        );
 
-        if (!completeResponse.ok) {
-          const errData = await completeResponse.json().catch(() => ({}))
+        if (!completeResponse.data.isSuccess) {
+          const errData = await completeResponse.data.catch(() => ({}))
           const errorMessage = errData.message
           console.log(errorMessage)
           setErrorMessage(errorMessage)
