@@ -15,7 +15,7 @@ public class SettlementScheduler {
   // 매일 03:00 (KST)
   @Scheduled(cron = "${settlement.scheduler.daily-03:}", zone = "Asia/Seoul")
   public void runAt03() {
-    log.info("[SettlementScheduler] 정산 수집 배치 시작");
+    log.debug("[SettlementScheduler] 정산 수집 배치 시작");
 
     try {
       JobExecution execution = settlementJobLauncher.runCollectItemsAndCalculatePayoutsJob();
@@ -23,7 +23,7 @@ public class SettlementScheduler {
       if (execution.getStatus().isUnsuccessful()) {
         log.error("[SettlementScheduler] 정산 수집 배치 실패: {}", execution.getAllFailureExceptions());
       } else {
-        log.info("[SettlementScheduler] 정산 수집 배치 완료: {}", execution.getStatus());
+        log.debug("[SettlementScheduler] 정산 수집 배치 완료: {}", execution.getStatus());
       }
     } catch (Exception e) {
       log.error("[SettlementScheduler] 정산 수집 배치 실행 중 예외 발생: {}", e.getMessage(), e);
@@ -34,7 +34,7 @@ public class SettlementScheduler {
   // 매월 25일 04:00 (KST)
   @Scheduled(cron = "${settlement.scheduler.monthly-25-04:}", zone = "Asia/Seoul")
   public void runOnThe25th() {
-    log.info("[SettlementScheduler] 월별 정산 배치 시작");
+    log.debug("[SettlementScheduler] 월별 정산 배치 시작");
 
     try {
       JobExecution execution = settlementJobLauncher.runMonthlyPayoutJob();
@@ -42,7 +42,7 @@ public class SettlementScheduler {
       if (execution.getStatus().isUnsuccessful()) {
         log.error("[SettlementScheduler] 월별 정산 배치 실패: {}", execution.getAllFailureExceptions());
       } else {
-        log.info("[SettlementScheduler] 월별 정산 배치 완료: {}", execution.getStatus());
+        log.debug("[SettlementScheduler] 월별 정산 배치 완료: {}", execution.getStatus());
       }
     } catch (Exception e) {
       log.error("[SettlementScheduler] 월별 정산 배치 실행 중 예외 발생: {}", e.getMessage(), e);

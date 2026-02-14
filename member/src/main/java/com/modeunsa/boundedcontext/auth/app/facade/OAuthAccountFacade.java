@@ -35,7 +35,7 @@ public class OAuthAccountFacade {
       throw new GeneralException(ErrorStatus.SOCIAL_ACCOUNT_ALREADY_LINKED);
     }
 
-    log.info("소셜 계정 연동 URL 생성 - memberId: {}, provider: {}", memberId, provider);
+    log.debug("소셜 계정 연동 URL 생성 - memberId: {}, provider: {}", memberId, provider);
 
     return oauthUrlUseCase.generateOAuthUrl(provider, redirectUri);
   }
