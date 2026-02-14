@@ -55,13 +55,13 @@ public class EventListenerLogAspect {
       mdcModified = true;
     }
 
-    log.info(LOG_FORMAT_EVENT_STARTED, handlerName, eventTraceId, eventType, methodName);
+    log.debug(LOG_FORMAT_EVENT_STARTED, handlerName, eventTraceId, eventType, methodName);
 
     try {
       Object result = joinPoint.proceed();
       stopWatch.stop();
 
-      log.info(
+      log.debug(
           LOG_FORMAT_EVENT_SUCCEEDED,
           handlerName,
           eventTraceId,

@@ -110,11 +110,11 @@ public class SellerStressTest {
         () -> {
           try {
             // 고객들이 DB를 마구 수정하는 중에 사장님이 들어감 -> 충돌 발생 -> Retry 동작
-            System.out.println("👨‍💼 사장님: 재고 1000개로 수정 시도!");
+            System.out.println("사장님: 재고 1000개로 수정 시도!");
             sellerService.updateInventory(sellerId, productId, new InventoryUpdateRequest(1000));
-            System.out.println("👨‍💼 사장님: 수정 성공!");
+            System.out.println("사장님: 수정 성공!");
           } catch (Exception e) {
-            System.out.println("❌ 사장님 최종 실패: " + e.getMessage());
+            System.out.println("사장님 최종 실패: " + e.getMessage());
           } finally {
             latch.countDown();
           }

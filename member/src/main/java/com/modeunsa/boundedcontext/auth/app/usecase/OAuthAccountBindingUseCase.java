@@ -44,7 +44,7 @@ public class OAuthAccountBindingUseCase {
             .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
     // 4. 소셜 계정 엔티티 생성 및 연동
-    log.info(
+    log.debug(
         "기존 회원에 소셜 계정 연동 - memberId: {}, provider: {}, providerId: {}",
         member.getId(),
         userInfo.provider(),
@@ -58,7 +58,7 @@ public class OAuthAccountBindingUseCase {
 
     member.addOAuthAccount(socialAccount);
 
-    log.info(
+    log.debug(
         "소셜 계정 연동 완료 - memberId: {}, provider: {}, providerId: {}",
         memberId,
         provider,
