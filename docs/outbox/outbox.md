@@ -37,3 +37,26 @@ version          | Long           | 낙관적 락
 ### 인덱스 전략
 - `idx_outbox_status_created`: 폴링 시 PENDING 상태 조회 최적화
 - `idx_outbox_aggregate`: 특정 Aggregate 이벤트 조회
+
+<br />
+
+### OutboxPublisher
+
+## 개요
+이벤트를 Outbox 테이블에 저장하는 컴포넌트
+
+## 핵심 로직
+```java
+@Transactional(propagation = Propagation.MANDATORY)
+public void saveToOutbox(Object event) {
+    // 1. 이벤트에서 메타데이터 추출 (aggregateType, aggregateId, topic)
+    // 2. JSON 직렬화
+    // 3. OutboxEvent 생성 및 저장
+}
+```
+
+### Propagation.MANDATORY
+- 기존 트랜잭션이 **반드시** 존재해야 함
+- 트랜잭션 없이 호출 시 예외 발생
+- 도메인 로직과 Outbox 저장이 같은 트랜잭션에서 실행됨을 보장
+
