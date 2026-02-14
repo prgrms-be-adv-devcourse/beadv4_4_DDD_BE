@@ -18,7 +18,7 @@ interface OrderApiResponse {
   code: string
   message: string
   result: OrderSummary[]
-  pageInfo?: {
+  pagination?: {
     totalPages: number
   }
 }
@@ -95,7 +95,7 @@ export default function CancelPage() {
             TARGET_STATUSES.includes(order.status)
         )
         setOrders(filtered)
-        setTotalPages(data.pageInfo?.totalPages || 1)
+        setTotalPages(data.pagination?.totalPages || 1)
       } else {
         setOrders([])
       }
