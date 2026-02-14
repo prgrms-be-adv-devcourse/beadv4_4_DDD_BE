@@ -4,6 +4,8 @@ import com.modeunsa.boundedcontext.payment.domain.entity.PaymentOutboxEvent;
 import com.modeunsa.boundedcontext.payment.out.PaymentOutboxStore;
 import com.modeunsa.global.eventpublisher.topic.KafkaTopics;
 import com.modeunsa.global.json.JsonConverter;
+import com.modeunsa.global.kafka.outbox.OutboxEventMetadata;
+import com.modeunsa.global.kafka.outbox.OutboxPublisher;
 import com.modeunsa.shared.payment.event.PaymentFailedEvent;
 import com.modeunsa.shared.payment.event.PaymentFinalFailureEvent;
 import com.modeunsa.shared.payment.event.PaymentMemberCreatedEvent;
@@ -18,11 +20,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class PaymentOutboxPublisher {
+public class PaymentOutboxPublisher implements OutboxPublisher {
 
   private final PaymentOutboxStore paymentOutboxStore;
   private final JsonConverter jsonConverter;
 
+  @Override
   @Transactional(propagation = Propagation.MANDATORY)
   public void saveToOutbox(Object event) {
 
@@ -72,6 +75,4 @@ public class PaymentOutboxPublisher {
       default -> null;
     };
   }
-
-  private record OutboxEventMetadata(String aggregateType, String aggregateId, String topic) {}
 }
