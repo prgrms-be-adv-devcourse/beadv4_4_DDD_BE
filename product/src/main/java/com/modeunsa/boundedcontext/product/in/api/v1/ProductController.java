@@ -2,12 +2,12 @@ package com.modeunsa.boundedcontext.product.in.api.v1;
 
 import com.modeunsa.boundedcontext.product.app.ProductFacade;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
-import com.modeunsa.boundedcontext.product.domain.ProductSortType;
 import com.modeunsa.boundedcontext.product.domain.ProductStatus;
 import com.modeunsa.boundedcontext.product.domain.SaleStatus;
 import com.modeunsa.boundedcontext.product.in.dto.ProductCreateRequest;
 import com.modeunsa.boundedcontext.product.in.dto.ProductDetailResponse;
 import com.modeunsa.boundedcontext.product.in.dto.ProductResponse;
+import com.modeunsa.boundedcontext.product.in.dto.ProductSliceResultDto;
 import com.modeunsa.boundedcontext.product.in.dto.ProductUpdateRequest;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.response.ApiResponse;
@@ -135,12 +135,9 @@ public class ProductController {
   @GetMapping("/search")
   public ResponseEntity<ApiResponse> getProductsForSearch(
       @RequestParam(name = "keyword", required = false) String keyword,
-      @RequestParam(name = "page") int page,
-      @RequestParam(name = "size") int size,
-      @RequestParam(name = "sort", required = false) ProductSortType sort) {
-    ProductSortType resolvedSort = sort != null ? sort : ProductSortType.LATEST;
-    Pageable pageable = PageRequest.of(page, size, resolvedSort.getSort());
-    Page<ProductResponse> productResponses = productFacade.getProducts(keyword, pageable);
-    return ApiResponse.onSuccess(SuccessStatus.OK, productResponses);
+      @RequestParam(name = "cursor", required = false) String cursor,
+      @RequestParam(name = "size") int size) {
+    ProductSliceResultDto resultDto = productFacade.getProducts(keyword, cursor, size);
+    return ApiResponse.onSuccess(SuccessStatus.OK, resultDto.contents(), resultDto.cursor());
   }
 }
