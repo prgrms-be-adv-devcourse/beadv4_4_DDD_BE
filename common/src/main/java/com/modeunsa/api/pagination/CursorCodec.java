@@ -1,19 +1,19 @@
 package com.modeunsa.api.pagination;
 
 import com.modeunsa.global.encryption.Crypto;
+import com.modeunsa.global.json.JsonConverter;
 import java.util.Base64;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import tools.jackson.databind.ObjectMapper;
 
 @Component
 @RequiredArgsConstructor
 public class CursorCodec {
   private final Crypto crypto;
-  private final ObjectMapper objectMapper;
+  private final JsonConverter jsonConverter;
 
   public String encode(CursorDto dto) {
-    String json = objectMapper.writeValueAsString(dto);
+    String json = jsonConverter.serialize(dto);
     String encryptedCursor = crypto.encrypt(json);
     return Base64.getEncoder().encodeToString(encryptedCursor.getBytes());
   }
@@ -29,6 +29,6 @@ public class CursorCodec {
   private CursorDto decode(String cursor) {
     String decoded = new String(Base64.getDecoder().decode(cursor));
     String decryptCursor = crypto.decrypt(decoded);
-    return objectMapper.readValue(decryptCursor, CursorDto.class);
+    return jsonConverter.deserialize(decryptCursor, CursorDto.class);
   }
 }

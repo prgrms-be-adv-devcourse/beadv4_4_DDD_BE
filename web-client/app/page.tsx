@@ -24,11 +24,6 @@ interface ProductResponse {
   updatedBy: number
 }
 
-interface CursorInfo {
-  hasNext: boolean
-  cursor: string
-}
-
 const POPULAR_KEYWORDS = ['가방', '신발', '화장품', '향수', '시계']
 
 export default function Home() {
@@ -79,7 +74,7 @@ export default function Home() {
       } else {
         setSearchResults(data.result ?? [])
       }
-      setCursor(data.cursorInfo?.cursor ?? null)
+      setCursor(data.cursorInfo?.nextCursor ?? null)
       setHasNext(data.cursorInfo?.hasNext ?? false)
     } catch (error) {
       console.error(error)
