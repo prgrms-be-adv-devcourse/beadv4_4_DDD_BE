@@ -1,7 +1,10 @@
 package com.modeunsa.global.kafka.outbox;
 
+import com.modeunsa.global.eventpublisher.topic.DomainEventEnvelope;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -13,7 +16,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class OutboxPollerRunner {
 
-  private final KafkaTemplate<String, String> outboxKafkaTemplate;
+  private final KafkaTemplate<String, Object> kafkaTemplate;
 
   public void runPolling(OutboxReader reader, OutboxStore store, int batchSize, int maxRetry) {
     List<? extends OutboxEventView> pending =
@@ -22,7 +25,14 @@ public class OutboxPollerRunner {
     for (OutboxEventView event : pending) {
       try {
         store.markProcessing(event.getId());
-        outboxKafkaTemplate.send(event.getTopic(), event.getAggregateId(), event.getPayload());
+        DomainEventEnvelope envelope =
+            new DomainEventEnvelope(
+                UUID.randomUUID().toString(),
+                event.getEventType(),
+                Instant.now(),
+                event.getPayload(),
+                null);
+        kafkaTemplate.send(event.getTopic(), event.getAggregateId(), envelope);
         store.markSent(event.getId());
       } catch (Exception e) {
         log.error(

@@ -139,4 +139,30 @@ public class KafkaConfig {
 
     return factory;
   }
+
+  /**
+   * Outbox 가 보낸 메시지(value = JSON 문자열)를 String 으로 받기 위한 컨테이너 팩토리. Outbox 리스너에서 payload 를 String 으로
+   * 받은 뒤 직접 역직렬화할 때 사용.
+   */
+  @Bean
+  public ConsumerFactory<String, String> outboxConsumerFactory() {
+    Map<String, Object> configProps = new HashMap<>();
+    configProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+    configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+    configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+    configProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
+    configProps.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
+    configProps.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 20);
+    configProps.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, 300000);
+    return new DefaultKafkaConsumerFactory<>(configProps);
+  }
+
+  @Bean
+  public ConcurrentKafkaListenerContainerFactory<String, String>
+      kafkaListenerContainerFactoryForOutbox() {
+    var factory = new ConcurrentKafkaListenerContainerFactory<String, String>();
+    factory.setConsumerFactory(outboxConsumerFactory());
+    factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+    return factory;
+  }
 }

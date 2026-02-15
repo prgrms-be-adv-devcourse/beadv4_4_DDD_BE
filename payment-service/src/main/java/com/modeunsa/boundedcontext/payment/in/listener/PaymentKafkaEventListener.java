@@ -17,13 +17,15 @@ import com.modeunsa.shared.payment.event.PaymentMemberCreatedEvent;
 import com.modeunsa.shared.settlement.event.SettlementCompletedPayoutEvent;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-@ConditionalOnProperty(name = "app.event-publisher.type", havingValue = "kafka")
+@ConditionalOnExpression(
+    "'${app.event-publisher.type}' == 'kafka' or '${app.event-publisher.type}' == 'outbox'")
 @RequiredArgsConstructor
 public class PaymentKafkaEventListener {
 
@@ -33,7 +35,7 @@ public class PaymentKafkaEventListener {
 
   @KafkaListener(topics = "member-events", groupId = "payment-service")
   @Transactional(propagation = REQUIRES_NEW)
-  public void handleMemberEvent(DomainEventEnvelope envelope) {
+  public void handleMemberEvent(DomainEventEnvelope envelope, Acknowledgment ack) {
     switch (envelope.eventType()) {
       case "MemberSignupEvent" -> {
         MemberSignupEvent event =
@@ -42,14 +44,27 @@ public class PaymentKafkaEventListener {
         paymentFacade.createPaymentMember(member);
       }
       default -> {
-        // ignore}
+        // ignore
       }
     }
+    //    ack.acknowledge();
+  }
+
+  /** Outbox 포함, payment.member.created 등 단일 토픽에서 오는 envelope (포맷 통일) */
+  @KafkaListener(topics = "payment.member.created", groupId = "payment-service")
+  @Transactional(propagation = REQUIRES_NEW)
+  public void handlePaymentMemberCreated(DomainEventEnvelope envelope, Acknowledgment ack) {
+    if (PaymentMemberCreatedEvent.EVENT_NAME.equals(envelope.eventType())) {
+      PaymentMemberCreatedEvent event =
+          jsonConverter.deserialize(envelope.payload(), PaymentMemberCreatedEvent.class);
+      paymentFacade.createPaymentAccount(event.memberId());
+    }
+    ack.acknowledge();
   }
 
   @KafkaListener(topics = "payment-events", groupId = "payment-service")
   @Transactional(propagation = REQUIRES_NEW)
-  public void handlePaymentEvent(DomainEventEnvelope envelope) {
+  public void handlePaymentEvent(DomainEventEnvelope envelope, Acknowledgment ack) {
     switch (envelope.eventType()) {
       case PaymentMemberCreatedEvent.EVENT_NAME -> {
         PaymentMemberCreatedEvent event =
@@ -65,11 +80,12 @@ public class PaymentKafkaEventListener {
         // ignore
       }
     }
+    ack.acknowledge();
   }
 
   @KafkaListener(topics = "order-events", groupId = "payment-service")
   @Transactional(propagation = REQUIRES_NEW)
-  public void handleOrderEvent(DomainEventEnvelope envelope) {
+  public void handleOrderEvent(DomainEventEnvelope envelope, Acknowledgment ack) {
     switch (envelope.eventType()) {
       case "RefundRequestedEvent" -> {
         RefundRequestedEvent event =
@@ -81,11 +97,12 @@ public class PaymentKafkaEventListener {
         // ignore
       }
     }
+    ack.acknowledge();
   }
 
   @KafkaListener(topics = "settlement-events", groupId = "payment-service")
   @Transactional(propagation = REQUIRES_NEW)
-  public void handlePayoutEvent(DomainEventEnvelope envelope) {
+  public void handlePayoutEvent(DomainEventEnvelope envelope, Acknowledgment ack) {
     switch (envelope.eventType()) {
       case "SettlementCompletedPayoutEvent" -> {
         SettlementCompletedPayoutEvent event =
@@ -97,5 +114,6 @@ public class PaymentKafkaEventListener {
         // ignore
       }
     }
+    ack.acknowledge();
   }
 }
