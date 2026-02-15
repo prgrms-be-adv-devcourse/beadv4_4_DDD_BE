@@ -39,28 +39,6 @@ public class KafkaConfig {
     configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
     configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
     configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
-    configProps.put(ProducerConfig.ACKS_CONFIG, "all");
-    configProps.put(ProducerConfig.RETRIES_CONFIG, 3);
-    configProps.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
-    configProps.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, 120000);
-    configProps.put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, 5);
-    // kafka header 에 타입 정보를 포함하여 consumer 가 역직렬화 할 수 있도록 도움
-    configProps.put(JacksonJsonSerializer.ADD_TYPE_INFO_HEADERS, true);
-    return new DefaultKafkaProducerFactory<>(configProps);
-  }
-
-  @Bean
-  public KafkaTemplate<String, Object> kafkaTemplate() {
-    return new KafkaTemplate<>(producerFactory());
-  }
-
-  // outbox 는 메시지를 단순 전달하는 개념이기 때문에 Payload 를 그대로 전달하는 String, String 으로 사용한다.
-  @Bean
-  public ProducerFactory<String, String> outboxProducerFactory() {
-    Map<String, Object> configProps = new HashMap<>();
-    configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-    configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-    configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
     // 모든 레플리카 복제되었는지 확인 후에 ACK 를 받도록 설정하여 데이터 손실 방지
     configProps.put(ProducerConfig.ACKS_CONFIG, "all");
     configProps.put(ProducerConfig.RETRIES_CONFIG, 3);
@@ -74,13 +52,14 @@ public class KafkaConfig {
     // 메시지를 배치로 묶어서 전송하는 지연 시간 설정 (ms 단위)
     // 이 값이 크면 메시지를 더 많이 배치로 묶어서 자원을 효율적으로 쓰지만 지연이 발생할 수 있음
     configProps.put(ProducerConfig.LINGER_MS_CONFIG, 5);
-
+    // kafka header 에 타입 정보를 포함하여 consumer 가 역직렬화 할 수 있도록 도움
+    configProps.put(JacksonJsonSerializer.ADD_TYPE_INFO_HEADERS, true);
     return new DefaultKafkaProducerFactory<>(configProps);
   }
 
   @Bean
-  public KafkaTemplate<String, String> outboxKafkaTemplate() {
-    return new KafkaTemplate<>(outboxProducerFactory());
+  public KafkaTemplate<String, Object> kafkaTemplate() {
+    return new KafkaTemplate<>(producerFactory());
   }
 
   @Bean
@@ -137,32 +116,6 @@ public class KafkaConfig {
 
     factory.setCommonErrorHandler(errorHandler);
 
-    return factory;
-  }
-
-  /**
-   * Outbox 가 보낸 메시지(value = JSON 문자열)를 String 으로 받기 위한 컨테이너 팩토리. Outbox 리스너에서 payload 를 String 으로
-   * 받은 뒤 직접 역직렬화할 때 사용.
-   */
-  @Bean
-  public ConsumerFactory<String, String> outboxConsumerFactory() {
-    Map<String, Object> configProps = new HashMap<>();
-    configProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-    configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-    configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-    configProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
-    configProps.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
-    configProps.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 20);
-    configProps.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, 300000);
-    return new DefaultKafkaConsumerFactory<>(configProps);
-  }
-
-  @Bean
-  public ConcurrentKafkaListenerContainerFactory<String, String>
-      kafkaListenerContainerFactoryForOutbox() {
-    var factory = new ConcurrentKafkaListenerContainerFactory<String, String>();
-    factory.setConsumerFactory(outboxConsumerFactory());
-    factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
     return factory;
   }
 }
