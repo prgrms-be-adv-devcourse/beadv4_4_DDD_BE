@@ -59,18 +59,28 @@ public class PaymentOutboxEvent extends AuditedEntity implements OutboxEventView
 
   private String lastErrorMessage;
 
+  private String eventId;
+
+  private String traceId;
+
   @Version private Long version;
 
   private static final int MAX_RETRY_COUNT = 5;
 
   public static PaymentOutboxEvent create(
-      String aggregateType, String aggregateId, String eventType, String topic, String payload) {
+      String aggregateType,
+      String aggregateId,
+      String eventType,
+      String topic,
+      String payload,
+      String traceId) {
     return PaymentOutboxEvent.builder()
         .aggregateType(aggregateType)
         .aggregateId(aggregateId)
         .eventType(eventType)
         .topic(topic)
         .payload(payload)
+        .traceId(traceId)
         .build();
   }
 }

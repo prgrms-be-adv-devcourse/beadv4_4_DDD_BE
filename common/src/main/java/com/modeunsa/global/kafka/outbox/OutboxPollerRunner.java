@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 @Slf4j
 @Component
@@ -25,13 +26,14 @@ public class OutboxPollerRunner {
     for (OutboxEventView event : pending) {
       try {
         store.markProcessing(event.getId());
+        String traceId = event.getTraceId();
         DomainEventEnvelope envelope =
             new DomainEventEnvelope(
-                UUID.randomUUID().toString(),
+                getEventId(event.getEventId()),
                 event.getEventType(),
                 Instant.now(),
                 event.getPayload(),
-                null);
+                traceId);
         kafkaTemplate.send(event.getTopic(), event.getAggregateId(), envelope);
         store.markSent(event.getId());
       } catch (Exception e) {
@@ -52,5 +54,9 @@ public class OutboxPollerRunner {
     if (deleted > 0) {
       log.info("Outbox cleanup: deleted {} events", deleted);
     }
+  }
+
+  private String getEventId(String eventId) {
+    return StringUtils.hasText(eventId) ? eventId : UUID.randomUUID().toString();
   }
 }

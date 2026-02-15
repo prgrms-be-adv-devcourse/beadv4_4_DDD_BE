@@ -21,6 +21,7 @@ import com.modeunsa.shared.product.event.ProductCreatedEvent;
 import com.modeunsa.shared.product.event.ProductOrderAvailabilityChangedEvent;
 import com.modeunsa.shared.product.event.ProductUpdatedEvent;
 import com.modeunsa.shared.settlement.event.SettlementCompletedPayoutEvent;
+import java.util.UUID;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
@@ -51,14 +52,14 @@ public class KafkaResolver {
           resolveSellerRegisteredEvent(e.memberId(), e.memberSellerId());
 
       // payment
-      case PaymentMemberCreatedEvent e -> resolvePaymentMemberEvent(e.memberId());
-      case PaymentFailedEvent e -> resolvePaymentEvent(e.memberId(), e.orderNo());
+      case PaymentMemberCreatedEvent e -> resolvePaymentMemberEvent(e.traceId(), e.memberId());
+      case PaymentFailedEvent e -> resolvePaymentEvent(e.traceId(), e.memberId(), e.orderNo());
       case PaymentSuccessEvent e ->
-          resolvePaymentEvent(e.payment().memberId(), e.payment().orderNo());
+          resolvePaymentEvent(e.traceId(), e.payment().memberId(), e.payment().orderNo());
       case PaymentRefundSuccessEvent e ->
-          resolvePaymentEvent(e.payment().memberId(), e.payment().orderNo());
+          resolvePaymentEvent(e.traceId(), e.payment().memberId(), e.payment().orderNo());
       case PaymentFinalFailureEvent e ->
-          resolvePaymentEvent(e.payment().memberId(), e.payment().orderNo());
+          resolvePaymentEvent(e.traceId(), e.payment().memberId(), e.payment().orderNo());
 
       // product
       case ProductCreatedEvent e -> resolveProduct(e.productDto().getId());
@@ -76,40 +77,56 @@ public class KafkaResolver {
           resolveSettlement(e.payouts().getFirst().settlementId());
 
       // default
-      default -> KafkaPublishTarget.of("unexpected-events-topic", "Unknown", "unexpected-key");
+      default ->
+          KafkaPublishTarget.of(
+              UUID.randomUUID().toString(), "unexpected-events-topic", "Unknown", "unexpected-key");
     };
   }
 
   private KafkaPublishTarget resolveMemberEvent(Long memberId) {
-    return KafkaPublishTarget.of(MEMBER_EVENTS_TOPIC, "Member", "member-%d".formatted(memberId));
+    return KafkaPublishTarget.of(
+        UUID.randomUUID().toString(),
+        MEMBER_EVENTS_TOPIC,
+        "Member",
+        "member-%d".formatted(memberId));
   }
 
   private KafkaPublishTarget resolveSellerRegisteredEvent(Long memberId, Long memberSellerId) {
     return KafkaPublishTarget.of(
-        MEMBER_EVENTS_TOPIC, "Member", "member-%d-seller-%d".formatted(memberId, memberSellerId));
+        UUID.randomUUID().toString(),
+        MEMBER_EVENTS_TOPIC,
+        "Member",
+        "member-%d-seller-%d".formatted(memberId, memberSellerId));
   }
 
-  private KafkaPublishTarget resolvePaymentMemberEvent(Long memberId) {
+  private KafkaPublishTarget resolvePaymentMemberEvent(String traceId, Long memberId) {
     return KafkaPublishTarget.of(
-        PAYMENT_EVENTS_TOPIC, "PaymentMember", "payment-member-%d".formatted(memberId));
+        traceId, PAYMENT_EVENTS_TOPIC, "PaymentMember", "payment-member-%d".formatted(memberId));
   }
 
-  private KafkaPublishTarget resolvePaymentEvent(Long memberId, String orderNo) {
+  private KafkaPublishTarget resolvePaymentEvent(String traceId, Long memberId, String orderNo) {
     return KafkaPublishTarget.of(
-        PAYMENT_EVENTS_TOPIC, "Payment", "payment-%d-%s".formatted(memberId, orderNo));
+        traceId, PAYMENT_EVENTS_TOPIC, "Payment", "payment-%d-%s".formatted(memberId, orderNo));
   }
 
   private KafkaPublishTarget resolveProduct(Long productId) {
     return KafkaPublishTarget.of(
-        PRODUCT_EVENTS_TOPIC, "Product", "product-%d".formatted(productId));
+        UUID.randomUUID().toString(),
+        PRODUCT_EVENTS_TOPIC,
+        "Product",
+        "product-%d".formatted(productId));
   }
 
   private KafkaPublishTarget resolveOrder(Long orderId) {
-    return KafkaPublishTarget.of(ORDER_EVENTS_TOPIC, "Order", "order-%d".formatted(orderId));
+    return KafkaPublishTarget.of(
+        UUID.randomUUID().toString(), ORDER_EVENTS_TOPIC, "Order", "order-%d".formatted(orderId));
   }
 
   private KafkaPublishTarget resolveSettlement(Long settlementId) {
     return KafkaPublishTarget.of(
-        SETTLEMENT_EVENTS_TOPIC, "Settlement", "settlement-%d".formatted(settlementId));
+        UUID.randomUUID().toString(),
+        SETTLEMENT_EVENTS_TOPIC,
+        "Settlement",
+        "settlement-%d".formatted(settlementId));
   }
 }

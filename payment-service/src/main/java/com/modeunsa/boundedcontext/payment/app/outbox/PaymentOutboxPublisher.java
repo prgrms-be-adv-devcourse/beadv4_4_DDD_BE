@@ -35,7 +35,8 @@ public class PaymentOutboxPublisher implements OutboxPublisher {
             target.aggregateId(),
             event.getClass().getSimpleName(),
             target.topic(),
-            payload);
+            payload,
+            target.traceId());
 
     paymentOutboxStore.store(outboxEvent);
   }
