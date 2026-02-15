@@ -9,8 +9,6 @@ import com.modeunsa.global.kafka.outbox.OutboxPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
@@ -22,7 +20,6 @@ public class PaymentOutboxPublisher implements OutboxPublisher {
   private final KafkaResolver kafkaResolver;
 
   @Override
-  @Transactional(propagation = Propagation.MANDATORY)
   public void saveToOutbox(Object event) {
 
     KafkaPublishTarget target = kafkaResolver.resolve(event);
