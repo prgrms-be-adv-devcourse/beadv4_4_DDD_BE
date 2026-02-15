@@ -46,7 +46,7 @@ public class PaymentKafkaEventListener {
         // ignore
       }
     }
-    //    ack.acknowledge();
+    ack.acknowledge();
   }
 
   /** Outbox 포함, payment.member.created 등 단일 토픽에서 오는 envelope (포맷 통일) */
