@@ -49,18 +49,6 @@ public class PaymentKafkaEventListener {
     ack.acknowledge();
   }
 
-  /** Outbox 포함, payment.member.created 등 단일 토픽에서 오는 envelope (포맷 통일) */
-  @KafkaListener(topics = "payment.member.created", groupId = "payment-service")
-  @Transactional(propagation = REQUIRES_NEW)
-  public void handlePaymentMemberCreated(DomainEventEnvelope envelope, Acknowledgment ack) {
-    if (PaymentMemberCreatedEvent.EVENT_NAME.equals(envelope.eventType())) {
-      PaymentMemberCreatedEvent event =
-          jsonConverter.deserialize(envelope.payload(), PaymentMemberCreatedEvent.class);
-      paymentFacade.createPaymentAccount(event.memberId());
-    }
-    ack.acknowledge();
-  }
-
   @KafkaListener(topics = "payment-events", groupId = "payment-service")
   @Transactional(propagation = REQUIRES_NEW)
   public void handlePaymentEvent(DomainEventEnvelope envelope, Acknowledgment ack) {
