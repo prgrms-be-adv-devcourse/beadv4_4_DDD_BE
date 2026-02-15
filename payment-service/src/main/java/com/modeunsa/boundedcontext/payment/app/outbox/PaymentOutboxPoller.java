@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
@@ -34,11 +35,13 @@ public class PaymentOutboxPoller {
   private int cleanupBatchSize;
 
   @Scheduled(fixedDelayString = "${outbox.poller.interval-ms:5000}")
+  @Transactional
   public void poll() {
     outboxPollerRunner.runPolling(paymentOutboxReader, paymentOutboxStore, batchSize, maxRetry);
   }
 
   @Scheduled(cron = "${outbox.cleanup.cron:0 0 3 * * *}")
+  @Transactional
   public void cleanupOldEvents() {
     LocalDateTime before = LocalDateTime.now().minusDays(retentionDays);
     outboxPollerRunner.runCleanup(

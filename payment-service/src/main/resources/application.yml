@@ -124,7 +124,7 @@ outbox:
   enabled: true
   poller:
     enabled: true             # 폴러 활성화
-    interval-ms: 5000         # 폴링 주기 (5초)
+    interval-ms: 10000         # 폴링 주기 (5초)
     batch-size: 100           # 배치 크기
     max-retry: 5              # 최대 재시도 횟수
     retention-days: 7         # 보관 기간 (7일)
