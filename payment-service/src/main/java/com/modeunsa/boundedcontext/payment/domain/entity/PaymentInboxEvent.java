@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(
     name = "payment_inbox_event",
-    uniqueConstraints = {@UniqueConstraint(columnNames = "eventId")})
+    uniqueConstraints = {@UniqueConstraint(columnNames = "event_id")})
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
