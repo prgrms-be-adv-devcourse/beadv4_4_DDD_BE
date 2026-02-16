@@ -74,8 +74,8 @@ export default function Home() {
       } else {
         setSearchResults(data.result ?? [])
       }
-      setCursor(data.cursorInfo?.nextCursor ?? null)
-      setHasNext(data.cursorInfo?.hasNext ?? false)
+      setCursor(data.pagination?.nextCursor ?? null)
+      setHasNext(data.pagination?.hasNext ?? false)
     } catch (error) {
       console.error(error)
     } finally {
