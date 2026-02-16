@@ -53,15 +53,13 @@ spring:
       initialize-schema: never
 
   elasticsearch:
-    repositories:
-      enabled: false
     uris:
-      - ${SPRING_ELASTICSEARCH_URIS:http://localhost:9200}
+      - http://localhost:9200
 
 management:
   health:
     elasticsearch:
-      enabled: false
+      enabled: true
 
 #  kafka:
 #    listener:
@@ -127,3 +125,5 @@ app:
     secure: false
     http-only: true
     same-site: Lax
+  elasticsearch:
+    enabled: true
