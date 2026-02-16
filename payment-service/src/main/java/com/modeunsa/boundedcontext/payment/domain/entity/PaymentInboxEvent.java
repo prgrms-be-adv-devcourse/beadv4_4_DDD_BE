@@ -34,7 +34,6 @@ public class PaymentInboxEvent extends AuditedEntity implements InboxEventView {
   @Column(nullable = false, unique = true)
   private String eventId;
 
-  @Column(nullable = false)
   private String topic;
 
   @Lob private String payload;
