@@ -31,13 +31,17 @@ public class PaymentOutboxPoller {
   @Value("${outbox.poller.retention-days:7}")
   private int retentionDays;
 
-  @Value("${outbox.poller.cleanup-batch-size:500}")
+  @Value("${outbox.timeoutMs:10000}")
+  private int timeoutMs;
+
+  @Value("${outbox.cleanup.batch-size:500}")
   private int cleanupBatchSize;
 
   @Scheduled(fixedDelayString = "${outbox.poller.interval-ms:5000}")
   @Transactional
   public void poll() {
-    outboxPollerRunner.runPolling(paymentOutboxReader, paymentOutboxStore, batchSize, maxRetry);
+    outboxPollerRunner.runPolling(
+        paymentOutboxReader, paymentOutboxStore, batchSize, maxRetry, timeoutMs);
   }
 
   @Scheduled(cron = "${outbox.cleanup.cron:0 0 3 * * *}")

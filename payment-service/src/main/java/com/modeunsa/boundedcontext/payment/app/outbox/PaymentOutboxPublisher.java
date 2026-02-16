@@ -26,11 +26,6 @@ public class PaymentOutboxPublisher implements OutboxPublisher {
   public void saveToOutbox(Object event) {
 
     KafkaPublishTarget target = kafkaResolver.resolve(event);
-    if (target == null) {
-      log.error("Unsupported event type: {}", event.getClass());
-      return;
-    }
-
     String payload = jsonConverter.serialize(event);
     PaymentOutboxEvent outboxEvent =
         PaymentOutboxEvent.create(

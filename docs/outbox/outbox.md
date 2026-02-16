@@ -27,8 +27,8 @@ eventType        | String         | 이벤트 클래스명
 topic            | String         | Kafka 토픽
 payload          | LONGTEXT       | JSON 페이로드
 status           | OutboxStatus   | PENDING/PROCESSING/SENT/FAILED
-createDate       | LocalDateTime  | 생성 시각
-sentDate         | LocalDateTime  | 발송 완료 시각
+createdAt        | LocalDateTime  | 생성 시각
+sentAt           | LocalDateTime  | 발송 완료 시각
 retryCount       | int            | 재시도 횟수
 lastErrorMessage | String         | 마지막 에러 메시지
 version          | Long           | 낙관적 락
@@ -83,11 +83,14 @@ public void pollAndPublish() {
 ## 설정
 ```yaml
 outbox:
+  enabled: true            # Outbox 활성화 여부
+  timeoutMs: 10000         # 발행 타임아웃 (10초)
   poller:
     enabled: true          # 폴러 활성화
     interval-ms: 5000      # 폴링 주기 (5초)
     batch-size: 100        # 배치 크기
     max-retry: 5           # 최대 재시도 횟수
+    retention-days: 7         # 보관 기간 (7일)
   cleanup:
     cron: "0 0 3 * * *"    # 정리 스케줄 (매일 새벽 3시)
 ```

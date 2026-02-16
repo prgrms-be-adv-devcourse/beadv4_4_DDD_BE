@@ -22,6 +22,8 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Component
 @ConditionalOnProperty(name = "app.event-consumer.type", havingValue = "kafka")
@@ -46,7 +48,7 @@ public class PaymentKafkaEventListener {
         // ignore
       }
     }
-    ack.acknowledge();
+    ackAfterCommit(ack);
   }
 
   @KafkaListener(topics = "payment-events", groupId = "payment-service")
@@ -67,7 +69,7 @@ public class PaymentKafkaEventListener {
         // ignore
       }
     }
-    ack.acknowledge();
+    ackAfterCommit(ack);
   }
 
   @KafkaListener(topics = "order-events", groupId = "payment-service")
@@ -84,7 +86,7 @@ public class PaymentKafkaEventListener {
         // ignore
       }
     }
-    ack.acknowledge();
+    ackAfterCommit(ack);
   }
 
   @KafkaListener(topics = "settlement-events", groupId = "payment-service")
@@ -101,6 +103,16 @@ public class PaymentKafkaEventListener {
         // ignore
       }
     }
-    ack.acknowledge();
+    ackAfterCommit(ack);
+  }
+
+  private void ackAfterCommit(Acknowledgment ack) {
+    TransactionSynchronizationManager.registerSynchronization(
+        new TransactionSynchronization() {
+          @Override
+          public void afterCommit() {
+            ack.acknowledge();
+          }
+        });
   }
 }

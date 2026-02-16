@@ -17,7 +17,7 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
-import org.springframework.kafka.listener.ContainerProperties;
+import org.springframework.kafka.listener.ContainerProperties.AckMode;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.DeserializationException;
@@ -98,7 +98,7 @@ public class KafkaConfig {
   public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory() {
     var factory = new ConcurrentKafkaListenerContainerFactory<String, Object>();
     factory.setConsumerFactory(consumerFactory());
-    factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+    factory.getContainerProperties().setAckMode(AckMode.MANUAL_IMMEDIATE);
 
     // DLQ Recover
     // 기존 topic 이름 뒤에 .DLT 를 붙여서 DLT 토픽으로 메시지를 보냄

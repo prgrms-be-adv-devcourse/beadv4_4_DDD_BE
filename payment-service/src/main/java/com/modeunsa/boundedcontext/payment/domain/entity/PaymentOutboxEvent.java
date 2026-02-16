@@ -65,8 +65,6 @@ public class PaymentOutboxEvent extends AuditedEntity implements OutboxEventView
 
   @Version private Long version;
 
-  private static final int MAX_RETRY_COUNT = 5;
-
   public static PaymentOutboxEvent create(
       String aggregateType,
       String aggregateId,
