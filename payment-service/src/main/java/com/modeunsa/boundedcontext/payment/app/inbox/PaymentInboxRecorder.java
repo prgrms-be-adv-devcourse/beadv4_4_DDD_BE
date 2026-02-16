@@ -20,11 +20,11 @@ public class PaymentInboxRecorder implements InboxRecorder {
   @Transactional(propagation = Propagation.MANDATORY)
   public boolean tryRecord(String eventId, String topic, String payload, String traceId) {
     if (paymentInboxReader.existsByEventId(eventId)) {
-      return false;
+      return true;
     }
 
     PaymentInboxEvent inboxEvent = PaymentInboxEvent.create(eventId, topic, payload, traceId);
     paymentInboxStore.store(inboxEvent);
-    return true;
+    return false;
   }
 }
