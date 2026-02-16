@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface PaymentOutboxReader extends OutboxReader {
   @Override
-  List<PaymentOutboxEvent> findPendingEvents(Pageable pageable);
+  List<PaymentOutboxEvent> findPendingEventsWithLock(Pageable pageable);
 
   @Override
   List<Long> findDeleteTargetIds(LocalDateTime before, Pageable pageable);

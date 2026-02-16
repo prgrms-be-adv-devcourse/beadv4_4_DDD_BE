@@ -15,8 +15,8 @@ public class JpaPaymentOutboxReader implements PaymentOutboxReader {
   private final PaymentOutboxQueryRepository queryRepository;
 
   @Override
-  public List<PaymentOutboxEvent> findPendingEvents(Pageable pageable) {
-    return queryRepository.findPendingEvents(pageable);
+  public List<PaymentOutboxEvent> findPendingEventsWithLock(Pageable pageable) {
+    return queryRepository.findPendingEventsWithLock(pageable);
   }
 
   @Override
