@@ -6,6 +6,7 @@ import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
 import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberSyncRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.order.PaymentOrderInfo;
 import com.modeunsa.boundedcontext.payment.app.dto.settlement.PaymentPayoutInfo;
+import com.modeunsa.boundedcontext.payment.app.inbox.PaymentInboxRecorder;
 import com.modeunsa.boundedcontext.payment.app.mapper.PaymentMapper;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
 import com.modeunsa.global.eventpublisher.topic.DomainEventEnvelope;
@@ -33,10 +34,17 @@ public class PaymentKafkaEventListener {
   private final PaymentFacade paymentFacade;
   private final PaymentMapper paymentMapper;
   private final JsonConverter jsonConverter;
+  private final PaymentInboxRecorder inboxRecorder;
 
   @KafkaListener(topics = "member-events", groupId = "payment-service")
   @Transactional(propagation = REQUIRES_NEW)
   public void handleMemberEvent(DomainEventEnvelope envelope, Acknowledgment ack) {
+
+    if (inboxRecorder.tryRecord(
+        envelope.eventId(), envelope.topic(), envelope.payload(), envelope.traceId())) {
+      return;
+    }
+
     switch (envelope.eventType()) {
       case "MemberSignupEvent" -> {
         MemberSignupEvent event =
@@ -54,6 +62,12 @@ public class PaymentKafkaEventListener {
   @KafkaListener(topics = "payment-events", groupId = "payment-service")
   @Transactional(propagation = REQUIRES_NEW)
   public void handlePaymentEvent(DomainEventEnvelope envelope, Acknowledgment ack) {
+
+    if (inboxRecorder.tryRecord(
+        envelope.eventId(), envelope.topic(), envelope.payload(), envelope.traceId())) {
+      return;
+    }
+
     switch (envelope.eventType()) {
       case PaymentMemberCreatedEvent.EVENT_NAME -> {
         PaymentMemberCreatedEvent event =
@@ -75,6 +89,12 @@ public class PaymentKafkaEventListener {
   @KafkaListener(topics = "order-events", groupId = "payment-service")
   @Transactional(propagation = REQUIRES_NEW)
   public void handleOrderEvent(DomainEventEnvelope envelope, Acknowledgment ack) {
+
+    if (inboxRecorder.tryRecord(
+        envelope.eventId(), envelope.topic(), envelope.payload(), envelope.traceId())) {
+      return;
+    }
+
     switch (envelope.eventType()) {
       case "RefundRequestedEvent" -> {
         RefundRequestedEvent event =
@@ -92,6 +112,12 @@ public class PaymentKafkaEventListener {
   @KafkaListener(topics = "settlement-events", groupId = "payment-service")
   @Transactional(propagation = REQUIRES_NEW)
   public void handlePayoutEvent(DomainEventEnvelope envelope, Acknowledgment ack) {
+
+    if (inboxRecorder.tryRecord(
+        envelope.eventId(), envelope.topic(), envelope.payload(), envelope.traceId())) {
+      return;
+    }
+
     switch (envelope.eventType()) {
       case "SettlementCompletedPayoutEvent" -> {
         SettlementCompletedPayoutEvent event =

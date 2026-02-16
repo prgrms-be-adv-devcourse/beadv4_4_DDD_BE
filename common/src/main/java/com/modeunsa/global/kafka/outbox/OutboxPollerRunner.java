@@ -1,7 +1,6 @@
 package com.modeunsa.global.kafka.outbox;
 
 import com.modeunsa.global.eventpublisher.topic.DomainEventEnvelope;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -36,12 +35,7 @@ public class OutboxPollerRunner {
     for (OutboxEventView event : pending) {
       try {
         DomainEventEnvelope envelope =
-            new DomainEventEnvelope(
-                getEventId(event.getEventId()),
-                event.getEventType(),
-                Instant.now(),
-                event.getPayload(),
-                event.getTraceId());
+            DomainEventEnvelope.of(event, event.getTopic(), event.getPayload());
         kafkaTemplate
             .send(event.getTopic(), event.getAggregateId(), envelope)
             .get(timeoutSeconds, TimeUnit.SECONDS);
