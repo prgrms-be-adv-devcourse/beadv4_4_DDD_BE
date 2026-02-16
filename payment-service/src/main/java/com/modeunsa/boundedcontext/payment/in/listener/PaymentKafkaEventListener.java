@@ -42,6 +42,7 @@ public class PaymentKafkaEventListener {
 
     if (inboxRecorder.tryRecord(
         envelope.eventId(), envelope.topic(), envelope.payload(), envelope.traceId())) {
+      ackAfterCommit(ack);
       return;
     }
 
@@ -65,6 +66,7 @@ public class PaymentKafkaEventListener {
 
     if (inboxRecorder.tryRecord(
         envelope.eventId(), envelope.topic(), envelope.payload(), envelope.traceId())) {
+      ackAfterCommit(ack);
       return;
     }
 
@@ -92,6 +94,7 @@ public class PaymentKafkaEventListener {
 
     if (inboxRecorder.tryRecord(
         envelope.eventId(), envelope.topic(), envelope.payload(), envelope.traceId())) {
+      ackAfterCommit(ack);
       return;
     }
 
@@ -115,6 +118,7 @@ public class PaymentKafkaEventListener {
 
     if (inboxRecorder.tryRecord(
         envelope.eventId(), envelope.topic(), envelope.payload(), envelope.traceId())) {
+      ackAfterCommit(ack);
       return;
     }
 
