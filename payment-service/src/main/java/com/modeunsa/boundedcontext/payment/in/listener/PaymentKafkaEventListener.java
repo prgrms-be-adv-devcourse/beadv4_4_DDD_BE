@@ -19,11 +19,14 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Component
-@ConditionalOnProperty(name = "app.event-publisher.type", havingValue = "kafka")
+@ConditionalOnProperty(name = "app.event-consumer.type", havingValue = "kafka")
 @RequiredArgsConstructor
 public class PaymentKafkaEventListener {
 
@@ -33,7 +36,7 @@ public class PaymentKafkaEventListener {
 
   @KafkaListener(topics = "member-events", groupId = "payment-service")
   @Transactional(propagation = REQUIRES_NEW)
-  public void handleMemberEvent(DomainEventEnvelope envelope) {
+  public void handleMemberEvent(DomainEventEnvelope envelope, Acknowledgment ack) {
     switch (envelope.eventType()) {
       case "MemberSignupEvent" -> {
         MemberSignupEvent event =
@@ -42,14 +45,15 @@ public class PaymentKafkaEventListener {
         paymentFacade.createPaymentMember(member);
       }
       default -> {
-        // ignore}
+        // ignore
       }
     }
+    ackAfterCommit(ack);
   }
 
   @KafkaListener(topics = "payment-events", groupId = "payment-service")
   @Transactional(propagation = REQUIRES_NEW)
-  public void handlePaymentEvent(DomainEventEnvelope envelope) {
+  public void handlePaymentEvent(DomainEventEnvelope envelope, Acknowledgment ack) {
     switch (envelope.eventType()) {
       case PaymentMemberCreatedEvent.EVENT_NAME -> {
         PaymentMemberCreatedEvent event =
@@ -65,11 +69,12 @@ public class PaymentKafkaEventListener {
         // ignore
       }
     }
+    ackAfterCommit(ack);
   }
 
   @KafkaListener(topics = "order-events", groupId = "payment-service")
   @Transactional(propagation = REQUIRES_NEW)
-  public void handleOrderEvent(DomainEventEnvelope envelope) {
+  public void handleOrderEvent(DomainEventEnvelope envelope, Acknowledgment ack) {
     switch (envelope.eventType()) {
       case "RefundRequestedEvent" -> {
         RefundRequestedEvent event =
@@ -81,11 +86,12 @@ public class PaymentKafkaEventListener {
         // ignore
       }
     }
+    ackAfterCommit(ack);
   }
 
   @KafkaListener(topics = "settlement-events", groupId = "payment-service")
   @Transactional(propagation = REQUIRES_NEW)
-  public void handlePayoutEvent(DomainEventEnvelope envelope) {
+  public void handlePayoutEvent(DomainEventEnvelope envelope, Acknowledgment ack) {
     switch (envelope.eventType()) {
       case "SettlementCompletedPayoutEvent" -> {
         SettlementCompletedPayoutEvent event =
@@ -97,5 +103,16 @@ public class PaymentKafkaEventListener {
         // ignore
       }
     }
+    ackAfterCommit(ack);
+  }
+
+  private void ackAfterCommit(Acknowledgment ack) {
+    TransactionSynchronizationManager.registerSynchronization(
+        new TransactionSynchronization() {
+          @Override
+          public void afterCommit() {
+            ack.acknowledge();
+          }
+        });
   }
 }

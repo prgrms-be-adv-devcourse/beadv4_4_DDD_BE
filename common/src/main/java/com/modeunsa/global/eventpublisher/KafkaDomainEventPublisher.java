@@ -1,6 +1,7 @@
 package com.modeunsa.global.eventpublisher;
 
 import com.modeunsa.global.eventpublisher.topic.DomainEventEnvelope;
+import com.modeunsa.global.eventpublisher.topic.KafkaPublishTarget;
 import com.modeunsa.global.eventpublisher.topic.KafkaResolver;
 import com.modeunsa.global.json.JsonConverter;
 import lombok.RequiredArgsConstructor;
@@ -19,14 +20,13 @@ public class KafkaDomainEventPublisher implements EventPublisher {
 
   @Override
   public void publish(Object event) {
-    String topic = kafkaResolver.resolveTopic(event);
-    String key = kafkaResolver.resolveKey(event);
+    KafkaPublishTarget target = kafkaResolver.resolve(event);
     DomainEventEnvelope envelope = DomainEventEnvelope.of(event, jsonConverter);
 
     var message =
         MessageBuilder.withPayload(envelope)
-            .setHeader(KafkaHeaders.TOPIC, topic)
-            .setHeader(KafkaHeaders.KEY, key)
+            .setHeader(KafkaHeaders.TOPIC, target.topic())
+            .setHeader(KafkaHeaders.KEY, target.kafkaKey())
             .setHeader("eventType", envelope.eventType())
             .setHeader("eventId", envelope.eventId())
             .build();
@@ -38,7 +38,7 @@ public class KafkaDomainEventPublisher implements EventPublisher {
               if (ex != null) {
                 log.error(
                     "Failed to publish event to Kafka topic: {}, eventType={}, eventId={}",
-                    topic,
+                    target.topic(),
                     envelope.eventType(),
                     envelope.eventId(),
                     ex);
