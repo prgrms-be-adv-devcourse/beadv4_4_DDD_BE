@@ -4,37 +4,29 @@ plugins {
     id "com.diffplug.spotless" version "8.1.0"
 }
 
-subprojects {
+// 루트 checkstyle(Java 21) 제외할 서브프로젝트. 여기서 먼저 설정해야 평가 순서와 무관하게 동작함
+def checkstyleExcludeProjects = ['kafka-connector'] as Set
+
+subprojects { subproject ->
     apply plugin: 'java'
-    apply plugin: 'checkstyle'
     apply plugin: 'com.diffplug.spotless'
-
-    group = 'com'
-    version = '0.0.1-SNAPSHOT'
-
-    repositories {
-        mavenCentral()
+    if (checkstyleExcludeProjects.contains(subproject.name)) {
+        subproject.ext.skipCheckstyle = true
     }
-
-    java {
-        toolchain {
-            languageVersion = JavaLanguageVersion.of(21)
+    if (!subproject.findProperty('skipCheckstyle')) {
+        apply plugin: 'checkstyle'
+        checkstyle {
+            toolVersion = '13.0.0'
+            maxWarnings = 0
+            configFile = rootProject.file("config/checkstyle/google_checks.xml")
+            ignoreFailures = false
+            configProperties = ['charset': 'UTF-8']
         }
-    }
-
-    checkstyle {
-        toolVersion = '13.0.0'
-        maxWarnings = 0 // 경고가 0개 이상이라면 빌드 시에 에러 발생
-        configFile = rootProject.file("config/checkstyle/google_checks.xml") // rule 적용
-        ignoreFailures = false // 위반 시 실패(강제)
-        configProperties = [
-                'charset': 'UTF-8'
-        ]
-    }
-    tasks.withType(Checkstyle).configureEach {
-        reports {
-            xml.required = false
-            html.required = true
+        tasks.withType(Checkstyle).configureEach {
+            reports {
+                xml.required = false
+                html.required = true
+            }
         }
     }
 

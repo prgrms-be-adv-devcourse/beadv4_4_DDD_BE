@@ -14,11 +14,11 @@ import com.modeunsa.global.json.JsonConverter;
 import com.modeunsa.shared.member.event.MemberSignupEvent;
 import com.modeunsa.shared.order.event.RefundRequestedEvent;
 import com.modeunsa.shared.payment.event.PaymentFailedEvent;
-import lombok.extern.slf4j.Slf4j;
 import com.modeunsa.shared.payment.event.PaymentMemberCreatedEvent;
 import com.modeunsa.shared.settlement.event.SettlementCompletedPayoutEvent;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
@@ -62,10 +62,7 @@ public class PaymentKafkaEventListener {
     ackAfterCommit(ack);
   }
 
-  @KafkaListener(
-      topics = "payment-events",
-      groupId = "payment-service",
-      containerFactory = "paymentEventsListenerContainerFactory")
+  @KafkaListener(topics = "payment-events", groupId = "payment-service")
   @Transactional(propagation = REQUIRES_NEW)
   public void handlePaymentEvent(DomainEventEnvelope envelope, Acknowledgment ack) {
     if (inboxRecorder.tryRecord(

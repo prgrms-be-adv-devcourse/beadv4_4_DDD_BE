@@ -190,3 +190,48 @@ void saveToOutbox(Object event);
 
 2. **runCleanup(reader, store, before, batchSize)**  
    - `reader.findDeleteTargetIds(before, ...)` 로 삭제 대상 ID 조회 후 `store.deleteAlreadySentEventByIds(ids)` 호출.
+
+
+---
+
+# 0008 - Debezium 인프라 설정
+
+## 개요
+CDC(Change Data Capture) 기반 Outbox 패턴을 위한 Debezium 인프라 구성
+
+## Polling vs CDC 비교
+| 방식 | 지연시간 | DB 부하 | 인프라 |
+|------|----------|---------|--------|
+| Polling | 5초 | 주기적 쿼리 | 없음 |
+| CDC | ~ms | binlog 읽기 | Debezium |
+
+## 아키텍처
+```
+┌─────────────┐     ┌─────────────┐     ┌──────────────┐     ┌─────────┐
+│ Application │────>│   MySQL     │────>│   Debezium   │────>│  Kafka  │
+│             │     │  (binlog)   │     │  (Connector) │     │         │
+└─────────────┘     └─────────────┘     └──────────────┘     └─────────┘
+       │                                        │
+       │ INSERT INTO outbox_event              │ binlog 감지
+       └────────────────────────────────────────┘
+```
+
+## MySQL binlog 설정
+```yaml
+# docker-compose.yml
+mysql-service:
+  command: --server-id=1 --log-bin=mysql-bin --binlog-format=ROW --binlog-row-image=FULL
+```
+
+## Debezium 컨테이너
+```yaml
+# docker-compose.yml
+debezium:
+  profiles:
+    - cdc
+  image: debezium/connect:2.5
+  ports:
+    - "8083:8083"
+  environment:
+    BOOTSTRAP_SERVERS: redpanda:29092
+```
