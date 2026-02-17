@@ -13,7 +13,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.persistence.Version;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -65,8 +64,6 @@ public class PaymentOutboxEvent extends AuditedEntity implements OutboxEventView
   private String eventId;
 
   private String traceId;
-
-  @Version private Long version;
 
   private static String buildEventId(String aggregateType, String aggregateId, String eventType) {
     return String.format("%s-%s-%s", aggregateType, aggregateId, eventType);
