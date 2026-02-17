@@ -2,11 +2,20 @@
 
 # Debezium Outbox Connector 등록 스크립트
 
-DEBEZIUM_HOST=${DEBEZIUM_HOST:-localhost:8093}
-MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD:-HJk9Uyw3lqzpBLgynevsQw==}
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+ENV_FILE="$ROOT_DIR/.env"
+if [ -f "$ENV_FILE" ]; then
+  set -a
+  source "$ENV_FILE"
+  set +a
+fi
 
-if [ -z "$MYSQL_PASSWORD" ]; then
-  echo "Error: MYSQL_ROOT_PASSWORD or MYSQL_PASSWORD environment variable is not set"
+DEBEZIUM_HOST=${DEBEZIUM_HOST:-localhost:8093}
+MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:}
+
+if [ -z "MYSQL_ROOT_PASSWORD" ]; then
+  echo "Error: .env 또는 환경변수에 MYSQL_ROOT_PASSWORD 설정하세요"
   exit 1
 fi
 
@@ -19,7 +28,7 @@ curl -X POST "http://${DEBEZIUM_HOST}/connectors" \
       \"database.hostname\": \"mysql\",
       \"database.port\": \"3306\",
       \"database.user\": \"root\",
-      \"database.password\": \"${MYSQL_PASSWORD}\",
+      \"database.password\": \"${MYSQL_ROOT_PASSWORD}\",
       \"database.server.id\": \"1\",
       \"database.include.list\": \"modeunsa\",
       \"table.include.list\": \".*outbox_event\",
