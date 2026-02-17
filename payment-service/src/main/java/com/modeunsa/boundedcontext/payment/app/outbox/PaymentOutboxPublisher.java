@@ -8,6 +8,7 @@ import com.modeunsa.global.json.JsonConverter;
 import com.modeunsa.global.kafka.outbox.OutboxPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +37,13 @@ public class PaymentOutboxPublisher implements OutboxPublisher {
             payload,
             target.traceId());
 
-    paymentOutboxStore.store(outboxEvent);
+    try {
+      paymentOutboxStore.store(outboxEvent);
+    } catch (DataIntegrityViolationException e) {
+      log.warn(
+          "Outbox event already exists for aggregateId: {}, eventType: {}",
+          outboxEvent.getAggregateId(),
+          outboxEvent.getEventType());
+    }
   }
 }

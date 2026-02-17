@@ -5,10 +5,13 @@ import com.modeunsa.boundedcontext.payment.out.PaymentInboxReader;
 import com.modeunsa.boundedcontext.payment.out.PaymentInboxStore;
 import com.modeunsa.global.kafka.inbox.InboxRecorder;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class PaymentInboxRecorder implements InboxRecorder {
@@ -24,7 +27,12 @@ public class PaymentInboxRecorder implements InboxRecorder {
     }
 
     PaymentInboxEvent inboxEvent = PaymentInboxEvent.create(eventId, topic, payload, traceId);
-    paymentInboxStore.store(inboxEvent);
-    return false;
+    try {
+      paymentInboxStore.store(inboxEvent);
+      return false;
+    } catch (DataIntegrityViolationException e) {
+      log.warn("Inbox event already exists for eventId: {}, topic: {}", eventId, topic);
+      return true;
+    }
   }
 }
