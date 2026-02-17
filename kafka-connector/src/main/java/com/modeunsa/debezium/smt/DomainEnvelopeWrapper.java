@@ -28,7 +28,7 @@ import org.apache.kafka.connect.transforms.Transformation;
  *
  * Java 11 호환 (Debezium Connect 컨테이너 런타임).
  */
-public class DomainEnvelopWrapper<R extends ConnectRecord<R>> implements Transformation<R> {
+public class DomainEnvelopeWrapper<R extends ConnectRecord<R>> implements Transformation<R> {
 
   private static final String EVENT_ID_HEADER = "eventId";
   private static final String EVENT_TYPE_HEADER = "eventType";
@@ -40,9 +40,6 @@ public class DomainEnvelopWrapper<R extends ConnectRecord<R>> implements Transfo
   private static final String TYPE_ID_HEADER = "__TypeId__";
   private static final String TYPE_ID_VALUE =
       "com.modeunsa.global.eventpublisher.topic.DomainEventEnvelope";
-
-  private static final String KEY_PREFIX = "payment-member-";
-  private static final Pattern MEMBER_ID_PATTERN = Pattern.compile("\"member_id\"\\s*:\\s*(\\d+)");
 
   @Override
   public R apply(R record) {
@@ -73,7 +70,7 @@ public class DomainEnvelopWrapper<R extends ConnectRecord<R>> implements Transfo
     envelopeMap.put(FIELD_PAYLOAD, payload != null ? payload : "");
     envelopeMap.put(TRACE_ID_HEADER, traceId);
 
-    String keyString = extractKeyString(record, payload);
+    String keyString = extractKeyString(record);
 
     ConnectHeaders headers = new ConnectHeaders();
     headers.add(TYPE_ID_HEADER, TYPE_ID_VALUE, Schema.STRING_SCHEMA);
@@ -89,34 +86,17 @@ public class DomainEnvelopWrapper<R extends ConnectRecord<R>> implements Transfo
         headers);
   }
 
-  /** Key: "payment-member-{id}". 기존 key에서 추출하거나 payload의 member_id로 만든다. */
-  private String extractKeyString(R record, String payload) {
+  private String extractKeyString(R record) {
     Object key = record.key();
+    if (key == null) {
+      return "unknown";
+    }
+
     if (key instanceof String) {
-      String s = (String) key;
-      if (s.startsWith(KEY_PREFIX)) {
-        return s;
-      }
+      return (String) key;
     }
-    if (key instanceof Struct) {
-      Struct struct = (Struct) key;
-      if (struct.schema() != null && struct.schema().field(FIELD_PAYLOAD) != null) {
-        Object p = struct.get(FIELD_PAYLOAD);
-        if (p != null) {
-          String keyVal = p.toString();
-          if (keyVal.startsWith(KEY_PREFIX)) {
-            return keyVal;
-          }
-        }
-      }
-    }
-    if (payload != null && !payload.isEmpty()) {
-      Matcher m = MEMBER_ID_PATTERN.matcher(payload);
-      if (m.find()) {
-        return KEY_PREFIX + m.group(1);
-      }
-    }
-    return KEY_PREFIX + "unknown";
+
+    return "unknown";
   }
 
   private static String nullToEmpty(String s) {
@@ -166,5 +146,5 @@ public class DomainEnvelopWrapper<R extends ConnectRecord<R>> implements Transfo
   public void close() {}
 
   /** Connector 설정에서 Value 전용 SMT로 쓸 때: DomainEnvelopWrapper$Value */
-  public static class Value<R extends ConnectRecord<R>> extends DomainEnvelopWrapper<R> {}
+  public static class Value<R extends ConnectRecord<R>> extends DomainEnvelopeWrapper<R> {}
 }
