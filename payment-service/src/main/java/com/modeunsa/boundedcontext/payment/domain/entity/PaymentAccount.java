@@ -1,15 +1,18 @@
 package com.modeunsa.boundedcontext.payment.domain.entity;
 
 import static jakarta.persistence.CascadeType.PERSIST;
+import static jakarta.persistence.GenerationType.IDENTITY;
 
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.boundedcontext.payment.domain.types.ReferenceType;
 import com.modeunsa.global.exception.GeneralException;
-import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
+import com.modeunsa.global.jpa.entity.AuditedEntity;
 import com.modeunsa.global.status.ErrorStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -29,7 +32,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class PaymentAccount extends GeneratedIdAndAuditedEntity {
+public class PaymentAccount extends AuditedEntity {
+
+  @Id
+  @GeneratedValue(strategy = IDENTITY)
+  private Long id;
 
   /*
    * 로그데이터의 경우 fetch, orphanRemoval 설정을 명시한다.

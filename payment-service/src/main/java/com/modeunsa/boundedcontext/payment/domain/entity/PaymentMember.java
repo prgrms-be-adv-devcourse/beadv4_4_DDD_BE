@@ -1,30 +1,37 @@
 package com.modeunsa.boundedcontext.payment.domain.entity;
 
+import static jakarta.persistence.GenerationType.IDENTITY;
+
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentDomainException;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentMemberStatus;
 import com.modeunsa.global.jpa.converter.EncryptedStringConverter;
-import com.modeunsa.global.jpa.entity.ManualIdAndAuditedEntity;
+import com.modeunsa.global.jpa.entity.AuditedEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table
 @Getter
-@SuperBuilder
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class PaymentMember extends ManualIdAndAuditedEntity {
+public class PaymentMember extends AuditedEntity {
+
+  @Id
+  @GeneratedValue(strategy = IDENTITY)
+  private Long id;
 
   private static final String customerKeyPrefix = "CUSTOMER";
 
