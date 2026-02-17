@@ -1,8 +1,10 @@
 package com.modeunsa.boundedcontext.product.app.search;
 
+import com.modeunsa.boundedcontext.product.app.ProductMapper;
 import com.modeunsa.boundedcontext.product.domain.search.document.ProductSearch;
 import com.modeunsa.shared.product.dto.search.ProductSearchRequest;
 import com.modeunsa.shared.product.dto.search.ProductSearchResponse;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
@@ -14,27 +16,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class ProductSearchFacade {
 
-  private final ProductSearchUseCase productSearchUseCase;
+  private final ProductCreateProductSearchUseCase productCreateProductSearchUseCase;
+  private final ProductSearchSupport productSearchSupport;
+  private final ProductMapper productMapper;
 
   @Transactional
-  public ProductSearchResponse createProductSearch(ProductSearchRequest request) {
+  public void createProductSearch(ProductSearchRequest request) {
+    productCreateProductSearchUseCase.createProductSearch(request);
+  }
 
-    ProductSearch productSearch =
-        productSearchUseCase.createProductSearch(
-            request.name(),
-            request.description(),
-            request.category(),
-            request.saleStatus(),
-            request.price());
-
-    return new ProductSearchResponse(
-        productSearch.getId(),
-        productSearch.getName(),
-        productSearch.getDescription(),
-        productSearch.getCategory(),
-        productSearch.getSaleStatus(),
-        productSearch.getPrice(),
-        productSearch.getCreatedAt(),
-        productSearch.getUpdatedAt());
+  public List<ProductSearchResponse> search(String keyword) {
+    List<ProductSearch> responses = productSearchSupport.search(keyword);
+    return responses.stream().map(productMapper::toProductSearchResponse).toList();
   }
 }

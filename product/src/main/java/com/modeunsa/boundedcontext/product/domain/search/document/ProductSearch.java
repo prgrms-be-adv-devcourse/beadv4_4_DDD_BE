@@ -1,7 +1,7 @@
 package com.modeunsa.boundedcontext.product.domain.search.document;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import lombok.Getter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.DateFormat;
@@ -19,6 +19,9 @@ public class ProductSearch {
   private String name;
 
   @Field(type = FieldType.Text)
+  private String sellerBusinessName;
+
+  @Field(type = FieldType.Text)
   private String description;
 
   @Field(type = FieldType.Keyword)
@@ -28,22 +31,54 @@ public class ProductSearch {
   private String saleStatus;
 
   @Field(type = FieldType.Scaled_Float)
-  private BigDecimal price;
+  private BigDecimal salePrice;
+
+  @Field(type = FieldType.Text)
+  private String primaryImageUrl;
 
   @Field(type = FieldType.Date, format = DateFormat.date_time)
-  private OffsetDateTime createdAt;
-
-  @Field(type = FieldType.Date, format = DateFormat.date_time)
-  private OffsetDateTime updatedAt;
+  private Instant createdAt;
 
   public ProductSearch(
-      String name, String description, String category, String saleStatus, BigDecimal price) {
+      String id,
+      String name,
+      String sellerBusinessName,
+      String description,
+      String category,
+      String saleStatus,
+      BigDecimal salePrice,
+      String primaryImageUrl,
+      Instant createdAt) {
+    this.id = id;
     this.name = name;
+    this.sellerBusinessName = sellerBusinessName;
     this.description = description;
     this.category = category;
     this.saleStatus = saleStatus;
-    this.price = price;
-    this.createdAt = OffsetDateTime.now();
-    this.updatedAt = OffsetDateTime.now();
+    this.salePrice = salePrice;
+    this.primaryImageUrl = primaryImageUrl;
+    this.createdAt = createdAt;
+  }
+
+  public static ProductSearch create(
+      String id,
+      String name,
+      String sellerBusinessName,
+      String description,
+      String category,
+      String saleStatus,
+      BigDecimal salePrice,
+      String primaryImageUrl,
+      Instant createdAt) {
+    return new ProductSearch(
+        id,
+        name,
+        sellerBusinessName,
+        description,
+        category,
+        saleStatus,
+        salePrice,
+        primaryImageUrl,
+        createdAt);
   }
 }

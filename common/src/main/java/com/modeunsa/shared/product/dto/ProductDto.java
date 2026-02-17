@@ -14,6 +14,9 @@ public class ProductDto {
   private Long sellerId;
   private String sellerBusinessName;
   private String name;
+  private String description;
+  private String category;
+  private String saleStatus;
   private BigDecimal price;
   private BigDecimal salePrice;
   private String primaryImageUrl;
