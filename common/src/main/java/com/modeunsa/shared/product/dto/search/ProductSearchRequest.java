@@ -10,6 +10,7 @@ public record ProductSearchRequest(
     String description,
     String category,
     String saleStatus,
+    String productStatus,
     BigDecimal salePrice,
     String primaryImageUrl,
     LocalDateTime createdAt) {}

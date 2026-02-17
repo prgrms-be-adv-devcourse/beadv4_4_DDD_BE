@@ -24,6 +24,7 @@ public class ProductCreateProductSearchUseCase {
             request.description(),
             request.category(),
             request.saleStatus(),
+            request.productStatus(),
             request.salePrice(),
             request.primaryImageUrl(),
             request.createdAt().atZone(ZoneId.of("Asia/Seoul")).toInstant());

@@ -26,6 +26,7 @@ public class ProductSearchEventListener {
             event.productDto().getDescription(),
             event.productDto().getCategory(),
             event.productDto().getSaleStatus(),
+            event.productDto().getProductStatus(),
             event.productDto().getSalePrice(),
             event.productDto().getPrimaryImageUrl(),
             event.productDto().getCreatedAt()));

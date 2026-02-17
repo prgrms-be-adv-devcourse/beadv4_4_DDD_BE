@@ -15,7 +15,9 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 @Document(indexName = "product_search")
 public class ProductSearch {
 
-  @Id private String id;
+  @Id
+  @Field(type = FieldType.Keyword)
+  private String id;
 
   @Field(type = FieldType.Text)
   private String name;
@@ -32,7 +34,10 @@ public class ProductSearch {
   @Field(type = FieldType.Keyword)
   private String saleStatus;
 
-  @Field(type = FieldType.Scaled_Float)
+  @Field(type = FieldType.Keyword)
+  private String productStatus;
+
+  @Field(type = FieldType.Scaled_Float, scalingFactor = 100)
   private BigDecimal salePrice;
 
   @Field(type = FieldType.Text)
@@ -48,6 +53,7 @@ public class ProductSearch {
       String description,
       String category,
       String saleStatus,
+      String productStatus,
       BigDecimal salePrice,
       String primaryImageUrl,
       Instant createdAt) {
@@ -57,6 +63,7 @@ public class ProductSearch {
     this.description = description;
     this.category = category;
     this.saleStatus = saleStatus;
+    this.productStatus = productStatus;
     this.salePrice = salePrice;
     this.primaryImageUrl = primaryImageUrl;
     this.createdAt = createdAt;
@@ -70,6 +77,7 @@ public class ProductSearch {
         product.getDescription(),
         product.getCategory().name(),
         product.getSaleStatus().name(),
+        product.getProductStatus().name(),
         product.getSalePrice(),
         product.getPrimaryImageUrl(),
         product.getCreatedAt().atZone(ZoneId.of("Asia/Seoul")).toInstant());
@@ -82,6 +90,7 @@ public class ProductSearch {
       String description,
       String category,
       String saleStatus,
+      String productStatus,
       BigDecimal salePrice,
       String primaryImageUrl,
       Instant createdAt) {
@@ -92,6 +101,7 @@ public class ProductSearch {
         description,
         category,
         saleStatus,
+        productStatus,
         salePrice,
         primaryImageUrl,
         createdAt);

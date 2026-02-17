@@ -97,7 +97,7 @@ custom:
 
       # ========== 상품 ===========
       - /api/v1/products/search
-      - /api/v2/products/searches
+      - /api/v2/products/search
 
     oauth2:
       allowed-redirect-domains:
@@ -127,3 +127,7 @@ app:
     same-site: Lax
   elasticsearch:
     enabled: true
+
+logging:
+  level:
+    org.springframework.data.elasticsearch.client.elc: TRACE
