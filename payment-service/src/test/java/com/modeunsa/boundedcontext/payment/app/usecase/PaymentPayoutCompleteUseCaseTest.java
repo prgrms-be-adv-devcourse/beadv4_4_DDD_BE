@@ -57,7 +57,7 @@ class PaymentPayoutCompleteUseCaseTest {
     // PaymentAccountSupport를 주입한 실제 LockManager 인스턴스를 구성한다.
     PaymentAccountLockManager lockManager = new PaymentAccountLockManager(paymentAccountSupport);
     paymentPayoutCompleteUseCase =
-        new PaymentPayoutCompleteUseCase(lockManager, paymentAccountConfig);
+        new PaymentPayoutCompleteUseCase(lockManager, paymentAccountConfig, paymentAccountSupport);
 
     when(paymentAccountConfig.getHolderMemberId()).thenReturn(holderMember.getId());
   }
