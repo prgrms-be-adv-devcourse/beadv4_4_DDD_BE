@@ -12,7 +12,7 @@ if [ -f "$ENV_FILE" ]; then
 fi
 
 DEBEZIUM_HOST=${DEBEZIUM_HOST:-localhost:8093}
-MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:}
+MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-}
 
 if [ -z "MYSQL_ROOT_PASSWORD" ]; then
   echo "Error: .env 또는 환경변수에 MYSQL_ROOT_PASSWORD 설정하세요"
@@ -44,7 +44,7 @@ curl -X POST "http://${DEBEZIUM_HOST}/connectors" \
       \"transforms.outbox.route.by.field\": \"topic\",
       \"transforms.outbox.route.topic.replacement\": \"\${routedByValue}\",
       \"transforms.outbox.table.fields.additional.placement\": \"event_id:header:eventId,trace_id:header:traceId,event_type:header:eventType,topic:header:topic\",
-      \"transforms.envelope.type\": \"com.modeunsa.debezium.smt.DomainEnvelopWrapper\$Value\",
+      \"transforms.envelope.type\": \"com.modeunsa.debezium.smt.DomainEnvelopeWrapper\$Value\",
       \"key.converter\": \"org.apache.kafka.connect.storage.StringConverter\",
       \"value.converter\": \"org.apache.kafka.connect.json.JsonConverter\",
       \"value.converter.schemas.enable\": \"false\"
