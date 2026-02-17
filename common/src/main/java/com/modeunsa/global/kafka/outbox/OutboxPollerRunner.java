@@ -35,13 +35,16 @@ public class OutboxPollerRunner {
 
     for (OutboxEventView event : pending) {
       try {
+
         DomainEventEnvelope envelope =
             new DomainEventEnvelope(
                 getEventId(event.getEventId()),
                 event.getEventType(),
                 Instant.now(),
+                event.getTopic(),
                 event.getPayload(),
                 event.getTraceId());
+
         kafkaTemplate
             .send(event.getTopic(), event.getAggregateId(), envelope)
             .get(timeoutSeconds, TimeUnit.SECONDS);
