@@ -14,6 +14,7 @@ import com.modeunsa.global.json.JsonConverter;
 import com.modeunsa.shared.member.event.MemberSignupEvent;
 import com.modeunsa.shared.order.event.RefundRequestedEvent;
 import com.modeunsa.shared.payment.event.PaymentFailedEvent;
+import lombok.extern.slf4j.Slf4j;
 import com.modeunsa.shared.payment.event.PaymentMemberCreatedEvent;
 import com.modeunsa.shared.settlement.event.SettlementCompletedPayoutEvent;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+@Slf4j
 @Component
 @ConditionalOnProperty(name = "app.event-consumer.type", havingValue = "kafka")
 @RequiredArgsConstructor
@@ -60,10 +62,12 @@ public class PaymentKafkaEventListener {
     ackAfterCommit(ack);
   }
 
-  @KafkaListener(topics = "payment-events", groupId = "payment-service")
+  @KafkaListener(
+      topics = "payment-events",
+      groupId = "payment-service",
+      containerFactory = "paymentEventsListenerContainerFactory")
   @Transactional(propagation = REQUIRES_NEW)
   public void handlePaymentEvent(DomainEventEnvelope envelope, Acknowledgment ack) {
-
     if (inboxRecorder.tryRecord(
         envelope.eventId(), envelope.topic(), envelope.payload(), envelope.traceId())) {
       ackAfterCommit(ack);
