@@ -16,7 +16,7 @@ interface OrderSummary {
   totalAmount: number
 }
 
-interface PageInfo {
+interface Pagination {
   page: number
   size: number
   hasNext: boolean
@@ -28,7 +28,7 @@ interface OrderApiResponse {
   isSuccess: boolean
   code: string
   message: string
-  pageInfo: PageInfo
+  pagination: Pagination
   result: OrderSummary[]
 }
 
@@ -95,7 +95,7 @@ export default function OrdersPage() {
 
       if (data.isSuccess && data.result) {
         setOrders(data.result)
-        setTotalPages(data.pageInfo?.totalPages || 1)
+        setTotalPages(data.pagination?.totalPages || 1)
       } else {
         setOrders([])
       }

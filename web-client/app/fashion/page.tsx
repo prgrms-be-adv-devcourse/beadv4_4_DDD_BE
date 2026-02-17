@@ -52,7 +52,7 @@ interface ProductResponse {
   updatedBy: number
 }
 
-interface PageInfo {
+interface Pagination {
   page: number
   size: number
   hasNext: boolean
@@ -64,7 +64,7 @@ interface ProductsApiResponse {
   isSuccess: boolean
   code: string
   message: string
-  pageInfo: PageInfo | null
+  pagination: Pagination | null
   result: ProductResponse[] | null
 }
 
@@ -79,7 +79,7 @@ function FashionContent() {
   const currentPage = Math.max(0, parseInt(pageParam ?? '0', 10) || 0)
 
   const [products, setProducts] = useState<ProductResponse[]>([])
-  const [pageInfo, setPageInfo] = useState<PageInfo | null>(null)
+  const [pagination, setPagination] = useState<Pagination | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -109,7 +109,7 @@ function FashionContent() {
     const apiUrl = process.env.NEXT_PUBLIC_PRODUCT_API_URL || ''
     if (!apiUrl) {
       setProducts([])
-      setPageInfo(null)
+      setPagination(null)
       setIsLoading(false)
       return
     }
@@ -123,20 +123,20 @@ function FashionContent() {
       if (!res.ok) {
         setError(data.message || '상품 목록을 불러오지 못했습니다.')
         setProducts([])
-        setPageInfo(null)
+        setPagination(null)
         return
       }
       if (data.isSuccess && data.result) {
         setProducts(data.result)
-        setPageInfo(data.pageInfo ?? null)
+        setPagination(data.pagination ?? null)
       } else {
         setProducts([])
-        setPageInfo(null)
+        setPagination(null)
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : '상품 목록을 불러오지 못했습니다.')
       setProducts([])
-      setPageInfo(null)
+      setPagination(null)
     } finally {
       setIsLoading(false)
     }
@@ -146,8 +146,8 @@ function FashionContent() {
     fetchProducts()
   }, [fetchProducts])
 
-  const totalPages = pageInfo?.totalPages ?? 0
-  const hasNext = pageInfo?.hasNext ?? false
+  const totalPages = pagination?.totalPages ?? 0
+  const hasNext = pagination?.hasNext ?? false
 
   function buildPageUrl(page: number): string {
     const params = new URLSearchParams()

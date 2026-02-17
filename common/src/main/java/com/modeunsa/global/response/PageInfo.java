@@ -1,15 +1,5 @@
 package com.modeunsa.global.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-@Getter
-@AllArgsConstructor
-public class PageInfo {
-
-  private Integer page;
-  private Integer size;
-  private Boolean hasNext;
-  private Long totalElements;
-  private Integer totalPages;
-}
+public record PageInfo(
+    Integer page, Integer size, Boolean hasNext, Long totalElements, Integer totalPages)
+    implements PaginationInfo {}

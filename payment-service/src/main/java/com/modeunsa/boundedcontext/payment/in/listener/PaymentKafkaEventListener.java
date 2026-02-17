@@ -65,6 +65,7 @@ public class PaymentKafkaEventListener {
   @KafkaListener(topics = "payment-events", groupId = "payment-service")
   @Transactional(propagation = REQUIRES_NEW)
   public void handlePaymentEvent(DomainEventEnvelope envelope, Acknowledgment ack) {
+
     if (inboxRecorder.tryRecord(
         envelope.eventId(), envelope.topic(), envelope.payload(), envelope.traceId())) {
       ackAfterCommit(ack);

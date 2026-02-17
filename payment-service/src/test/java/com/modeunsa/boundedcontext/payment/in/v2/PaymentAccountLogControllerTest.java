@@ -75,10 +75,10 @@ class PaymentAccountLogControllerTest extends BasePaymentControllerTest {
                 .value(PaymentEventType.CHARGE_BANK_TRANSFER.getDescription()))
         .andExpect(jsonPath("$.result[0].amount").value(5000))
         .andExpect(jsonPath("$.result[0].balance").value(10000))
-        .andExpect(jsonPath("$.pageInfo.page").value(0))
-        .andExpect(jsonPath("$.pageInfo.size").value(10))
-        .andExpect(jsonPath("$.pageInfo.totalElements").value(1))
-        .andExpect(jsonPath("$.pageInfo.totalPages").value(1));
+        .andExpect(jsonPath("$.pagination.page").value(0))
+        .andExpect(jsonPath("$.pagination.size").value(10))
+        .andExpect(jsonPath("$.pagination.totalElements").value(1))
+        .andExpect(jsonPath("$.pagination.totalPages").value(1));
   }
 
   @Test
