@@ -238,10 +238,12 @@ debezium:
       - "8093:8083"
    environment:
       BOOTSTRAP_SERVERS: kafka:9092
+      # consumer group
       GROUP_ID: debezium
       CONFIG_STORAGE_TOPIC: debezium_configs
       OFFSET_STORAGE_TOPIC: debezium_offsets
       STATUS_STORAGE_TOPIC: debezium_status
+      # 복제 수
       CONFIG_STORAGE_REPLICATION_FACTOR: 1
       OFFSET_STORAGE_REPLICATION_FACTOR: 1
       STATUS_STORAGE_REPLICATION_FACTOR: 1
