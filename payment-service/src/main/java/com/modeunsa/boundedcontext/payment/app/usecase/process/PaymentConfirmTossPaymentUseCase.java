@@ -31,14 +31,14 @@ public class PaymentConfirmTossPaymentUseCase {
 
     try {
       TossPaymentsConfirmResponse tossRes = tossPaymentClient.confirmPayment(tossReq);
-      payment.approveTossPayment(tossRes);
+      payment.changeToApprove(tossRes);
       return PaymentProcessContext.fromPaymentForCharge(payment);
     } catch (GeneralException ge) {
-      payment.failedTossPayment(
+      payment.updatePgFailureInfo(
           ge.getErrorStatus().getHttpStatus(), ge.getErrorStatus().getMessage());
       throw ge;
     } catch (Exception e) {
-      payment.failedTossPayment(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+      payment.updatePgFailureInfo(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
       throw e;
     }
   }

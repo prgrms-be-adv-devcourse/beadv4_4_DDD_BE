@@ -114,7 +114,7 @@ public class PaymentCompleteOrderCompleteUseCase implements PaymentCompleteProce
         ReferenceType.ORDER);
 
     Payment payment = loadPayment(context.buyerId(), context.orderNo());
-    payment.changeSuccess();
+    payment.changeToSuccess();
 
     publishPaymentSuccessEvent(context);
   }

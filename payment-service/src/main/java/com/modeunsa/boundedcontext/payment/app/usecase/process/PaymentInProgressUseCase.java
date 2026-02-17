@@ -77,7 +77,7 @@ public class PaymentInProgressUseCase {
     }
 
     // 3. 충전 필요 여부, 부족/전액 금액 정보 반영
-    payment.updatePgRequestInfo(needPgPayment, requestPgAmount);
+    payment.updatePgRequestAmount(needPgPayment, requestPgAmount);
 
     return PaymentProcessContext.fromPaymentForInProgress(payment);
   }
@@ -102,13 +102,13 @@ public class PaymentInProgressUseCase {
     payment.validateChargeAmount(context.requestPgAmount());
 
     // 5. PG 결제 정보 반영
-    payment.updatePgInfo(context);
+    payment.updatePgCustomerAndOrderInfo(context);
   }
 
   private Payment loadAndMarkInProgress(PaymentProcessContext context) {
     PaymentId paymentId = PaymentId.create(context.buyerId(), context.orderNo());
     Payment payment = paymentSupport.getPaymentById(paymentId);
-    payment.changeInProgress();
+    payment.changeToInProgress();
     return payment;
   }
 

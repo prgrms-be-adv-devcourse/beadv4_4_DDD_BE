@@ -25,7 +25,7 @@ public class PaymentFailureUseCase {
 
     PaymentId paymentId = PaymentId.create(event.memberId(), event.orderNo());
     Payment payment = paymentSupport.getPaymentById(paymentId);
-    payment.failedPayment(error, event.failureMessage());
+    payment.updateFailureInfo(error, event.failureMessage());
 
     if (error.isFinalFailure()) {
       publishFinalFailureEvent(event);

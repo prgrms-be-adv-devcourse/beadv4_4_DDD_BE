@@ -38,7 +38,7 @@ public class PaymentCompleteDepositChargeUseCase implements PaymentCompleteProce
         ReferenceType.PAYMENT_MEMBER);
 
     Payment payment = loadPayment(context.buyerId(), context.orderNo());
-    payment.changeSuccess();
+    payment.changeToSuccess();
   }
 
   private Payment loadPayment(Long memberId, String orderNo) {

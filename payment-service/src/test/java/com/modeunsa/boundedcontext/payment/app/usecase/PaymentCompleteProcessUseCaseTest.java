@@ -111,7 +111,7 @@ class PaymentCompleteProcessUseCaseTest {
 
     // Payment 조회 후 상태 변경 확인
     verify(paymentSupport).getPaymentById(paymentId);
-    verify(payment).changeSuccess();
+    verify(payment).changeToSuccess();
 
     // 이벤트 발행 확인
     verify(eventPublisher).publish(any(PaymentSuccessEvent.class));
@@ -170,7 +170,7 @@ class PaymentCompleteProcessUseCaseTest {
 
     // Payment 조회 후 상태 변경 확인
     verify(paymentSupport).getPaymentById(paymentId);
-    verify(payment).changeSuccess();
+    verify(payment).changeToSuccess();
 
     // 이벤트 발행 확인
     verify(eventPublisher).publish(any(PaymentSuccessEvent.class));
