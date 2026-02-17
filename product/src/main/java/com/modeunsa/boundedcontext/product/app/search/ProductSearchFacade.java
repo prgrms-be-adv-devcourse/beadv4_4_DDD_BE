@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProductSearchFacade {
 
   private final ProductCreateProductSearchUseCase productCreateProductSearchUseCase;
+  private final ProductSearchReindexUseCase productSearchReindexUseCase;
   private final ProductSearchSupport productSearchSupport;
   private final ProductMapper productMapper;
 
@@ -28,5 +29,9 @@ public class ProductSearchFacade {
   public List<ProductSearchResponse> search(String keyword) {
     List<ProductSearch> responses = productSearchSupport.search(keyword);
     return responses.stream().map(productMapper::toProductSearchResponse).toList();
+  }
+
+  public void reindexAll() {
+    productSearchReindexUseCase.reindexAll();
   }
 }

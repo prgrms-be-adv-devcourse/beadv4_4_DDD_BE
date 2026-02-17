@@ -1,7 +1,9 @@
 package com.modeunsa.boundedcontext.product.domain.search.document;
 
+import com.modeunsa.boundedcontext.product.domain.Product;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.ZoneId;
 import lombok.Getter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.DateFormat;
@@ -58,6 +60,19 @@ public class ProductSearch {
     this.salePrice = salePrice;
     this.primaryImageUrl = primaryImageUrl;
     this.createdAt = createdAt;
+  }
+
+  public static ProductSearch from(Product product) {
+    return ProductSearch.create(
+        product.getId().toString(),
+        product.getName(),
+        product.getSeller().getBusinessName(),
+        product.getDescription(),
+        product.getCategory().name(),
+        product.getSaleStatus().name(),
+        product.getSalePrice(),
+        product.getPrimaryImageUrl(),
+        product.getCreatedAt().atZone(ZoneId.of("Asia/Seoul")).toInstant());
   }
 
   public static ProductSearch create(

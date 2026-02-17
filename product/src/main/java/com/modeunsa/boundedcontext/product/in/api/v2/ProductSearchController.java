@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,5 +30,13 @@ public class ProductSearchController {
   public ResponseEntity<ApiResponse> search(@RequestParam String keyword) {
     List<ProductSearchResponse> response = productSearchFacade.search(keyword);
     return ApiResponse.onSuccess(SuccessStatus.OK, response);
+  }
+
+  @Operation(summary = "ES 재색인", description = "RDB의 상품 데이터를 재색인합니다. 기존 index 삭제가 선행되어야 합니다.")
+  @PostMapping("/reindex")
+  public ResponseEntity<ApiResponse> reindex() {
+    // TODO: 관리자용 API로 실행. 관리자 role 필수
+    productSearchFacade.reindexAll();
+    return ApiResponse.onSuccess(SuccessStatus.NO_CONTENT);
   }
 }
