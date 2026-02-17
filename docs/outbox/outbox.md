@@ -227,11 +227,24 @@ mysql-service:
 ```yaml
 # docker-compose.yml
 debezium:
-  profiles:
-    - cdc
-  image: debezium/connect:2.5
-  ports:
-    - "8083:8083"
-  environment:
-    BOOTSTRAP_SERVERS: redpanda:29092
+   profiles:
+      - "cdc"
+   image: debezium-connect-with-smt
+   container_name: kafka-debezium
+   depends_on:
+      - kafka
+      - mysql
+   ports:
+      - "8093:8083"
+   environment:
+      BOOTSTRAP_SERVERS: kafka:9092
+      GROUP_ID: debezium
+      CONFIG_STORAGE_TOPIC: debezium_configs
+      OFFSET_STORAGE_TOPIC: debezium_offsets
+      STATUS_STORAGE_TOPIC: debezium_status
+      CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      STATUS_STORAGE_REPLICATION_FACTOR: 1
+   networks:
+      - modeunsa-net
 ```

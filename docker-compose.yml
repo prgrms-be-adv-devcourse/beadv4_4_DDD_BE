@@ -161,7 +161,8 @@ services:
       - kafka
 
   debezium:
-    # SMT 포함: docker build -f infra/debezium/Dockerfile -t debezium-connect-with-smt infra/debezium
+    profiles:
+      - "cdc"
     image: debezium-connect-with-smt
     container_name: kafka-debezium
     depends_on:
