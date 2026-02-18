@@ -1,4 +1,4 @@
-// app/mypage/basic-info
+// web-client/app/mypage/basic-info
 
 'use client'
 

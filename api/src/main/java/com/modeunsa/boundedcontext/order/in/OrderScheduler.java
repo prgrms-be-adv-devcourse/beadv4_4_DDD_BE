@@ -37,7 +37,7 @@ public class OrderScheduler {
 
     for (Order order : paidOrders) {
       order.deliveryComplete(); // 배송완료
-      log.info("주문[{}] 자동 배송 완료 처리", order.getId());
+      log.debug("주문[{}] 자동 배송 완료 처리", order.getId());
     }
 
     // [배송 완료 -> 구매 확정] 처리
@@ -46,7 +46,7 @@ public class OrderScheduler {
 
     for (Order order : deliveredOrders) {
       order.confirm(); // 구매확정
-      log.info("주문[{}] 자동 구매 확정 처리", order.getId());
+      log.debug("주문[{}] 자동 구매 확정 처리", order.getId());
 
       eventPublisher.publish(new OrderPurchaseConfirmedEvent(orderMapper.toOrderDto(order)));
     }

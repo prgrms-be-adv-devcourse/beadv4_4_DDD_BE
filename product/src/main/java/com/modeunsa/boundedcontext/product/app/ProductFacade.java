@@ -1,5 +1,7 @@
 package com.modeunsa.boundedcontext.product.app;
 
+import com.modeunsa.api.pagination.CursorCodec;
+import com.modeunsa.api.pagination.CursorDto;
 import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
 import com.modeunsa.boundedcontext.product.domain.ProductFavorite;
@@ -9,6 +11,7 @@ import com.modeunsa.boundedcontext.product.domain.SaleStatus;
 import com.modeunsa.boundedcontext.product.in.dto.ProductCreateRequest;
 import com.modeunsa.boundedcontext.product.in.dto.ProductDetailResponse;
 import com.modeunsa.boundedcontext.product.in.dto.ProductResponse;
+import com.modeunsa.boundedcontext.product.in.dto.ProductSliceResultDto;
 import com.modeunsa.boundedcontext.product.in.dto.ProductUpdateRequest;
 import com.modeunsa.shared.product.dto.ProductFavoriteResponse;
 import com.modeunsa.shared.product.dto.ProductOrderResponse;
@@ -16,6 +19,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +39,7 @@ public class ProductFacade {
   private final ProductUpdateMemberUseCase productUpdateMemberUseCase;
   private final ProductSupport productSupport;
   private final ProductMapper productMapper;
+  private final CursorCodec cursorCodec;
 
   @Transactional
   public ProductDetailResponse createProduct(
@@ -72,9 +77,20 @@ public class ProductFacade {
     return products.map(product -> productMapper.toResponse(product));
   }
 
-  public Page<ProductResponse> getProducts(String keyword, Pageable pageable) {
-    Page<Product> products = productSupport.getProducts(keyword, pageable);
-    return products.map(product -> productMapper.toResponse(product));
+  public ProductSliceResultDto getProducts(String keyword, String cursor, int size) {
+    // 1. cursor 복호화
+    CursorDto decodedCursor = cursorCodec.decodeIfPresent(cursor);
+    // 2. cursor 기반 검색
+    Slice<Product> products = productSupport.getProducts(keyword, decodedCursor, size);
+    // 3. nextCursor 가져와서 암호화 & 인코딩
+    String nextCursor = null;
+    if (products.hasNext()) {
+      Product last = products.getContent().getLast();
+      nextCursor = cursorCodec.encode(new CursorDto(last.getCreatedAt(), last.getId()));
+    }
+
+    return new ProductSliceResultDto(
+        products.map(product -> productMapper.toResponse(product)), nextCursor);
   }
 
   public List<ProductOrderResponse> getProducts(List<Long> productIds) {

@@ -60,7 +60,7 @@ public class OrderDataInit {
 
     orderFacade.syncCartItem(user2.getId(), new SyncCartItemRequestDto(1L, 1));
 
-    log.info("Test CartItems Initialized via Facade");
+    log.debug("Test CartItems Initialized via Facade");
   }
 
   // 4. 단건 주문 생성
@@ -80,7 +80,7 @@ public class OrderDataInit {
             product1.getId(), // productId
             2)); // quantity (2개 구매)
 
-    log.info("Test Single Order Created: user1 bought '셔츠' (qty: 2)");
+    log.debug("Test Single Order Created: user1 bought '셔츠' (qty: 2)");
 
     orderFacade.createOrder(
         buyer2.getId(),
@@ -88,7 +88,7 @@ public class OrderDataInit {
             product2.getId(), // productId
             3));
 
-    log.info("Test Single Order Created: user2 bought '맨투맨' (qty: 7)");
+    log.debug("Test Single Order Created: user2 bought '맨투맨' (qty: 7)");
 
     // 결제 성공 처리
     Order order1 = orderSupport.findTopByOrderMemberIdByOrderByIdDesc(buyer1.getId());
@@ -102,7 +102,7 @@ public class OrderDataInit {
             order1.getTotalAmount() // 총 금액
             );
     orderFacade.approveOrder(paymentSuccess);
-    log.info("주문[{}] 결제 완료 처리됨", order1.getId());
+    log.debug("주문[{}] 결제 완료 처리됨", order1.getId());
 
     // 결제 실패 처리
     Order order2 = orderSupport.findTopByOrderMemberIdByOrderByIdDesc(buyer2.getId());
@@ -117,6 +117,6 @@ public class OrderDataInit {
             );
 
     orderFacade.rejectOrder(paymentFail);
-    log.info("주문[{}] 생성 및 결제 실패 처리됨", order2.getId());
+    log.debug("주문[{}] 생성 및 결제 실패 처리됨", order2.getId());
   }
 }

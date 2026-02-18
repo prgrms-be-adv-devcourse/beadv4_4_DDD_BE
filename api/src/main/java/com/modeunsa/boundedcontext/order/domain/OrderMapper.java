@@ -81,6 +81,10 @@ public interface OrderMapper {
 
   // --- 메서드 ---
 
+  default String orderStatusToString(OrderStatus status) {
+    return status == null ? null : status.name();
+  }
+
   // 대표 상품명 생성
   default String makeRepProductName(List<OrderItem> items) {
     if (items == null || items.isEmpty()) {
