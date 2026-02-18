@@ -1,12 +1,11 @@
 package com.modeunsa.boundedcontext.payment.out.client;
 
-import static com.modeunsa.global.status.ErrorStatus.PAYMENT_INVALID_REQUEST_TOSS_API;
-import static com.modeunsa.global.status.ErrorStatus.PAYMENT_REJECT_TOSS_PAYMENT;
+import static com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode.PG_TOSS_CONFIRM_FAILED;
 
 import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmResponse;
-import com.modeunsa.global.exception.GeneralException;
-import com.modeunsa.global.retry.RetryOnExternalApiFailure;
+import com.modeunsa.boundedcontext.payment.domain.exception.TossConfirmFailedException;
+import com.modeunsa.boundedcontext.payment.domain.exception.TossConfirmRetryableException;
 import jakarta.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -15,7 +14,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
 import tools.jackson.core.type.TypeReference;
@@ -49,8 +51,17 @@ public class RestTossPaymentClient implements TossPaymentClient {
     this.tossRestClient = RestClient.builder().baseUrl(tossBaseUrl).build();
   }
 
+  /**
+   * Toss PG 전용 재시도 정책: 재시도 가능 예외만 N회 재시도, 그 외는 즉시 실패. - 재시도: {@link TossConfirmRetryableException}
+   * (502/503/504), {@link ResourceAccessException} (네트워크/타임아웃) - 재시도 안 함: {@link
+   * TossConfirmFailedException} (4xx, 500 등)
+   */
   @Override
-  @RetryOnExternalApiFailure
+  @Retryable(
+      retryFor = {TossConfirmRetryableException.class, ResourceAccessException.class},
+      noRetryFor = {TossConfirmFailedException.class},
+      maxAttempts = 3,
+      backoff = @Backoff(delay = 500, multiplier = 2))
   public TossPaymentsConfirmResponse confirmPayment(
       TossPaymentsConfirmRequest tossPaymentsConfirmRequest) {
     String paymentKey = tossPaymentsConfirmRequest.paymentKey();
@@ -58,10 +69,7 @@ public class RestTossPaymentClient implements TossPaymentClient {
     long amount = tossPaymentsConfirmRequest.amount();
 
     log.debug(
-        "[토스페이먼츠 결제 승인 요청 시작] paymentKey: {}, orderId: {}, amount: {}",
-        paymentKey,
-        orderId,
-        amount);
+        "[토스페이먼츠 결제 승인 요청] paymentKey: {}, orderId: {}, amount: {}", paymentKey, orderId, amount);
 
     try {
       ResponseEntity<Map<String, Object>> responseEntity =
@@ -69,45 +77,26 @@ public class RestTossPaymentClient implements TossPaymentClient {
               .retrieve()
               .toEntity(new ParameterizedTypeReference<>() {});
 
-      int httpStatus = responseEntity.getStatusCode().value();
-      Map<String, Object> responseBody = responseEntity.getBody();
+      int status = responseEntity.getStatusCode().value();
+      Map<String, Object> body = responseEntity.getBody();
 
-      log.debug("[토스페이먼츠 결제 승인 응답] httpStatus: {}, responseBody: {}", httpStatus, responseBody);
+      log.debug("[토스페이먼츠 결제 승인 응답] httpStatus: {}, responseBody: {}", status, body);
 
-      if (httpStatus != 200) {
-        log.warn(
-            "[토스페이먼츠 결제 승인 실패] httpStatus: {}, paymentKey: {}, orderId: {}",
-            httpStatus,
-            paymentKey,
-            orderId);
-        throw createDomainExceptionFromNon200(httpStatus, responseBody);
+      if (status != 200) {
+        throw createTossConfirmException(status, body);
       }
-
-      if (responseBody == null) {
-        log.error("[토스페이먼츠 결제 승인 응답 null] paymentKey: {}, orderId: {}", paymentKey, orderId);
-        throw new GeneralException(PAYMENT_INVALID_REQUEST_TOSS_API);
+      if (body == null) {
+        throw new TossConfirmFailedException(PG_TOSS_CONFIRM_FAILED, "토스 결제 승인 실패, 응답 바디가 없습니다.");
       }
 
       log.debug(
           "[토스페이먼츠 결제 승인 성공] paymentKey: {}, orderId: {}, amount: {}", paymentKey, orderId, amount);
-      return objectMapper.convertValue(responseBody, TossPaymentsConfirmResponse.class);
+      return objectMapper.convertValue(body, TossPaymentsConfirmResponse.class);
     } catch (RestClientResponseException e) {
-      log.error(
-          "[토스페이먼츠 결제 승인 RestClientResponseException] "
-              + "paymentKey: {}, orderId: {}, status: {}, body: {}",
-          paymentKey,
-          orderId,
-          e.getStatusCode(),
-          e.getResponseBodyAsString(StandardCharsets.UTF_8),
-          e);
-      throw createDomainExceptionFromHttpError(e);
-    } catch (GeneralException e) {
-      log.error(
-          "[토스페이먼츠 결제 승인 GeneralException] paymentKey: {}, orderId: {}, error: {}",
-          paymentKey,
-          orderId,
-          e.getMessage(),
-          e);
+      throw createTossConfirmExceptionFromHttpError(e);
+    } catch (TossConfirmFailedException
+        | TossConfirmRetryableException
+        | ResourceAccessException e) {
       throw e;
     } catch (Exception e) {
       log.error(
@@ -116,7 +105,7 @@ public class RestTossPaymentClient implements TossPaymentClient {
           orderId,
           e.getMessage(),
           e);
-      throw new GeneralException(PAYMENT_REJECT_TOSS_PAYMENT);
+      throw new TossConfirmFailedException(PG_TOSS_CONFIRM_FAILED, e.getMessage());
     }
   }
 
@@ -131,38 +120,44 @@ public class RestTossPaymentClient implements TossPaymentClient {
         .body(tossPaymentsConfirmRequest);
   }
 
-  private GeneralException createDomainExceptionFromNon200(int httpStatus, Map responseBody) {
-    if (responseBody == null) {
-      return new GeneralException(PAYMENT_INVALID_REQUEST_TOSS_API);
+  private RuntimeException createTossConfirmException(int httpStatus, Map<String, Object> body) {
+    TossErrorDetail detail = parseTossError(httpStatus, body);
+    if (isRetryableHttpStatus(httpStatus)) {
+      return new TossConfirmRetryableException(detail.message());
     }
-
-    @SuppressWarnings("unchecked")
-    Map<String, Object> body = (Map<String, Object>) responseBody;
-
-    String tossCode = extractStringOrDefault(body, "code", "HTTP_" + httpStatus);
-    String tossMessage = extractStringOrDefault(body, "message", "토스 결제 승인 실패, HTTP " + httpStatus);
-    log.error("response api code: {}, message: {}", tossCode, tossMessage);
-    return new GeneralException(PAYMENT_REJECT_TOSS_PAYMENT);
+    return new TossConfirmFailedException(
+        PG_TOSS_CONFIRM_FAILED, detail.code(), detail.message(), detail.message());
   }
 
-  private GeneralException createDomainExceptionFromHttpError(RestClientResponseException e) {
+  private RuntimeException createTossConfirmExceptionFromHttpError(RestClientResponseException e) {
     int httpStatus = e.getStatusCode().value();
     String rawBody = e.getResponseBodyAsString(StandardCharsets.UTF_8);
 
     if (rawBody.isBlank()) {
-      return new GeneralException(PAYMENT_INVALID_REQUEST_TOSS_API);
+      TossErrorDetail detail = parseTossError(httpStatus, null);
+      return new TossConfirmFailedException(
+          PG_TOSS_CONFIRM_FAILED, detail.code(), detail.message(), detail.message());
     }
 
     try {
-      Map<String, Object> errorBody = objectMapper.readValue(rawBody, new TypeReference<>() {});
-      String tossCode = extractStringOrDefault(errorBody, "code", "HTTP_" + httpStatus);
-      String tossMessage =
-          extractStringOrDefault(errorBody, "message", "토스 결제 승인 실패, HTTP " + httpStatus);
-      log.error("reject toss payment approve, api code: {}, message: {}", tossCode, tossMessage);
-      return new GeneralException(PAYMENT_INVALID_REQUEST_TOSS_API);
+      Map<String, Object> body = objectMapper.readValue(rawBody, new TypeReference<>() {});
+      TossErrorDetail detail = parseTossError(httpStatus, body);
+      log.error("[토스페이먼츠 결제 승인 실패 code:{}, message:{}]", detail.code(), detail.message());
+      if (isRetryableHttpStatus(httpStatus)) {
+        return new TossConfirmRetryableException(detail.message());
+      }
+      return new TossConfirmFailedException(
+          PG_TOSS_CONFIRM_FAILED, detail.code(), detail.message(), detail.message());
     } catch (Exception parseFail) {
-      return new GeneralException(PAYMENT_INVALID_REQUEST_TOSS_API);
+      TossErrorDetail detail = parseTossError(httpStatus, null);
+      String message = detail.message() + ", 응답 바디 파싱 실패: " + parseFail.getMessage();
+      return new TossConfirmFailedException(
+          PG_TOSS_CONFIRM_FAILED, detail.code(), message, message);
     }
+  }
+
+  private boolean isRetryableHttpStatus(int httpStatus) {
+    return httpStatus == 502 || httpStatus == 503 || httpStatus == 504;
   }
 
   private String extractStringOrDefault(Map<String, Object> map, String key, String defaultValue) {
@@ -172,4 +167,17 @@ public class RestTossPaymentClient implements TossPaymentClient {
     }
     return defaultValue;
   }
+
+  private TossErrorDetail parseTossError(int httpStatus, Map<String, Object> body) {
+    String defaultCode = "HTTP_" + httpStatus;
+    String defaultMessage = "토스 결제 승인 실패, HTTP " + httpStatus;
+    if (body == null) {
+      return new TossErrorDetail(defaultCode, defaultMessage);
+    }
+    return new TossErrorDetail(
+        extractStringOrDefault(body, "code", defaultCode),
+        extractStringOrDefault(body, "message", defaultMessage));
+  }
+
+  private record TossErrorDetail(String code, String message) {}
 }
