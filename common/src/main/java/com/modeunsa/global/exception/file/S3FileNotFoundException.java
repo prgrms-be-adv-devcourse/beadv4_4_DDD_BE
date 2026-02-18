@@ -1,4 +1,4 @@
-package com.modeunsa.global.file.exception;
+package com.modeunsa.global.exception.file;
 
 public class S3FileNotFoundException extends S3BaseException {
   public S3FileNotFoundException(String operation, Throwable cause) {

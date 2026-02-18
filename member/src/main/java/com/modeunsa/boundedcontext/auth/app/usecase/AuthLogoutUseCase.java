@@ -33,13 +33,13 @@ public class AuthLogoutUseCase {
 
     // 이미 블랙리스트에 있으면 중복 로그아웃 → 무시
     if (blacklistRepository.existsById(accessToken)) {
-      log.info("이미 로그아웃된 토큰 - memberId: {}", memberId);
+      log.debug("이미 로그아웃된 토큰 - memberId: {}", memberId);
       return;
     }
 
     // Refresh Token 삭제
     refreshTokenRepository.deleteById(memberId);
-    log.info("Refresh Token 삭제 완료 - memberId: {}", memberId);
+    log.debug("Refresh Token 삭제 완료 - memberId: {}", memberId);
 
     long remainingExpiration = jwtTokenProvider.getRemainingExpiration(accessToken);
 
@@ -48,7 +48,8 @@ public class AuthLogoutUseCase {
       AuthAccessTokenBlacklist blacklist =
           AuthAccessTokenBlacklist.of(accessToken, memberId, remainingExpiration);
       blacklistRepository.save(blacklist);
-      log.info("Access Token 블랙리스트 등록 완료 - memberId: {}, TTL: {}ms", memberId, remainingExpiration);
+      log.debug(
+          "Access Token 블랙리스트 등록 완료 - memberId: {}, TTL: {}ms", memberId, remainingExpiration);
     }
   }
 }

@@ -24,4 +24,10 @@ public class PaymentSupport {
   public Optional<Payment> getOptPaymentById(PaymentId paymentId) {
     return paymentReader.findById(paymentId);
   }
+
+  public Payment getPaymentByOrderNo(String orderNo) {
+    return paymentReader
+        .findByOrderNo(orderNo)
+        .orElseThrow(() -> new GeneralException(ErrorStatus.PAYMENT_NOT_FOUND));
+  }
 }

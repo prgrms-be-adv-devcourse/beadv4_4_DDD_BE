@@ -4,46 +4,43 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.global.status.SuccessStatus;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 
 @Getter
-@RequiredArgsConstructor
-@JsonPropertyOrder({"isSuccess", "code", "message", "pageInfo", "result"})
-public class ApiResponse {
+@AllArgsConstructor
+@JsonPropertyOrder({"isSuccess", "code", "message", "pagination", "result"})
+public class ApiResponse<T> {
 
   private final Boolean isSuccess;
   private final String code;
   private final String message;
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
-  private final PageInfo pageInfo;
+  private final PaginationInfo pagination;
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
-  private final Object result;
-
-  // 성공한 경우 응답 생성
-  public static ResponseEntity<ApiResponse> onSuccess(
-      SuccessStatus status, PageInfo pageInfo, Object result) {
-    return new ResponseEntity<>(
-        new ApiResponse(true, status.getCode(), status.getMessage(), pageInfo, result),
-        status.getHttpStatus());
-  }
+  private final T result;
 
   // 성공 - 기본 응답
   public static ResponseEntity<ApiResponse> onSuccess(SuccessStatus status) {
-    return onSuccess(status, null, null);
+    return new ResponseEntity<>(
+        new ApiResponse(true, status.getCode(), status.getMessage(), null, null),
+        status.getHttpStatus());
   }
 
   // 성공 - 데이터 포함
-  public static ResponseEntity<ApiResponse> onSuccess(SuccessStatus status, Object result) {
-    return onSuccess(status, null, result);
+  public static <T> ResponseEntity<ApiResponse> onSuccess(SuccessStatus status, T result) {
+    return new ResponseEntity<>(
+        new ApiResponse(true, status.getCode(), status.getMessage(), null, result),
+        status.getHttpStatus());
   }
 
   // 성공 - 페이지네이션 포함
-  public static ResponseEntity<ApiResponse> onSuccess(SuccessStatus status, Page<?> page) {
+  public static <T> ResponseEntity<ApiResponse> onSuccess(SuccessStatus status, Page<T> page) {
     PageInfo pageInfo =
         new PageInfo(
             page.getNumber(),
@@ -51,7 +48,18 @@ public class ApiResponse {
             page.hasNext(),
             page.getTotalElements(),
             page.getTotalPages());
-    return onSuccess(status, pageInfo, page.getContent());
+    return new ResponseEntity<>(
+        new ApiResponse(true, status.getCode(), status.getMessage(), pageInfo, page.getContent()),
+        status.getHttpStatus());
+  }
+
+  public static <T> ResponseEntity<ApiResponse> onSuccess(
+      SuccessStatus status, Slice<T> slice, String nextCursor) {
+    CursorInfo cursorInfo = new CursorInfo(slice.hasNext(), nextCursor);
+    return new ResponseEntity<>(
+        new ApiResponse(
+            true, status.getCode(), status.getMessage(), cursorInfo, slice.getContent()),
+        status.getHttpStatus());
   }
 
   // 실패한 경우 응답 생성

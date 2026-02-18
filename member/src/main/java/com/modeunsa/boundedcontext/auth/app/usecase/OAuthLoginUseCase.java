@@ -34,26 +34,26 @@ public class OAuthLoginUseCase {
     // 요청 ID 생성 (각 요청 구분용)
     String requestId = UUID.randomUUID().toString().substring(0, 8);
 
-    log.info("[{}] OAuth 로그인 시작 - provider: {}, state: {}", requestId, provider, state);
+    log.debug("[{}] OAuth 로그인 시작 - provider: {}, state: {}", requestId, provider, state);
 
     try {
       // 1. state 검증
       validateState(state, provider);
-      log.info("[{}] State 검증 완료", requestId);
+      log.debug("[{}] State 검증 완료", requestId);
 
       // 2. OAuth 토큰 교환
       OAuthClient oauthClient = oauthClientFactory.getClient(provider);
       OAuthProviderTokenResponse tokenResponse = oauthClient.getToken(code, redirectUri);
-      log.info("[{}] OAuth 토큰 교환 완료", requestId);
+      log.debug("[{}] OAuth 토큰 교환 완료", requestId);
 
       // 3. 사용자 정보 조회
       OAuthUserInfo userInfo = oauthClient.getUserInfo(tokenResponse.accessToken());
-      log.info("[{}] 사용자 정보 조회 완료 - providerId: {}", requestId, userInfo.providerId());
+      log.debug("[{}] 사용자 정보 조회 완료 - providerId: {}", requestId, userInfo.providerId());
 
       // 4. 소셜 계정 조회 또는 신규 가입 (이제 신규가입 시 PRE_ACTIVE가 됨)
-      log.info("[{}] 소셜 계정 처리 시작", requestId);
+      log.debug("[{}] 소셜 계정 처리 시작", requestId);
       OAuthAccount socialAccount = oauthAccountResolveUseCase.execute(provider, userInfo);
-      log.info(
+      log.debug(
           "[{}] 소셜 계정 처리 완료 - accountId: {}, memberId: {}",
           requestId,
           socialAccount.getId(),
@@ -67,12 +67,12 @@ public class OAuthLoginUseCase {
           authTokenIssueUseCase.execute(
               member.getId(), member.getRole(), sellerId, member.getStatus().name());
 
-      log.info("[{}] ✅ OAuth 로그인 성공 - memberId: {}", requestId, member.getId());
+      log.debug("[{}] OAuth 로그인 성공 - memberId: {}", requestId, member.getId());
       return jwtTokenResponse;
 
     } catch (Exception e) {
       log.error(
-          "[{}] ❌ OAuth 로그인 실패 - error: {}, message: {}",
+          "[{}] OAuth 로그인 실패 - error: {}, message: {}",
           requestId,
           e.getClass().getSimpleName(),
           e.getMessage());

@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Payment Account Log", description = "결제 계좌 입출금 내역 도메인 API")
-@RestController("PaymentAccountLogControllerV2")
+@RestController("PaymentAccountLogV2Controller")
 @RequestMapping("/api/v1/payments/accounts/logs")
 @RequiredArgsConstructor
 public class PaymentAccountLogController {

@@ -4,14 +4,12 @@ import { useEffect, useState } from 'react'
 import MypageLayout from '../../components/MypageLayout'
 import api from "@/app/lib/axios"
 
-// 📌 중요: 백엔드 응답(DTO)과 여기 변수명이 정확히 일치해야 합니다.
-// 콘솔(F12)에 찍히는 로그를 보고 만약 이름이 다르다면 여기서 수정해주세요.
 interface DeliveryAddress {
   id: number
   addressName: string
   recipientName: string
-  recipientPhone: string // 혹시 백엔드에서 phone, phoneNumber 등으로 보내는지 확인 필요
-  zipCode: string        // 혹시 백엔드에서 zipcode, postalCode 등으로 보내는지 확인 필요
+  recipientPhone: string
+  zipCode: string
   address: string
   addressDetail: string
   isDefault: boolean
@@ -76,8 +74,8 @@ export default function AddressPage() {
       const response = await api.get('/api/v1/members/me/addresses')
       const list: DeliveryAddress[] = response.data.result
 
-      // 🔍 디버깅용: 실제 들어오는 데이터 필드명을 확인해보세요!
-      console.log('📌 서버에서 받은 배송지 목록:', list);
+      // 디버깅용: 실제 들어오는 데이터 필드명을 확인해보세요!
+      console.log('서버에서 받은 배송지 목록:', list);
 
       setAddresses(list)
 

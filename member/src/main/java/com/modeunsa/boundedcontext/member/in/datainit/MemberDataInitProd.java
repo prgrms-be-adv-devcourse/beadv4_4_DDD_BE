@@ -43,7 +43,7 @@ public class MemberDataInitProd {
   public ApplicationRunner initSystemAccounts() {
     return args -> {
       if (memberRepository.count() > 0) {
-        log.info("[Init] 회원이 존재하여 초기화를 건너뜁니다.");
+        log.debug("[Init] 회원이 존재하여 초기화를 건너뜁니다.");
         return;
       }
 
@@ -60,7 +60,7 @@ public class MemberDataInitProd {
   }
 
   private void setSafeAutoIncrement(long startValue) {
-    log.info("[Init] ID AutoIncrement 값을 {}로 설정합니다.", startValue);
+    log.debug("[Init] ID AutoIncrement 값을 {}로 설정합니다.", startValue);
     try {
       jdbcTemplate.execute("ALTER TABLE member_member AUTO_INCREMENT = " + startValue);
     } catch (Exception e) {
@@ -70,7 +70,7 @@ public class MemberDataInitProd {
 
   @Transactional
   public void createBaseAccounts() {
-    log.info("[Init] 시스템 계정(System, Holder, Admin) 생성 시작");
+    log.debug("[Init] 시스템 계정(System, Holder, Admin) 생성 시작");
 
     // 1. System (ID: 1)
     Member systemUser =
@@ -129,7 +129,7 @@ public class MemberDataInitProd {
     memberRepository.save(adminUser);
     publishSignupEvent(adminUser);
 
-    log.info("[Init] 초기화 완료. System(1), Holder(2), Admin(3) 생성됨.");
+    log.debug("[Init] 초기화 완료. System(1), Holder(2), Admin(3) 생성됨.");
   }
 
   private void publishSignupEvent(Member member) {

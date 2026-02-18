@@ -1060,11 +1060,11 @@ a {
   display: block;
 }
 
-/* ❤️ 오른쪽 하단 고정 */
+/* 오른쪽 하단 고정 */
 .favorite-overlay {
   position: absolute;
-  right: 8px;              /* 👉 오른쪽 */
-  bottom: 8px;             /* 👉 하단 */
+  right: 8px;
+  bottom: 8px;
 
   display: flex;
   align-items: center;

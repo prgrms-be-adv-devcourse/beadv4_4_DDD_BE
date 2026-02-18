@@ -104,4 +104,8 @@ public class OrderSupport {
   public void softDeleteAllCartItems(Long memberId) {
     orderCartItemRepository.softDeleteAllByMemberId(memberId);
   }
+
+  public int getPendingCount(Long productId) {
+    return orderRepository.sumPendingQuantityByProductId(productId);
+  }
 }

@@ -6,4 +6,6 @@ import java.util.Optional;
 
 public interface PaymentReader {
   Optional<Payment> findById(PaymentId paymentId);
+
+  Optional<Payment> findByOrderNo(String orderNo);
 }

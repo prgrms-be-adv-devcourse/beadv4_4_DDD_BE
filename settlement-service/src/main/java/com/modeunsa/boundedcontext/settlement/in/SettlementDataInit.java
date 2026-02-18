@@ -17,7 +17,6 @@ import org.springframework.batch.core.job.JobExecution;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
@@ -26,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Profile("!test")
 @ConditionalOnProperty(name = "app.data-init.enabled", havingValue = "true", matchIfMissing = true)
-@Configuration
+// @Configuration
 @Slf4j
 public class SettlementDataInit {
   private static final Long SELLER_MEMBER_ID = 7L;
@@ -68,30 +67,30 @@ public class SettlementDataInit {
 
   @Transactional
   public void initMembers() {
-    log.info("[정산] 1. 기본 멤버 데이터 초기화");
+    log.debug("[정산] 1. 기본 멤버 데이터 초기화");
 
     Long systemMemberId = settlementConfig.getSystemMemberId();
     if (settlementMemberRepository.findById(systemMemberId).isEmpty()) {
       SettlementMember systemMember = SettlementMember.create(systemMemberId, "SYSTEM");
       settlementMemberRepository.save(systemMember);
-      log.info("[정산] SYSTEM 멤버 생성: {}", systemMember.getId());
+      log.debug("[정산] SYSTEM 멤버 생성: {}", systemMember.getId());
     }
 
     if (settlementMemberRepository.findById(SELLER_MEMBER_ID).isEmpty()) {
       SettlementMember sellerMember = SettlementMember.create(SELLER_MEMBER_ID, "SELLER");
       settlementMemberRepository.save(sellerMember);
-      log.info("[정산] 판매자 멤버 생성: {}", sellerMember.getId());
+      log.debug("[정산] 판매자 멤버 생성: {}", sellerMember.getId());
     }
 
     if (settlementMemberRepository.findById(BUYER_MEMBER_ID).isEmpty()) {
       SettlementMember buyerMember = SettlementMember.create(BUYER_MEMBER_ID, "MEMBER");
       settlementMemberRepository.save(buyerMember);
-      log.info("[정산] 구매자 멤버 생성: {}", buyerMember.getId());
+      log.debug("[정산] 구매자 멤버 생성: {}", buyerMember.getId());
     }
   }
 
   public void initCandidateItems() throws InterruptedException {
-    log.info("[정산] 2. 정산 후보 항목 생성");
+    log.debug("[정산] 2. 정산 후보 항목 생성");
 
     long count = settlementCandidateItemRepository.count();
     if (count > 0) {
@@ -103,11 +102,11 @@ public class SettlementDataInit {
               .hasContent();
 
       if (hasYesterdayTargets) {
-        log.info("[정산] 어제 대상 정산 후보 항목 존재 (count={}), 생성 스킵", count);
+        log.debug("[정산] 어제 대상 정산 후보 항목 존재 (count={}), 생성 스킵", count);
         return;
       }
 
-      log.warn("[정산] 정산 후보 항목은 존재하지만 어제 대상 데이터가 없습니다. DataInit용 후보를 추가 생성합니다. (count={})", count);
+      log.debug("[정산] 정산 후보 항목은 존재하지만 어제 대상 데이터가 없습니다. DataInit용 후보를 추가 생성합니다. (count={})", count);
     }
 
     self.createCandidateItems();
@@ -134,15 +133,15 @@ public class SettlementDataInit {
             1003L, BUYER_MEMBER_ID, SELLER_MEMBER_ID, new BigDecimal("5500"), 1, confirmedAt);
     settlementCandidateItemRepository.save(candidate3);
 
-    log.info("[정산] 정산 후보 항목 3건 직접 생성 완료 (purchaseConfirmedAt={})", confirmedAt);
+    log.debug("[정산] 정산 후보 항목 3건 직접 생성 완료 (purchaseConfirmedAt={})", confirmedAt);
   }
 
   public void runDailySettlementBatch() {
-    log.info("[정산] 3. 일별 정산 수집 배치 실행");
+    log.debug("[정산] 3. 일별 정산 수집 배치 실행");
 
     try {
       JobExecution jobExecution = settlementJobLauncher.runCollectItemsAndCalculatePayoutsJob();
-      log.info(
+      log.debug(
           "[정산] 일별 정산 수집 배치 실행 완료: jobId={}, status={}",
           jobExecution.getId(),
           jobExecution.getStatus());
@@ -153,7 +152,7 @@ public class SettlementDataInit {
 
   @Transactional
   public void adjustSettlementPeriodToLastMonth() {
-    log.info("[정산] 4. Settlement 기간을 저번달로 수정");
+    log.debug("[정산] 4. Settlement 기간을 저번달로 수정");
 
     LocalDateTime lastMonth = LocalDateTime.now().minusMonths(1);
     int lastMonthYear = lastMonth.getYear();
@@ -163,18 +162,18 @@ public class SettlementDataInit {
     for (Settlement settlement : settlements) {
       if (settlement.getPayoutAt() == null) {
         settlement.changeSettlementPeriod(lastMonthYear, lastMonthMonth);
-        log.info(
+        log.debug(
             "[정산] Settlement[{}] 기간 변경: {}/{}", settlement.getId(), lastMonthYear, lastMonthMonth);
       }
     }
   }
 
   public void runMonthlySettlementBatch() {
-    log.info("[정산] 5. 월간 정산 완료 배치 실행");
+    log.debug("[정산] 5. 월간 정산 완료 배치 실행");
 
     try {
       JobExecution jobExecution = settlementJobLauncher.runMonthlyPayoutJob();
-      log.info(
+      log.debug(
           "[정산] 월간 정산 배치 실행 완료: jobId={}, status={}",
           jobExecution.getId(),
           jobExecution.getStatus());

@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import {useCallback, useEffect, useState} from 'react'
 import MypageLayout from '../../components/MypageLayout'
+import api from "@/app/lib/axios";
 
 const CATEGORY_OPTIONS = [
   { value: '', label: '카테고리 전체' },
@@ -25,7 +26,6 @@ const PRODUCT_STATUS_OPTIONS = [
 const SALE_STATUS_OPTIONS = [
   { value: '', label: '판매상태 전체' },
   { value: 'SALE', label: '판매중' },
-  { value: 'SOLD_OUT', label: '품절' },
   { value: 'NOT_SALE', label: '판매중지' },
 ]
 
@@ -49,7 +49,7 @@ interface ProductResponse {
   updatedBy: number
 }
 
-interface PageInfo {
+interface Pagination {
   page: number
   size: number
   hasNext: boolean
@@ -61,13 +61,13 @@ interface ProductsApiResponse {
   isSuccess: boolean
   code: string
   message: string
-  pageInfo: PageInfo | null
+  pagination: Pagination | null
   result: ProductResponse[] | null
 }
 
 const PAGE_SIZE = 10
 const PAGE_WINDOW = 5
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+const apiUrl = process.env.NEXT_PUBLIC_PRODUCT_API_URL || ''
 
 
 export default function ProductsPage() {
@@ -76,8 +76,6 @@ export default function ProductsPage() {
   const [saleStatus, setSaleStatus] = useState('')
   const [productStatus, setProductStatus] = useState('')
   const [currentPage, setCurrentPage] = useState(0)
-
-  const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
 
   const handleSearch = async () => {
     setCurrentPage(0)
@@ -92,36 +90,26 @@ export default function ProductsPage() {
 
     try {
       const url = `${apiUrl}/api/v1/products/sellers?${params.toString()}`
-      const res = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      })
-      const data: ProductsApiResponse = await res.json()
-      if (!res.ok) {
-        setError(data.message || '상품 목록을 불러오지 못했습니다.')
-        setProducts([])
-        setPageInfo(null)
-        return
-      }
+      const res = await api.get<ProductsApiResponse>(url)
+      const data = res.data
       if (data.isSuccess && data.result) {
         setProducts(data.result)
-        setPageInfo(data.pageInfo ?? null)
+        setPagination(data.pagination ?? null)
       } else {
         setProducts([])
-        setPageInfo(null)
+        setPagination(null)
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : '상품 목록을 불러오지 못했습니다.')
       setProducts([])
-      setPageInfo(null)
+      setPagination(null)
     } finally {
       setIsLoading(false)
     }
   }
 
   const [products, setProducts] = useState<ProductResponse[]>([])
-  const [pageInfo, setPageInfo] = useState<PageInfo | null>(null)
+  const [pagination, setPagination] = useState<Pagination | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -135,7 +123,7 @@ export default function ProductsPage() {
   const fetchProducts = useCallback(async () => {
     if (!apiUrl) {
       setProducts([])
-      setPageInfo(null)
+      setPagination(null)
       setIsLoading(false)
       return
     }
@@ -144,27 +132,19 @@ export default function ProductsPage() {
     try {
 
       const url = `${apiUrl}/api/v1/products/sellers?page=${currentPage}&size=${PAGE_SIZE}`
-      const res = await fetch(url, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      })
-      const data: ProductsApiResponse = await res.json()
-      if (!res.ok) {
-        setError(data.message || '상품 목록을 불러오지 못했습니다.')
-        setProducts([])
-        setPageInfo(null)
-        return
-      }
+      const res = await api.get<ProductsApiResponse>(url);
+      const data: ProductsApiResponse = res.data
       if (data.isSuccess && data.result) {
         setProducts(data.result)
-        setPageInfo(data.pageInfo ?? null)
+        setPagination(data.pagination ?? null)
       } else {
         setProducts([])
-        setPageInfo(null)
+        setPagination(null)
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : '상품 목록을 불러오지 못했습니다.')
       setProducts([])
-      setPageInfo(null)
+      setPagination(null)
     } finally {
       setIsLoading(false)
     }
@@ -174,7 +154,7 @@ export default function ProductsPage() {
     fetchProducts()
   }, [fetchProducts])
 
-  const totalPages = pageInfo?.totalPages ?? 0
+  const totalPages = pagination?.totalPages ?? 0
 
   const currentBlock = Math.floor(currentPage / PAGE_WINDOW)
 

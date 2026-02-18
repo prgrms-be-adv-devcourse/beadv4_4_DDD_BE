@@ -67,4 +67,10 @@ public class OrderController {
     orderFacade.addOrderDeliveryInfo(memberId, orderId, orderDeliveryRequestDto);
     return ApiResponse.onSuccess(SuccessStatus.NO_CONTENT);
   }
+
+  @Operation(summary = "내부 결제대기 주문 개수 조회 기능 ", description = "결제 대기중인 주문 개수를 조회하는 내부 모듈 api입니다.")
+  @GetMapping("/internal/pending-count/{productId}")
+  public int getPendingCount(@PathVariable Long productId) {
+    return orderFacade.getPendingCount(productId);
+  }
 }
