@@ -26,4 +26,12 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
   List<Order> findAllByStatusAndPaidAtBefore(OrderStatus status, LocalDateTime cutoff);
 
   Optional<Order> findByIdAndOrderMemberId(Long orderId, Long memberId);
+
+  @Query(
+      "SELECT COALESCE(SUM(oi.quantity), 0) "
+          + "FROM OrderItem oi "
+          + "JOIN oi.order o "
+          + "WHERE oi.productId = :productId "
+          + "AND o.status = 'PENDING_PAYMENT'")
+  int sumPendingQuantityByProductId(@Param("productId") Long productId);
 }
