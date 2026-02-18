@@ -9,11 +9,9 @@ import com.modeunsa.boundedcontext.payment.out.PaymentAccountReader;
 import com.modeunsa.global.config.PaymentAccountConfig;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
-import jakarta.persistence.EntityManager;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -24,7 +22,6 @@ public class PaymentAccountSupport {
   private final PaymentAccountConfig paymentAccountConfig;
   private final PaymentAccountReader paymentAccountReader;
   private final PaymentAccountLogReader paymentAccountLogReader;
-  private final EntityManager entityManager;
 
   public void debitIdempotent(
       PaymentAccount account,
@@ -36,18 +33,7 @@ public class PaymentAccountSupport {
     if (existsDuplicateEvent(account.getId(), referenceType, referenceId, eventType)) {
       return;
     }
-
-    try {
-      account.debit(amount, eventType, referenceId, referenceType);
-      entityManager.flush();
-    } catch (DataIntegrityViolationException e) {
-      log.warn(
-          "Duplicate debit ignored, accountId={}, referenceType={}, referenceId={}, eventType={}",
-          account.getId(),
-          referenceType,
-          referenceId,
-          eventType);
-    }
+    account.debit(amount, eventType, referenceId, referenceType);
   }
 
   public void creditIdempotent(
@@ -61,17 +47,7 @@ public class PaymentAccountSupport {
       return;
     }
 
-    try {
-      account.credit(amount, eventType, referenceId, referenceType);
-      entityManager.flush();
-    } catch (DataIntegrityViolationException e) {
-      log.warn(
-          "Duplicate credit ignored, accountId={}, referenceType={}, referenceId={}, eventType={}",
-          account.getId(),
-          referenceType,
-          referenceId,
-          eventType);
-    }
+    account.credit(amount, eventType, referenceId, referenceType);
   }
 
   public PaymentAccount getPaymentAccountByMemberId(Long memberId) {
