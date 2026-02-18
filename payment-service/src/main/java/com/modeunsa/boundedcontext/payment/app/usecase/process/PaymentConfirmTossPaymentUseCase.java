@@ -13,12 +13,17 @@ import com.modeunsa.boundedcontext.payment.out.client.TossPaymentClient;
 import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.shared.payment.event.PaymentFailedEvent;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.ResourceAccessException;
 
 @Service
-@Transactional
+@Transactional(
+    noRollbackFor = {
+      TossConfirmRetryableException.class,
+      TossConfirmFailedException.class,
+      ResourceAccessException.class
+    })
 @RequiredArgsConstructor
 public class PaymentConfirmTossPaymentUseCase {
 
@@ -48,7 +53,6 @@ public class PaymentConfirmTossPaymentUseCase {
           e.getTossMessage() != null ? e.getTossMessage() : e.getMessage());
       throw e;
     } catch (Exception e) {
-      payment.updatePgFailureInfo(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
       handleTossFailure(context, PaymentErrorCode.PG_UNKNOWN_ERROR, e.getMessage());
       throw e;
     }
