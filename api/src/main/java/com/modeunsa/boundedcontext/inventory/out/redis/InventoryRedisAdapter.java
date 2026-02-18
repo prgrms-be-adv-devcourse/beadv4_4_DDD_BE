@@ -10,8 +10,9 @@ import com.modeunsa.shared.order.out.OrderApiClient;
 import java.time.Duration;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -21,46 +22,29 @@ public class InventoryRedisAdapter implements InventoryCommandPort, InventoryQue
   private final InventoryRepository inventoryRepository;
   private final OrderApiClient orderApiClient;
 
-  private static final String RESERVE_MULTI_LUA =
-      """
-      for i=1,#KEYS do
-          local available = tonumber(redis.call("GET", KEYS[i]) or "0")
-          local requestQty = tonumber(ARGV[i])
-          if available < requestQty then
-              return -1
-          end
-      end
-      for i=1,#KEYS do
-          redis.call("DECRBY", KEYS[i], ARGV[i])
-      end
-      return 1
-      """;
+  @Qualifier("reserveInventoryScript")
+  private final RedisScript<Long> reserveInventoryScript;
 
-  private static final String RELEASE_LUA =
-      """
-      redis.call("INCRBY", KEYS[1], ARGV[1])
-      return 1
-      """;
+  @Qualifier("releaseInventoryScript")
+  private final RedisScript<Long> releaseInventoryScript;
 
+  @Override
   public void reserve(List<Long> productIds, List<Integer> quantities) {
     List<String> keys = productIds.stream().map(id -> "inventory:available:" + id).toList();
     List<String> args = quantities.stream().map(String::valueOf).toList();
 
-    Long result =
-        redisTemplate.execute(
-            new DefaultRedisScript<>(RESERVE_MULTI_LUA, Long.class),
-            keys,
-            args.toArray(new String[0]));
+    Long result = redisTemplate.execute(reserveInventoryScript, keys, args.toArray(new String[0]));
 
     if (result == null || result < 0) {
       throw new GeneralException(ErrorStatus.INSUFFICIENT_STOCK);
     }
   }
 
+  @Override
   public void release(Long productId, int quantity) {
     redisTemplate.execute(
-        new DefaultRedisScript<>(RELEASE_LUA, Long.class),
-        List.of(inventoryKey(productId)),
+        releaseInventoryScript,
+        List.of(InventoryRedisKeyUtils.makeKey(productId)),
         String.valueOf(quantity));
   }
 

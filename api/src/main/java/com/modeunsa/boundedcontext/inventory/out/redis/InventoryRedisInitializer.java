@@ -23,7 +23,8 @@ public class InventoryRedisInitializer {
         .findAll()
         .forEach(
             inv -> {
-              String key = "inventory:available:" + inv.getProductId();
+              String key = InventoryRedisKeyUtils.makeKey(inv.getProductId());
+              // 하지만 dev 환경 초기화용이므로 단순 quantity 사용
               redisTemplate.opsForValue().set(key, String.valueOf(inv.getQuantity()));
             });
   }

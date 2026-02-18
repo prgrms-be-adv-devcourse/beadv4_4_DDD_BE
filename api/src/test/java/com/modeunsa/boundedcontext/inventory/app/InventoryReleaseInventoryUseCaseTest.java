@@ -2,6 +2,7 @@ package com.modeunsa.boundedcontext.inventory.app;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+import com.modeunsa.ApiApplication;
 import com.modeunsa.shared.inventory.dto.InventoryReserveRequest;
 import com.modeunsa.shared.order.dto.OrderItemDto;
 import java.math.BigDecimal;
@@ -26,7 +27,12 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 @Tag("ignore")
-@SpringBootTest
+@SpringBootTest(
+    classes = ApiApplication.class,
+    properties = {
+      "encryption.master-key=test-dummy-key-1234567890123456",
+      "ENCRYPTION_MASTER_KEY=test-dummy-key-1234567890123456"
+    })
 @ActiveProfiles("test")
 public class InventoryReleaseInventoryUseCaseTest {
   @Autowired private RedisTemplate<String, String> redisTemplate;
