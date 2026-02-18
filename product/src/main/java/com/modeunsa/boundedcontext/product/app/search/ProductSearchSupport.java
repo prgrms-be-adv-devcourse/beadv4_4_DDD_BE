@@ -61,9 +61,23 @@ public class ProductSearchSupport {
   }
 
   public Page<String> autoComplete(String keyword) {
+    BoolQuery.Builder bool = QueryBuilders.bool();
+
+    // keyword 조건
+    if (StringUtils.hasText(keyword)) {
+      bool.should(s -> s.match(m -> m.field("nameAutoComplete").query(keyword)));
+      bool.minimumShouldMatch("1");
+    }
+
+    // saleStatus 필터
+    bool.filter(f -> f.term(t -> t.field("saleStatus").value("SALE")));
+    // productStatus 필터
+    bool.filter(f -> f.term(t -> t.field("productStatus").value("COMPLETED")));
+
     NativeQuery query =
         NativeQuery.builder()
-            .withQuery(q -> q.match(m -> m.field("nameAutoComplete").query(keyword)))
+            .withQuery(bool.build()._toQuery())
+            .withSort(Sort.by(Sort.Order.desc("createdAt"), Sort.Order.desc("id")))
             .withPageable(PageRequest.of(0, 10))
             .build();
 
