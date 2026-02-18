@@ -5,8 +5,6 @@ import com.modeunsa.boundedcontext.order.domain.OrderMapper;
 import com.modeunsa.boundedcontext.order.domain.OrderMember;
 import com.modeunsa.boundedcontext.order.domain.OrderProduct;
 import com.modeunsa.boundedcontext.order.out.OrderCartItemRepository;
-import com.modeunsa.global.exception.GeneralException;
-import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.inventory.dto.InventoryDto;
 import com.modeunsa.shared.inventory.out.InventoryApiClient;
 import com.modeunsa.shared.order.dto.SyncCartItemRequestDto;
@@ -32,9 +30,7 @@ public class OrderSyncCartItemUseCase {
 
     // 재고 확인
     InventoryDto inventory = inventoryApiClient.getInventory(syncCartItemRequestDto.productId());
-    if (inventory.quantity() - inventory.reservedQuantity() < syncCartItemRequestDto.quantity()) {
-      throw new GeneralException(ErrorStatus.ORDER_STOCK_NOT_ENOUGH);
-    }
+    // TODO: 예약주문가능 재고 조회
 
     CartItem cartItem =
         orderCartItemRepository

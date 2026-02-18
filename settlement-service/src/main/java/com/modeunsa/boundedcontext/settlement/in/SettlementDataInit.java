@@ -52,7 +52,7 @@ public class SettlementDataInit {
   }
 
   @Bean
-  @Order(4)
+  @Order(5)
   public ApplicationRunner settlementDataInitApplicationRunner() {
     return args -> {
       self.initMembers();

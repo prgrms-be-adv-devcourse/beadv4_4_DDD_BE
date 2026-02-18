@@ -34,7 +34,7 @@ public class OrderDataInit {
   }
 
   @Bean
-  @org.springframework.core.annotation.Order(3)
+  @org.springframework.core.annotation.Order(4)
   public ApplicationRunner orderDataInitApplicationRunner() {
     return args -> {
       self.makeBaseCartItems(); // 장바구니 담기 테스트

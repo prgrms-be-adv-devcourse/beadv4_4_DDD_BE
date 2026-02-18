@@ -1,5 +1,6 @@
 package com.modeunsa.global.eventpublisher.topic;
 
+import com.modeunsa.shared.inventory.event.InventoryStockRecoverEvent;
 import com.modeunsa.shared.member.event.MemberBasicInfoUpdatedEvent;
 import com.modeunsa.shared.member.event.MemberDeliveryAddressAddedEvent;
 import com.modeunsa.shared.member.event.MemberDeliveryAddressDeletedEvent;
@@ -10,6 +11,8 @@ import com.modeunsa.shared.member.event.MemberProfileUpdatedEvent;
 import com.modeunsa.shared.member.event.MemberSignupEvent;
 import com.modeunsa.shared.member.event.SellerRegisteredEvent;
 import com.modeunsa.shared.order.event.OrderCancelRequestEvent;
+import com.modeunsa.shared.order.event.OrderCancellationConfirmedEvent;
+import com.modeunsa.shared.order.event.OrderPaidEvent;
 import com.modeunsa.shared.order.event.OrderPurchaseConfirmedEvent;
 import com.modeunsa.shared.order.event.RefundRequestedEvent;
 import com.modeunsa.shared.payment.event.PaymentFailedEvent;
@@ -55,9 +58,11 @@ public class KafkaResolver {
     }
 
     // order
-    if (event instanceof OrderPurchaseConfirmedEvent
+    if (event instanceof OrderPaidEvent
+        || event instanceof OrderPurchaseConfirmedEvent
         || event instanceof OrderCancelRequestEvent
-        || event instanceof RefundRequestedEvent) {
+        || event instanceof RefundRequestedEvent
+        || event instanceof OrderCancellationConfirmedEvent) {
       return ORDER_EVENTS_TOPIC;
     }
 
@@ -106,8 +111,15 @@ public class KafkaResolver {
     if (event instanceof SellerRegisteredEvent e) {
       return "member-%d-seller-%d".formatted(e.memberId(), e.memberSellerId());
     }
+
+    if (event instanceof OrderPaidEvent e) {
+      return "order-%d".formatted(e.orderDto().getOrderId());
+    }
     if (event instanceof OrderCancelRequestEvent e) {
       return "order-%d".formatted(e.orderDto().getOrderId());
+    }
+    if (event instanceof OrderCancellationConfirmedEvent e) {
+      return "order-%d".formatted(e.orderId());
     }
     if (event instanceof OrderPurchaseConfirmedEvent e) {
       return "order-%d".formatted(e.orderDto().getOrderId());
@@ -115,15 +127,22 @@ public class KafkaResolver {
     if (event instanceof RefundRequestedEvent e) {
       return "order-%d".formatted(e.orderDto().getOrderId());
     }
+
+    if (event instanceof InventoryStockRecoverEvent e) {
+      return "inventory-%d".formatted(e.orderItems().get(0).getProductId());
+    }
+
     if (event instanceof PaymentMemberCreatedEvent e) {
       return "payment-member-%d".formatted(e.memberId());
     }
     if (event instanceof PaymentFailedEvent e) {
       return "payment-%d-%s".formatted(e.memberId(), e.orderNo());
     }
+
     if (event instanceof SettlementCompletedPayoutEvent e) {
       return "settlement";
     }
+
     if (event instanceof ProductCreatedEvent e) {
       return "product-%d".formatted(e.productDto().getId());
     }

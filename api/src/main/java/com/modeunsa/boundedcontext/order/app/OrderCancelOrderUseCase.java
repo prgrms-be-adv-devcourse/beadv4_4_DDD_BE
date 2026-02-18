@@ -8,7 +8,7 @@ import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.order.dto.OrderResponseDto;
-import com.modeunsa.shared.order.event.OrderCancelRequestEvent;
+import com.modeunsa.shared.order.event.RefundRequestedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -39,7 +39,7 @@ public class OrderCancelOrderUseCase {
 
     order.requestCancel();
 
-    eventPublisher.publish(new OrderCancelRequestEvent(orderMapper.toOrderDto(order)));
+    eventPublisher.publish(new RefundRequestedEvent(orderMapper.toOrderDto(order)));
 
     return orderMapper.toOrderResponseDto(order);
   }

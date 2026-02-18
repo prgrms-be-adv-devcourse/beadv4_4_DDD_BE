@@ -13,14 +13,14 @@ public enum OrderStatus {
   DELIVERED("배송 완료"),
   PURCHASE_CONFIRMED("구매 확정"), // 정산 가능
 
-  // 주문 취소 (배송 전)
-  CANCELLED_BY_USER("사용자 취소"),
-  CANCELLED_BY_SELLER("판매자 취소"),
-  CANCEL_REQUESTED("사용자 취소 요청됨"), // PG사 환불 대기 중인 상태
+  // 주문 취소 요청(배송 전)
+  CANCEL_REQUESTED("취소 요청됨"), // PG사 환불 대기 중인 상태
 
-  // 환불 (배송 후)
+  // 환불 요청(배송 후)
   REFUND_REQUESTED("환불 요청됨"),
-  REFUNDED("환불 완료");
+
+  // 환불까지 완료
+  CANCELLED("취소 완료");
 
   private final String description;
 }
