@@ -28,6 +28,8 @@ const POPULAR_KEYWORDS = ['가방', '신발', '화장품', '향수', '시계']
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('')
+  const [autocompleteList, setAutocompleteList] = useState([])
+  const [isOpen, setIsOpen] = useState(false);
   const [searchResults, setSearchResults] = useState<ProductResponse[]>([])
   const [cursor, setCursor] = useState<string | null>(null)
   const [hasNext, setHasNext] = useState(false)
@@ -83,6 +85,40 @@ export default function Home() {
     }
   };
 
+  const fetchAutocomplete = async (keyword: string) => {
+    if (!keyword.trim()) {
+      setAutocompleteList([]);
+      setIsOpen(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+          `${API_URL}/api/v2/products/search/auto-complete?keyword=${encodeURIComponent(keyword)}`
+      );
+      const data = await response.json();
+      setAutocompleteList(data.result);
+      setIsOpen(true);
+    } catch (error) {
+      console.error("자동완성 오류:", error);
+    }
+  }
+
+  // =========== 검색어 자동완성 ===========
+  useEffect(() => {
+    const timer = setTimeout(() => {
+
+      if (searchQuery.length >= 1) {
+        fetchAutocomplete(searchQuery);
+      } else {
+        setAutocompleteList([]);
+        setIsOpen(false);
+      }
+    }, 200);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   // =========== 첫 진입 시 1회 호출 ===========
   useEffect(() => {
     fetchSearchResults(searchQuery)
@@ -114,6 +150,9 @@ export default function Home() {
   // =========== 검색 실행 ===========
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    setIsOpen(false);
+    setAutocompleteList([]);
 
     if (!searchQuery.trim()) {
       setSearchResults([])
@@ -148,11 +187,10 @@ export default function Home() {
             <div className="banner-search-wrap">
               <input
                 type="search"
-                placeholder="상품명, 브랜드명을 입력하세요"
+                placeholder="상품명을 입력하세요"
                 className="banner-search-input"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                autoComplete="off"
               />
               <button type="submit" className="banner-search-btn" aria-label="검색">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -160,6 +198,23 @@ export default function Home() {
                 </svg>
               </button>
             </div>
+            {/* 드롭다운 영역 */}
+            {isOpen && autocompleteList.length > 0 && (
+                <ul className="autocomplete-dropdown">
+                  {autocompleteList.map((item, index) => (
+                      <li
+                          key={index}
+                          className="autocomplete-item"
+                          onClick={() => {
+                            setSearchQuery(item);
+                            setIsOpen(false);
+                          }}
+                      >
+                        {item}
+                      </li>
+                  ))}
+                </ul>
+            )}
           </form>
 
           {/* 인기검색어 */}
