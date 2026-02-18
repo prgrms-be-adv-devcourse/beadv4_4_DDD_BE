@@ -186,7 +186,8 @@ public enum ErrorStatus {
   INVENTORY_NOT_FOUND(HttpStatus.NOT_FOUND, "INVENTORY_404_001", "상품 재고가 등록되지 않았습니다."),
   INVENTORY_ACCESS_DENIED(HttpStatus.FORBIDDEN, "INVENTORY_403_001", "해당 재고에 대한 접근 권한이 없습니다."),
   INVALID_STOCK_QUANTITY(HttpStatus.BAD_REQUEST, "INVENTORY_400_001", "현재 예약된 재고 수량보다 적을 수 없습니다."),
-  INSUFFICIENT_STOCK(HttpStatus.BAD_REQUEST, "INVENTORY_400_002", "잔여 재고가 부족하여 주문할 수 없습니다.");
+  INSUFFICIENT_STOCK(HttpStatus.BAD_REQUEST, "INVENTORY_400_002", "잔여 재고가 부족하여 주문할 수 없습니다."),
+  INVENTORY_RESTORE_FAILED(HttpStatus.BAD_REQUEST, "INVENTORY_400_003", "대상 상품이 존재하지 않거나 삭제되었습니다.");
 
   private final HttpStatus httpStatus;
   private final String code;
