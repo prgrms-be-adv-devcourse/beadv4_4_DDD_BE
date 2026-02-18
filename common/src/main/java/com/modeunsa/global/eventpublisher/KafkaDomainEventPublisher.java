@@ -22,9 +22,7 @@ public class KafkaDomainEventPublisher implements EventPublisher {
   public void publish(Object event) {
     KafkaPublishTarget target = kafkaResolver.resolve(event);
     String payload = jsonConverter.serialize(event);
-    DomainEventEnvelope envelope =
-        DomainEventEnvelope.of(
-            event, target.aggregateType(), target.aggregateId(), target.topic(), payload);
+    DomainEventEnvelope envelope = DomainEventEnvelope.of(event, target.topic(), payload);
 
     var message =
         MessageBuilder.withPayload(envelope)

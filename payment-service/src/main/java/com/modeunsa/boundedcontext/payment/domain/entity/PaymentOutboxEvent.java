@@ -14,6 +14,7 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -65,10 +66,6 @@ public class PaymentOutboxEvent extends AuditedEntity implements OutboxEventView
 
   private String traceId;
 
-  private static String buildEventId(String aggregateType, String aggregateId, String eventType) {
-    return String.format("%s-%s-%s", aggregateType, aggregateId, eventType);
-  }
-
   public static PaymentOutboxEvent create(
       String aggregateType,
       String aggregateId,
@@ -82,7 +79,7 @@ public class PaymentOutboxEvent extends AuditedEntity implements OutboxEventView
         .eventType(eventType)
         .topic(topic)
         .payload(payload)
-        .eventId(buildEventId(aggregateType, aggregateId, eventType))
+        .eventId(UUID.randomUUID().toString())
         .traceId(traceId)
         .build();
   }

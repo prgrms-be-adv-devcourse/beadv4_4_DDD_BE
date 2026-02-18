@@ -95,7 +95,7 @@ class PaymentSuccessStatusTest {
   }
 
   @Test
-  @DisplayName("changeToSuccess 성공 - TOSS PG 결제이면서 APPROVED 상태인 경우")
+  @DisplayName("changeToSuccess 실패 - TOSS PG 결제이면서 APPROVED 상태인 경우")
   void changeToSuccessFailureTossPayInProgress() {
 
     PaymentId paymentId = PaymentId.create(1L, "ORDER12345");

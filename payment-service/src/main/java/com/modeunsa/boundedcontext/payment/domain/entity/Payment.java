@@ -186,13 +186,6 @@ public class Payment extends AuditedEntity {
     changeToFailed(failedStatus, failureMessage);
   }
 
-  public void updatePgFailureInfo(HttpStatus httpStatus, String message) {
-    this.pgStatusCode = httpStatus.value();
-    this.pgFailureReason = message;
-    this.failedAt = LocalDateTime.now();
-    changeToFailed(PaymentStatus.FAILED, message);
-  }
-
   // 1. 결제 대기 상태로 변경
   public void changeToPending(LocalDateTime paymentDeadlineAt) {
     validateCanChangeToPending();
