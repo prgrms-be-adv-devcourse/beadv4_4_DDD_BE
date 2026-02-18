@@ -8,12 +8,14 @@ import com.modeunsa.boundedcontext.payment.domain.exception.TossConfirmFailedExc
 import com.modeunsa.boundedcontext.payment.domain.exception.TossConfirmRetryableException;
 import jakarta.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
@@ -39,6 +41,12 @@ public class RestTossPaymentClient implements TossPaymentClient {
   @Value("${payment.toss.secret-key:}")
   private String tossSecretKey;
 
+  @Value("${payment.toss.connect-timeout-seconds:3}")
+  private Duration connectTimeout;
+
+  @Value("${payment.toss.read-timeout-seconds:10}")
+  private Duration readTimeout;
+
   public RestTossPaymentClient(ObjectMapper objectMapper) {
     this.objectMapper = objectMapper;
   }
@@ -48,7 +56,10 @@ public class RestTossPaymentClient implements TossPaymentClient {
     if (tossBaseUrl == null || tossBaseUrl.isBlank()) {
       throw new IllegalStateException("payment.toss.base-url이 설정되지 않았습니다.");
     }
-    this.tossRestClient = RestClient.builder().baseUrl(tossBaseUrl).build();
+    SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+    factory.setConnectTimeout(connectTimeout);
+    factory.setReadTimeout(readTimeout);
+    this.tossRestClient = RestClient.builder().baseUrl(tossBaseUrl).requestFactory(factory).build();
   }
 
   /**

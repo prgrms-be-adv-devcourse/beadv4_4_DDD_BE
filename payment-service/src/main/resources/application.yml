@@ -86,6 +86,8 @@ payment:
     base-url: ${TOSS_API_BASE_URL:https://api.tosspayments.com}
     confirm-path: ${TOSS_API_CONFIRM_PATH:/v1/payments/confirm}
     secret-key: ${TOSS_PAYMENTS_SECRET_KEY:}
+    connect-timeout: 3
+    read-timeout: 10
 
 cloud:
   aws:
