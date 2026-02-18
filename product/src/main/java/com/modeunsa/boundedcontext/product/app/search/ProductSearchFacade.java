@@ -34,4 +34,8 @@ public class ProductSearchFacade {
   public void reindexAll() {
     productSearchReindexUseCase.reindexAll();
   }
+
+  public Page<String> autoComplete(String keyword) {
+    return productSearchSupport.autoComplete(keyword);
+  }
 }

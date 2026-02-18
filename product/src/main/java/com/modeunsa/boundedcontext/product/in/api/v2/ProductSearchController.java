@@ -43,4 +43,10 @@ public class ProductSearchController {
     productSearchFacade.reindexAll();
     return ApiResponse.onSuccess(SuccessStatus.NO_CONTENT);
   }
+
+  @Operation(summary = "검색어 자동 완성", description = "검색어 자동 완성 기능을 제공합니다.")
+  @GetMapping("/auto-complete")
+  public ResponseEntity<ApiResponse> autoComplete(@RequestParam String keyword) {
+    return ApiResponse.onSuccess(SuccessStatus.OK, productSearchFacade.autoComplete(keyword));
+  }
 }

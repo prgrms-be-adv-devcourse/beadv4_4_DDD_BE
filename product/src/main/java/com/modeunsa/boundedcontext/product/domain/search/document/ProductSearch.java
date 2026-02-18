@@ -19,13 +19,18 @@ public class ProductSearch {
   @Field(type = FieldType.Keyword)
   private String id;
 
-  @Field(type = FieldType.Text)
+  // 일반 검색용
+  @Field(type = FieldType.Text, analyzer = "nori_analyzer")
   private String name;
 
-  @Field(type = FieldType.Text)
+  // 자동완성용
+  @Field(type = FieldType.Text, analyzer = "autocomplete_analyzer", searchAnalyzer = "standard")
+  private String nameAutoComplete;
+
+  @Field(type = FieldType.Text, analyzer = "nori_analyzer")
   private String sellerBusinessName;
 
-  @Field(type = FieldType.Text)
+  @Field(type = FieldType.Text, analyzer = "nori_analyzer")
   private String description;
 
   @Field(type = FieldType.Keyword)
@@ -59,6 +64,7 @@ public class ProductSearch {
       Instant createdAt) {
     this.id = id;
     this.name = name;
+    this.nameAutoComplete = name;
     this.sellerBusinessName = sellerBusinessName;
     this.description = description;
     this.category = category;

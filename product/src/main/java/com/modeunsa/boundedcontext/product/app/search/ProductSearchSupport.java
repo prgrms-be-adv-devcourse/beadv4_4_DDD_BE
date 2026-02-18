@@ -59,4 +59,17 @@ public class ProductSearchSupport {
 
     return new PageImpl<>(content, PageRequest.of(page, size), hits.getTotalHits());
   }
+
+  public Page<String> autoComplete(String keyword) {
+    NativeQuery query =
+        NativeQuery.builder()
+            .withQuery(q -> q.match(m -> m.field("nameAutoComplete").query(keyword)))
+            .withPageable(PageRequest.of(0, 10))
+            .build();
+
+    SearchHits<ProductSearch> hits = elasticsearchOperations.search(query, ProductSearch.class);
+    List<String> content = hits.stream().map(hit -> hit.getContent().getName()).toList();
+
+    return new PageImpl<>(content, PageRequest.of(0, 10), hits.getTotalHits());
+  }
 }
