@@ -131,6 +131,8 @@ services:
     host: product
   order:
     host: order
+  inventory:
+    host: inventory
   payment:
     host: payment
   settlement:

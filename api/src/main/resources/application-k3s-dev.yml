@@ -141,6 +141,8 @@ services:
     host: localhost
   order:
     host: localhost
+  inventory:
+    host: localhost
   payment:
     host: localhost
   settlement:
