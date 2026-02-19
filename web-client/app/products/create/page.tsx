@@ -145,7 +145,7 @@ export default function ProductCreatePage() {
 
   // Presigned URL 요청 및 S3 업로드
   const uploadImageToS3 = async (file: File): Promise<string> => {
-    const fileApiUrl = process.env.NEXT_PUBLIC_FILE_API_URL!
+    const fileApiUrl = process.env.NEXT_PUBLIC_API_URL!
 
     /** 1. presigned url 요청 */
     const presignedRes = await api.post(`${fileApiUrl}/api/v1/files/presigned-url`,
@@ -244,7 +244,7 @@ export default function ProductCreatePage() {
     setIsSubmitting(true)
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_PRODUCT_API_URL || ''
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
       if (!apiUrl) {
         setErrorMessage('API URL이 설정되지 않았습니다. (NEXT_PUBLIC_API_URL)')
         setIsSubmitting(false)

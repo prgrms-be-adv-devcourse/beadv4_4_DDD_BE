@@ -39,7 +39,7 @@ export default function Home() {
   const observerRef = useRef<HTMLDivElement | null>(null)
   const isSearchingRef = useRef(false);
 
-  const API_URL = process.env.NEXT_PUBLIC_PRODUCT_API_URL!
+  const API_URL = process.env.NEXT_PUBLIC_API_URL!
   const WINDOW_SIZE = 9
 
   const fetchSearchResults = async (
