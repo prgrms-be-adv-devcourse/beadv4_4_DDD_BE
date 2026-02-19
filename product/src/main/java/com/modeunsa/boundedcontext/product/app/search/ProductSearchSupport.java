@@ -68,6 +68,10 @@ public class ProductSearchSupport {
                             .boost(1.0f)));
       }
 
+      if (isChosung(keyword)) {
+        bool.should(s -> s.prefix(p -> p.field("nameChosung").value(keyword).boost(4.0f)));
+      }
+
       bool.minimumShouldMatch("1");
     }
 
@@ -122,5 +126,9 @@ public class ProductSearchSupport {
     List<String> content = hits.stream().map(hit -> hit.getContent().getName()).toList();
 
     return new PageImpl<>(content, PageRequest.of(0, 10), hits.getTotalHits());
+  }
+
+  private boolean isChosung(String keyword) {
+    return keyword.matches("^[ㄱ-ㅎ]+$");
   }
 }

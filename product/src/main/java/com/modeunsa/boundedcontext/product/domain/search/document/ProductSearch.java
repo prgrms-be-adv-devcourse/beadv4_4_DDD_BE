@@ -1,6 +1,7 @@
 package com.modeunsa.boundedcontext.product.domain.search.document;
 
 import com.modeunsa.boundedcontext.product.domain.Product;
+import com.modeunsa.global.util.ChosungUtil;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -26,6 +27,10 @@ public class ProductSearch {
   // 자동완성용
   @Field(type = FieldType.Text, analyzer = "autocomplete_analyzer", searchAnalyzer = "standard")
   private String nameAutoComplete;
+
+  // 초성 검색용
+  @Field(type = FieldType.Keyword)
+  private String nameChosung;
 
   @Field(type = FieldType.Text, analyzer = "nori_analyzer")
   private String sellerBusinessName;
@@ -65,6 +70,7 @@ public class ProductSearch {
     this.id = id;
     this.name = name;
     this.nameAutoComplete = name;
+    this.nameChosung = ChosungUtil.extract(name);
     this.sellerBusinessName = sellerBusinessName;
     this.description = description;
     this.category = category;
