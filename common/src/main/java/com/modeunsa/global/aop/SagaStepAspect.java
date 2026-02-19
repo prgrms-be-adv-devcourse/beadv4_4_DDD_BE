@@ -1,10 +1,11 @@
 package com.modeunsa.global.aop;
 
 import com.modeunsa.global.aop.saga.SagaStep;
-import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
@@ -12,11 +13,17 @@ import org.springframework.util.StringUtils;
 
 @Aspect
 @Component
-@Slf4j
 public class SagaStepAspect {
 
+  private static final Logger log = LoggerFactory.getLogger(SagaStepAspect.class);
   private static final String TRACE_ID_MDC_KEY = "TRACE_ID";
   private static final String UNKNOWN_TRACE_ID = "UNKNOWN";
+
+  private static final String MDC_SAGA_NAME = "saga";
+  private static final String MDC_STEP = "step";
+  private static final String MDC_METHOD_NAME = "methodName";
+  private static final String MDC_DURATION = "duration";
+  private static final String MDC_STATUS = "status";
 
   @Around("@annotation(sagaStep)")
   public Object logSagaStep(ProceedingJoinPoint joinPoint, SagaStep sagaStep) throws Throwable {
@@ -29,6 +36,12 @@ public class SagaStepAspect {
     String step = sagaStep.step();
     String methodName = joinPoint.getSignature().getName();
 
+    MDC.put(MDC_SAGA_NAME, sagaName);
+    MDC.put(MDC_STEP, step);
+    MDC.put(MDC_METHOD_NAME, methodName);
+    MDC.put(TRACE_ID_MDC_KEY, traceId);
+
+    MDC.put(MDC_STATUS, "START");
     log.info("[SAGA][{}][step={}][traceId={}] 시작 - {}", sagaName, step, traceId, methodName);
 
     StopWatch stopWatch = new StopWatch();
@@ -39,6 +52,8 @@ public class SagaStepAspect {
       stopWatch.stop();
 
       if (sagaStep.logOnSuccess()) {
+        MDC.put(MDC_STATUS, "SUCCESS");
+        MDC.put(MDC_DURATION, String.valueOf(stopWatch.getTotalTimeMillis()));
         log.info(
             "[SAGA][{}][step={}][traceId={}] 성공 - {} ({}ms)",
             sagaName,
@@ -53,6 +68,8 @@ public class SagaStepAspect {
       stopWatch.stop();
 
       if (sagaStep.logOnFailure()) {
+        MDC.put(MDC_STATUS, "FAILURE");
+        MDC.put(MDC_DURATION, String.valueOf(stopWatch.getTotalTimeMillis()));
         log.error(
             "[SAGA][{}][step={}][traceId={}] 실패 - {} ({}ms), error: {}",
             sagaName,
