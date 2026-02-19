@@ -1,7 +1,7 @@
 package com.modeunsa.global.exception;
 
-import com.modeunsa.global.file.exception.S3FileNotFoundException;
-import com.modeunsa.global.file.exception.S3OperationException;
+import com.modeunsa.global.exception.file.S3FileNotFoundException;
+import com.modeunsa.global.exception.file.S3OperationException;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.status.ErrorStatus;
 import jakarta.servlet.http.HttpServletRequest;

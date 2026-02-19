@@ -55,7 +55,7 @@ public class MemberDataInit {
   public ApplicationRunner memberDataInitRunner() {
     return args -> {
       if (memberRepository.count() > 0) {
-        log.info("[Init] Member data already exists, skipping initialization");
+        log.debug("[Init] Member data already exists, skipping initialization");
         return;
       }
 
@@ -74,7 +74,7 @@ public class MemberDataInit {
   }
 
   private void setSafeAutoIncrement(long startValue) {
-    log.info("[Init] ID AutoIncrement 값을 {}로 설정합니다.", startValue);
+    log.debug("[Init] ID AutoIncrement 값을 {}로 설정합니다.", startValue);
     try {
       jdbcTemplate.execute("ALTER TABLE member_member AUTO_INCREMENT = " + startValue);
     } catch (Exception e) {
@@ -84,7 +84,7 @@ public class MemberDataInit {
 
   @Transactional
   public void initSystemAccounts() {
-    log.info("[Init] 시스템 계정(System, Holder, Admin) 생성 시작");
+    log.debug("[Init] 시스템 계정(System, Holder, Admin) 생성 시작");
 
     // 1. 시스템 계정 (ID: 1)
     Member systemMember =
@@ -124,12 +124,12 @@ public class MemberDataInit {
     memberRepository.save(admin);
     publishSignupEvent(admin);
 
-    log.info("[Init] 시스템 계정(System, Holder, Admin) 생성 완료");
+    log.debug("[Init] 시스템 계정(System, Holder, Admin) 생성 완료");
   }
 
   @Transactional
   public void initDevData() {
-    log.info("[Init] Initializing Dev/Test Data (Users, Sellers)...");
+    log.debug("[Init] Initializing Dev/Test Data (Users, Sellers)...");
 
     // 일반 회원 1 - 카카오 로그인 (ID: 4 예상)
     Member user1 = createMember("user1@example.com", "김모든", "010-1111-1111", MemberRole.MEMBER);
@@ -221,7 +221,7 @@ public class MemberDataInit {
     memberSellerRepository.save(activeSeller);
     publishSellerRegisteredEvent(activeSeller);
 
-    log.info(
+    log.debug(
         "[Init] Member dev data initialization completed. Total members: {}",
         memberRepository.count());
   }

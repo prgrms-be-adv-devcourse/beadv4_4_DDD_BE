@@ -7,6 +7,7 @@ import com.modeunsa.shared.member.event.MemberBasicInfoUpdatedEvent;
 import com.modeunsa.shared.member.event.MemberDeliveryAddressSetAsDefaultEvent;
 import com.modeunsa.shared.member.event.MemberSignupEvent;
 import com.modeunsa.shared.payment.event.PaymentFinalFailureEvent;
+import com.modeunsa.shared.payment.event.PaymentRefundSuccessEvent;
 import com.modeunsa.shared.payment.event.PaymentSuccessEvent;
 import com.modeunsa.shared.product.event.ProductCreatedEvent;
 import com.modeunsa.shared.product.event.ProductUpdatedEvent;
@@ -87,6 +88,11 @@ public class OrderKafkaEventListener {
         PaymentFinalFailureEvent event =
             jsonConverter.deserialize(eventEnvelope.payload(), PaymentFinalFailureEvent.class);
         orderFacade.rejectOrder(event.payment());
+      }
+      case PaymentRefundSuccessEvent.EVENT_NAME -> {
+        PaymentRefundSuccessEvent event =
+            jsonConverter.deserialize(eventEnvelope.payload(), PaymentRefundSuccessEvent.class);
+        orderFacade.confirmOrderCancellation(event.payment());
       }
       default -> {}
     }

@@ -1,50 +1,29 @@
 package com.modeunsa.boundedcontext.inventory.app;
 
-import com.modeunsa.boundedcontext.inventory.domain.Inventory;
-import com.modeunsa.boundedcontext.inventory.out.InventoryRepository;
-import com.modeunsa.global.exception.GeneralException;
-import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.inventory.dto.InventoryReserveRequest;
-import com.modeunsa.shared.inventory.dto.InventoryReserveRequest.Item;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class InventoryReserveInventoryUseCase {
-  private final InventoryRepository inventoryRepository;
+  private final InventoryCommandPort inventoryCommandPort;
 
-  @Retryable(
-      retryFor = ObjectOptimisticLockingFailureException.class,
-      maxAttempts = 10, // TODO: 효율적인 동시성 처리
-      backoff = @Backoff(delay = 50, maxDelay = 100, random = true))
   public void reserveInventory(InventoryReserveRequest request) {
-    List<Item> items = new ArrayList<>(request.items());
 
-    // 데드락 방지
-    items.sort(Comparator.comparing(Item::productId));
+    // productId 순으로 정렬 (선택사항)
+    List<InventoryReserveRequest.Item> items =
+        request.items().stream()
+            .sorted(Comparator.comparing(InventoryReserveRequest.Item::productId))
+            .toList();
 
-    for (Item item : items) {
-      processSingleReservation(item);
-    }
-  }
+    // 멀티 상품용 Lua에 넘길 key/value 준비
+    List<Long> productIds = items.stream().map(InventoryReserveRequest.Item::productId).toList();
+    List<Integer> quantities = items.stream().map(InventoryReserveRequest.Item::quantity).toList();
 
-  private void processSingleReservation(Item item) {
-    Inventory inventory =
-        inventoryRepository
-            .findByProductId(item.productId())
-            .orElseThrow(() -> new GeneralException(ErrorStatus.INVENTORY_NOT_FOUND));
-
-    if (!inventory.reserve(item.quantity())) {
-      throw new GeneralException(ErrorStatus.INSUFFICIENT_STOCK);
-    }
-
-    inventoryRepository.saveAndFlush(inventory);
+    // 멀티 상품 Lua 호출
+    inventoryCommandPort.reserve(productIds, quantities);
   }
 }

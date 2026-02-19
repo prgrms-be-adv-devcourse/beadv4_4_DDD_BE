@@ -4,6 +4,7 @@ import {Suspense, useEffect, useState} from 'react'
 import Link from 'next/link'
 import MypageLayout from '../../components/MypageLayout'
 import {useSearchParams} from "next/navigation";
+import api from "@/app/lib/axios";
 
 type TabKey = 'product' | 'snap'
 
@@ -99,21 +100,14 @@ function ProductFavorites() {
   useEffect(() => {
     const fetchFavorites = async () => {
       try {
-        const accessToken = localStorage.getItem('accessToken')
-        if (!accessToken?.trim()) {
-          setLoading(false)
-          return
-        }
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+        const apiUrl = process.env.NEXT_PUBLIC_PRODUCT_API_URL || ''
         if (!apiUrl) return
 
-        const res = await fetch(`${apiUrl}/api/v1/products/favorites?page=${currentPage}&size=${PAGE_SIZE}`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        })
+        const res = await api.get(`${apiUrl}/api/v1/products/favorites?page=${currentPage}&size=${PAGE_SIZE}`)
 
-        const data = await res.json()
+        const data = await res.data
 
-        if (!res.ok || !data.isSuccess) {
+        if (!data.isSuccess) {
           setError(data.message || '관심상품을 불러오지 못했습니다.')
           return
         }

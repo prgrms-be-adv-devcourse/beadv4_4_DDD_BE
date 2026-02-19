@@ -16,6 +16,10 @@ public class OrderPolicy {
   // 환불 가능 기간 (배송완료 후 7일까지)
   private static final int REFUND_DEADLINE_DAYS = 7;
 
+  // 취소 확정 가능한 상태 목록 (취소요청, 환불요청)
+  private static final EnumSet<OrderStatus> CANCELLATION_CONFIRMABLE_STATUSES =
+      EnumSet.of(OrderStatus.CANCEL_REQUESTED, OrderStatus.REFUND_REQUESTED);
+
   /** 주문 취소 가능 여부 검증 */
   public void validateCancellable(Order order) {
     // 상태 검증: 이미 배송 중이거나 구매 확정된 건 취소 불가
@@ -40,6 +44,12 @@ public class OrderPolicy {
     LocalDateTime deadline = order.getDeliveredAt().plusDays(REFUND_DEADLINE_DAYS);
     if (requestTime.isAfter(deadline)) {
       throw new GeneralException(ErrorStatus.ORDER_CANNOT_REFUND);
+    }
+  }
+
+  public void validateCancellationConfirmable(Order order) {
+    if (!CANCELLATION_CONFIRMABLE_STATUSES.contains(order.getStatus())) {
+      throw new GeneralException(ErrorStatus.ORDER_CANCELLATION_CANNOT_CONFIRM);
     }
   }
 }

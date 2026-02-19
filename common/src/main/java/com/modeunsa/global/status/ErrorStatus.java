@@ -93,6 +93,8 @@ public enum ErrorStatus {
   ORDER_CART_EMPTY(HttpStatus.BAD_REQUEST, "ORDER_400_003", "장바구니가 비어 있습니다."),
   ORDER_CANNOT_REFUND(HttpStatus.BAD_REQUEST, "ORDER_400_004", "환불 가능한 상태나 기간이 아닙니다."),
   PRODUCT_NOT_ON_SALE(HttpStatus.BAD_REQUEST, "ORDER_400_005", "판매중인 상품이 아닙니다."),
+  ORDER_CANCELLATION_CANNOT_CONFIRM(
+      HttpStatus.BAD_REQUEST, "ORDER_400_006", "현재 주문 상태에서는 주문취소를 확정할 수 없습니다."),
 
   ORDER_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_404_001", "없는 상품입니다."),
   ORDER_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_404_002", "없는 회원입니다."),
@@ -184,7 +186,8 @@ public enum ErrorStatus {
   INVENTORY_NOT_FOUND(HttpStatus.NOT_FOUND, "INVENTORY_404_001", "상품 재고가 등록되지 않았습니다."),
   INVENTORY_ACCESS_DENIED(HttpStatus.FORBIDDEN, "INVENTORY_403_001", "해당 재고에 대한 접근 권한이 없습니다."),
   INVALID_STOCK_QUANTITY(HttpStatus.BAD_REQUEST, "INVENTORY_400_001", "현재 예약된 재고 수량보다 적을 수 없습니다."),
-  INSUFFICIENT_STOCK(HttpStatus.BAD_REQUEST, "INVENTORY_400_002", "잔여 재고가 부족하여 주문할 수 없습니다.");
+  INSUFFICIENT_STOCK(HttpStatus.BAD_REQUEST, "INVENTORY_400_002", "잔여 재고가 부족하여 주문할 수 없습니다."),
+  INVENTORY_RESTORE_FAILED(HttpStatus.BAD_REQUEST, "INVENTORY_400_003", "대상 상품이 존재하지 않거나 삭제되었습니다.");
 
   private final HttpStatus httpStatus;
   private final String code;

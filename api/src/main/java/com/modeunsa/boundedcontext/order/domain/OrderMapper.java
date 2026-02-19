@@ -47,6 +47,8 @@ public interface OrderMapper {
   @Mapping(target = "productName", source = "productInfo.name")
   OrderItem toOrderItem(ProductOrderResponse productInfo, int quantity);
 
+  List<OrderItemDto> toOrderItemDto(List<OrderItem> orderItems);
+
   // ---- 주문 ----
   @Mapping(target = "orderId", source = "id")
   @Mapping(target = "memberId", source = "order.orderMember.id")
@@ -78,6 +80,10 @@ public interface OrderMapper {
   OrderMember toOrderMember(Long memberId, String realName, String phoneNumber);
 
   // --- 메서드 ---
+
+  default String orderStatusToString(OrderStatus status) {
+    return status == null ? null : status.name();
+  }
 
   // 대표 상품명 생성
   default String makeRepProductName(List<OrderItem> items) {

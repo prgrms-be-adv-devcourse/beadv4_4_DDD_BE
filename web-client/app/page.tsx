@@ -1,28 +1,136 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import {useState, useEffect, useRef, useCallback} from 'react'
 import Header from './components/Header'
+
+interface ProductResponse {
+  id: number
+  sellerId: number
+  sellerBusinessName: string
+  name: string
+  category: string
+  description: string
+  price: number
+  salePrice: number
+  currency: string
+  productStatus: string
+  saleStatus: string
+  favoriteCount: number
+  primaryImageUrl: string
+  createdAt: string
+  updatedAt: string
+  createdBy: number
+  updatedBy: number
+}
 
 const POPULAR_KEYWORDS = ['가방', '신발', '화장품', '향수', '시계']
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('')
-  const [searchResults, setSearchResults] = useState<number[]>([])
+  const [searchResults, setSearchResults] = useState<ProductResponse[]>([])
+  const [cursor, setCursor] = useState<string | null>(null)
+  const [hasNext, setHasNext] = useState(false)
+  const [loading, setLoading] = useState(false)
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (searchQuery.trim()) {
-      setSearchResults([1, 2, 3, 4, 5, 6, 7, 8])
-    } else {
-      setSearchResults([])
+  const observerRef = useRef<HTMLDivElement | null>(null)
+
+  const API_URL = process.env.NEXT_PUBLIC_PRODUCT_API_URL!
+  const WINDOW_SIZE = 9
+
+  const fetchSearchResults = async (
+      keyword: string,
+      cursorParam?: string | null,
+      append: boolean = false
+  ) => {
+    if (loading) return
+    try {
+      setLoading(true)
+
+      const params = new URLSearchParams({
+        keyword,
+        size: `${WINDOW_SIZE}`,
+      })
+
+      if (cursorParam) {
+        params.append('cursor', cursorParam)
+      }
+
+      const response = await fetch(
+          `${API_URL}/api/v1/products/search?${params.toString()}`,
+          {
+            method: 'GET',
+          }
+      )
+
+      if (!response.ok) {
+        throw new Error('Search API failed')
+      }
+
+      const data = await response.json()
+
+      if (append) {
+        setSearchResults(prev => [...prev, ...(data.result ?? [])])
+      } else {
+        setSearchResults(data.result ?? [])
+      }
+      setCursor(data.pagination?.nextCursor ?? null)
+      setHasNext(data.pagination?.hasNext ?? false)
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setLoading(false)
     }
+  };
+
+  // =========== 첫 진입 시 1회 호출 ===========
+  useEffect(() => {
+    fetchSearchResults(searchQuery)
+  }, []) // 빈 배열 → mount 시 1회만 실행
+
+  // =========== 다음 페이지 로딩 ===========
+  const handleLoadMore = useCallback(() => {
+    if (!hasNext || !cursor || loading) return
+    fetchSearchResults(searchQuery, cursor, true)
+  }, [cursor, hasNext, loading, searchQuery])
+
+  useEffect(() => {
+    if (!observerRef.current) return
+
+    const observer = new IntersectionObserver(
+        entries => {
+          if (entries[0].isIntersecting) {
+            handleLoadMore()
+          }
+        },
+        { threshold: 1 }
+    )
+
+    observer.observe(observerRef.current)
+
+    return () => observer.disconnect()
+  }, [handleLoadMore])
+
+  // =========== 검색 실행 ===========
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!searchQuery.trim()) {
+      setSearchResults([])
+      return
+    }
+    // 새 검색이므로 초기화
+    setCursor(null)
+    setHasNext(false)
+    await fetchSearchResults(searchQuery)
   }
 
-  const handlePopularClick = (keyword: string) => {
+  const handlePopularClick = async (keyword: string) => {
     setSearchQuery(keyword)
-    setSearchResults([1, 2, 3, 4, 5, 6, 7, 8])
+    await fetchSearchResults(keyword)
   }
+
+
 
   return (
     <div className="home-page">
@@ -87,21 +195,21 @@ export default function Home() {
             </div>
             <div className="products-grid">
               {searchResults.map((item) => (
-                <Link key={item} href={`/products/${item + 40}`} className="product-card">
+                <Link key={item.id} href={`/products/${item.id}`} className="product-card">
                   <div className="product-image">
                     <div className="image-placeholder">이미지</div>
                   </div>
                   <div className="product-info">
-                    <div className="product-brand">브랜드명</div>
-                    <div className="product-name">검색 상품 {item}</div>
-                    <div className="product-price">₩{((item * 15000) + 10000).toLocaleString()}</div>
+                    <div className="product-brand">{item.sellerBusinessName}</div>
+                    <div className="product-name">{item.name}</div>
+                    <div className="product-price">₩{item.salePrice.toLocaleString()}</div>
                   </div>
                 </Link>
               ))}
             </div>
           </div>
         </section>
-      ) : searchQuery.trim() ? (
+      ) : (
         <section className="search-results-section">
           <div className="container">
             <div className="no-results-container">
@@ -119,27 +227,11 @@ export default function Home() {
             </div>
           </div>
         </section>
-      ) : (
-        /* 상품 목록 (검색 전 기본) */
-        <section className="products-section">
-          <div className="container">
-            <div className="products-grid">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((item) => (
-                <Link key={item} href={`/products/${item}`} className="product-card">
-                  <div className="product-image">
-                    <div className="image-placeholder">이미지</div>
-                  </div>
-                  <div className="product-info">
-                    <div className="product-brand">브랜드명</div>
-                    <div className="product-name">상품명 {item}</div>
-                    <div className="product-price">₩{((item * 10000) + 9000).toLocaleString()}</div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
       )}
+
+      <div ref={observerRef} style={{ height: 1 }} />
+
+      {loading && <p>Loading...</p>}
 
       {/* Footer */}
       <footer className="footer">

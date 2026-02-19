@@ -1,4 +1,4 @@
-// app/mypage/profile
+// web-client/app/mypage/profile
 
 'use client'
 

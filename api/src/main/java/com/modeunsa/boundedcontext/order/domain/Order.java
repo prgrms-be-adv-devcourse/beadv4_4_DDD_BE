@@ -179,4 +179,8 @@ public class Order extends GeneratedIdAndAuditedEntity {
     this.address = address;
     this.addressDetail = addressDetail;
   }
+
+  public void confirmCancellation() {
+    this.status = OrderStatus.CANCELLED;
+  }
 }

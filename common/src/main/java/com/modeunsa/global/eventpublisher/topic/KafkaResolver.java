@@ -9,14 +9,25 @@ import com.modeunsa.shared.member.event.MemberProfileCreatedEvent;
 import com.modeunsa.shared.member.event.MemberProfileUpdatedEvent;
 import com.modeunsa.shared.member.event.MemberSignupEvent;
 import com.modeunsa.shared.member.event.SellerRegisteredEvent;
+import com.modeunsa.shared.order.event.OrderCancelRequestEvent;
+import com.modeunsa.shared.order.event.OrderPurchaseConfirmedEvent;
+import com.modeunsa.shared.order.event.RefundRequestedEvent;
+import com.modeunsa.shared.payment.event.PaymentFailedEvent;
+import com.modeunsa.shared.payment.event.PaymentFinalFailureEvent;
+import com.modeunsa.shared.payment.event.PaymentMemberCreatedEvent;
+import com.modeunsa.shared.payment.event.PaymentRefundSuccessEvent;
+import com.modeunsa.shared.payment.event.PaymentSuccessEvent;
 import com.modeunsa.shared.product.event.ProductCreatedEvent;
+import com.modeunsa.shared.product.event.ProductOrderAvailabilityChangedEvent;
 import com.modeunsa.shared.product.event.ProductUpdatedEvent;
 import com.modeunsa.shared.settlement.event.SettlementCompletedPayoutEvent;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import java.util.UUID;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnProperty(name = "app.event-publisher.type", havingValue = "kafka")
+@ConditionalOnExpression(
+    "'${app.event-publisher.type}' == 'kafka' or '${app.event-publisher.type}' == 'outbox'")
 public class KafkaResolver {
 
   private static final String MEMBER_EVENTS_TOPIC = "member-events";
@@ -25,105 +36,97 @@ public class KafkaResolver {
   private static final String SETTLEMENT_EVENTS_TOPIC = "settlement-events";
   private static final String PRODUCT_EVENTS_TOPIC = "product-events";
 
-  public String resolveTopic(Object event) {
+  // TODO: topic Resolver 를 각 모듈로 변경할지, kafka 에서 관리할지 고민
+  public KafkaPublishTarget resolve(Object event) {
+    return switch (event) {
+      // member
+      case MemberSignupEvent e -> resolveMemberEvent(e.memberId());
+      case MemberBasicInfoUpdatedEvent e -> resolveMemberEvent(e.memberId());
+      case MemberProfileCreatedEvent e -> resolveMemberEvent(e.memberId());
+      case MemberProfileUpdatedEvent e -> resolveMemberEvent(e.memberId());
+      case MemberDeliveryAddressAddedEvent e -> resolveMemberEvent(e.memberId());
+      case MemberDeliveryAddressUpdatedEvent e -> resolveMemberEvent(e.memberId());
+      case MemberDeliveryAddressDeletedEvent e -> resolveMemberEvent(e.memberId());
+      case MemberDeliveryAddressSetAsDefaultEvent e -> resolveMemberEvent(e.memberId());
+      case SellerRegisteredEvent e ->
+          resolveSellerRegisteredEvent(e.memberId(), e.memberSellerId());
 
-    if (event instanceof MemberSignupEvent
-        || event instanceof MemberBasicInfoUpdatedEvent
-        || event instanceof MemberProfileCreatedEvent
-        || event instanceof MemberProfileUpdatedEvent
-        || event instanceof MemberDeliveryAddressAddedEvent
-        || event instanceof MemberDeliveryAddressUpdatedEvent
-        || event instanceof MemberDeliveryAddressDeletedEvent
-        || event instanceof MemberDeliveryAddressSetAsDefaultEvent
-        || event instanceof SellerRegisteredEvent) {
-      return MEMBER_EVENTS_TOPIC;
-    }
+      // payment
+      case PaymentMemberCreatedEvent e -> resolvePaymentMemberEvent(e.traceId(), e.memberId());
+      case PaymentFailedEvent e -> resolvePaymentEvent(e.traceId(), e.memberId(), e.orderNo());
+      case PaymentSuccessEvent e ->
+          resolvePaymentEvent(e.traceId(), e.payment().memberId(), e.payment().orderNo());
+      case PaymentRefundSuccessEvent e ->
+          resolvePaymentEvent(e.traceId(), e.payment().memberId(), e.payment().orderNo());
+      case PaymentFinalFailureEvent e ->
+          resolvePaymentEvent(e.traceId(), e.payment().memberId(), e.payment().orderNo());
 
-    //    // payment
-    //    if (event instanceof PaymentMemberCreatedEvent
-    //        || event instanceof PaymentFailedEvent
-    //        || event instanceof PaymentSuccessEvent
-    //        || event instanceof PaymentFinalFailureEvent) {
-    //      return PAYMENT_EVENTS_TOPIC;
-    //    }
+      // product
+      case ProductCreatedEvent e -> resolveProduct(e.productDto().getId());
+      case ProductUpdatedEvent e -> resolveProduct(e.productDto().getId());
+      case ProductOrderAvailabilityChangedEvent e ->
+          resolveProduct(e.productOrderAvailableDto().productId());
 
-    // order
-    //    if (event instanceof OrderPurchaseConfirmedEvent
-    //        || event instanceof OrderCancelRequestEvent
-    //        || event instanceof RefundRequestedEvent) {
-    //      return ORDER_EVENTS_TOPIC;
-    //    }
+      // order
+      case OrderPurchaseConfirmedEvent e -> resolveOrder(e.orderDto().getOrderId());
+      case OrderCancelRequestEvent e -> resolveOrder(e.orderDto().getOrderId());
+      case RefundRequestedEvent e -> resolveOrder(e.orderDto().getOrderId());
 
-    // settlement
-    if (event instanceof SettlementCompletedPayoutEvent) {
-      return SETTLEMENT_EVENTS_TOPIC;
-    }
+      // settlement
+      case SettlementCompletedPayoutEvent e ->
+          resolveSettlement(e.payouts().getFirst().settlementId());
 
-    // product
-    if (event instanceof ProductCreatedEvent) {
-      return PRODUCT_EVENTS_TOPIC;
-    }
-    if (event instanceof ProductUpdatedEvent) {
-      return PRODUCT_EVENTS_TOPIC;
-    }
-
-    return "unexpected-events-topic";
+      // default
+      default ->
+          KafkaPublishTarget.of(
+              UUID.randomUUID().toString(), "unexpected-events-topic", "Unknown", "unexpected-key");
+    };
   }
 
-  // key 는 같은 topic 안에서 동일한 key 라면 같은 파티션에서 순차적으로 메시지가 처리된다.
-  public String resolveKey(Object event) {
-    if (event instanceof MemberSignupEvent e) {
-      return "member-%d".formatted(e.memberId());
-    }
-    if (event instanceof MemberBasicInfoUpdatedEvent e) {
-      return "member-%d".formatted(e.memberId());
-    }
-    if (event instanceof MemberProfileCreatedEvent e) {
-      return "member-%d".formatted(e.memberId());
-    }
-    if (event instanceof MemberProfileUpdatedEvent e) {
-      return "member-%d".formatted(e.memberId());
-    }
-    if (event instanceof MemberDeliveryAddressAddedEvent e) {
-      return "member-%d".formatted(e.memberId());
-    }
-    if (event instanceof MemberDeliveryAddressUpdatedEvent e) {
-      return "member-%d".formatted(e.memberId());
-    }
-    if (event instanceof MemberDeliveryAddressDeletedEvent e) {
-      return "member-%d".formatted(e.memberId());
-    }
-    if (event instanceof MemberDeliveryAddressSetAsDefaultEvent e) {
-      return "member-%d".formatted(e.memberId());
-    }
-    if (event instanceof SellerRegisteredEvent e) {
-      return "member-%d-seller-%d".formatted(e.memberId(), e.memberSellerId());
-    }
-    //    if (event instanceof OrderCancelRequestEvent e) {
-    //      return "order-%d".formatted(e.orderDto().getOrderId());
-    //    }
-    //    if (event instanceof OrderPurchaseConfirmedEvent e) {
-    //      return "order-%d".formatted(e.orderDto().getOrderId());
-    //    }
-    //    if (event instanceof RefundRequestedEvent e) {
-    //      return "order-%d".formatted(e.orderDto().getOrderId());
-    //    }
-    //    if (event instanceof PaymentMemberCreatedEvent e) {
-    //      return "payment-member-%d".formatted(e.memberId());
-    //    }
-    //    if (event instanceof PaymentFailedEvent e) {
-    //      return "payment-%d-%s".formatted(e.memberId(), e.orderNo());
-    //    }
-    if (event instanceof SettlementCompletedPayoutEvent e) {
-      return "settlement";
-    }
-    if (event instanceof ProductCreatedEvent e) {
-      return "product-%d".formatted(e.productDto().getId());
-    }
-    if (event instanceof ProductUpdatedEvent e) {
-      return "product-%d".formatted(e.productDto().getId());
-    }
+  private KafkaPublishTarget resolveMemberEvent(Long memberId) {
+    return KafkaPublishTarget.of(
+        UUID.randomUUID().toString(),
+        MEMBER_EVENTS_TOPIC,
+        "Member",
+        "member-%d".formatted(memberId));
+  }
 
-    return "unexpected-key";
+  private KafkaPublishTarget resolveSellerRegisteredEvent(Long memberId, Long memberSellerId) {
+    return KafkaPublishTarget.of(
+        UUID.randomUUID().toString(),
+        MEMBER_EVENTS_TOPIC,
+        "Member",
+        "member-%d-seller-%d".formatted(memberId, memberSellerId));
+  }
+
+  private KafkaPublishTarget resolvePaymentMemberEvent(String traceId, Long memberId) {
+    return KafkaPublishTarget.of(
+        traceId, PAYMENT_EVENTS_TOPIC, "PaymentMember", "payment-member-%d".formatted(memberId));
+  }
+
+  private KafkaPublishTarget resolvePaymentEvent(String traceId, Long memberId, String orderNo) {
+    return KafkaPublishTarget.of(
+        traceId, PAYMENT_EVENTS_TOPIC, "Payment", "payment-%d-%s".formatted(memberId, orderNo));
+  }
+
+  private KafkaPublishTarget resolveProduct(Long productId) {
+    return KafkaPublishTarget.of(
+        UUID.randomUUID().toString(),
+        PRODUCT_EVENTS_TOPIC,
+        "Product",
+        "product-%d".formatted(productId));
+  }
+
+  private KafkaPublishTarget resolveOrder(Long orderId) {
+    return KafkaPublishTarget.of(
+        UUID.randomUUID().toString(), ORDER_EVENTS_TOPIC, "Order", "order-%d".formatted(orderId));
+  }
+
+  private KafkaPublishTarget resolveSettlement(Long settlementId) {
+    return KafkaPublishTarget.of(
+        UUID.randomUUID().toString(),
+        SETTLEMENT_EVENTS_TOPIC,
+        "Settlement",
+        "settlement-%d".formatted(settlementId));
   }
 }

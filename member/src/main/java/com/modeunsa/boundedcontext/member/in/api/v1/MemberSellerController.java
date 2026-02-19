@@ -1,16 +1,20 @@
 package com.modeunsa.boundedcontext.member.in.api.v1;
 
 import com.modeunsa.boundedcontext.member.app.facade.MemberSellerFacade;
+import com.modeunsa.global.config.CookieProperties;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.global.status.SuccessStatus;
+import com.modeunsa.shared.auth.dto.JwtTokenResponse;
 import com.modeunsa.shared.member.dto.request.SellerRegisterRequest;
-import com.modeunsa.shared.member.dto.response.SellerRegisterResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.time.Duration;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class MemberSellerController {
   private final MemberSellerFacade memberSellerFacade;
+  private final CookieProperties cookieProperties;
 
   /** 판매자 등록 요청 */
   @Operation(summary = "판매자 등록 요청", description = "판매자 등록을 요청합니다.")
@@ -33,8 +38,35 @@ public class MemberSellerController {
       @RequestBody @Valid SellerRegisterRequest request) {
 
     Long memberId = user.getMemberId();
-    SellerRegisterResponse response = memberSellerFacade.registerSeller(memberId, request);
 
-    return ApiResponse.onSuccess(SuccessStatus.SELLER_REGISTER_SUCCESS, response);
+    // 1. 판매자 등록 후 새 토큰 발급 받기
+    JwtTokenResponse jwtTokenResponse = memberSellerFacade.registerSeller(memberId, request);
+
+    // 2. Access Token 쿠키 생성
+    ResponseCookie accessTokenCookie =
+        ResponseCookie.from("accessToken", jwtTokenResponse.accessToken())
+            .httpOnly(cookieProperties.isHttpOnly())
+            .secure(cookieProperties.isSecure())
+            .path(cookieProperties.getPath())
+            .maxAge(Duration.ofMillis(jwtTokenResponse.accessTokenExpiresIn()))
+            .sameSite(cookieProperties.getSameSite())
+            .build();
+
+    // 3. Refresh Token 쿠키 생성
+    ResponseCookie refreshTokenCookie =
+        ResponseCookie.from("refreshToken", jwtTokenResponse.refreshToken())
+            .httpOnly(true)
+            .secure(cookieProperties.isSecure())
+            .path(cookieProperties.getPath())
+            .maxAge(Duration.ofMillis(jwtTokenResponse.refreshTokenExpiresIn()))
+            .sameSite(cookieProperties.getSameSite())
+            .build();
+
+    // 4. 쿠키 헤더 설정 및 응답 반환
+    return ResponseEntity.ok()
+        .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
+        .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+        .body(ApiResponse.onSuccess(
+            SuccessStatus.SELLER_REGISTER_SUCCESS, jwtTokenResponse).getBody());
   }
 }

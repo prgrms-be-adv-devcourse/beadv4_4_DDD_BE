@@ -3,19 +3,17 @@ package com.modeunsa.boundedcontext.product.out;
 import static com.modeunsa.boundedcontext.product.domain.QProduct.product;
 import static com.modeunsa.boundedcontext.product.domain.QProductMemberSeller.productMemberSeller;
 
+import com.modeunsa.api.pagination.CursorDto;
 import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
 import com.modeunsa.boundedcontext.product.domain.ProductPolicy;
-import com.querydsl.core.types.Order;
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -23,29 +21,29 @@ import org.springframework.util.StringUtils;
 @RequiredArgsConstructor
 public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
-  private static final PathBuilder<Product> PRODUCT = new PathBuilder<>(Product.class, "product");
   private final JPAQueryFactory queryFactory;
 
   @Override
-  public Page<Product> searchByKeyword(String keyword, Pageable pageable) {
+  public Slice<Product> searchByKeyword(String keyword, CursorDto cursor, int size) {
     List<Product> content =
         queryFactory
             .selectFrom(product)
             .leftJoin(product.seller, productMemberSeller)
-            .where(keywordCondition(keyword), saleStatusIn(), productStatusIn())
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize())
-            .orderBy(getOrderSpecifiers(pageable))
+            .where(
+                keywordCondition(keyword),
+                saleStatusIn(),
+                productStatusIn(),
+                cursorCondition(cursor))
+            .orderBy(product.createdAt.desc(), product.id.desc()) // cursor 기반으로 정렬 고정
+            .limit(size + 1) // 다음 페이지 존재 여부 확인
             .fetch();
 
-    Long total =
-        queryFactory
-            .select(product.count())
-            .from(product)
-            .leftJoin(product.seller, productMemberSeller)
-            .where(keywordCondition(keyword), saleStatusIn(), productStatusIn())
-            .fetchOne();
-    return new PageImpl<>(content, pageable, total == null ? 0 : total);
+    boolean hasNext = content.size() > size;
+    if (hasNext) {
+      content = content.subList(0, size);
+    }
+
+    return new SliceImpl<>(content, Pageable.unpaged(), hasNext);
   }
 
   private BooleanExpression keywordCondition(String keyword) {
@@ -72,20 +70,21 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
   }
 
   private BooleanExpression saleStatusIn() {
-    return product.saleStatus.in(ProductPolicy.DISPLAYABLE_SALE_STATUES_FOR_ALL);
+    return product.saleStatus.in(ProductPolicy.ORDERABLE_SALE_STATUES);
   }
 
   private BooleanExpression productStatusIn() {
-    return product.productStatus.in(ProductPolicy.DISPLAYABLE_PRODUCT_STATUSES_FOR_ALL);
+    return product.productStatus.in(ProductPolicy.ORDERABLE_PRODUCT_STATUES);
   }
 
-  private OrderSpecifier<?>[] getOrderSpecifiers(Pageable pageable) {
-    return pageable.getSort().stream()
-        .map(
-            order -> {
-              return new OrderSpecifier(
-                  order.isAscending() ? Order.ASC : Order.DESC, PRODUCT.get(order.getProperty()));
-            })
-        .toArray(OrderSpecifier[]::new);
+  private BooleanExpression cursorCondition(CursorDto cursor) {
+    if (cursor == null) {
+      // 첫 조회 시 null
+      return null;
+    }
+    return product
+        .createdAt
+        .lt(cursor.createdAt())
+        .or(product.createdAt.eq(cursor.createdAt()).and(product.id.lt(cursor.id())));
   }
 }
