@@ -20,10 +20,15 @@ public class ProductSearchEventListener {
   public void handle(ProductCreatedEvent event) {
     productSearchFacade.createProductSearch(
         new ProductSearchRequest(
+            event.productDto().getId(),
             event.productDto().getName(),
-            "임시설명",
-            "임시카테고리",
-            "임시할인판매",
-            event.productDto().getPrice()));
+            event.productDto().getSellerBusinessName(),
+            event.productDto().getDescription(),
+            event.productDto().getCategory(),
+            event.productDto().getSaleStatus(),
+            event.productDto().getProductStatus(),
+            event.productDto().getSalePrice(),
+            event.productDto().getPrimaryImageUrl(),
+            event.productDto().getCreatedAt()));
   }
 }
