@@ -21,7 +21,7 @@ public class ProductSearchFacade {
 
   private final ProductCreateProductSearchUseCase productCreateProductSearchUseCase;
   private final ProductSearchReindexUseCase productSearchReindexUseCase;
-  private final ProductSearchSupport productSearchSupport;
+  private final ProductSearchService productSearchService;
   private final ProductMapper productMapper;
   private final CursorCodec cursorCodec;
 
@@ -35,7 +35,7 @@ public class ProductSearchFacade {
     CursorDto decodedCursor = cursorCodec.decodeIfPresent(cursor);
     // 2. cursor 기반 검색
     Slice<ProductSearch> products =
-        productSearchSupport.searchByKeyword(keyword, decodedCursor, size);
+        productSearchService.searchByKeyword(keyword, decodedCursor, size);
     // 3. nextCursor 가져와서 암호화 & 인코딩
     String nextCursor = null;
     if (products.hasNext()) {
@@ -52,6 +52,6 @@ public class ProductSearchFacade {
   }
 
   public Page<String> autoComplete(String keyword) {
-    return productSearchSupport.autoComplete(keyword);
+    return productSearchService.autoComplete(keyword);
   }
 }

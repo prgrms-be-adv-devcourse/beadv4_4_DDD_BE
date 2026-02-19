@@ -1,8 +1,9 @@
-package com.modeunsa.boundedcontext.product.app.search;
+package com.modeunsa.boundedcontext.product.out.elasticsearch;
 
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import com.modeunsa.api.pagination.CursorDto;
+import com.modeunsa.boundedcontext.product.app.query.port.out.ProductSearchPort;
 import com.modeunsa.boundedcontext.product.domain.search.document.ProductSearch;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -18,16 +19,16 @@ import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-@Service
+@Component
 @RequiredArgsConstructor
-public class ProductSearchSupport {
-
+public class ProductEsSearchAdapter implements ProductSearchPort {
   private final ElasticsearchOperations elasticsearchOperations;
 
-  public Slice<ProductSearch> searchByKeyword(String keyword, CursorDto cursor, int size) {
+  @Override
+  public Slice<ProductSearch> search(String keyword, CursorDto cursor, int size) {
 
     BoolQuery.Builder bool = QueryBuilders.bool();
 

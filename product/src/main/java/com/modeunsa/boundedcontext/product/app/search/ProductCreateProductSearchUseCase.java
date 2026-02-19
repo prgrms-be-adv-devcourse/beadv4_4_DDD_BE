@@ -1,7 +1,7 @@
 package com.modeunsa.boundedcontext.product.app.search;
 
 import com.modeunsa.boundedcontext.product.domain.search.document.ProductSearch;
-import com.modeunsa.boundedcontext.product.out.search.ProductSearchRepository;
+import com.modeunsa.boundedcontext.product.out.elasticsearch.ProductSearchRepository;
 import com.modeunsa.shared.product.dto.search.ProductSearchRequest;
 import java.time.ZoneId;
 import lombok.RequiredArgsConstructor;
