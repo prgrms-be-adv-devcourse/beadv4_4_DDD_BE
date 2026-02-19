@@ -134,6 +134,8 @@ app:
     enabled: true
   event-publisher:
     type: ${EVENT_PUBLISHER_TYPE:spring}
+  event-consumer:
+    type: ${EVENT_CONSUMER_TYPE:kafka}
   data-init:
     enabled: ${DATA_INIT:true}
 

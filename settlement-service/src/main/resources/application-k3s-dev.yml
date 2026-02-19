@@ -57,6 +57,9 @@ spring:
     uris:
       - http://127.0.0.1:30920
 
+  kafka:
+    bootstrap-servers: "localhost:30092"
+
 management:
   health:
     elasticsearch:
@@ -131,3 +134,7 @@ app:
     secure: false
     http-only: true
     same-site: Lax
+  event-publisher:
+    type: kafka
+  event-consumer:
+    type: kafka
