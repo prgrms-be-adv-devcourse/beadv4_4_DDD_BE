@@ -34,9 +34,23 @@ public class ProductSearchSupport {
 
     // keyword 조건
     if (StringUtils.hasText(keyword)) {
-      bool.should(s -> s.match(m -> m.field("name").query(keyword)));
-      bool.should(s -> s.match(m -> m.field("description").query(keyword)));
-      bool.should(s -> s.match(m -> m.field("sellerBusinessName").query(keyword)));
+      // 정확 검색
+      bool.should(s -> s.match(m -> m.field("name").query(keyword).boost(5.0f)));
+      // fuzzy 보조 검색 (오탈자)
+      if (keyword.length() >= 2) {
+        bool.should(
+            s ->
+                s.match(
+                    m ->
+                        m.field("name")
+                            .query(keyword)
+                            .fuzziness("1")
+                            .prefixLength(1)
+                            .maxExpansions(50)
+                            .boost(1.0f)));
+      }
+      bool.should(s -> s.match(m -> m.field("description").query(keyword).fuzziness("1")));
+      bool.should(s -> s.match(m -> m.field("sellerBusinessName").query(keyword).fuzziness("1")));
       bool.minimumShouldMatch("1");
     }
 
