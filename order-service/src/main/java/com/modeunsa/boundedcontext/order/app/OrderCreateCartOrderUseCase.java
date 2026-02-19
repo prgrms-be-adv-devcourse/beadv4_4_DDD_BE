@@ -1,5 +1,6 @@
 package com.modeunsa.boundedcontext.order.app;
 
+import com.modeunsa.boundedcontext.inventory.out.InventoryApiClient;
 import com.modeunsa.boundedcontext.order.domain.CartItem;
 import com.modeunsa.boundedcontext.order.domain.Order;
 import com.modeunsa.boundedcontext.order.domain.OrderItem;
@@ -11,7 +12,6 @@ import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.inventory.dto.InventoryReserveRequest;
-import com.modeunsa.shared.inventory.out.InventoryApiClient;
 import com.modeunsa.shared.order.dto.CreateCartOrderRequestDto;
 import com.modeunsa.shared.order.dto.OrderResponseDto;
 import com.modeunsa.shared.product.dto.ProductOrderResponse;

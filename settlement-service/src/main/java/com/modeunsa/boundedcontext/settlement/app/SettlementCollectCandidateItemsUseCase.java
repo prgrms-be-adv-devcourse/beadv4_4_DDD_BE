@@ -1,9 +1,9 @@
 package com.modeunsa.boundedcontext.settlement.app;
 
+import com.modeunsa.boundedcontext.order.out.OrderApiClient;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementCandidateItem;
 import com.modeunsa.boundedcontext.settlement.out.SettlementCandidateItemRepository;
 import com.modeunsa.shared.order.dto.OrderDto;
-import com.modeunsa.shared.order.out.OrderApiClient;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
