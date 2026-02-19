@@ -2,12 +2,14 @@ package com.modeunsa.boundedcontext.payment.app.usecase;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentProcessContext;
 import com.modeunsa.boundedcontext.payment.app.lock.LockedPaymentAccounts;
 import com.modeunsa.boundedcontext.payment.app.lock.PaymentAccountLockManager;
+import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentSupport;
 import com.modeunsa.boundedcontext.payment.app.usecase.process.complete.PaymentCompleteOrderCompleteUseCase;
 import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
@@ -16,6 +18,7 @@ import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentMemberStatus;
+import com.modeunsa.boundedcontext.payment.domain.types.ReferenceType;
 import com.modeunsa.global.config.PaymentAccountConfig;
 import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.shared.payment.dto.PaymentDto;
@@ -38,6 +41,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class PaymentCompleteProcessUseCaseTest {
 
   @Mock private PaymentSupport paymentSupport;
+  @Mock private PaymentAccountSupport paymentAccountSupport;
   @Mock private EventPublisher eventPublisher;
   @Mock private PaymentAccountConfig paymentAccountConfig;
   @Mock private PaymentAccountLockManager paymentAccountLockManager;
@@ -92,28 +96,27 @@ class PaymentCompleteProcessUseCaseTest {
     PaymentId paymentId = PaymentId.create(buyerId, paymentProcessContext.orderNo());
     when(paymentSupport.getPaymentById(paymentId)).thenReturn(payment);
 
-    // 테스트코드에서 잔액은 변경되지 않고 증감, 감소된 금액으로만 검증
-    final BigDecimal holderBalanceBefore = holderAccount.getBalance();
-    final BigDecimal buyerBalanceBefore = buyerAccount.getBalance();
-
     // when
     paymentOrderCompleteUseCase.execute(paymentProcessContext);
 
     // then
-    // PaymentAccountLockManager가 올바른 순서로 호출되었는지 확인
     verify(paymentAccountLockManager).getEntitiesForUpdateInOrder(List.of(HOLDER_ID, buyerId));
-
-    // 잔액 변경 확인
-    assertThat(buyerAccount.getBalance())
-        .isEqualByComparingTo(buyerBalanceBefore.subtract(paymentProcessContext.totalAmount()));
-    assertThat(holderAccount.getBalance())
-        .isEqualByComparingTo(holderBalanceBefore.add(paymentProcessContext.totalAmount()));
-
-    // Payment 조회 후 상태 변경 확인
+    verify(paymentAccountSupport)
+        .debitIdempotent(
+            eq(buyerAccount),
+            eq(paymentProcessContext.totalAmount()),
+            eq(PaymentEventType.USE_ORDER_PAYMENT),
+            eq(ReferenceType.ORDER),
+            eq(paymentProcessContext.orderId()));
+    verify(paymentAccountSupport)
+        .creditIdempotent(
+            eq(holderAccount),
+            eq(paymentProcessContext.totalAmount()),
+            eq(PaymentEventType.HOLD_STORE_ORDER_PAYMENT),
+            eq(ReferenceType.ORDER),
+            eq(paymentProcessContext.orderId()));
     verify(paymentSupport).getPaymentById(paymentId);
     verify(payment).changeToSuccess();
-
-    // 이벤트 발행 확인
     verify(eventPublisher).publish(any(PaymentSuccessEvent.class));
   }
 
@@ -148,31 +151,34 @@ class PaymentCompleteProcessUseCaseTest {
     PaymentId paymentId = PaymentId.create(buyerId, paymentProcessContext.orderNo());
     when(paymentSupport.getPaymentById(paymentId)).thenReturn(payment);
 
-    // 테스트코드에서 잔액은 변경되지 않고 증감, 감소된 금액으로만 검증
-    final BigDecimal holderBalanceBefore = holderAccount.getBalance();
-    final BigDecimal buyerBalanceBefore = buyerAccount.getBalance();
-
     // when
     paymentOrderCompleteUseCase.execute(paymentProcessContext);
 
     // then
-    // PaymentAccountLockManager가 올바른 순서로 호출되었는지 확인
     verify(paymentAccountLockManager).getEntitiesForUpdateInOrder(List.of(HOLDER_ID, buyerId));
-
-    // 잔액 변경 확인
-    // buyerAccount: PG 충전(credit) → 결제(debit)
-    BigDecimal expectedBuyerBalance = buyerBalanceBefore.add(chargeAmount).subtract(totalAmount);
-    assertThat(buyerAccount.getBalance()).isEqualByComparingTo(expectedBuyerBalance);
-
-    // holderAccount: 결제 금액 입금(credit)
-    assertThat(holderAccount.getBalance())
-        .isEqualByComparingTo(holderBalanceBefore.add(totalAmount));
-
-    // Payment 조회 후 상태 변경 확인
+    verify(paymentAccountSupport)
+        .creditIdempotent(
+            eq(buyerAccount),
+            eq(chargeAmount),
+            eq(PaymentEventType.CHARGE_PG_TOSS_PAYMENTS),
+            eq(ReferenceType.ORDER),
+            eq(paymentProcessContext.orderId()));
+    verify(paymentAccountSupport)
+        .debitIdempotent(
+            eq(buyerAccount),
+            eq(totalAmount),
+            eq(PaymentEventType.USE_ORDER_PAYMENT),
+            eq(ReferenceType.ORDER),
+            eq(paymentProcessContext.orderId()));
+    verify(paymentAccountSupport)
+        .creditIdempotent(
+            eq(holderAccount),
+            eq(totalAmount),
+            eq(PaymentEventType.HOLD_STORE_ORDER_PAYMENT),
+            eq(ReferenceType.ORDER),
+            eq(paymentProcessContext.orderId()));
     verify(paymentSupport).getPaymentById(paymentId);
     verify(payment).changeToSuccess();
-
-    // 이벤트 발행 확인
     verify(eventPublisher).publish(any(PaymentSuccessEvent.class));
   }
 
@@ -213,6 +219,20 @@ class PaymentCompleteProcessUseCaseTest {
     paymentOrderCompleteUseCase.execute(paymentProcessContext);
 
     // then
+    verify(paymentAccountSupport)
+        .debitIdempotent(
+            eq(buyerAccount),
+            eq(totalAmount),
+            eq(PaymentEventType.USE_ORDER_PAYMENT),
+            eq(ReferenceType.ORDER),
+            eq(orderId));
+    verify(paymentAccountSupport)
+        .creditIdempotent(
+            eq(holderAccount),
+            eq(totalAmount),
+            eq(PaymentEventType.HOLD_STORE_ORDER_PAYMENT),
+            eq(ReferenceType.ORDER),
+            eq(orderId));
     ArgumentCaptor<PaymentSuccessEvent> eventCaptor =
         ArgumentCaptor.forClass(PaymentSuccessEvent.class);
     verify(eventPublisher).publish(eventCaptor.capture());

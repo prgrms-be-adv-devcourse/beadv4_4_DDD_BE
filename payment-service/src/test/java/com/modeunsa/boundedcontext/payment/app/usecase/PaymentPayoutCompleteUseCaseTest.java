@@ -1,6 +1,7 @@
 package com.modeunsa.boundedcontext.payment.app.usecase;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.modeunsa.boundedcontext.payment.app.dto.settlement.PaymentPayoutInfo;
@@ -12,6 +13,7 @@ import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentMemberStatus;
 import com.modeunsa.boundedcontext.payment.domain.types.PayoutEventType;
+import com.modeunsa.boundedcontext.payment.domain.types.ReferenceType;
 import com.modeunsa.global.config.PaymentAccountConfig;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -67,27 +69,38 @@ class PaymentPayoutCompleteUseCaseTest {
   void executeSuccessFeeType() {
     // given
     BigDecimal payoutAmount = BigDecimal.valueOf(5000);
+    Long settlementId = 1L;
     PaymentPayoutInfo payoutInfo =
         new PaymentPayoutInfo(
-            1L, systemMember.getId(), payoutAmount, PayoutEventType.FEE, LocalDateTime.now());
+            settlementId,
+            systemMember.getId(),
+            payoutAmount,
+            PayoutEventType.FEE,
+            LocalDateTime.now());
 
-    // 락 매니저 내부에서 호출되는 support 메서드 mock
     when(paymentAccountSupport.getPaymentAccountByMemberIdForUpdate(holderMember.getId()))
         .thenReturn(holderAccount);
     when(paymentAccountSupport.getPaymentAccountByMemberIdForUpdate(systemMember.getId()))
         .thenReturn(systemAccount);
 
-    BigDecimal holderBalanceBefore = holderAccount.getBalance();
-    BigDecimal systemBalanceBefore = systemAccount.getBalance();
-
     // when
     paymentPayoutCompleteUseCase.execute(List.of(payoutInfo));
 
     // then
-    assertThat(holderAccount.getBalance())
-        .isEqualByComparingTo(holderBalanceBefore.subtract(payoutAmount));
-    assertThat(systemAccount.getBalance())
-        .isEqualByComparingTo(systemBalanceBefore.add(payoutAmount));
+    verify(paymentAccountSupport)
+        .debitIdempotent(
+            eq(holderAccount),
+            eq(payoutAmount),
+            eq(PaymentEventType.SETTLEMENT_PAY_PRODUCT_SALES_FEE),
+            eq(ReferenceType.PAYOUT),
+            eq(settlementId));
+    verify(paymentAccountSupport)
+        .creditIdempotent(
+            eq(systemAccount),
+            eq(payoutAmount),
+            eq(PaymentEventType.SETTLEMENT_PAY_PRODUCT_SALES_FEE),
+            eq(ReferenceType.PAYOUT),
+            eq(settlementId));
   }
 
   @Test
@@ -95,35 +108,48 @@ class PaymentPayoutCompleteUseCaseTest {
   void executeSuccessAmountType() {
     // given
     BigDecimal payoutAmount = BigDecimal.valueOf(10000);
+    Long settlementId = 1L;
     PaymentPayoutInfo payoutInfo =
         new PaymentPayoutInfo(
-            1L, payeeMember.getId(), payoutAmount, PayoutEventType.AMOUNT, LocalDateTime.now());
+            settlementId,
+            payeeMember.getId(),
+            payoutAmount,
+            PayoutEventType.AMOUNT,
+            LocalDateTime.now());
 
     when(paymentAccountSupport.getPaymentAccountByMemberIdForUpdate(holderMember.getId()))
         .thenReturn(holderAccount);
     when(paymentAccountSupport.getPaymentAccountByMemberIdForUpdate(payeeMember.getId()))
         .thenReturn(payeeAccount);
 
-    BigDecimal holderBalanceBefore = holderAccount.getBalance();
-    BigDecimal payeeBalanceBefore = payeeAccount.getBalance();
-
     // when
     paymentPayoutCompleteUseCase.execute(List.of(payoutInfo));
 
     // then
-    assertThat(holderAccount.getBalance())
-        .isEqualByComparingTo(holderBalanceBefore.subtract(payoutAmount));
-    assertThat(payeeAccount.getBalance())
-        .isEqualByComparingTo(payeeBalanceBefore.add(payoutAmount));
+    verify(paymentAccountSupport)
+        .debitIdempotent(
+            eq(holderAccount),
+            eq(payoutAmount),
+            eq(PaymentEventType.SETTLEMENT_PAY_PRODUCT_SALES_AMOUNT),
+            eq(ReferenceType.PAYOUT),
+            eq(settlementId));
+    verify(paymentAccountSupport)
+        .creditIdempotent(
+            eq(payeeAccount),
+            eq(payoutAmount),
+            eq(PaymentEventType.SETTLEMENT_PAY_PRODUCT_SALES_AMOUNT),
+            eq(ReferenceType.PAYOUT),
+            eq(settlementId));
   }
 
   @Test
   @DisplayName("정산 처리 - AMOUNT 타입일 때 올바른 PaymentEventType으로 변환되는지 확인")
   void executeVerifyEventTypeConversionAmount() {
     // given
+    Long settlementId = 1L;
     PaymentPayoutInfo payoutInfo =
         new PaymentPayoutInfo(
-            1L,
+            settlementId,
             payeeMember.getId(),
             BigDecimal.valueOf(10000),
             PayoutEventType.AMOUNT,
@@ -137,22 +163,31 @@ class PaymentPayoutCompleteUseCaseTest {
     // when
     paymentPayoutCompleteUseCase.execute(List.of(payoutInfo));
 
-    // then
-    assertThat(holderAccount.getPaymentAccountLogs())
-        .anyMatch(
-            log -> log.getEventType() == PaymentEventType.SETTLEMENT_PAY_PRODUCT_SALES_AMOUNT);
-    assertThat(payeeAccount.getPaymentAccountLogs())
-        .anyMatch(
-            log -> log.getEventType() == PaymentEventType.SETTLEMENT_PAY_PRODUCT_SALES_AMOUNT);
+    // then: AMOUNT → SETTLEMENT_PAY_PRODUCT_SALES_AMOUNT 로 변환되어 호출되는지 검증
+    verify(paymentAccountSupport)
+        .debitIdempotent(
+            eq(holderAccount),
+            eq(BigDecimal.valueOf(10000)),
+            eq(PaymentEventType.SETTLEMENT_PAY_PRODUCT_SALES_AMOUNT),
+            eq(ReferenceType.PAYOUT),
+            eq(settlementId));
+    verify(paymentAccountSupport)
+        .creditIdempotent(
+            eq(payeeAccount),
+            eq(BigDecimal.valueOf(10000)),
+            eq(PaymentEventType.SETTLEMENT_PAY_PRODUCT_SALES_AMOUNT),
+            eq(ReferenceType.PAYOUT),
+            eq(settlementId));
   }
 
   @Test
   @DisplayName("정산 처리 - FEE 타입일 때 올바른 PaymentEventType으로 변환되는지 확인")
   void executeVerifyEventTypeConversionFee() {
     // given
+    Long settlementId = 1L;
     PaymentPayoutInfo payoutInfo =
         new PaymentPayoutInfo(
-            1L,
+            settlementId,
             payeeMember.getId(),
             BigDecimal.valueOf(2000),
             PayoutEventType.FEE,
@@ -166,10 +201,20 @@ class PaymentPayoutCompleteUseCaseTest {
     // when
     paymentPayoutCompleteUseCase.execute(List.of(payoutInfo));
 
-    // then
-    assertThat(holderAccount.getPaymentAccountLogs())
-        .anyMatch(log -> log.getEventType() == PaymentEventType.SETTLEMENT_PAY_PRODUCT_SALES_FEE);
-    assertThat(payeeAccount.getPaymentAccountLogs())
-        .anyMatch(log -> log.getEventType() == PaymentEventType.SETTLEMENT_PAY_PRODUCT_SALES_FEE);
+    // then: FEE → SETTLEMENT_PAY_PRODUCT_SALES_FEE 로 변환되어 호출되는지 검증
+    verify(paymentAccountSupport)
+        .debitIdempotent(
+            eq(holderAccount),
+            eq(BigDecimal.valueOf(2000)),
+            eq(PaymentEventType.SETTLEMENT_PAY_PRODUCT_SALES_FEE),
+            eq(ReferenceType.PAYOUT),
+            eq(settlementId));
+    verify(paymentAccountSupport)
+        .creditIdempotent(
+            eq(payeeAccount),
+            eq(BigDecimal.valueOf(2000)),
+            eq(PaymentEventType.SETTLEMENT_PAY_PRODUCT_SALES_FEE),
+            eq(ReferenceType.PAYOUT),
+            eq(settlementId));
   }
 }
