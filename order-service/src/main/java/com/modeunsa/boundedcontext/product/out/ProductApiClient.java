@@ -1,4 +1,4 @@
-package com.modeunsa.shared.product.out;
+package com.modeunsa.boundedcontext.product.out;
 
 import com.modeunsa.shared.product.dto.ProductOrderResponse;
 import com.modeunsa.shared.product.dto.ProductOrderValidateRequest;
