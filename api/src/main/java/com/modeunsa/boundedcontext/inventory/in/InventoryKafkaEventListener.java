@@ -3,7 +3,10 @@ package com.modeunsa.boundedcontext.inventory.in;
 import com.modeunsa.boundedcontext.inventory.app.InventoryFacade;
 import com.modeunsa.global.eventpublisher.topic.DomainEventEnvelope;
 import com.modeunsa.global.json.JsonConverter;
+import com.modeunsa.shared.inventory.event.InventoryStockRecoverEvent;
 import com.modeunsa.shared.member.event.SellerRegisteredEvent;
+import com.modeunsa.shared.order.event.OrderCancellationConfirmedEvent;
+import com.modeunsa.shared.order.event.OrderPaidEvent;
 import com.modeunsa.shared.product.event.ProductCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -37,6 +40,33 @@ public class InventoryKafkaEventListener {
       ProductCreatedEvent event =
           jsonConverter.deserialize(eventEnvelope.payload(), ProductCreatedEvent.class);
       inventoryFacade.createProduct(event.productDto());
+    }
+  }
+
+  @KafkaListener(topics = "order-events", groupId = "inventory-service")
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void handleOrderEvent(DomainEventEnvelope envelope) {
+    switch (envelope.eventType()) {
+      case OrderCancellationConfirmedEvent.EVENT_NAME -> {
+        OrderCancellationConfirmedEvent event =
+            jsonConverter.deserialize(envelope.payload(), OrderCancellationConfirmedEvent.class);
+        inventoryFacade.releaseInventory(event.orderItemDto());
+      }
+      case OrderPaidEvent.EVENT_NAME -> {
+        OrderPaidEvent event = jsonConverter.deserialize(envelope.payload(), OrderPaidEvent.class);
+        inventoryFacade.decreaseStock(event.orderDto().getOrderItems());
+      }
+      default -> {}
+    }
+  }
+
+  @KafkaListener(topics = "inventory-events", groupId = "inventory-service")
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void handleInventoryEvent(DomainEventEnvelope eventEnvelope) {
+    if (eventEnvelope.eventType().equals("InventoryStockRecoverEvent")) {
+      InventoryStockRecoverEvent event =
+          jsonConverter.deserialize(eventEnvelope.payload(), InventoryStockRecoverEvent.class);
+      inventoryFacade.increaseStock(event.orderItems());
     }
   }
 }
