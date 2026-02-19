@@ -2,6 +2,7 @@ package com.modeunsa.boundedcontext.payment.app.usecase.process;
 
 import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentProcessContext;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
+import com.modeunsa.boundedcontext.payment.app.support.PaymentFailureEventPublisher;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentMemberSupport;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentSupport;
 import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
@@ -11,8 +12,6 @@ import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentDomainException;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode;
 import com.modeunsa.boundedcontext.payment.domain.types.ProviderType;
-import com.modeunsa.global.eventpublisher.EventPublisher;
-import com.modeunsa.shared.payment.event.PaymentFailedEvent;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,7 +25,7 @@ public class PaymentInProgressUseCase {
   private final PaymentSupport paymentSupport;
   private final PaymentMemberSupport paymentMemberSupport;
   private final PaymentAccountSupport paymentAccountSupport;
-  private final EventPublisher eventPublisher;
+  private final PaymentFailureEventPublisher paymentFailedEventPublisher;
 
   public PaymentProcessContext executeForPaymentRequest(PaymentProcessContext context) {
     try {
@@ -130,13 +129,12 @@ public class PaymentInProgressUseCase {
   }
 
   private void handleFailure(PaymentProcessContext context, PaymentErrorCode exception) {
-    eventPublisher.publish(
-        PaymentFailedEvent.from(
-            context.buyerId(),
-            context.orderId(),
-            context.orderNo(),
-            context.totalAmount(),
-            exception.getCode(),
-            exception.getMessage()));
+    paymentFailedEventPublisher.publish(
+        context.buyerId(),
+        context.orderId(),
+        context.orderNo(),
+        context.totalAmount(),
+        exception.getCode(),
+        exception.getMessage());
   }
 }

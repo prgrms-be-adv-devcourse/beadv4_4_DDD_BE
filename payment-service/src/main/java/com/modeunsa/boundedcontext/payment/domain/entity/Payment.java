@@ -126,7 +126,7 @@ public class Payment extends AuditedEntity {
   @Lob private String pgFailureReason;
 
   private static final EnumSet<PaymentStatus> ALLOWED_FOR_PENDING =
-      EnumSet.of(PaymentStatus.PENDING, PaymentStatus.FAILED);
+      EnumSet.of(PaymentStatus.PENDING, PaymentStatus.IN_PROGRESS, PaymentStatus.FAILED);
 
   private static final EnumSet<PaymentStatus> ALLOWED_FOR_IN_PROGRESS =
       EnumSet.of(PaymentStatus.PENDING, PaymentStatus.FAILED);

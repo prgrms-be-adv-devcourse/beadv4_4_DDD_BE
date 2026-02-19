@@ -3,6 +3,7 @@ package com.modeunsa.boundedcontext.payment.app.usecase.process;
 import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentProcessContext;
 import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.toss.TossPaymentsConfirmResponse;
+import com.modeunsa.boundedcontext.payment.app.support.PaymentFailureEventPublisher;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentSupport;
 import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
@@ -10,8 +11,6 @@ import com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode;
 import com.modeunsa.boundedcontext.payment.domain.exception.TossConfirmFailedException;
 import com.modeunsa.boundedcontext.payment.domain.exception.TossConfirmRetryableException;
 import com.modeunsa.boundedcontext.payment.out.client.TossPaymentClient;
-import com.modeunsa.global.eventpublisher.EventPublisher;
-import com.modeunsa.shared.payment.event.PaymentFailedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +28,7 @@ public class PaymentConfirmTossPaymentUseCase {
 
   private final PaymentSupport paymentSupport;
   private final TossPaymentClient tossPaymentClient;
-  private final EventPublisher eventPublisher;
+  private final PaymentFailureEventPublisher paymentFailureEventPublisher;
 
   public PaymentProcessContext execute(PaymentProcessContext context) {
 
@@ -60,14 +59,12 @@ public class PaymentConfirmTossPaymentUseCase {
 
   private void handleTossFailure(
       PaymentProcessContext context, PaymentErrorCode paymentErrorCode, String message) {
-    PaymentFailedEvent event =
-        PaymentFailedEvent.from(
-            context.buyerId(),
-            context.orderId(),
-            context.orderNo(),
-            context.totalAmount(),
-            paymentErrorCode.getCode(),
-            message);
-    eventPublisher.publish(event);
+    paymentFailureEventPublisher.publish(
+        context.buyerId(),
+        context.orderId(),
+        context.orderNo(),
+        context.totalAmount(),
+        paymentErrorCode.getCode(),
+        message);
   }
 }
