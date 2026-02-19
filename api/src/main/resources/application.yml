@@ -2,6 +2,8 @@ server:
   port: 8080
 
 spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
   devtools:
     restart:
       enabled: false
@@ -43,11 +45,26 @@ spring:
             user-name-attribute: response
   cloud:
     gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:3000"
+              - "http://127.0.0.1:3000"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - PATCH
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
       routes:
         - id: member
           uri: http://${services.member.host}:8086
           predicates:
-            - Path=/api/v1/members/**,/api/v2/members/**
+            - Path=/api/v1/members/**,/api/v2/members/**,/api/v1/auths/**,/api/v2/auths/**
 
 #        - id: auth
 #          uri: http://${services.auth.host}:8087
@@ -164,9 +181,9 @@ custom:
   global:
     internalBackUrl: http://localhost:${server.port:8080}
     productInternalBackUrl: http://localhost:8081
-  security:
-    # TODO: 추후 인증 연결
-    permit-all: true
+#  security:
+#    # TODO: 추후 인증 연결
+#    permit-all: true
 
 encryption:
   enabled: false
