@@ -120,3 +120,24 @@ app:
     secure: true
     http-only: true
     same-site: Lax
+
+
+services:
+  member:
+    host: member
+  auth:
+    host: auth
+  product:
+    host: product
+  order:
+    host: order
+  inventory:
+    host: inventory
+  payment:
+    host: payment
+  settlement:
+    host: settlement
+  file:
+    host: file
+  content:
+    host: content

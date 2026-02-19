@@ -64,7 +64,7 @@ export default function ProductDetailPage() {
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
 
   const fetchProduct = useCallback(async () => {
-    const apiUrl = process.env.NEXT_PUBLIC_PRODUCT_API_URL || ''
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
     if (!apiUrl || !productId) {
       setProduct(null)
       return
@@ -132,7 +132,7 @@ export default function ProductDetailPage() {
     setIsCreatingOrder(true)
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_ORDER_API_URL || ''
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
 
       // 주문 생성 API 호출
       // 주의: 백엔드 API 주소와 Body 형식을 확인해주세요!
@@ -221,7 +221,7 @@ export default function ProductDetailPage() {
         return
     }
 
-    const apiUrl = process.env.NEXT_PUBLIC_PRODUCT_API_URL || '';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
     if (!apiUrl) return
 
     const prevIsFavorite = product.isFavorite

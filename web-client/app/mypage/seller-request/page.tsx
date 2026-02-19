@@ -106,7 +106,7 @@ export default function SellerRequestPage() {
 
   // 파일 업로드 로직
   const uploadImageProcess = async (selectedFile: File): Promise<string> => {
-    const FILE_SERVICE_URL = process.env.NEXT_PUBLIC_FILE_API_URL || 'http://localhost:8088';
+    const FILE_SERVICE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8088';
     let ext = selectedFile.name.split('.').pop()?.toLowerCase() || '';
 
     // 확장자가 없거나 파일명 전체가 반환된 경우 MIME 타입으로 매핑

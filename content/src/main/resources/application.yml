@@ -2,6 +2,8 @@ server:
   port: 8089
 
 spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
   devtools:
     restart:
       enabled: false

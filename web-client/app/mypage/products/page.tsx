@@ -67,7 +67,7 @@ interface ProductsApiResponse {
 
 const PAGE_SIZE = 10
 const PAGE_WINDOW = 5
-const apiUrl = process.env.NEXT_PUBLIC_PRODUCT_API_URL || ''
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
 
 
 export default function ProductsPage() {
