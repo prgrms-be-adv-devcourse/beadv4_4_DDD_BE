@@ -53,40 +53,39 @@ custom:
   swagger:
     serverUrl: https://modeunsa.store
     description: "Production Server"
-    # TODO: 추후 인증 처리
-#  security:
-#    permit-all: false
-#    permit-urls:
-#      # Swagger (운영에서 제거 고려)
-#      - /swagger-ui/**
-#      - /v3/api-docs/**
-#      - /
-#      - /favicon.ico
-#
-#      # 내부 통신용 API
-#      - /api/v1/orders/internal/**
-#      - /api/v1/products/validate-order
-#      - /api/v1/products/stock
-#
-#      # 인증 API
-#      - /api/v1/auths/me
-#      - /api/v1/auths/oauth/*/url
-#      - /api/v1/auths/login/**
-#      - /api/v1/auths/reissue
-#      - /api/v1/auths/dev/**
-#      - /api/v1/test/roles/**
-#      - /api/login/oauth2/code/**
-#
-#      # 헬스체크
-#      - /actuator/health
-#      - /actuator/prometheus
-#
-#      # 콘텐츠
-#      - /api/v1/contents/**
-#
-#      # 상품
-#      - /api/v1/products/search
-#      - /api/v2/products/searches
+  security:
+    permit-all: false
+    permit-urls:
+      # Swagger (운영에서 제거 고려)
+      - /swagger-ui/**
+      - /v3/api-docs/**
+      - /
+      - /favicon.ico
+
+      # 내부 통신용 API
+      - /api/v1/orders/internal/**
+      - /api/v1/products/validate-order
+      - /api/v1/products/stock
+
+      # 인증 API
+      - /api/v1/auths/me
+      - /api/v1/auths/oauth/*/url
+      - /api/v1/auths/login/**
+      - /api/v1/auths/reissue
+      - /api/v1/auths/dev/**
+      - /api/v1/test/roles/**
+      - /api/login/oauth2/code/**
+
+      # 헬스체크
+      - /actuator/health
+      - /actuator/prometheus
+
+      # 콘텐츠
+      - /api/v1/contents/**
+
+      # 상품
+      - /api/v1/products/search
+      - /api/v2/products/searches
     oauth2:
       allowed-redirect-domains:
         - modeunsa.store
