@@ -9,6 +9,7 @@ import com.modeunsa.boundedcontext.settlement.out.SettlementMemberRepository;
 import com.modeunsa.boundedcontext.settlement.out.SettlementRepository;
 import com.modeunsa.global.config.SettlementConfig;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 @Profile("!test")
@@ -52,7 +54,7 @@ public class SettlementDataInit {
   }
 
   @Bean
-  @Order(5)
+  @Order(4)
   public ApplicationRunner settlementDataInitApplicationRunner() {
     return args -> {
       self.initMembers();
@@ -92,8 +94,19 @@ public class SettlementDataInit {
 
     long count = settlementCandidateItemRepository.count();
     if (count > 0) {
-      log.debug("[정산] 정산 후보 항목 존재 (count={})", count);
-      return;
+      LocalDateTime startInclusive = LocalDate.now().minusDays(1).atStartOfDay();
+      LocalDateTime endExclusive = LocalDate.now().atStartOfDay();
+      boolean hasYesterdayTargets =
+          settlementCandidateItemRepository
+              .findUncollectedItems(startInclusive, endExclusive, PageRequest.of(0, 1))
+              .hasContent();
+
+      if (hasYesterdayTargets) {
+        log.debug("[정산] 어제 대상 정산 후보 항목 존재 (count={}), 생성 스킵", count);
+        return;
+      }
+
+      log.debug("[정산] 정산 후보 항목은 존재하지만 어제 대상 데이터가 없습니다. DataInit용 후보를 추가 생성합니다. (count={})", count);
     }
 
     self.createCandidateItems();
@@ -101,24 +114,26 @@ public class SettlementDataInit {
 
   @Transactional
   public void createCandidateItems() {
-    LocalDateTime now = LocalDateTime.now();
+    // 일배치 reader는 "어제 00:00 ~ 오늘 00:00" 구간만 조회하므로,
+    // DataInit 후보도 반드시 어제 시각으로 생성해야 수집됩니다.
+    LocalDateTime confirmedAt = LocalDate.now().minusDays(1).atTime(12, 0);
 
     SettlementCandidateItem candidate1 =
         SettlementCandidateItem.create(
-            1001L, BUYER_MEMBER_ID, SELLER_MEMBER_ID, new BigDecimal("10000"), 1, now);
+            1001L, BUYER_MEMBER_ID, SELLER_MEMBER_ID, new BigDecimal("10000"), 1, confirmedAt);
     settlementCandidateItemRepository.save(candidate1);
 
     SettlementCandidateItem candidate2 =
         SettlementCandidateItem.create(
-            1002L, BUYER_MEMBER_ID, SELLER_MEMBER_ID, new BigDecimal("25000"), 1, now);
+            1002L, BUYER_MEMBER_ID, SELLER_MEMBER_ID, new BigDecimal("25000"), 1, confirmedAt);
     settlementCandidateItemRepository.save(candidate2);
 
     SettlementCandidateItem candidate3 =
         SettlementCandidateItem.create(
-            1003L, BUYER_MEMBER_ID, SELLER_MEMBER_ID, new BigDecimal("5500"), 1, now);
+            1003L, BUYER_MEMBER_ID, SELLER_MEMBER_ID, new BigDecimal("5500"), 1, confirmedAt);
     settlementCandidateItemRepository.save(candidate3);
 
-    log.debug("[정산] 정산 후보 항목 3건 직접 생성 완료");
+    log.debug("[정산] 정산 후보 항목 3건 직접 생성 완료 (purchaseConfirmedAt={})", confirmedAt);
   }
 
   public void runDailySettlementBatch() {
