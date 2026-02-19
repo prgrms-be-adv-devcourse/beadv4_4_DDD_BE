@@ -118,7 +118,7 @@ const completeStyle = {
   fontWeight: 600,
 }
 
-const apiUrl = process.env.NEXT_PUBLIC_PRODUCT_API_URL || ''
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
 
 export default function ProductEditPage() {
   const params = useParams()
@@ -242,7 +242,7 @@ export default function ProductEditPage() {
 
   // Presigned URL 요청 및 S3 업로드
   const uploadImageToS3 = async (file: File): Promise<string> => {
-    const apiUrl = process.env.NEXT_PUBLIC_FILE_API_URL!
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL!
 
     /** 1. presigned url 요청 */
     const presignedRes = await api.post(`${apiUrl}/api/v1/files/presigned-url`,

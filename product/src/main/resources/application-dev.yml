@@ -53,15 +53,13 @@ spring:
       initialize-schema: never
 
   elasticsearch:
-    repositories:
-      enabled: false
     uris:
-      - ${SPRING_ELASTICSEARCH_URIS:http://localhost:9200}
+      - http://localhost:9200
 
 management:
   health:
     elasticsearch:
-      enabled: false
+      enabled: true
 
 #  kafka:
 #    listener:
@@ -99,7 +97,7 @@ custom:
 
       # ========== 상품 ===========
       - /api/v1/products/search
-      - /api/v2/products/searches
+      - /api/v2/products/search
 
     oauth2:
       allowed-redirect-domains:
@@ -127,3 +125,9 @@ app:
     secure: false
     http-only: true
     same-site: Lax
+  elasticsearch:
+    enabled: true
+
+logging:
+  level:
+    org.springframework.data.elasticsearch.client.elc: TRACE
