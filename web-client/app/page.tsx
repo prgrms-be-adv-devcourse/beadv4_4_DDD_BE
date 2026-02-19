@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import {useState, useEffect, useRef, useCallback} from 'react'
 import Header from './components/Header'
+import {isSea} from "node:sea";
 
 interface ProductResponse {
   id: number
@@ -36,6 +37,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false)
 
   const observerRef = useRef<HTMLDivElement | null>(null)
+  const isSearchingRef = useRef(false);
 
   const API_URL = process.env.NEXT_PUBLIC_PRODUCT_API_URL!
   const WINDOW_SIZE = 9
@@ -108,13 +110,16 @@ export default function Home() {
   useEffect(() => {
     const timer = setTimeout(() => {
 
+      // 검색 중이면 자동완성 무시
+      if (isSearchingRef.current) return;
+
       if (searchQuery.length >= 1) {
         fetchAutocomplete(searchQuery);
       } else {
         setAutocompleteList([]);
         setIsOpen(false);
       }
-    }, 200);
+    }, 100);
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
@@ -151,6 +156,9 @@ export default function Home() {
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    // 검색 시작
+    isSearchingRef.current = true;
+
     setIsOpen(false);
     setAutocompleteList([]);
 
@@ -162,6 +170,9 @@ export default function Home() {
     setCursor(null)
     setHasNext(false)
     await fetchSearchResults(searchQuery)
+
+    // 검색 끝나면 다시 자동완성 허용
+    isSearchingRef.current = false;
   }
 
   const handlePopularClick = async (keyword: string) => {
@@ -191,6 +202,12 @@ export default function Home() {
                 className="banner-search-input"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    setIsOpen(false);
+                    setAutocompleteList([]);
+                    }
+                }}
               />
               <button type="submit" className="banner-search-btn" aria-label="검색">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -208,6 +225,7 @@ export default function Home() {
                           onClick={() => {
                             setSearchQuery(item);
                             setIsOpen(false);
+                            setAutocompleteList([]);
                           }}
                       >
                         {item}
