@@ -4,7 +4,6 @@ import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import com.modeunsa.api.pagination.CursorDto;
 import com.modeunsa.boundedcontext.product.domain.search.document.ProductSearch;
-import com.modeunsa.boundedcontext.product.out.search.ProductSearchRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,12 +25,7 @@ import org.springframework.util.StringUtils;
 @RequiredArgsConstructor
 public class ProductSearchSupport {
 
-  private final ProductSearchRepository productSearchRepository;
   private final ElasticsearchOperations elasticsearchOperations;
-
-  public List<ProductSearch> search(String keyword) {
-    return productSearchRepository.findByNameContainingOrDescriptionContaining(keyword, keyword);
-  }
 
   public Slice<ProductSearch> searchByKeyword(String keyword, CursorDto cursor, int size) {
 
@@ -68,6 +62,7 @@ public class ProductSearchSupport {
                             .boost(1.0f)));
       }
 
+      // 초성 검색
       if (isChosung(keyword)) {
         bool.should(s -> s.prefix(p -> p.field("nameChosung").value(keyword).boost(4.0f)));
       }
