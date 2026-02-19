@@ -42,3 +42,9 @@ settlement:
 
 internal:
   api-key: test-internal-key
+
+app:
+  event-publisher:
+    type: spring
+  event-consumer:
+    type: spring

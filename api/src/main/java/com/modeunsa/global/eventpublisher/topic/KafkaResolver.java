@@ -140,7 +140,7 @@ public class KafkaResolver {
     }
 
     if (event instanceof SettlementCompletedPayoutEvent e) {
-      return "settlement";
+      return "settlement-%s".formatted(e.batchId());
     }
 
     if (event instanceof ProductCreatedEvent e) {
