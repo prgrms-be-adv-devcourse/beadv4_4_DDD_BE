@@ -9,9 +9,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface SagaStep {
 
-  String sagaName();
+  SagaType sagaName();
 
-  String step();
+  OrderSagaStep step();
 
   boolean logOnSuccess() default true;
 

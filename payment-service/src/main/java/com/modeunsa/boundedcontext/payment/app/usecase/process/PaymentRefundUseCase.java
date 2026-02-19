@@ -8,6 +8,9 @@ import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.boundedcontext.payment.domain.types.ReferenceType;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
+import com.modeunsa.global.aop.saga.OrderSagaStep;
+import com.modeunsa.global.aop.saga.SagaStep;
+import com.modeunsa.global.aop.saga.SagaType;
 import com.modeunsa.global.config.PaymentAccountConfig;
 import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.global.exception.GeneralException;
@@ -29,6 +32,7 @@ public class PaymentRefundUseCase {
   private final PaymentAccountSupport paymentAccountSupport;
   private final EventPublisher eventPublisher;
 
+  @SagaStep(sagaName = SagaType.ORDER_FLOW, step = OrderSagaStep.PAYMENT_REFUND_SUCCESS)
   public void execute(PaymentOrderInfo orderInfo, RefundEventType refundEventType) {
 
     LockedPaymentAccounts accounts =

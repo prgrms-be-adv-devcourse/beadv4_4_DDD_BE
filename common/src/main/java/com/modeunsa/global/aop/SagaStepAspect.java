@@ -1,6 +1,8 @@
 package com.modeunsa.global.aop;
 
+import com.modeunsa.global.aop.saga.OrderSagaStep;
 import com.modeunsa.global.aop.saga.SagaStep;
+import com.modeunsa.global.aop.saga.SagaType;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -32,12 +34,13 @@ public class SagaStepAspect {
       traceId = UNKNOWN_TRACE_ID;
     }
 
-    String sagaName = sagaStep.sagaName();
-    String step = sagaStep.step();
+    SagaType sagaType = sagaStep.sagaName();
+    String sagaName = sagaType.name();
+    OrderSagaStep step = sagaStep.step();
     String methodName = joinPoint.getSignature().getName();
 
     MDC.put(MDC_SAGA_NAME, sagaName);
-    MDC.put(MDC_STEP, step);
+    MDC.put(MDC_STEP, step.name());
     MDC.put(MDC_METHOD_NAME, methodName);
     MDC.put(TRACE_ID_MDC_KEY, traceId);
 

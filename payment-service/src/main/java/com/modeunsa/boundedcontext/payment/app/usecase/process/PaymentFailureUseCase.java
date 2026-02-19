@@ -4,6 +4,9 @@ import com.modeunsa.boundedcontext.payment.app.support.PaymentSupport;
 import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode;
+import com.modeunsa.global.aop.saga.OrderSagaStep;
+import com.modeunsa.global.aop.saga.SagaStep;
+import com.modeunsa.global.aop.saga.SagaType;
 import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.shared.payment.dto.PaymentDto;
 import com.modeunsa.shared.payment.event.PaymentFailedEvent;
@@ -32,6 +35,7 @@ public class PaymentFailureUseCase {
     }
   }
 
+  @SagaStep(sagaName = SagaType.ORDER_FLOW, step = OrderSagaStep.PAYMENT_FINAL_FAILED)
   private void publishFinalFailureEvent(PaymentFailedEvent event) {
     eventPublisher.publish(
         new PaymentFinalFailureEvent(

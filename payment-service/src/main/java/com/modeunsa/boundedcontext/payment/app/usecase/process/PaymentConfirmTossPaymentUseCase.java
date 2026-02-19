@@ -11,6 +11,9 @@ import com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode;
 import com.modeunsa.boundedcontext.payment.domain.exception.TossConfirmFailedException;
 import com.modeunsa.boundedcontext.payment.domain.exception.TossConfirmRetryableException;
 import com.modeunsa.boundedcontext.payment.out.client.TossPaymentClient;
+import com.modeunsa.global.aop.saga.OrderSagaStep;
+import com.modeunsa.global.aop.saga.SagaStep;
+import com.modeunsa.global.aop.saga.SagaType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +33,7 @@ public class PaymentConfirmTossPaymentUseCase {
   private final TossPaymentClient tossPaymentClient;
   private final PaymentFailureEventPublisher paymentFailureEventPublisher;
 
+  @SagaStep(sagaName = SagaType.ORDER_FLOW, step = OrderSagaStep.PAYMENT_PG_CONFIRM)
   public PaymentProcessContext execute(PaymentProcessContext context) {
 
     PaymentId paymentId = PaymentId.create(context.buyerId(), context.orderNo());

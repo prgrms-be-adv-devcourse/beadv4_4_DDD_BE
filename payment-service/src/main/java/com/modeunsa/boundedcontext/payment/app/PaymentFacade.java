@@ -32,6 +32,9 @@ import com.modeunsa.boundedcontext.payment.app.usecase.webhook.SyncTossPaymentSt
 import com.modeunsa.boundedcontext.payment.app.usecase.webhook.TossWebhookLogUseCase;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
 import com.modeunsa.boundedcontext.payment.domain.validator.TossWebhookValidator;
+import com.modeunsa.global.aop.saga.OrderSagaStep;
+import com.modeunsa.global.aop.saga.SagaStep;
+import com.modeunsa.global.aop.saga.SagaType;
 import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.shared.payment.event.PaymentFailedEvent;
 import jakarta.validation.Valid;
@@ -89,6 +92,7 @@ public class PaymentFacade {
     paymentPayoutCompleteUseCase.execute(payouts);
   }
 
+  @SagaStep(sagaName = SagaType.ORDER_FLOW, step = OrderSagaStep.PAYMENT_REFUND_REQUEST)
   public void refund(PaymentOrderInfo orderInfo, RefundEventType refundEventType) {
     paymentRefundUseCase.execute(orderInfo, refundEventType);
   }
@@ -150,6 +154,7 @@ public class PaymentFacade {
     return ConfirmPaymentResponse.complete(context.orderNo());
   }
 
+  @SagaStep(sagaName = SagaType.ORDER_FLOW, step = OrderSagaStep.PAYMENT_FAILED)
   public void handlePaymentFailed(PaymentFailedEvent paymentFailedEvent) {
     paymentFailureUseCase.execute(paymentFailedEvent);
   }
