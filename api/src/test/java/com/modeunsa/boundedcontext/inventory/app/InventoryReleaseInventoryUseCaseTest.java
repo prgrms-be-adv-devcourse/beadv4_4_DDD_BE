@@ -27,12 +27,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 @Tag("ignore")
-@SpringBootTest(
-    classes = ApiApplication.class,
-    properties = {
-      "encryption.master-key=test-dummy-key-1234567890123456",
-      "ENCRYPTION_MASTER_KEY=test-dummy-key-1234567890123456"
-    })
+@SpringBootTest(classes = ApiApplication.class)
 @ActiveProfiles("test")
 public class InventoryReleaseInventoryUseCaseTest {
   @Autowired private RedisTemplate<String, String> redisTemplate;
