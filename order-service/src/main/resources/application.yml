@@ -1,5 +1,5 @@
 server:
-  port: 8083
+  port: 8082
 
 spring:
   devtools:
@@ -126,7 +126,7 @@ outbox:
   enabled: true
   timeoutMs: 10000            # 발행 타임아웃 (10초)
   poller:
-    enabled: false             # 폴러 활성화
+    enabled: true             # 폴러 활성화
     interval-ms: 5000         # 폴링 주기 (5초)
     batch-size: 100           # 배치 크기
     max-retry: 5              # 최대 재시도 횟수

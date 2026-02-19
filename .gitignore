@@ -54,3 +54,6 @@ generated/
 src/main/generated/
 
 .DS_Store
+
+# plugins
+debezium-envelope-wrapper-*.jar
