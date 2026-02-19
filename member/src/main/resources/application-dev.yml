@@ -87,7 +87,7 @@ custom:
       - /api/v1/auths/login/**
       - /api/v1/auths/reissue
       - /api/v1/auths/dev/**
-      - /api/login/oauth2/code/**
+      - /login/oauth2/code/**
       - /api/v1/test/roles/**
 
       # ========== 헬스체크 ==========
