@@ -42,3 +42,6 @@ settlement:
 
 internal:
   api-key: test-internal-key
+
+encryption:
+  master-key: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="

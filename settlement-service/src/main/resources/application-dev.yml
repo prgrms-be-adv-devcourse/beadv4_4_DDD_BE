@@ -63,9 +63,9 @@ management:
     elasticsearch:
       enabled: false
 
-#  kafka:
-#    listener:
-#      auto-startup: false
+kafka:
+  listener:
+    auto-startup: false
 
 custom:
   swagger:
@@ -99,7 +99,7 @@ custom:
 
       # ========== 상품 ===========
       - /api/v1/products/search
-      - /api/v2/products/searches
+      - /api/v2/products/search
 
     oauth2:
       allowed-redirect-domains:
@@ -127,3 +127,7 @@ app:
     secure: false
     http-only: true
     same-site: Lax
+  event-publisher:
+    type: spring
+  event-consumer:
+    type: spring

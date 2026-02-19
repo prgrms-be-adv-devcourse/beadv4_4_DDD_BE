@@ -101,7 +101,7 @@ custom:
 
       # ========== 상품 ===========
       - /api/v1/products/search
-      - /api/v2/products/searches
+      - /api/v2/products/search
 
     oauth2:
       allowed-redirect-domains:
@@ -129,3 +129,23 @@ app:
     secure: false
     http-only: true
     same-site: Lax
+
+services:
+  member:
+    host: localhost
+  auth:
+    host: localhost
+  product:
+    host: localhost
+  order:
+    host: localhost
+  inventory:
+    host: localhost
+  payment:
+    host: localhost
+  settlement:
+    host: localhost
+  file:
+    host: localhost
+  content:
+    host: localhost

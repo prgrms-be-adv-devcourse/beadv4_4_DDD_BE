@@ -1,11 +1,15 @@
 package com.modeunsa.boundedcontext.product.in;
 
 import com.modeunsa.boundedcontext.product.app.ProductFacade;
+import com.modeunsa.boundedcontext.product.app.ProductMapper;
+import com.modeunsa.boundedcontext.product.app.search.ProductSearchFacade;
 import com.modeunsa.global.eventpublisher.topic.DomainEventEnvelope;
 import com.modeunsa.global.json.JsonConverter;
 import com.modeunsa.shared.member.event.MemberBasicInfoUpdatedEvent;
 import com.modeunsa.shared.member.event.MemberSignupEvent;
 import com.modeunsa.shared.member.event.SellerRegisteredEvent;
+import com.modeunsa.shared.product.dto.search.ProductSearchRequest;
+import com.modeunsa.shared.product.event.ProductCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -19,7 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProductKafkaEventListener {
 
   private final ProductFacade productFacade;
+  private final ProductSearchFacade productSearchFacade;
   private final JsonConverter jsonConverter;
+  private final ProductMapper productMapper;
 
   @KafkaListener(topics = "member-events", groupId = "product-service")
   @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -45,6 +51,20 @@ public class ProductKafkaEventListener {
             event.memberId(),
             event.businessName(),
             event.representativeName());
+      }
+      default -> {}
+    }
+  }
+
+  @KafkaListener(topics = "product-events", groupId = "product-service")
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void handleProductEvent(DomainEventEnvelope eventEnvelope) {
+    switch (eventEnvelope.eventType()) {
+      case "ProductCreatedEvent" -> {
+        ProductCreatedEvent event =
+            jsonConverter.deserialize(eventEnvelope.payload(), ProductCreatedEvent.class);
+        ProductSearchRequest request = productMapper.toProductSearchRequest(event.productDto());
+        productSearchFacade.createProductSearch(request);
       }
       default -> {}
     }

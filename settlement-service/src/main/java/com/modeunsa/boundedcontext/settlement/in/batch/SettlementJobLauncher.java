@@ -2,6 +2,7 @@ package com.modeunsa.boundedcontext.settlement.in.batch;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.job.Job;
@@ -19,6 +20,8 @@ public class SettlementJobLauncher {
   private final Job collectItemsAndCalculatePayoutsJob;
   private final Job monthlySettlementJob;
 
+  String batchId = UUID.randomUUID().toString();
+
   public JobExecution runCollectItemsAndCalculatePayoutsJob() throws Exception {
     return runJob(collectItemsAndCalculatePayoutsJob);
   }
@@ -32,6 +35,7 @@ public class SettlementJobLauncher {
         new JobParametersBuilder()
             .addString(
                 "runDateTime", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+            .addString("batchId", batchId)
             .toJobParameters();
 
     return jobOperator.start(job, jobParameters);

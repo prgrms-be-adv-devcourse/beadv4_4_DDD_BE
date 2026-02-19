@@ -190,3 +190,63 @@ void saveToOutbox(Object event);
 
 2. **runCleanup(reader, store, before, batchSize)**  
    - `reader.findDeleteTargetIds(before, ...)` 로 삭제 대상 ID 조회 후 `store.deleteAlreadySentEventByIds(ids)` 호출.
+
+
+---
+
+# 0008 - Debezium 인프라 설정
+
+## 개요
+CDC(Change Data Capture) 기반 Outbox 패턴을 위한 Debezium 인프라 구성
+
+## Polling vs CDC 비교
+| 방식 | 지연시간 | DB 부하 | 인프라 |
+|------|----------|---------|--------|
+| Polling | 5초 | 주기적 쿼리 | 없음 |
+| CDC | ~ms | binlog 읽기 | Debezium |
+
+## 아키텍처
+```
+┌─────────────┐     ┌─────────────┐     ┌──────────────┐     ┌─────────┐
+│ Application │────>│   MySQL     │────>│   Debezium   │────>│  Kafka  │
+│             │     │  (binlog)   │     │  (Connector) │     │         │
+└─────────────┘     └─────────────┘     └──────────────┘     └─────────┘
+       │                                        │
+       │ INSERT INTO outbox_event              │ binlog 감지
+       └────────────────────────────────────────┘
+```
+
+## MySQL binlog 설정
+```yaml
+# docker-compose.yml
+mysql-service:
+  command: --server-id=1 --log-bin=mysql-bin --binlog-format=ROW --binlog-row-image=FULL
+```
+
+## Debezium 컨테이너
+```yaml
+# docker-compose.yml
+debezium:
+   profiles:
+      - "cdc"
+   image: debezium-connect-with-smt
+   container_name: kafka-debezium
+   depends_on:
+      - kafka
+      - mysql
+   ports:
+      - "8093:8083"
+   environment:
+      BOOTSTRAP_SERVERS: kafka:9092
+      # consumer group
+      GROUP_ID: debezium
+      CONFIG_STORAGE_TOPIC: debezium_configs
+      OFFSET_STORAGE_TOPIC: debezium_offsets
+      STATUS_STORAGE_TOPIC: debezium_status
+      # 복제 수
+      CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      STATUS_STORAGE_REPLICATION_FACTOR: 1
+   networks:
+      - modeunsa-net
+```

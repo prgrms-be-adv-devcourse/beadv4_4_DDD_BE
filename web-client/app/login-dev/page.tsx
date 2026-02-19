@@ -1,3 +1,5 @@
+// web-client/app/login-dev/page.tsx
+
 'use client'
 
 import Link from 'next/link'
@@ -30,7 +32,7 @@ export default function LoginDevPage() {
     setIsSubmitting(true)
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_MEMBER_API_URL || ''
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
       if (!apiUrl) {
         setErrorMessage('API URL이 설정되지 않았습니다. (NEXT_PUBLIC_API_URL)')
         setIsSubmitting(false)

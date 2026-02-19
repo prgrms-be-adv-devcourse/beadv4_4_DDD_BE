@@ -100,7 +100,7 @@ function ProductFavorites() {
   useEffect(() => {
     const fetchFavorites = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_PRODUCT_API_URL || ''
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
         if (!apiUrl) return
 
         const res = await api.get(`${apiUrl}/api/v1/products/favorites?page=${currentPage}&size=${PAGE_SIZE}`)

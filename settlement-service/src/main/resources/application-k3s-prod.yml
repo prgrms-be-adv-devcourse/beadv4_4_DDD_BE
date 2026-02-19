@@ -48,6 +48,9 @@ spring:
     jdbc:
       initialize-schema: never
 
+  kafka:
+    bootstrap-servers: "modeunsa-infra-elasticsearch:30092"
+
   elasticsearch:
     uris:
       - http://${ES_HOST:modeunsa-infra-elasticsearch}:${ES_PORT:9200}
@@ -120,3 +123,7 @@ app:
     secure: true
     http-only: true
     same-site: Strict
+  event-publisher:
+    type: kafka
+  event-consumer:
+    type: kafka

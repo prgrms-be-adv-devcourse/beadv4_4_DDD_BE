@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import {useState, useEffect, useRef, useCallback} from 'react'
 import Header from './components/Header'
+import {isSea} from "node:sea";
 
 interface ProductResponse {
   id: number
@@ -28,14 +29,17 @@ const POPULAR_KEYWORDS = ['가방', '신발', '화장품', '향수', '시계']
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('')
+  const [autocompleteList, setAutocompleteList] = useState([])
+  const [isOpen, setIsOpen] = useState(false);
   const [searchResults, setSearchResults] = useState<ProductResponse[]>([])
   const [cursor, setCursor] = useState<string | null>(null)
   const [hasNext, setHasNext] = useState(false)
   const [loading, setLoading] = useState(false)
 
   const observerRef = useRef<HTMLDivElement | null>(null)
+  const isSearchingRef = useRef(false);
 
-  const API_URL = process.env.NEXT_PUBLIC_PRODUCT_API_URL!
+  const API_URL = process.env.NEXT_PUBLIC_API_URL!
   const WINDOW_SIZE = 9
 
   const fetchSearchResults = async (
@@ -57,7 +61,7 @@ export default function Home() {
       }
 
       const response = await fetch(
-          `${API_URL}/api/v1/products/search?${params.toString()}`,
+          `${API_URL}/api/v2/products/search?${params.toString()}`,
           {
             method: 'GET',
           }
@@ -82,6 +86,43 @@ export default function Home() {
       setLoading(false)
     }
   };
+
+  const fetchAutocomplete = async (keyword: string) => {
+    if (!keyword.trim()) {
+      setAutocompleteList([]);
+      setIsOpen(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+          `${API_URL}/api/v2/products/search/auto-complete?keyword=${encodeURIComponent(keyword)}`
+      );
+      const data = await response.json();
+      setAutocompleteList(data.result);
+      setIsOpen(true);
+    } catch (error) {
+      console.error("자동완성 오류:", error);
+    }
+  }
+
+  // =========== 검색어 자동완성 ===========
+  useEffect(() => {
+    const timer = setTimeout(() => {
+
+      // 검색 중이면 자동완성 무시
+      if (isSearchingRef.current) return;
+
+      if (searchQuery.length >= 1) {
+        fetchAutocomplete(searchQuery);
+      } else {
+        setAutocompleteList([]);
+        setIsOpen(false);
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   // =========== 첫 진입 시 1회 호출 ===========
   useEffect(() => {
@@ -115,6 +156,12 @@ export default function Home() {
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    // 검색 시작
+    isSearchingRef.current = true;
+
+    setIsOpen(false);
+    setAutocompleteList([]);
+
     if (!searchQuery.trim()) {
       setSearchResults([])
       return
@@ -123,6 +170,9 @@ export default function Home() {
     setCursor(null)
     setHasNext(false)
     await fetchSearchResults(searchQuery)
+
+    // 검색 끝나면 다시 자동완성 허용
+    isSearchingRef.current = false;
   }
 
   const handlePopularClick = async (keyword: string) => {
@@ -148,11 +198,16 @@ export default function Home() {
             <div className="banner-search-wrap">
               <input
                 type="search"
-                placeholder="상품명, 브랜드명을 입력하세요"
+                placeholder="상품명을 입력하세요"
                 className="banner-search-input"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                autoComplete="off"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    setIsOpen(false);
+                    setAutocompleteList([]);
+                    }
+                }}
               />
               <button type="submit" className="banner-search-btn" aria-label="검색">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -160,6 +215,24 @@ export default function Home() {
                 </svg>
               </button>
             </div>
+            {/* 드롭다운 영역 */}
+            {isOpen && autocompleteList.length > 0 && (
+                <ul className="autocomplete-dropdown">
+                  {autocompleteList.map((item, index) => (
+                      <li
+                          key={index}
+                          className="autocomplete-item"
+                          onClick={() => {
+                            setSearchQuery(item);
+                            setIsOpen(false);
+                            setAutocompleteList([]);
+                          }}
+                      >
+                        {item}
+                      </li>
+                  ))}
+                </ul>
+            )}
           </form>
 
           {/* 인기검색어 */}

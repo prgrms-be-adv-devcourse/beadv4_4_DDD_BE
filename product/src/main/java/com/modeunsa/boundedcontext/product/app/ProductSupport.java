@@ -13,6 +13,7 @@ import com.modeunsa.boundedcontext.product.out.ProductFavoriteRepository;
 import com.modeunsa.boundedcontext.product.out.ProductMemberRepository;
 import com.modeunsa.boundedcontext.product.out.ProductMemberSellerRepository;
 import com.modeunsa.boundedcontext.product.out.ProductRepository;
+import com.modeunsa.boundedcontext.product.out.persistence.ProductJpaSearchAdapter;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import java.util.List;
@@ -30,6 +31,7 @@ public class ProductSupport {
   private final ProductMemberRepository productMemberRepository;
   private final ProductRepository productRepository;
   private final ProductFavoriteRepository productFavoriteRepository;
+  private final ProductJpaSearchAdapter jpaSearchAdapter;
 
   public boolean existsBySellerId(Long sellerId) {
     return productMemberSellerRepository.existsById(sellerId);
@@ -60,7 +62,7 @@ public class ProductSupport {
   }
 
   public Slice<Product> getProducts(String keyword, CursorDto cursor, int size) {
-    return productRepository.searchByKeyword(keyword, cursor, size);
+    return jpaSearchAdapter.search(keyword, cursor, size);
   }
 
   public Page<Product> getProducts(
@@ -101,18 +103,6 @@ public class ProductSupport {
 
   public boolean existsProductFavorite(Long memberId, Long productId) {
     return productFavoriteRepository.existsByMemberIdAndProductId(memberId, productId);
-  }
-
-  public Product getProductForUpdate(Long productId) {
-    return productRepository.findByIdForUpdate(productId);
-  }
-
-  public void validateProducts(List<Long> productIds) {
-    for (Long productId : productIds) {
-      if (productId == null) {
-        throw new GeneralException(ErrorStatus.PRODUCT_NOT_FOUND);
-      }
-    }
   }
 
   public Page<ProductFavorite> getProductFavorites(Long memberId, Pageable pageable) {
