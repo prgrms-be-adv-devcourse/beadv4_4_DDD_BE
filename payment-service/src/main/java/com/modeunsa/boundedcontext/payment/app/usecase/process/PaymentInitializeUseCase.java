@@ -35,7 +35,7 @@ public class PaymentInitializeUseCase {
     Optional<Payment> findPayment = paymentSupport.getOptPaymentById(paymentId);
     if (findPayment.isPresent()) {
       Payment payment = findPayment.get();
-      payment.initPayment(paymentRequest.paymentDeadlineAt());
+      payment.changeToPending(paymentRequest.paymentDeadlineAt());
       return PaymentProcessContext.fromPaymentForInitialize(payment);
     }
 
@@ -59,7 +59,7 @@ public class PaymentInitializeUseCase {
     try {
       // 복합키 저장을 위해 Payment 를 먼저 저장 후 로그를 추가
       Payment saved = paymentStore.store(payment);
-      saved.addInitialLog(saved);
+      saved.addInitialPaymentLog(saved);
       return PaymentProcessContext.fromPaymentForInitialize(saved);
     } catch (DataIntegrityViolationException e) {
       throw new GeneralException(PAYMENT_DUPLICATE);

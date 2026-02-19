@@ -92,29 +92,33 @@ public class PaymentCompleteOrderCompleteUseCase implements PaymentCompleteProce
 
   private void chargeFromPg(
       PaymentAccount buyerAccount, PaymentProcessContext paymentProcessContext) {
-    buyerAccount.credit(
+    paymentAccountSupport.creditIdempotent(
+        buyerAccount,
         paymentProcessContext.requestPgAmount(),
         PaymentEventType.CHARGE_PG_TOSS_PAYMENTS,
-        paymentProcessContext.orderId(),
-        ReferenceType.ORDER);
+        ReferenceType.ORDER,
+        paymentProcessContext.orderId());
   }
 
   private void processPayment(
       PaymentAccount holderAccount, PaymentAccount buyerAccount, PaymentProcessContext context) {
-    buyerAccount.debit(
+
+    paymentAccountSupport.debitIdempotent(
+        buyerAccount,
         context.totalAmount(),
         PaymentEventType.USE_ORDER_PAYMENT,
-        context.orderId(),
-        ReferenceType.ORDER);
+        ReferenceType.ORDER,
+        context.orderId());
 
-    holderAccount.credit(
+    paymentAccountSupport.creditIdempotent(
+        holderAccount,
         context.totalAmount(),
         PaymentEventType.HOLD_STORE_ORDER_PAYMENT,
-        context.orderId(),
-        ReferenceType.ORDER);
+        ReferenceType.ORDER,
+        context.orderId());
 
     Payment payment = loadPayment(context.buyerId(), context.orderNo());
-    payment.changeSuccess();
+    payment.changeToSuccess();
 
     publishPaymentSuccessEvent(context);
   }

@@ -3,6 +3,7 @@ package com.modeunsa.boundedcontext.payment.app.usecase.process;
 import com.modeunsa.boundedcontext.payment.app.dto.order.PaymentOrderInfo;
 import com.modeunsa.boundedcontext.payment.app.lock.LockedPaymentAccounts;
 import com.modeunsa.boundedcontext.payment.app.lock.PaymentAccountLockManager;
+import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.boundedcontext.payment.domain.types.ReferenceType;
@@ -25,6 +26,7 @@ public class PaymentRefundUseCase {
 
   private final PaymentAccountLockManager paymentAccountLockManager;
   private final PaymentAccountConfig paymentAccountConfig;
+  private final PaymentAccountSupport paymentAccountSupport;
   private final EventPublisher eventPublisher;
 
   public void execute(PaymentOrderInfo orderInfo, RefundEventType refundEventType) {
@@ -41,10 +43,14 @@ public class PaymentRefundUseCase {
       throw new GeneralException(ErrorStatus.PAYMENT_INSUFFICIENT_BALANCE);
     }
 
-    holderAccount.debit(
-        orderInfo.totalAmount(), eventType, orderInfo.orderId(), ReferenceType.ORDER);
-    buyerAccount.credit(
-        orderInfo.totalAmount(), eventType, orderInfo.orderId(), ReferenceType.ORDER);
+    paymentAccountSupport.debitIdempotent(
+        holderAccount,
+        orderInfo.totalAmount(),
+        eventType,
+        ReferenceType.ORDER,
+        orderInfo.orderId());
+    paymentAccountSupport.creditIdempotent(
+        buyerAccount, orderInfo.totalAmount(), eventType, ReferenceType.ORDER, orderInfo.orderId());
 
     publishRefundSuccessEvent(orderInfo);
   }

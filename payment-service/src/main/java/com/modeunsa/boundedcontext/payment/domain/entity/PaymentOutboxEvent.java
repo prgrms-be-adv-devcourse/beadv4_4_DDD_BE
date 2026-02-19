@@ -12,8 +12,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
-import jakarta.persistence.Version;
+import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,7 +22,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table
+@Table(
+    name = "payment_outbox_event",
+    uniqueConstraints = {@UniqueConstraint(columnNames = "event_id")})
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -63,8 +66,6 @@ public class PaymentOutboxEvent extends AuditedEntity implements OutboxEventView
 
   private String traceId;
 
-  @Version private Long version;
-
   public static PaymentOutboxEvent create(
       String aggregateType,
       String aggregateId,
@@ -78,6 +79,7 @@ public class PaymentOutboxEvent extends AuditedEntity implements OutboxEventView
         .eventType(eventType)
         .topic(topic)
         .payload(payload)
+        .eventId(UUID.randomUUID().toString())
         .traceId(traceId)
         .build();
   }

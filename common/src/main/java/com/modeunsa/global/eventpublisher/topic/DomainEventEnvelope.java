@@ -15,13 +15,9 @@ public record DomainEventEnvelope(
 
   public static DomainEventEnvelope of(Object event, String topic, String payload) {
     String traceId = extractTraceId(event);
+    String eventType = event.getClass().getSimpleName();
     return new DomainEventEnvelope(
-        UUID.randomUUID().toString(),
-        event.getClass().getSimpleName(),
-        Instant.now(),
-        topic,
-        payload,
-        traceId);
+        UUID.randomUUID().toString(), eventType, Instant.now(), topic, payload, traceId);
   }
 
   private static String extractTraceId(Object event) {
