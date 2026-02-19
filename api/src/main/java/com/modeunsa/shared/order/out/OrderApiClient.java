@@ -9,6 +9,7 @@ import org.springframework.web.client.RestClient;
 
 @Service
 public class OrderApiClient {
+
   private final RestClient restClient;
   private static final String V1_BASE_PATH = "/api/v1/orders/internal";
   private static final String V2_BASE_PATH = "/api/v2/orders/internal";
@@ -31,6 +32,14 @@ public class OrderApiClient {
     return restClient
         .get()
         .uri(V2_BASE_PATH + "/cart-items/{memberId}", memberId)
+        .retrieve()
+        .body(new ParameterizedTypeReference<>() {});
+  }
+
+  public int getPendingCount(Long productId) {
+    return restClient
+        .get()
+        .uri(V2_BASE_PATH + "/pending-count/{productId}", productId)
         .retrieve()
         .body(new ParameterizedTypeReference<>() {});
   }

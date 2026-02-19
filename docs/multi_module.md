@@ -55,6 +55,7 @@ modeunsa (Monorepo)
  ├─ auth       (8087)  → 인증 도메인 서비스
  ├─ file       (8088)  → 파일 도메인 서비스
  ├─ content    (8089)  → 컨텐츠 도메인 서비스
+ |- inventory  (8090) -> 재고 도메인 서비스
  └─ common     → 공통 라이브러리
 ```
 

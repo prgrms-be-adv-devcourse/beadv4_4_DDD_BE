@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class InventoryGetAvailableQuantityUseCase {
   private final InventoryRepository inventoryRepository;
+  private final InventoryQueryPort inventoryQueryPort;
 
   public InventoryAvailableQuantityResponse getAvailableQuantity(Long productId) {
     Inventory inventory =
@@ -19,7 +20,7 @@ public class InventoryGetAvailableQuantityUseCase {
             .findByProductId(productId)
             .orElseThrow(() -> new GeneralException(ErrorStatus.INVENTORY_NOT_FOUND));
 
-    int availableQuantity = inventory.getAvailableQuantity();
+    int availableQuantity = inventoryQueryPort.getAvailableQuantity(productId);
 
     return new InventoryAvailableQuantityResponse(availableQuantity);
   }
