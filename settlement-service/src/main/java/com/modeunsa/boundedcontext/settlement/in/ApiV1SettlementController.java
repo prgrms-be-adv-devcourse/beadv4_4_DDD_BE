@@ -34,6 +34,6 @@ public class ApiV1SettlementController {
     SettlementResponseDto settlementResponseDto =
         settlementFacade.getSettlement(memberId, year, month);
 
-    return ApiResponse.onSuccess(SuccessStatus.CREATED, settlementResponseDto);
+    return ApiResponse.onSuccess(SuccessStatus.OK, settlementResponseDto);
   }
 }
