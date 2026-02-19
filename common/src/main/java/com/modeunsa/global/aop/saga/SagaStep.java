@@ -12,8 +12,4 @@ public @interface SagaStep {
   SagaType sagaName();
 
   OrderSagaStep step();
-
-  boolean logOnSuccess() default true;
-
-  boolean logOnFailure() default true;
 }

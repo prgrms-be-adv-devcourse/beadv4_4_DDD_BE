@@ -92,7 +92,6 @@ public class PaymentFacade {
     paymentPayoutCompleteUseCase.execute(payouts);
   }
 
-  @SagaStep(sagaName = SagaType.ORDER_FLOW, step = OrderSagaStep.PAYMENT_REFUND_REQUEST)
   public void refund(PaymentOrderInfo orderInfo, RefundEventType refundEventType) {
     paymentRefundUseCase.execute(orderInfo, refundEventType);
   }
