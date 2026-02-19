@@ -1,14 +1,13 @@
 package com.modeunsa.boundedcontext.product.in.api.v2;
 
 import com.modeunsa.boundedcontext.product.app.search.ProductSearchFacade;
+import com.modeunsa.boundedcontext.product.in.dto.ProductSliceResultDto;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.status.SuccessStatus;
-import com.modeunsa.shared.product.dto.search.ProductSearchResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,9 +27,11 @@ public class ProductSearchController {
   @Operation(summary = "검색 상품 조회", description = "name, description 기준으로 상품을 검색한다.")
   @GetMapping
   public ResponseEntity<ApiResponse> search(
-      @RequestParam String keyword, @RequestParam int page, @RequestParam int size) {
-    Page<ProductSearchResponse> response = productSearchFacade.search(keyword, page, size);
-    return ApiResponse.onSuccess(SuccessStatus.OK, response);
+      @RequestParam String keyword,
+      @RequestParam(name = "cursor", required = false) String cursor,
+      @RequestParam(name = "size") int size) {
+    ProductSliceResultDto resultDto = productSearchFacade.search(keyword, cursor, size);
+    return ApiResponse.onSuccess(SuccessStatus.OK, resultDto.contents(), resultDto.cursor());
   }
 
   @Operation(summary = "ES 재색인", description = "RDB의 상품 데이터를 재색인합니다. 기존 index 삭제가 선행되어야 합니다.")

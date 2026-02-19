@@ -61,7 +61,7 @@ export default function Home() {
       }
 
       const response = await fetch(
-          `${API_URL}/api/v1/products/search?${params.toString()}`,
+          `${API_URL}/api/v2/products/search?${params.toString()}`,
           {
             method: 'GET',
           }

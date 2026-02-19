@@ -1,12 +1,15 @@
 package com.modeunsa.boundedcontext.product.app.search;
 
+import com.modeunsa.api.pagination.CursorCodec;
+import com.modeunsa.api.pagination.CursorDto;
 import com.modeunsa.boundedcontext.product.app.ProductMapper;
 import com.modeunsa.boundedcontext.product.domain.search.document.ProductSearch;
+import com.modeunsa.boundedcontext.product.in.dto.ProductSliceResultDto;
 import com.modeunsa.shared.product.dto.search.ProductSearchRequest;
-import com.modeunsa.shared.product.dto.search.ProductSearchResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,15 +23,28 @@ public class ProductSearchFacade {
   private final ProductSearchReindexUseCase productSearchReindexUseCase;
   private final ProductSearchSupport productSearchSupport;
   private final ProductMapper productMapper;
+  private final CursorCodec cursorCodec;
 
   @Transactional
   public void createProductSearch(ProductSearchRequest request) {
     productCreateProductSearchUseCase.createProductSearch(request);
   }
 
-  public Page<ProductSearchResponse> search(String keyword, int page, int size) {
-    Page<ProductSearch> responses = productSearchSupport.searchByKeyword(keyword, page, size);
-    return responses.map(productMapper::toProductSearchResponse);
+  public ProductSliceResultDto search(String keyword, String cursor, int size) {
+    // 1. cursor 복호화
+    CursorDto decodedCursor = cursorCodec.decodeIfPresent(cursor);
+    // 2. cursor 기반 검색
+    Slice<ProductSearch> products =
+        productSearchSupport.searchByKeyword(keyword, decodedCursor, size);
+    // 3. nextCursor 가져와서 암호화 & 인코딩
+    String nextCursor = null;
+    if (products.hasNext()) {
+      ProductSearch last = products.getContent().getLast();
+      nextCursor =
+          cursorCodec.encode(new CursorDto(last.getCreatedAt(), Long.valueOf(last.getId())));
+    }
+    return new ProductSliceResultDto(
+        products.map(product -> productMapper.toProductSearchResponse(product)), nextCursor);
   }
 
   public void reindexAll() {

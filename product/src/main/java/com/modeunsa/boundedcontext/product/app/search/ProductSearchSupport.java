@@ -2,6 +2,7 @@ package com.modeunsa.boundedcontext.product.app.search;
 
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
+import com.modeunsa.api.pagination.CursorDto;
 import com.modeunsa.boundedcontext.product.domain.search.document.ProductSearch;
 import com.modeunsa.boundedcontext.product.out.search.ProductSearchRepository;
 import java.util.List;
@@ -9,8 +10,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
+import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
@@ -28,7 +33,7 @@ public class ProductSearchSupport {
     return productSearchRepository.findByNameContainingOrDescriptionContaining(keyword, keyword);
   }
 
-  public Page<ProductSearch> searchByKeyword(String keyword, int page, int size) {
+  public Slice<ProductSearch> searchByKeyword(String keyword, CursorDto cursor, int size) {
 
     BoolQuery.Builder bool = QueryBuilders.bool();
 
@@ -36,7 +41,10 @@ public class ProductSearchSupport {
     if (StringUtils.hasText(keyword)) {
       // 정확 검색
       bool.should(s -> s.match(m -> m.field("name").query(keyword).boost(5.0f)));
-      // fuzzy 보조 검색 (오탈자)
+      bool.should(s -> s.match(m -> m.field("sellerBusinessName").query(keyword).boost(5.0f)));
+      bool.should(s -> s.match(m -> m.field("description").query(keyword).boost(5.0f)));
+
+      // fuzzy 보조 검색 (오탈자) -> 상품명, 브랜드명 한정
       if (keyword.length() >= 2) {
         bool.should(
             s ->
@@ -48,9 +56,18 @@ public class ProductSearchSupport {
                             .prefixLength(1)
                             .maxExpansions(50)
                             .boost(1.0f)));
+        bool.should(
+            s ->
+                s.match(
+                    m ->
+                        m.field("sellerBusinessName")
+                            .query(keyword)
+                            .fuzziness("1")
+                            .prefixLength(1)
+                            .maxExpansions(50)
+                            .boost(1.0f)));
       }
-      bool.should(s -> s.match(m -> m.field("description").query(keyword).fuzziness("1")));
-      bool.should(s -> s.match(m -> m.field("sellerBusinessName").query(keyword).fuzziness("1")));
+
       bool.minimumShouldMatch("1");
     }
 
@@ -59,19 +76,25 @@ public class ProductSearchSupport {
     // productStatus 필터
     bool.filter(f -> f.term(t -> t.field("productStatus").value("COMPLETED")));
 
-    NativeQuery query =
+    NativeQueryBuilder queryBuilder =
         NativeQuery.builder()
             .withQuery(bool.build()._toQuery())
             .withSort(Sort.by(Sort.Order.desc("createdAt"), Sort.Order.desc("id")))
-            .withPageable(PageRequest.of(page, size))
-            .withTrackTotalHits(true)
-            .build();
+            .withPageable(PageRequest.of(0, size));
+
+    if (cursor != null) {
+      queryBuilder.withSearchAfter(List.of(cursor.createdAt(), cursor.id()));
+    }
+
+    NativeQuery query = queryBuilder.build();
 
     SearchHits<ProductSearch> hits = elasticsearchOperations.search(query, ProductSearch.class);
 
     List<ProductSearch> content = hits.stream().map(SearchHit::getContent).toList();
 
-    return new PageImpl<>(content, PageRequest.of(page, size), hits.getTotalHits());
+    boolean hasNext = content.size() == size;
+
+    return new SliceImpl<>(content, Pageable.unpaged(), hasNext);
   }
 
   public Page<String> autoComplete(String keyword) {
