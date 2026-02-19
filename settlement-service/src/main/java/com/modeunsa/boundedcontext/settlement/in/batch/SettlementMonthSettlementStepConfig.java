@@ -8,13 +8,16 @@ import com.modeunsa.shared.settlement.event.SettlementCompletedPayoutEvent;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.infrastructure.item.ItemProcessor;
 import org.springframework.batch.infrastructure.item.ItemReader;
 import org.springframework.batch.infrastructure.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Page;
@@ -32,13 +35,14 @@ public class SettlementMonthSettlementStepConfig {
   private final EventPublisher eventPublisher;
 
   @Bean
-  public Step monthlySettlementStep() {
+  public Step monthlySettlementStep(
+      ItemWriter<SettlementCompletedPayoutDto> monthSettlementWriter) {
     return new StepBuilder("monthlySettlementStep", jobRepository)
         .<Settlement, SettlementCompletedPayoutDto>chunk(CHUNK_SIZE)
         .transactionManager(transactionManager)
         .reader(monthSettlementReader())
         .processor(monthSettlementProcessor())
-        .writer(monthSettlementWriter())
+        .writer(monthSettlementWriter)
         .build();
   }
 
@@ -87,11 +91,18 @@ public class SettlementMonthSettlementStepConfig {
   }
 
   @Bean
-  public ItemWriter<SettlementCompletedPayoutDto> monthSettlementWriter() {
+  @StepScope // jobParameter를 받아오기 위해 사용
+  public ItemWriter<SettlementCompletedPayoutDto> monthSettlementWriter(
+      @Value("#{jobParameters['batchId']}") String batchId) {
     return chunk -> {
       List<SettlementCompletedPayoutDto> payouts = new ArrayList<>(chunk.getItems());
 
-      eventPublisher.publish(new SettlementCompletedPayoutEvent(payouts));
+      if (payouts.isEmpty()) {
+        return;
+      }
+
+      eventPublisher.publish(
+          new SettlementCompletedPayoutEvent(batchId, UUID.randomUUID().toString(), payouts));
     };
   }
 }

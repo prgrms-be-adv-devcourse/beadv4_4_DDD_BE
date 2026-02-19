@@ -73,8 +73,7 @@ public class KafkaResolver {
       case RefundRequestedEvent e -> resolveOrder(e.orderDto().getOrderId());
 
       // settlement
-      case SettlementCompletedPayoutEvent e ->
-          resolveSettlement(e.payouts().getFirst().settlementId());
+      case SettlementCompletedPayoutEvent e -> resolveSettlement(e.batchId());
 
       // default
       default ->
@@ -122,11 +121,11 @@ public class KafkaResolver {
         UUID.randomUUID().toString(), ORDER_EVENTS_TOPIC, "Order", "order-%d".formatted(orderId));
   }
 
-  private KafkaPublishTarget resolveSettlement(Long settlementId) {
+  private KafkaPublishTarget resolveSettlement(String batchId) {
     return KafkaPublishTarget.of(
         UUID.randomUUID().toString(),
         SETTLEMENT_EVENTS_TOPIC,
         "Settlement",
-        "settlement-%d".formatted(settlementId));
+        "settlement-%s".formatted(batchId));
   }
 }
