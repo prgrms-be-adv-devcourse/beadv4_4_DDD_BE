@@ -7,10 +7,10 @@
     <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
   </springProfile>
 
-  <!-- 일반 애플리케이션 로그 (기존 로거) -->
+  <!-- 일반 애플리케이션 로그 (Spring Boot 기본 컬러 패턴 사용) -->
   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+      <pattern>${CONSOLE_LOG_PATTERN}</pattern>
     </encoder>
   </appender>
 
