@@ -89,7 +89,7 @@ custom:
       - /api/v1/auths/login/**
       - /api/v1/auths/dev/**
       - /api/v1/auths/reissue
-      - /login/oauth2/code/**
+      - /api/login/oauth2/code/**
 
       # ========== 헬스체크 ==========
       - /actuator/health
