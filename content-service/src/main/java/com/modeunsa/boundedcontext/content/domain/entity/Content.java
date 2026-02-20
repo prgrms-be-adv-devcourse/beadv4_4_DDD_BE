@@ -76,8 +76,12 @@ public class Content extends GeneratedIdAndAuditedEntity {
   private List<ContentComment> comments = new ArrayList<>();
 
   public static Content create(
-      ContentMember author, String text, List<String> tags, List<ContentImageDto> images) {
-    Content content = Content.builder().author(author).text(text).build();
+      ContentMember author,
+      String title,
+      String text,
+      List<String> tags,
+      List<ContentImageDto> images) {
+    Content content = Content.builder().title(title).author(author).text(text).build();
 
     for (String tagValue : tags) {
       content.addTag(new ContentTag(tagValue));

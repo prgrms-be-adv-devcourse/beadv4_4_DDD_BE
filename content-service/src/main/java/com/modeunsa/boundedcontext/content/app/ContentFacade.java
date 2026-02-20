@@ -15,7 +15,6 @@ import com.modeunsa.boundedcontext.content.app.usecase.member.ContentSyncMemberU
 import com.modeunsa.boundedcontext.content.domain.entity.ContentMember;
 import com.modeunsa.shared.content.dto.ContentCommentRequest;
 import com.modeunsa.shared.content.dto.ContentCommentResponse;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
@@ -40,7 +39,7 @@ public class ContentFacade {
     contentSyncMemberUseCase.syncContentMember(member);
   }
 
-  public ContentDetailDto getContent(@Valid Long contentId) {
+  public ContentDetailDto getContent(Long contentId) {
     return contentGetContentUseCase.execute(contentId);
   }
 

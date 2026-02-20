@@ -6,7 +6,6 @@ import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.status.SuccessStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +23,7 @@ public class ContentController {
 
   @Operation(summary = "콘텐츠 상세 조회", description = "콘텐츠를 상세 조회합니다.")
   @GetMapping("/{id}")
-  public ResponseEntity<ApiResponse> getContent(@Valid @PathVariable(name = "id") Long contentId) {
+  public ResponseEntity<ApiResponse> getContent(@PathVariable(name = "id") Long contentId) {
     ContentDetailDto response = contentFacade.getContent(contentId);
     return ApiResponse.onSuccess(SuccessStatus.OK, response);
   }

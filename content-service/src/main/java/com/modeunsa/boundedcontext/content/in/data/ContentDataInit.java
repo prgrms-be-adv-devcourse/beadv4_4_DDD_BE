@@ -37,6 +37,7 @@ public class ContentDataInit {
     contentFacade.create(
         user1Member.getId(),
         new ContentCreateCommand(
+            "첫 번째 콘텐츠 제목입니다.",
             "첫 번째 콘텐츠 내용입니다.",
             List.of("테스트"),
             List.of(new ContentImageDto("https://example.com/placeholder.png", true, 0))));
@@ -44,6 +45,7 @@ public class ContentDataInit {
     contentFacade.create(
         user2Member.getId(),
         new ContentCreateCommand(
+            "첫 번째 콘텐츠 제목입니다.",
             "두 번째 콘텐츠 내용입니다.",
             List.of("샘플"),
             List.of(new ContentImageDto("https://example.com/placeholder.png", true, 0))));
