@@ -4,6 +4,7 @@ import static com.modeunsa.boundedcontext.payment.domain.entity.QPaymentAccountL
 
 import com.modeunsa.boundedcontext.payment.app.dto.accountlog.PaymentAccountLogDto;
 import com.modeunsa.boundedcontext.payment.app.dto.accountlog.PaymentAccountSearchRequest;
+import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.boundedcontext.payment.domain.types.ReferenceType;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
@@ -29,7 +30,20 @@ public class PaymentAccountLogQueryRepository {
     return this.queryFactory
         .select(paymentAccountLog.count())
         .from(paymentAccountLog)
-        .where(paymentAccountLog.referenceType.eq(referenceType))
+        .where(eqReferenceType(referenceType))
+        .fetchOne();
+  }
+
+  public Long countByAccountLogEvent(
+      Long accountId, ReferenceType referenceType, Long referenceId, PaymentEventType eventType) {
+    return this.queryFactory
+        .select(paymentAccountLog.count())
+        .from(paymentAccountLog)
+        .where(
+            eqAccountId(accountId)
+                .and(eqReferenceType(referenceType))
+                .and(eqReferenceId(referenceId))
+                .and(eqPaymentEventType(eventType)))
         .fetchOne();
   }
 
@@ -76,6 +90,10 @@ public class PaymentAccountLogQueryRepository {
         .toArray(OrderSpecifier[]::new);
   }
 
+  private BooleanExpression eqAccountId(Long accountId) {
+    return accountId != null ? paymentAccountLog.paymentAccount.id.eq(accountId) : null;
+  }
+
   private BooleanExpression eqMemberId(Long memberId) {
     return memberId != null ? paymentAccountLog.paymentAccount.member.id.eq(memberId) : null;
   }
@@ -86,5 +104,17 @@ public class PaymentAccountLogQueryRepository {
     }
 
     return paymentAccountLog.createdAt.between(from, to);
+  }
+
+  private BooleanExpression eqReferenceType(ReferenceType referenceType) {
+    return referenceType != null ? paymentAccountLog.referenceType.eq(referenceType) : null;
+  }
+
+  private BooleanExpression eqReferenceId(Long referenceId) {
+    return referenceId != null ? paymentAccountLog.referenceId.eq(referenceId) : null;
+  }
+
+  private BooleanExpression eqPaymentEventType(PaymentEventType eventType) {
+    return eventType != null ? paymentAccountLog.eventType.eq(eventType) : null;
   }
 }

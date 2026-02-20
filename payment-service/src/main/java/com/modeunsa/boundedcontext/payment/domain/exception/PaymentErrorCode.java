@@ -18,13 +18,24 @@ public enum PaymentErrorCode {
   OVERDUE_PAYMENT_DEADLINE("PAYMENT_4006", "Payment deadline has been exceeded."),
   INVALID_PAYMENT_PURPOSE("PAYMENT_4007", "Invalid payment purpose."),
   PG_PAYMENT_ABORTED("PAYMENT_4008", "Payment was aborted by pg"),
-  PG_PAYMENT_EXPIRED("PAYMENT_4009", "Payment expired by pg");
+  PG_PAYMENT_EXPIRED("PAYMENT_4009", "Payment expired by pg"),
+  PG_INVALID_REQUEST("PAYMENT_4010", "Invalid request to pg."),
+  PG_TOSS_CONFIRM_FAILED("PAYMENT_4011", "Toss payment confirm failed."),
+  PG_TOSS_MAX_RETRY_EXCEEDED("PAYMENT_4012", "Toss payment confirm failed after max retries."),
+  PG_UNKNOWN_ERROR("PAYMENT_4099", "Unknown error from pg."),
+  PAYMENT_COMPLETE_FAILED("PAYMENT_5001", "Payment completion failed.");
 
   private final String code;
   private final String message;
 
   private static final Set<PaymentErrorCode> FINAL_FAILURE_CODES =
-      Set.of(OVERDUE_PAYMENT_DEADLINE, PG_PAYMENT_EXPIRED);
+      Set.of(
+          OVERDUE_PAYMENT_DEADLINE,
+          PG_PAYMENT_EXPIRED,
+          PG_TOSS_CONFIRM_FAILED,
+          PG_TOSS_MAX_RETRY_EXCEEDED,
+          PAYMENT_COMPLETE_FAILED,
+          PG_UNKNOWN_ERROR);
 
   private static final Map<String, PaymentErrorCode> BY_CODE = new HashMap<>();
 

@@ -2,7 +2,7 @@ spring:
   config:
     import: optional:file:.env.k3s-dev[.properties]
   datasource:
-    url: jdbc:mysql://127.0.0.1:30306/${DB_NAME:modeunsa}
+    url: jdbc:mysql://${DB_HOST:modeunsa-infra-mysql}:${DB_PORT:3306}/${DB_NAME:modeunsa}
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -23,8 +23,8 @@ spring:
         use_sql_comments: true
   data:
     redis:
-      host: 127.0.0.1
-      port: 30379
+      host: ${REDIS_HOST:modeunsa-infra-redis}
+      port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
   security:
     oauth2:
@@ -55,10 +55,10 @@ spring:
 
   elasticsearch:
     uris:
-      - http://127.0.0.1:30920
+      - http://${ES_HOST:modeunsa-infra-elasticsearch}:${ES_PORT:9200}
 
   kafka:
-    bootstrap-servers: "localhost:30092"
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:modeunsa-infra-kafka:9092}
 
 management:
   health:

@@ -15,6 +15,7 @@
 #
 # 접속 정보 (dev - NodePort):
 #   API Server    localhost:30080
+#   Settlement    localhost:30084
 #   Frontend      localhost:30000
 #
 # 접속 정보 (prod - Ingress):
@@ -26,6 +27,16 @@ NAMESPACE="modeunsa"
 RELEASE="modeunsa-app"
 CHART_DIR="$(dirname "$0")/app"
 ROOT_DIR="$(dirname "$0")/.."
+POD_READY_TIMEOUT="${POD_READY_TIMEOUT:-60s}"
+WAIT_IN_BACKGROUND="${WAIT_IN_BACKGROUND:-true}"
+WAIT_LOG_FILE="${WAIT_LOG_FILE:-/tmp/modeunsa-app-pod-wait.log}"
+
+# 백엔드 모듈 메타데이터
+# 형식: module|IMAGE_ENV|표시명|dev접속주소|required(optional/required)
+BACKEND_MODULES=(
+  "api|DOCKER_IMAGE|API Server|localhost:30080|required"
+  "settlement-api|SETTLEMENT_IMAGE|Settlement|localhost:30084|optional"
+)
 
 # k3s 환경에서 KUBECONFIG 자동 설정
 if [ -z "$KUBECONFIG" ] && [ -f /etc/rancher/k3s/k3s.yaml ]; then
@@ -44,6 +55,36 @@ get_env_file() {
       exit 1
       ;;
   esac
+}
+
+# 백엔드 모듈 공통 helm --set 인자 추가
+add_backend_helm_args() {
+  local prefix="$1"
+  local image_repo="$2"
+  local image_tag="$3"
+
+  HELM_ARGS+=(
+    --set "$prefix.image.repository=$image_repo"
+    --set "$prefix.image.tag=$image_tag"
+    --set "$prefix.env.dbName=$MYSQL_DATABASE"
+    --set "$prefix.secrets.dbPassword=$MYSQL_ROOT_PASSWORD"
+    --set "$prefix.secrets.redisPassword=$REDIS_PASSWORD"
+    --set "$prefix.secrets.jwtSecret=$JWT_SECRET"
+    --set "$prefix.secrets.kakaoClientId=$KAKAO_CLIENT_ID"
+    --set "$prefix.secrets.kakaoClientSecret=$KAKAO_CLIENT_SECRET"
+    --set "$prefix.secrets.naverClientId=$NAVER_CLIENT_ID"
+    --set "$prefix.secrets.naverClientSecret=$NAVER_CLIENT_SECRET"
+    --set "$prefix.secrets.awsAccessKey=$AWS_ACCESS_KEY"
+    --set "$prefix.secrets.awsSecretKey=$AWS_SECRET_KEY"
+    --set "$prefix.secrets.encryptionMasterKey=$ENCRYPTION_MASTER_KEY"
+    --set "$prefix.secrets.tossPaymentsSecretKey=$TOSS_PAYMENTS_SECRET_KEY"
+    --set "$prefix.secrets.internalApiKey=$INTERNAL_API_KEY"
+  )
+}
+
+get_module_image() {
+  local image_env="$1"
+  printf '%s' "${!image_env}"
 }
 
 case "$1" in
@@ -74,11 +115,26 @@ case "$1" in
       exit 1
     fi
 
-    # Docker 이미지 확인 (API)
-    if [ -z "$DOCKER_IMAGE" ]; then
-      echo "DOCKER_IMAGE 환경변수가 설정되지 않았습니다."
-      exit 1
-    fi
+    ACTIVE_BACKEND_MODULES=()
+    HELM_BACKEND_ARGS=()
+
+    # 백엔드 모듈 이미지 확인 및 enabled 설정
+    for module_info in "${BACKEND_MODULES[@]}"; do
+      IFS='|' read -r module image_env display_name dev_addr requirement <<<"$module_info"
+      image_value=$(get_module_image "$image_env")
+
+      if [ -n "$image_value" ]; then
+        ACTIVE_BACKEND_MODULES+=("$module|$image_value|$display_name|$dev_addr")
+        HELM_BACKEND_ARGS+=(--set "$module.enabled=true")
+      else
+        HELM_BACKEND_ARGS+=(--set "$module.enabled=false")
+        if [ "$requirement" = "required" ]; then
+          echo "$image_env 환경변수가 설정되지 않았습니다."
+          exit 1
+        fi
+        echo "$image_env 환경변수가 없습니다. $display_name 모듈은 배포하지 않습니다."
+      fi
+    done
 
     # Docker 이미지 확인 (Frontend) - 선택적
     if [ -z "$FRONTEND_IMAGE" ]; then
@@ -94,10 +150,6 @@ case "$1" in
       exit 1
     fi
 
-    # Docker 이미지 repository와 tag 분리
-    IMAGE_REPO="${DOCKER_IMAGE%:*}"
-    IMAGE_TAG="${DOCKER_IMAGE##*:}"
-
     if [ "$FRONTEND_ENABLED" = "true" ]; then
       FRONTEND_REPO="${FRONTEND_IMAGE%:*}"
       FRONTEND_TAG="${FRONTEND_IMAGE##*:}"
@@ -107,11 +159,14 @@ case "$1" in
     if [ "$ENV" = "dev" ] && colima status &>/dev/null; then
       echo "Docker 이미지를 k3s에 import 합니다..."
 
-      # API 이미지
-      echo "  API: $DOCKER_IMAGE"
-      docker pull --platform linux/amd64 "$DOCKER_IMAGE" 2>&1 | tail -1
-      docker save "$DOCKER_IMAGE" | \
-        colima ssh -- sudo ctr -a /run/containerd/containerd.sock -n k8s.io images import --no-unpack -
+      # Backend 이미지
+      for backend_info in "${ACTIVE_BACKEND_MODULES[@]}"; do
+        IFS='|' read -r module image_value display_name dev_addr <<<"$backend_info"
+        echo "  $display_name: $image_value"
+        docker pull --platform linux/amd64 "$image_value" 2>&1 | tail -1
+        docker save "$image_value" | \
+          colima ssh -- sudo ctr -a /run/containerd/containerd.sock -n k8s.io images import --no-unpack -
+      done
 
       # Frontend 이미지
       if [ "$FRONTEND_ENABLED" = "true" ]; then
@@ -126,46 +181,94 @@ case "$1" in
 
     # helm 설치 또는 업그레이드
     HELM_ARGS=(
-      --set api.image.repository="$IMAGE_REPO"
-      --set api.image.tag="$IMAGE_TAG"
-      --set api.env.dbName="$MYSQL_DATABASE"
-      --set api.secrets.dbPassword="$MYSQL_ROOT_PASSWORD"
-      --set api.secrets.redisPassword="$REDIS_PASSWORD"
-      --set api.secrets.jwtSecret="$JWT_SECRET"
-      --set api.secrets.kakaoClientId="$KAKAO_CLIENT_ID"
-      --set api.secrets.kakaoClientSecret="$KAKAO_CLIENT_SECRET"
-      --set api.secrets.naverClientId="$NAVER_CLIENT_ID"
-      --set api.secrets.naverClientSecret="$NAVER_CLIENT_SECRET"
-      --set api.secrets.awsAccessKey="$AWS_ACCESS_KEY"
-      --set api.secrets.awsSecretKey="$AWS_SECRET_KEY"
-      --set api.secrets.encryptionMasterKey="$ENCRYPTION_MASTER_KEY"
-      --set api.secrets.tossPaymentsSecretKey="$TOSS_PAYMENTS_SECRET_KEY"
-      --set api.secrets.internalApiKey="$INTERNAL_API_KEY"
+      "${HELM_BACKEND_ARGS[@]}"
       --set frontend.enabled="$FRONTEND_ENABLED"
     )
+
+    # 활성화된 백엔드 모듈 공통 설정
+    for backend_info in "${ACTIVE_BACKEND_MODULES[@]}"; do
+      IFS='|' read -r module image_value display_name dev_addr <<<"$backend_info"
+      image_repo="${image_value%:*}"
+      image_tag="${image_value##*:}"
+      add_backend_helm_args "$module" "$image_repo" "$image_tag"
+    done
 
     # Frontend 설정 추가 (enabled인 경우만)
     if [ "$FRONTEND_ENABLED" = "true" ]; then
       HELM_ARGS+=(
         --set frontend.image.repository="$FRONTEND_REPO"
         --set frontend.image.tag="$FRONTEND_TAG"
+        --set frontend.secrets.jwtSecret="$JWT_SECRET"
       )
     fi
 
     helm upgrade --install $RELEASE $CHART_DIR -n $NAMESPACE $VALUES_FILES "${HELM_ARGS[@]}"
 
-    # Pod가 Ready 될 때까지 대기
-    echo "Waiting for pods to be ready..."
-    kubectl wait --for=condition=ready pod -l app=$RELEASE-api -n $NAMESPACE --timeout=300s
+    # Pod Ready 대기 (기본: 백그라운드)
+    echo "Waiting for pods to be ready... (timeout: $POD_READY_TIMEOUT)"
+    if [ "$WAIT_IN_BACKGROUND" = "true" ]; then
+      (
+        echo "[INFO] Pod readiness check started at $(date)"
+        failed=0
 
-    if [ "$FRONTEND_ENABLED" = "true" ]; then
-      kubectl wait --for=condition=ready pod -l app=$RELEASE-frontend -n $NAMESPACE --timeout=120s
+        for backend_info in "${ACTIVE_BACKEND_MODULES[@]}"; do
+          IFS='|' read -r module image_value display_name dev_addr <<<"$backend_info"
+          echo "[INFO] waiting: $display_name (app=$RELEASE-$module)"
+          if ! kubectl wait --for=condition=ready pod -l app=$RELEASE-$module -n $NAMESPACE --timeout="$POD_READY_TIMEOUT"; then
+            echo "[ERROR] timeout: $display_name (app=$RELEASE-$module)"
+            kubectl get pods -n "$NAMESPACE" -l app="$RELEASE-$module" -o wide || true
+            failed=1
+          fi
+        done
+
+        if [ "$FRONTEND_ENABLED" = "true" ]; then
+          echo "[INFO] waiting: Frontend (app=$RELEASE-frontend)"
+          if ! kubectl wait --for=condition=ready pod -l app=$RELEASE-frontend -n $NAMESPACE --timeout="$POD_READY_TIMEOUT"; then
+            echo "[ERROR] timeout: Frontend (app=$RELEASE-frontend)"
+            kubectl get pods -n "$NAMESPACE" -l app="$RELEASE-frontend" -o wide || true
+            failed=1
+          fi
+        fi
+
+        if [ "$failed" -eq 0 ]; then
+          echo "[SUCCESS] all target pods are ready"
+        else
+          echo "[FAILED] some pods did not become ready in time"
+          exit 1
+        fi
+      ) >"$WAIT_LOG_FILE" 2>&1 &
+
+      WAIT_PID=$!
+      echo "Pod readiness check running in background."
+      echo "  PID: $WAIT_PID"
+      echo "  LOG: $WAIT_LOG_FILE"
+      echo "  tail -f $WAIT_LOG_FILE"
+    else
+      for backend_info in "${ACTIVE_BACKEND_MODULES[@]}"; do
+        IFS='|' read -r module image_value display_name dev_addr <<<"$backend_info"
+        if ! kubectl wait --for=condition=ready pod -l app=$RELEASE-$module -n $NAMESPACE --timeout="$POD_READY_TIMEOUT"; then
+          echo "[ERROR] Timeout waiting for $display_name pods"
+          kubectl get pods -n "$NAMESPACE" -l app="$RELEASE-$module" -o wide || true
+          exit 1
+        fi
+      done
+
+      if [ "$FRONTEND_ENABLED" = "true" ]; then
+        if ! kubectl wait --for=condition=ready pod -l app=$RELEASE-frontend -n $NAMESPACE --timeout="$POD_READY_TIMEOUT"; then
+          echo "[ERROR] Timeout waiting for Frontend pods"
+          kubectl get pods -n "$NAMESPACE" -l app="$RELEASE-frontend" -o wide || true
+          exit 1
+        fi
+      fi
     fi
 
     echo ""
     echo "=== Application deployed ==="
     if [ "$ENV" = "dev" ]; then
-      echo "  API Server → localhost:30080"
+      for backend_info in "${ACTIVE_BACKEND_MODULES[@]}"; do
+        IFS='|' read -r module image_value display_name dev_addr <<<"$backend_info"
+        echo "  $display_name → $dev_addr"
+      done
       if [ "$FRONTEND_ENABLED" = "true" ]; then
         echo "  Frontend   → localhost:30000"
       fi
@@ -195,7 +298,10 @@ case "$1" in
     ;;
 
   restart)
-    kubectl rollout restart deployment/$RELEASE-api -n $NAMESPACE
+    for module_info in "${BACKEND_MODULES[@]}"; do
+      IFS='|' read -r module image_env display_name dev_addr requirement <<<"$module_info"
+      kubectl rollout restart deployment/$RELEASE-$module -n $NAMESPACE 2>/dev/null
+    done
     kubectl rollout restart deployment/$RELEASE-frontend -n $NAMESPACE 2>/dev/null
     echo "=== Application restarted ==="
     ;;
@@ -204,7 +310,17 @@ case "$1" in
     case "$2" in
       frontend) kubectl logs -f -l app=$RELEASE-frontend -n $NAMESPACE ;;
       api|"")   kubectl logs -f -l app=$RELEASE-api -n $NAMESPACE ;;
-      *)        echo "Usage: $0 logs [api|frontend]" ;;
+      settlement|settlement-api) kubectl logs -f -l app=$RELEASE-settlement-api -n $NAMESPACE ;;
+      *)
+        for module_info in "${BACKEND_MODULES[@]}"; do
+          IFS='|' read -r module image_env display_name dev_addr requirement <<<"$module_info"
+          if [ "$2" = "$module" ]; then
+            kubectl logs -f -l app=$RELEASE-$module -n $NAMESPACE
+            exit 0
+          fi
+        done
+        echo "Usage: $0 logs [api|settlement-api|frontend]"
+        ;;
     esac
     ;;
 

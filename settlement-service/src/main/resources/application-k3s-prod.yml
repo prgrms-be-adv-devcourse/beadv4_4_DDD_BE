@@ -49,7 +49,7 @@ spring:
       initialize-schema: never
 
   kafka:
-    bootstrap-servers: "modeunsa-infra-elasticsearch:30092"
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:modeunsa-infra-kafka:9092}
 
   elasticsearch:
     uris:

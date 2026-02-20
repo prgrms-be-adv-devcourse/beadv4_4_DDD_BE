@@ -9,7 +9,7 @@ service:
   port: 8080
   nodePort: 30080
 env:
-  springProfile: "prod"
+  springProfile: "k3s-dev"
   dbHost: "modeunsa-infra-mysql"
   dbPort: "3306"
   dbName: ""
@@ -37,5 +37,5 @@ resources:
     cpu: 150m
     memory: 512Mi
   limits:
-    cpu: 1
+    cpu: 400m
     memory: 1536Mi

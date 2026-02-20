@@ -34,7 +34,7 @@ class PaymentApprovedStatusTest {
             LocalDateTime.now().plusDays(1),
             ProviderType.MODEUNSA_PAY,
             PaymentPurpose.PRODUCT_PURCHASE);
-    payment.changeInProgress();
+    payment.changeToInProgress();
 
     String orderName = "주문_테스트";
     String method = "CARD";
@@ -45,7 +45,7 @@ class PaymentApprovedStatusTest {
             "payment_key_xxx", "ORDER_123456", orderName, method, totalAmount, status);
 
     // when
-    payment.approveTossPayment(tossRes);
+    payment.changeToApprove(tossRes);
 
     // then
     assertThat(payment.getStatus()).isEqualTo(PaymentStatus.APPROVED);
@@ -75,7 +75,7 @@ class PaymentApprovedStatusTest {
         new TossPaymentsConfirmResponse(
             "payment_key_yyy", "ORDER_678901", "주문_테스트2", "TRANSFER", 75_000L, "DONE");
 
-    assertThatThrownBy(() -> payment.approveTossPayment(tossRes))
+    assertThatThrownBy(() -> payment.changeToApprove(tossRes))
         .isInstanceOf(PaymentDomainException.class)
         .satisfies(
             ex -> {
