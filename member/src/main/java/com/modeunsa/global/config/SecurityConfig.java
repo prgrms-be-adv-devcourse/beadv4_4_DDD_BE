@@ -19,19 +19,15 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@EnableConfigurationProperties({SecurityProperties.class, CorsProperties.class})
+@EnableConfigurationProperties({SecurityProperties.class})
 @RequiredArgsConstructor
 public class SecurityConfig {
 
   private final SecurityProperties securityProperties;
-  private final CorsProperties corsProperties;
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
   private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
   private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
@@ -39,8 +35,7 @@ public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) {
-    http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-        .csrf(AbstractHttpConfigurer::disable)
+    http.csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .headers(headers -> headers.frameOptions(FrameOptionsConfig::sameOrigin))
@@ -167,29 +162,5 @@ public class SecurityConfig {
         .role("SELLER")
         .implies("MEMBER") // SELLER는 MEMBER의 모든 권한을 가짐
         .build();
-  }
-
-  @Bean
-  public CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration configuration = new CorsConfiguration();
-
-    // 1. 허용할 출처
-    configuration.setAllowedOrigins(corsProperties.allowedOrigins());
-
-    // 2. 허용할 HTTP 메서드
-    configuration.addAllowedMethod("*"); // GET, POST, PUT, DELETE 등 모두 허용
-
-    // 3. 허용할 헤더
-    configuration.addAllowedHeader("*");
-
-    // 4. 자격 증명 허용 (쿠키나 JWT를 헤더에 담아 보낼 때 필수)
-    configuration.setAllowCredentials(true);
-
-    // 5. 브라우저가 응답에서 접근할 수 있는 헤더 (JWT 사용 시 필요할 수 있음)
-    configuration.addExposedHeader("Authorization");
-
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", configuration); // 모든 경로에 적용
-    return source;
   }
 }
