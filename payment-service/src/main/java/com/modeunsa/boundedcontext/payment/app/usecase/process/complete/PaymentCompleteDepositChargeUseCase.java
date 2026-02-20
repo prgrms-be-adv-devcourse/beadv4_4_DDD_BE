@@ -31,14 +31,15 @@ public class PaymentCompleteDepositChargeUseCase implements PaymentCompleteProce
     PaymentAccount buyerAccount =
         paymentAccountSupport.getPaymentAccountByMemberIdForUpdate(context.buyerId());
 
-    buyerAccount.credit(
+    paymentAccountSupport.creditIdempotent(
+        buyerAccount,
         context.requestPgAmount(),
         PaymentEventType.CHARGE_PG_TOSS_PAYMENTS,
-        context.buyerId(),
-        ReferenceType.PAYMENT_MEMBER);
+        ReferenceType.PAYMENT_MEMBER,
+        context.buyerId());
 
     Payment payment = loadPayment(context.buyerId(), context.orderNo());
-    payment.changeSuccess();
+    payment.changeToSuccess();
   }
 
   private Payment loadPayment(Long memberId, String orderNo) {

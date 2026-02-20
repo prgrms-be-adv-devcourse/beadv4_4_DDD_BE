@@ -8,6 +8,8 @@ import com.modeunsa.global.json.JsonConverter;
 import com.modeunsa.global.kafka.outbox.OutboxPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "app.event-publisher.type", havingValue = "outbox")
 public class PaymentOutboxPublisher implements OutboxPublisher {
 
   private final PaymentOutboxStore paymentOutboxStore;
@@ -36,6 +39,13 @@ public class PaymentOutboxPublisher implements OutboxPublisher {
             payload,
             target.traceId());
 
-    paymentOutboxStore.store(outboxEvent);
+    try {
+      paymentOutboxStore.store(outboxEvent);
+    } catch (DataIntegrityViolationException e) {
+      log.warn(
+          "Outbox event already exists for aggregateId: {}, eventType: {}",
+          outboxEvent.getAggregateId(),
+          outboxEvent.getEventType());
+    }
   }
 }

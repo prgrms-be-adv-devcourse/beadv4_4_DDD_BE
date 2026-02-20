@@ -40,7 +40,7 @@ class PaymentInProgressStatusTest {
             PaymentPurpose.PRODUCT_PURCHASE);
 
     // when
-    payment.changeInProgress();
+    payment.changeToInProgress();
 
     // then
     assertThat(payment.getStatus()).isEqualTo(PaymentStatus.IN_PROGRESS);
@@ -66,10 +66,10 @@ class PaymentInProgressStatusTest {
             ProviderType.MODEUNSA_PAY,
             PaymentPurpose.PRODUCT_PURCHASE);
 
-    payment.changeStatusByFailure(PaymentStatus.FAILED, "Initial failure for testing");
+    payment.changeToFailed(PaymentStatus.FAILED, "Initial failure for testing");
 
     // when
-    payment.changeInProgress();
+    payment.changeToInProgress();
 
     // then
     assertThat(payment.getStatus()).isEqualTo(PaymentStatus.IN_PROGRESS);
@@ -96,7 +96,7 @@ class PaymentInProgressStatusTest {
             .build();
 
     // when, then
-    assertThatThrownBy(payment::changeInProgress)
+    assertThatThrownBy(payment::changeToInProgress)
         .isInstanceOf(PaymentDomainException.class)
         .satisfies(
             exception -> {
@@ -126,7 +126,7 @@ class PaymentInProgressStatusTest {
             PaymentPurpose.PRODUCT_PURCHASE);
 
     // when, then
-    assertThatThrownBy(payment::changeInProgress)
+    assertThatThrownBy(payment::changeToInProgress)
         .isInstanceOf(PaymentDomainException.class)
         .satisfies(
             exception -> {

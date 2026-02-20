@@ -3,6 +3,7 @@ package com.modeunsa.boundedcontext.payment.app.usecase.process;
 import com.modeunsa.boundedcontext.payment.app.dto.settlement.PaymentPayoutInfo;
 import com.modeunsa.boundedcontext.payment.app.lock.LockedPaymentAccounts;
 import com.modeunsa.boundedcontext.payment.app.lock.PaymentAccountLockManager;
+import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.boundedcontext.payment.domain.types.ReferenceType;
@@ -19,6 +20,7 @@ public class PaymentPayoutCompleteUseCase {
 
   private final PaymentAccountLockManager paymentAccountLockManager;
   private final PaymentAccountConfig paymentAccountConfig;
+  private final PaymentAccountSupport paymentAccountSupport;
 
   public void execute(List<PaymentPayoutInfo> payouts) {
 
@@ -45,7 +47,9 @@ public class PaymentPayoutCompleteUseCase {
     PaymentAccount holderAccount = accounts.get(paymentAccountConfig.getHolderMemberId());
     PaymentAccount payeeAccount = accounts.get(payout.payeeId());
 
-    holderAccount.debit(payout.amount(), eventType, payout.settlementId(), ReferenceType.PAYOUT);
-    payeeAccount.credit(payout.amount(), eventType, payout.settlementId(), ReferenceType.PAYOUT);
+    paymentAccountSupport.debitIdempotent(
+        holderAccount, payout.amount(), eventType, ReferenceType.PAYOUT, payout.settlementId());
+    paymentAccountSupport.creditIdempotent(
+        payeeAccount, payout.amount(), eventType, ReferenceType.PAYOUT, payout.settlementId());
   }
 }

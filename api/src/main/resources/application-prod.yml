@@ -85,7 +85,7 @@ custom:
 
       # 상품
       - /api/v1/products/search
-      - /api/v2/products/searches
+      - /api/v2/products/search
     oauth2:
       allowed-redirect-domains:
         - modeunsa.store

@@ -15,6 +15,7 @@ import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -124,6 +125,15 @@ public class Product extends GeneratedIdAndAuditedEntity {
 
   public void clearImages() {
     this.images.clear();
+  }
+
+  public String getPrimaryImageUrl() {
+    Optional<ProductImage> optionalImage =
+        this.images.stream().filter(image -> image.getIsPrimary()).findFirst();
+    if (!optionalImage.isPresent()) {
+      return null;
+    }
+    return optionalImage.get().getImageUrl();
   }
 
   public boolean isOrderAvailable() {

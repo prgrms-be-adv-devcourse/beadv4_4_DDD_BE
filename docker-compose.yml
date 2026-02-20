@@ -78,6 +78,17 @@ services:
     volumes:
       - es_data:/usr/share/elasticsearch/data
 
+  kibana:
+    image: docker.elastic.co/kibana/kibana:9.2.2
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - modeunsa-net
+
   prometheus:
     image: prom/prometheus
     container_name: prometheus

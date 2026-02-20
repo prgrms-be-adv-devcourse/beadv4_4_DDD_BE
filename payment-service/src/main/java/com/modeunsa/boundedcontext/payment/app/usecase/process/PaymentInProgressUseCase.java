@@ -2,6 +2,7 @@ package com.modeunsa.boundedcontext.payment.app.usecase.process;
 
 import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentProcessContext;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
+import com.modeunsa.boundedcontext.payment.app.support.PaymentFailureEventPublisher;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentMemberSupport;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentSupport;
 import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
@@ -11,8 +12,9 @@ import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentDomainException;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode;
 import com.modeunsa.boundedcontext.payment.domain.types.ProviderType;
-import com.modeunsa.global.eventpublisher.EventPublisher;
-import com.modeunsa.shared.payment.event.PaymentFailedEvent;
+import com.modeunsa.global.aop.saga.OrderSagaStep;
+import com.modeunsa.global.aop.saga.SagaStep;
+import com.modeunsa.global.aop.saga.SagaType;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,8 +28,9 @@ public class PaymentInProgressUseCase {
   private final PaymentSupport paymentSupport;
   private final PaymentMemberSupport paymentMemberSupport;
   private final PaymentAccountSupport paymentAccountSupport;
-  private final EventPublisher eventPublisher;
+  private final PaymentFailureEventPublisher paymentFailedEventPublisher;
 
+  @SagaStep(sagaName = SagaType.ORDER_FLOW, step = OrderSagaStep.PAYMENT_IN_PROGRESS)
   public PaymentProcessContext executeForPaymentRequest(PaymentProcessContext context) {
     try {
       return processForPaymentRequest(context);
@@ -37,6 +40,7 @@ public class PaymentInProgressUseCase {
     }
   }
 
+  @SagaStep(sagaName = SagaType.ORDER_FLOW, step = OrderSagaStep.PAYMENT_IN_PROGRESS_FOR_PG)
   public void executeForPaymentConfirm(PaymentProcessContext context) {
     try {
       processForPaymentConfirm(context);
@@ -77,7 +81,7 @@ public class PaymentInProgressUseCase {
     }
 
     // 3. 충전 필요 여부, 부족/전액 금액 정보 반영
-    payment.updatePgRequestInfo(needPgPayment, requestPgAmount);
+    payment.updatePgRequestAmount(needPgPayment, requestPgAmount);
 
     return PaymentProcessContext.fromPaymentForInProgress(payment);
   }
@@ -102,13 +106,13 @@ public class PaymentInProgressUseCase {
     payment.validateChargeAmount(context.requestPgAmount());
 
     // 5. PG 결제 정보 반영
-    payment.updatePgInfo(context);
+    payment.updatePgCustomerAndOrderInfo(context);
   }
 
   private Payment loadAndMarkInProgress(PaymentProcessContext context) {
     PaymentId paymentId = PaymentId.create(context.buyerId(), context.orderNo());
     Payment payment = paymentSupport.getPaymentById(paymentId);
-    payment.changeInProgress();
+    payment.changeToInProgress();
     return payment;
   }
 
@@ -130,13 +134,12 @@ public class PaymentInProgressUseCase {
   }
 
   private void handleFailure(PaymentProcessContext context, PaymentErrorCode exception) {
-    eventPublisher.publish(
-        PaymentFailedEvent.from(
-            context.buyerId(),
-            context.orderId(),
-            context.orderNo(),
-            context.totalAmount(),
-            exception.getCode(),
-            exception.getMessage()));
+    paymentFailedEventPublisher.publish(
+        context.buyerId(),
+        context.orderId(),
+        context.orderNo(),
+        context.totalAmount(),
+        exception.getCode(),
+        exception.getMessage());
   }
 }

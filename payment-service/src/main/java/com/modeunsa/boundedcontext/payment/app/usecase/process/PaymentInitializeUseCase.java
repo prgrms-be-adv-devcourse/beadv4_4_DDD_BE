@@ -8,6 +8,9 @@ import com.modeunsa.boundedcontext.payment.app.support.PaymentSupport;
 import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
 import com.modeunsa.boundedcontext.payment.out.PaymentStore;
+import com.modeunsa.global.aop.saga.OrderSagaStep;
+import com.modeunsa.global.aop.saga.SagaStep;
+import com.modeunsa.global.aop.saga.SagaType;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.retry.RetryOnDbFailure;
 import java.util.Optional;
@@ -28,6 +31,7 @@ public class PaymentInitializeUseCase {
    * 결제 초기화 : 기존 결제 건이 있으면 재시도, 없으면 신규 생성
    * 동시성 이슈를 대비해 복합키 중복 예외 처리 포함
    */
+  @SagaStep(sagaName = SagaType.ORDER_FLOW, step = OrderSagaStep.PAYMENT_PENDING)
   @RetryOnDbFailure
   public PaymentProcessContext execute(Long memberId, PaymentRequest paymentRequest) {
     PaymentId paymentId = PaymentId.create(memberId, paymentRequest.orderNo());
@@ -35,7 +39,7 @@ public class PaymentInitializeUseCase {
     Optional<Payment> findPayment = paymentSupport.getOptPaymentById(paymentId);
     if (findPayment.isPresent()) {
       Payment payment = findPayment.get();
-      payment.initPayment(paymentRequest.paymentDeadlineAt());
+      payment.changeToPending(paymentRequest.paymentDeadlineAt());
       return PaymentProcessContext.fromPaymentForInitialize(payment);
     }
 
@@ -59,7 +63,7 @@ public class PaymentInitializeUseCase {
     try {
       // 복합키 저장을 위해 Payment 를 먼저 저장 후 로그를 추가
       Payment saved = paymentStore.store(payment);
-      saved.addInitialLog(saved);
+      saved.addInitialPaymentLog(saved);
       return PaymentProcessContext.fromPaymentForInitialize(saved);
     } catch (DataIntegrityViolationException e) {
       throw new GeneralException(PAYMENT_DUPLICATE);

@@ -2,17 +2,21 @@ package com.modeunsa.boundedcontext.payment.app.usecase;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.modeunsa.boundedcontext.payment.app.dto.order.PaymentOrderInfo;
 import com.modeunsa.boundedcontext.payment.app.lock.LockedPaymentAccounts;
 import com.modeunsa.boundedcontext.payment.app.lock.PaymentAccountLockManager;
+import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
 import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentRefundUseCase;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentMemberStatus;
+import com.modeunsa.boundedcontext.payment.domain.types.ReferenceType;
 import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
 import com.modeunsa.global.config.PaymentAccountConfig;
 import com.modeunsa.global.eventpublisher.EventPublisher;
@@ -39,6 +43,7 @@ class PaymentRefundUseCaseTest {
 
   @Mock private PaymentAccountLockManager paymentAccountLockManager;
   @Mock private PaymentAccountConfig paymentAccountConfig;
+  @Mock private PaymentAccountSupport paymentAccountSupport;
   @Mock private EventPublisher eventPublisher;
 
   @InjectMocks private PaymentRefundUseCase paymentRefundUseCase;
@@ -87,17 +92,24 @@ class PaymentRefundUseCaseTest {
             List.of(HOLDER_ID, buyerMember.getId())))
         .thenReturn(lockedAccounts);
 
-    final BigDecimal holderBalanceBefore = holderAccount.getBalance();
-    final BigDecimal buyerBalanceBefore = buyerAccount.getBalance();
-
     // when
     paymentRefundUseCase.execute(request, RefundEventType.PAYMENT_FAILED);
 
-    // then
-    assertThat(holderAccount.getBalance())
-        .isEqualByComparingTo(holderBalanceBefore.subtract(request.totalAmount()));
-    assertThat(buyerAccount.getBalance())
-        .isEqualByComparingTo(buyerBalanceBefore.add(request.totalAmount()));
+    // then: 홀더에서 차감, 구매자에게 입금 호출 검증
+    verify(paymentAccountSupport)
+        .debitIdempotent(
+            eq(holderAccount),
+            eq(request.totalAmount()),
+            any(),
+            eq(ReferenceType.ORDER),
+            eq(request.orderId()));
+    verify(paymentAccountSupport)
+        .creditIdempotent(
+            eq(buyerAccount),
+            eq(request.totalAmount()),
+            any(),
+            eq(ReferenceType.ORDER),
+            eq(request.orderId()));
   }
 
   @Test
@@ -123,17 +135,24 @@ class PaymentRefundUseCaseTest {
             List.of(HOLDER_ID, buyerMember.getId())))
         .thenReturn(lockedAccounts);
 
-    final BigDecimal holderBalanceBefore = holderAccount.getBalance();
-    final BigDecimal buyerBalanceBefore = buyerAccount.getBalance();
-
     // when
     paymentRefundUseCase.execute(request, RefundEventType.ORDER_CANCELLED);
 
-    // then
-    assertThat(holderAccount.getBalance())
-        .isEqualByComparingTo(holderBalanceBefore.subtract(request.totalAmount()));
-    assertThat(buyerAccount.getBalance())
-        .isEqualByComparingTo(buyerBalanceBefore.add(request.totalAmount()));
+    // then: 홀더에서 차감, 구매자에게 입금 호출 검증
+    verify(paymentAccountSupport)
+        .debitIdempotent(
+            eq(holderAccount),
+            eq(request.totalAmount()),
+            any(),
+            eq(ReferenceType.ORDER),
+            eq(request.orderId()));
+    verify(paymentAccountSupport)
+        .creditIdempotent(
+            eq(buyerAccount),
+            eq(request.totalAmount()),
+            any(),
+            eq(ReferenceType.ORDER),
+            eq(request.orderId()));
   }
 
   @Test

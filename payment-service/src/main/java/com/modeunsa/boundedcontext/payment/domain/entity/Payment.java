@@ -125,6 +125,9 @@ public class Payment extends AuditedEntity {
 
   @Lob private String pgFailureReason;
 
+  private static final EnumSet<PaymentStatus> ALLOWED_FOR_PENDING =
+      EnumSet.of(PaymentStatus.PENDING, PaymentStatus.IN_PROGRESS, PaymentStatus.FAILED);
+
   private static final EnumSet<PaymentStatus> ALLOWED_FOR_IN_PROGRESS =
       EnumSet.of(PaymentStatus.PENDING, PaymentStatus.FAILED);
 
@@ -157,25 +160,49 @@ public class Payment extends AuditedEntity {
         .build();
   }
 
-  public void addInitialLog(Payment payment) {
+  public void addInitialPaymentLog(Payment payment) {
     PaymentLog paymentLog = PaymentLog.addInitialLog(payment, PaymentStatus.PENDING);
     this.paymentLogs.add(paymentLog);
   }
 
-  public void changeStatus(PaymentStatus newStatus) {
-    PaymentStatus beforeStatus = this.status;
-    this.status = newStatus;
-    addPaymentLog(beforeStatus, newStatus);
+  public void updatePgCustomerAndOrderInfo(PaymentProcessContext context) {
+    this.pgPaymentKey = context.paymentKey();
+    this.pgCustomerName = context.pgCustomerName();
+    this.pgCustomerEmail = context.pgCustomerEmail();
+    this.pgOrderId = context.pgOrderId();
   }
 
-  public void changeStatusByFailure(PaymentStatus newStatus, String message) {
-    PaymentStatus before = this.status;
-    this.status = newStatus;
-    addPaymentLog(before, newStatus, message);
+  public void updatePgRequestAmount(boolean needPgPayment, BigDecimal requestPgAmount) {
+    this.needPgPayment = needPgPayment;
+    this.requestPgAmount = requestPgAmount;
   }
 
-  public void approveTossPayment(TossPaymentsConfirmResponse tossRes) {
-    validatePaymentStatus(PaymentStatus.IN_PROGRESS);
+  public void updateFailureInfo(PaymentErrorCode errorCode, String failureMessage) {
+    this.failedErrorCode = errorCode;
+    this.failedAt = LocalDateTime.now();
+    this.failedReason = failureMessage;
+    PaymentStatus failedStatus =
+        errorCode.isFinalFailure() ? PaymentStatus.FINAL_FAILED : PaymentStatus.FAILED;
+    changeToFailed(failedStatus, failureMessage);
+  }
+
+  // 1. 결제 대기 상태로 변경
+  public void changeToPending(LocalDateTime paymentDeadlineAt) {
+    validateCanChangeToPending();
+    this.paymentDeadlineAt = paymentDeadlineAt;
+    changeStatus(PaymentStatus.PENDING);
+  }
+
+  // 2. 결제 진행 상태로 변경
+  public void changeToInProgress() {
+    validateNotTerminalStatus();
+    validateCanChangeToInProgress();
+    changeStatus(PaymentStatus.IN_PROGRESS);
+  }
+
+  // 3. 결제 승인 상태로 변경
+  public void changeToApprove(TossPaymentsConfirmResponse tossRes) {
+    validateCanChangeToApprove();
     this.pgOrderName = tossRes.orderName();
     this.pgMethod = tossRes.method();
     this.pgStatus = tossRes.status();
@@ -184,53 +211,41 @@ public class Payment extends AuditedEntity {
     changeStatus(PaymentStatus.APPROVED);
   }
 
-  public void failedPayment(PaymentErrorCode errorCode, String failureMessage) {
-    this.failedErrorCode = errorCode;
-    this.failedAt = LocalDateTime.now();
-    this.failedReason = failureMessage;
-    PaymentStatus failedStatus =
-        errorCode.isFinalFailure() ? PaymentStatus.FINAL_FAILED : PaymentStatus.FAILED;
-    changeStatusByFailure(failedStatus, failureMessage);
+  // 4. 결제 성공 상태로 변경
+  public void changeToSuccess() {
+    validatePaymentStatusContains(ALLOWED_FOR_SUCCESS, PaymentStatus.SUCCESS);
+    changeStatus(PaymentStatus.SUCCESS);
   }
 
-  public void failedTossPayment(HttpStatus httpStatus, String message) {
-    this.pgStatusCode = httpStatus.value();
-    this.pgFailureReason = message;
-    this.failedAt = LocalDateTime.now();
-    changeStatusByFailure(PaymentStatus.FAILED, message);
+  // 5. 결제 실패 상태로 변경
+  public void changeToFailed(PaymentStatus newStatus, String message) {
+    PaymentStatus before = this.status;
+    this.status = newStatus;
+    addPaymentLog(before, newStatus, message);
   }
 
-  public void initPayment(LocalDateTime paymentDeadlineAt) {
-    if (!isRetryable()) {
-      throw new PaymentDomainException(
-          INVALID_PAYMENT,
-          String.format(
-              "초기화 가능한 상태가 아닙니다. 회원 ID: %d, 주문 번호: %s, 현재 상태: %s",
-              getId().getMemberId(), getId().getOrderNo(), this.status));
-    }
-    this.paymentDeadlineAt = paymentDeadlineAt;
-    changeStatus(PaymentStatus.PENDING);
+  // TOSS 웹훅으로 인한 결제 상태 변경
+  public void syncToInProgress() {
+    changeToInProgress();
   }
 
-  public void changeInProgress() {
+  // TOSS 웹훅으로 인한 결제 상태 변경
+  public void syncToApproved() {
     validateNotTerminalStatus();
-    validateCanChangeToInProgress();
-    changeStatus(PaymentStatus.IN_PROGRESS);
+    if (this.status == PaymentStatus.IN_PROGRESS || this.status == PaymentStatus.PENDING) {
+      changeStatus(PaymentStatus.APPROVED);
+    }
+  }
+
+  // TOSS 웹훅으로 인한 결제 상태 변경
+  public void syncToCanceled() {
+    validateNotTerminalStatus();
+    changeStatus(PaymentStatus.CANCELED);
   }
 
   public void validatePgProcess() {
     validatePaymentStatus(PaymentStatus.IN_PROGRESS);
     validatePaymentDeadline();
-  }
-
-  public void changeSuccess() {
-    validatePaymentStatusContains(ALLOWED_FOR_SUCCESS, PaymentStatus.SUCCESS);
-    changeStatus(PaymentStatus.SUCCESS);
-  }
-
-  public void updatePgRequestInfo(boolean needPgPayment, BigDecimal requestPgAmount) {
-    this.needPgPayment = needPgPayment;
-    this.requestPgAmount = requestPgAmount;
   }
 
   public void validateChargeAmount(BigDecimal chargeAmount) {
@@ -251,34 +266,10 @@ public class Payment extends AuditedEntity {
     }
   }
 
-  public void updatePgInfo(PaymentProcessContext context) {
-    this.pgPaymentKey = context.paymentKey();
-    this.pgCustomerName = context.pgCustomerName();
-    this.pgCustomerEmail = context.pgCustomerEmail();
-    this.pgOrderId = context.pgOrderId();
-  }
-
-  public void syncToInProgress() {
-    validateNotTerminalStatus();
-    if (this.status == PaymentStatus.PENDING) {
-      changeInProgress();
-    }
-  }
-
-  public void syncToApproved() {
-    validateNotTerminalStatus();
-    if (this.status == PaymentStatus.IN_PROGRESS || this.status == PaymentStatus.PENDING) {
-      changeStatus(PaymentStatus.APPROVED);
-    }
-  }
-
-  public void syncToCanceled() {
-    validateNotTerminalStatus();
-    changeStatus(PaymentStatus.CANCELED);
-  }
-
-  private boolean isTerminalStatus() {
-    return FINAL_TERMINAL_STATUSES.contains(this.status);
+  private void changeStatus(PaymentStatus newStatus) {
+    PaymentStatus beforeStatus = this.status;
+    this.status = newStatus;
+    addPaymentLog(beforeStatus, newStatus);
   }
 
   private void addPaymentLog(PaymentStatus beforeStatus, PaymentStatus afterStatus) {
@@ -292,20 +283,35 @@ public class Payment extends AuditedEntity {
   }
 
   private static void validateTotalAmount(BigDecimal totalAmount) {
-    if (totalAmount.compareTo(BigDecimal.ZERO) < 0) {
+    if (totalAmount.compareTo(BigDecimal.ZERO) <= 0) {
       throw new PaymentDomainException(
-          INVALID_PAYMENT, String.format("주문금액은 0원 이상이어야 합니다. 요청 금액: %s", totalAmount));
+          INVALID_PAYMENT, String.format("주문금액은 0원보다 커야 합니다. 요청 금액: %s", totalAmount));
     }
   }
 
-  private boolean isRetryable() {
-    return !isTerminalStatus()
-        && (this.status == PaymentStatus.PENDING || this.status == PaymentStatus.FAILED);
+  private void validateCanChangeToPending() {
+    validateNotTerminalStatus();
+    validatePaymentStatusContains(ALLOWED_FOR_PENDING, PaymentStatus.PENDING);
+    validatePaymentDeadline();
   }
 
   private void validateCanChangeToInProgress() {
     validatePaymentStatusContains(ALLOWED_FOR_IN_PROGRESS, PaymentStatus.IN_PROGRESS);
     validatePaymentDeadline();
+  }
+
+  private void validateCanChangeToApprove() {
+    validatePaymentStatus(PaymentStatus.IN_PROGRESS);
+  }
+
+  private void validatePaymentDeadline() {
+    if (this.paymentDeadlineAt.isBefore(LocalDateTime.now())) {
+      throw new PaymentDomainException(
+          OVERDUE_PAYMENT_DEADLINE,
+          String.format(
+              "결제 유효기간이 만료되어 결제 진행상태로 변경할 수 없습니다. 회원 ID: %d, 주문 번호: %s, 결제 마감일: %s",
+              getId().getMemberId(), getId().getOrderNo(), this.paymentDeadlineAt));
+    }
   }
 
   private void validatePaymentStatus(PaymentStatus paymentStatus) {
@@ -329,18 +335,8 @@ public class Payment extends AuditedEntity {
     }
   }
 
-  private void validatePaymentDeadline() {
-    if (this.paymentDeadlineAt.isBefore(LocalDateTime.now())) {
-      throw new PaymentDomainException(
-          OVERDUE_PAYMENT_DEADLINE,
-          String.format(
-              "결제 유효기간이 만료되어 결제 진행상태로 변경할 수 없습니다. 회원 ID: %d, 주문 번호: %s, 결제 마감일: %s",
-              getId().getMemberId(), getId().getOrderNo(), this.paymentDeadlineAt));
-    }
-  }
-
   private void validateNotTerminalStatus() {
-    if (isTerminalStatus()) {
+    if (FINAL_TERMINAL_STATUSES.contains(this.status)) {
       throw new PaymentDomainException(
           INVALID_PAYMENT,
           String.format(
