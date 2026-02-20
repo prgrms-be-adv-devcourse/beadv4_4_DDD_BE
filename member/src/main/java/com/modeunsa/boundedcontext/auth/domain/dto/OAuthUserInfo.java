@@ -1,4 +1,4 @@
-package com.modeunsa.shared.auth.dto;
+package com.modeunsa.boundedcontext.auth.domain.dto;
 
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import lombok.Builder;

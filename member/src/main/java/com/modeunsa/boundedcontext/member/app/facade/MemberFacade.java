@@ -12,7 +12,7 @@ import com.modeunsa.boundedcontext.member.app.usecase.MemberProfileUpdateUseCase
 import com.modeunsa.boundedcontext.member.app.usecase.MemberSignupCompleteUseCase;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.entity.MemberProfile;
-import com.modeunsa.shared.auth.dto.JwtTokenResponse;
+import com.modeunsa.boundedcontext.auth.domain.dto.JwtTokenResponse;
 import com.modeunsa.shared.member.dto.request.MemberBasicInfoUpdateRequest;
 import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressCreateRequest;
 import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressUpdateRequest;

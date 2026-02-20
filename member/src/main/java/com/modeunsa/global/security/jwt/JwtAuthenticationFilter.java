@@ -6,7 +6,7 @@ import com.modeunsa.global.config.CookieProperties;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.global.status.ErrorStatus;
-import com.modeunsa.shared.auth.dto.JwtTokenResponse;
+import com.modeunsa.boundedcontext.auth.domain.dto.JwtTokenResponse;
 import com.modeunsa.shared.member.MemberRole;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

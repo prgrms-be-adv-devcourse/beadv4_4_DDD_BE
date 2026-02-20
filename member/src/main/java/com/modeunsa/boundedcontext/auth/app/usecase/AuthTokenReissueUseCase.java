@@ -5,7 +5,7 @@ import com.modeunsa.boundedcontext.auth.out.repository.AuthRefreshTokenRepositor
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.security.jwt.JwtTokenProvider;
 import com.modeunsa.global.status.ErrorStatus;
-import com.modeunsa.shared.auth.dto.JwtTokenResponse;
+import com.modeunsa.boundedcontext.auth.domain.dto.JwtTokenResponse;
 import com.modeunsa.shared.member.MemberRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
