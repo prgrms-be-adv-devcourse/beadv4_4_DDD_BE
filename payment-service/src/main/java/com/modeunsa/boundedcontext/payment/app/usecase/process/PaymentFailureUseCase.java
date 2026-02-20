@@ -26,19 +26,29 @@ public class PaymentFailureUseCase {
   public void execute(PaymentFailedEvent event) {
     PaymentErrorCode error = PaymentErrorCode.fromCode(event.errorCode());
 
-    PaymentId paymentId = PaymentId.create(event.memberId(), event.orderNo());
-    Payment payment = paymentSupport.getPaymentById(paymentId);
-    payment.updateFailureInfo(error, event.failureMessage());
-
     if (error.isFinalFailure()) {
-      publishFinalFailureEvent(event);
+      handlingFinalFailedEvent(event, error);
+    } else {
+      handlingFailedEvent(event, error);
     }
   }
 
   @SagaStep(sagaName = SagaType.ORDER_FLOW, step = OrderSagaStep.PAYMENT_FINAL_FAILED)
-  private void publishFinalFailureEvent(PaymentFailedEvent event) {
+  private void handlingFinalFailedEvent(PaymentFailedEvent event, PaymentErrorCode error) {
+    recordFailure(event, error);
     eventPublisher.publish(
         new PaymentFinalFailureEvent(
             new PaymentDto(event.orderId(), event.orderNo(), event.memberId(), event.amount())));
+  }
+
+  @SagaStep(sagaName = SagaType.ORDER_FLOW, step = OrderSagaStep.PAYMENT_FAILED)
+  private void handlingFailedEvent(PaymentFailedEvent event, PaymentErrorCode error) {
+    recordFailure(event, error);
+  }
+
+  private void recordFailure(PaymentFailedEvent event, PaymentErrorCode error) {
+    PaymentId paymentId = PaymentId.create(event.memberId(), event.orderNo());
+    Payment payment = paymentSupport.getPaymentById(paymentId);
+    payment.updateFailureInfo(error, event.failureMessage());
   }
 }

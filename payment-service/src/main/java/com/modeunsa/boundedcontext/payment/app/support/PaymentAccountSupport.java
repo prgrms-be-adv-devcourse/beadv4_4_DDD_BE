@@ -1,6 +1,5 @@
 package com.modeunsa.boundedcontext.payment.app.support;
 
-import com.modeunsa.boundedcontext.payment.app.dto.payout.PaymentPayoutDto;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentAccount;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.boundedcontext.payment.domain.types.ReferenceType;
@@ -70,23 +69,9 @@ public class PaymentAccountSupport {
         .orElseThrow(() -> new GeneralException(ErrorStatus.PAYMENT_ACCOUNT_NOT_FOUND));
   }
 
-  public PaymentAccount getPayeeAccount(PaymentPayoutDto payout) {
-    return switch (payout.payoutEventType()) {
-      case FEE -> getSystemAccount();
-      case AMOUNT -> getPaymentAccountByMemberId(payout.payeeId());
-    };
-  }
-
   public PaymentAccount getPaymentAccountByMemberIdForUpdate(Long memberId) {
     return paymentAccountReader
         .findByMemberIdWithLock(memberId)
-        .orElseThrow(() -> new GeneralException(ErrorStatus.PAYMENT_ACCOUNT_NOT_FOUND));
-  }
-
-  public PaymentAccount getHolderAccountByMemberIdForUpdate() {
-    Long holderMemberId = paymentAccountConfig.getHolderMemberId();
-    return paymentAccountReader
-        .findByMemberIdWithLock(holderMemberId)
         .orElseThrow(() -> new GeneralException(ErrorStatus.PAYMENT_ACCOUNT_NOT_FOUND));
   }
 
