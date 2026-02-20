@@ -1,0 +1,5 @@
+apiVersion: v2
+name: payment-api
+description: Modeunsa Payment API Server
+type: application
+version: 0.1.0

@@ -36,6 +36,7 @@ WAIT_LOG_FILE="${WAIT_LOG_FILE:-/tmp/modeunsa-app-pod-wait.log}"
 BACKEND_MODULES=(
   "api|DOCKER_IMAGE|API Server|localhost:30080|required"
   "settlement-api|SETTLEMENT_IMAGE|Settlement|localhost:30084|optional"
+  "payment-api|PAYMENT_IMAGE|Payment|localhost:30083|optional"
 )
 
 # k3s 환경에서 KUBECONFIG 자동 설정
