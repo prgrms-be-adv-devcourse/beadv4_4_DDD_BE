@@ -1,4 +1,4 @@
-package com.modeunsa.global.config;
+package com.modeunsa.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

@@ -1,4 +1,4 @@
-package com.modeunsa.global.config;
+package com.modeunsa.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -21,7 +21,6 @@ public class SwaggerConfig {
 
   @Bean
   public OpenAPI openAPI() {
-    // 현재 환경(dev/prod)에 맞는 서버 정보 하나만 설정
     Server server = new Server();
     server.setUrl(swaggerProperties.serverUrl());
     server.setDescription(swaggerProperties.description());
@@ -41,10 +40,6 @@ public class SwaggerConfig {
             .in(SecurityScheme.In.HEADER)
             .name("X-INTERNAL-API-KEY");
 
-    // SecurityRequirement 설정
-    SecurityRequirement securityRequirement =
-        new SecurityRequirement().addList("bearerAuth").addList("internalApiKey");
-
     Info info =
         new Info()
             .title("Modeunsa API")
@@ -54,7 +49,8 @@ public class SwaggerConfig {
     return new OpenAPI()
         .servers(List.of(server)) // 서버 목록에 현재 서버만 등록
         .info(info)
-        .addSecurityItem(securityRequirement)
+        .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
+        .addSecurityItem(new SecurityRequirement().addList("internalApiKey"))
         .components(
             new Components()
                 .addSecuritySchemes("bearerAuth", bearerAuth)

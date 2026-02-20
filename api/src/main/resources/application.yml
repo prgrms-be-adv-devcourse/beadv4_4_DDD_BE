@@ -108,13 +108,17 @@ internal:
 springdoc:
   swagger-ui:
     urls:
-      - name: member-service
+      - name: member
         url: /v3/api-docs/member
-      - name: post-service
-        url: /v3/api-docs/post
-      - name: payout-service
-        url: /v3/api-docs/payout
-      - name: cash-service
-        url: /v3/api-docs/cash
-      - name: market-service
-        url: /v3/api-docs/market
+      - name: product
+        url: /v3/api-docs/product
+      - name: order-service
+        url: /v3/api-docs/order
+      - name: payment-service
+        url: /v3/api-docs/payment
+      - name: settlement-service
+        url: /v3/api-docs/settlement
+      - name: file
+        url: /v3/api-docs/file
+      - name: content-service
+        url: /v3/api-docs/content
