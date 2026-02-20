@@ -26,7 +26,9 @@ public class ProductSearchController {
 
   private final ProductSearchFacade productSearchFacade;
 
-  @Operation(summary = "검색 상품 조회", description = "name, description 기준으로 상품을 검색한다.")
+  @Operation(
+      summary = "검색 상품 조회",
+      description = "name, sellerBusinessName, description 기준으로 상품을 검색한다.")
   @GetMapping
   public ResponseEntity<ApiResponse> search(
       @RequestParam String keyword,
@@ -53,14 +55,14 @@ public class ProductSearchController {
     return ApiResponse.onSuccess(SuccessStatus.OK, productSearchFacade.autoComplete(keyword));
   }
 
-  @Operation(summary = "knn search")
+  @Operation(summary = "knn search", description = "벡터 DB 기반 검색")
   @GetMapping("/knn")
   public ResponseEntity<ApiResponse> knnSearch(@RequestParam String keyword) {
     List<ProductSearchResponse> responses = productSearchFacade.knnSearch(keyword);
     return ApiResponse.onSuccess(SuccessStatus.OK, responses);
   }
 
-  @Operation(summary = "hybrid search")
+  @Operation(summary = "hybrid search", description = "ES 기본 검색(BM25) + 벡터 기반 검색을 모두 적용한 하이브리드 검색")
   @GetMapping("/hybrid")
   public ResponseEntity<ApiResponse> hybridSearch(
       @RequestParam String keyword,
