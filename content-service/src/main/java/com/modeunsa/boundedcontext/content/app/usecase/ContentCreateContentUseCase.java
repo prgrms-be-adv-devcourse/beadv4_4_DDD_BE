@@ -4,7 +4,7 @@ import com.modeunsa.boundedcontext.content.app.ContentSupport;
 import com.modeunsa.boundedcontext.content.app.dto.content.ContentCreateCommand;
 import com.modeunsa.boundedcontext.content.domain.entity.Content;
 import com.modeunsa.boundedcontext.content.domain.entity.ContentMember;
-import com.modeunsa.boundedcontext.content.out.ContentRepository;
+import com.modeunsa.boundedcontext.content.out.ContentStore;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,12 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ContentCreateContentUseCase {
 
-  private final ContentRepository contentRepository;
+  private final ContentStore contentStore;
   private final ContentSupport contentSupport;
 
-  public void createContent(Long memberId, ContentCreateCommand command) {
+  public void execute(Long memberId, ContentCreateCommand command) {
     ContentMember author = contentSupport.getContentMemberById(memberId);
     Content content = Content.create(author, command);
-    contentRepository.save(content);
+    contentStore.store(content);
   }
 }

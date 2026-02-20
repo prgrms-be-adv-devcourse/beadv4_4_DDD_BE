@@ -26,6 +26,6 @@ public class ContentController {
   @GetMapping("/{id}")
   public ResponseEntity<ApiResponse> getContent(@Valid @PathVariable(name = "id") Long contentId) {
     ContentDetailDto response = contentFacade.getContent(contentId);
-    return ApiResponse.onSuccess(SuccessStatus.CREATED, response);
+    return ApiResponse.onSuccess(SuccessStatus.OK, response);
   }
 }

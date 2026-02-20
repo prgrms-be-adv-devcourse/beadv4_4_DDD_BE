@@ -44,8 +44,8 @@ public class ContentFacade {
     return contentGetContentUseCase.execute(contentId);
   }
 
-  public void createContent(Long memberId, ContentCreateCommand command) {
-    contentCreateContentUseCase.createContent(memberId, command);
+  public void create(Long memberId, ContentCreateCommand command) {
+    contentCreateContentUseCase.execute(memberId, command);
   }
 
   @Transactional

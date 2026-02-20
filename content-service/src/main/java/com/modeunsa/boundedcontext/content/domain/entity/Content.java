@@ -32,6 +32,9 @@ public class Content extends GeneratedIdAndAuditedEntity {
   @JoinColumn(name = "content_author_id", nullable = false)
   private ContentMember author;
 
+  @Column(nullable = false)
+  private String title;
+
   @Column(nullable = false, length = 500)
   private String text;
 
@@ -53,6 +56,10 @@ public class Content extends GeneratedIdAndAuditedEntity {
 
   @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
+
+  private int likeCount;
+
+  private int commentCount;
 
   public void updateText(String text) {
     this.text = text;

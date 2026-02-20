@@ -34,14 +34,14 @@ public class ContentDataInit {
     ContentMember user1Member = contentFacade.findMemberById(1L);
     ContentMember user2Member = contentFacade.findMemberById(2L);
 
-    contentFacade.createContent(
+    contentFacade.create(
         user1Member.getId(),
         new ContentCreateCommand(
             "첫 번째 콘텐츠 내용입니다.",
             List.of("테스트"),
             List.of(new ContentImageDto("https://example.com/placeholder.png", true, 0))));
 
-    contentFacade.createContent(
+    contentFacade.create(
         user2Member.getId(),
         new ContentCreateCommand(
             "두 번째 콘텐츠 내용입니다.",

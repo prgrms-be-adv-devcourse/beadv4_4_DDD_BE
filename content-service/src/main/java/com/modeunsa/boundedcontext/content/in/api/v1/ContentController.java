@@ -39,7 +39,7 @@ public class ContentController {
   public ResponseEntity<ApiResponse> createContent(
       @AuthenticationPrincipal CustomUserDetails user,
       @Valid @RequestBody ContentCreateCommand command) {
-    contentFacade.createContent(user.getMemberId(), command);
+    contentFacade.create(user.getMemberId(), command);
     return ApiResponse.onSuccess(SuccessStatus.CREATED);
   }
 

@@ -1,21 +1,17 @@
 package com.modeunsa.boundedcontext.content.app.dto.content;
 
-import lombok.Builder;
+import com.modeunsa.boundedcontext.content.app.dto.image.ContentImageDto;
+import com.modeunsa.boundedcontext.content.domain.entity.Content;
+import java.util.List;
 import lombok.Getter;
 
-@Builder
 @Getter
 public class ContentDetailDto extends ContentDto {
 
-  @Builder.Default private boolean empty = false;
+  private List<ContentImageDto> images;
+  private List<String> tags;
 
-  private static final ContentDetailDto EMPTY;
-
-  static {
-    EMPTY = ContentDetailDto.builder().empty(true).build();
-  }
-
-  public static ContentDetailDto emptyDto() {
-    return EMPTY;
+  public ContentDetailDto(Content content) {
+    super(content);
   }
 }
