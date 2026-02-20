@@ -28,9 +28,7 @@ public class GatewayHeaderFilter extends OncePerRequestFilter {
       if ("SYSTEM".equals(userIdStr)) {
         CustomUserDetails systemUser = new CustomUserDetails(0L, MemberRole.SYSTEM, null);
         setAuthentication(systemUser);
-      }
-      // 2. 일반 유저 처리
-      else {
+      } else { // 2. 일반 유저 처리
         try {
           Long memberId = Long.parseLong(userIdStr);
           String roleName =

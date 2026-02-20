@@ -1,11 +1,11 @@
 package com.modeunsa.boundedcontext.member.in.api.v1;
 
+import com.modeunsa.boundedcontext.auth.domain.dto.JwtTokenResponse;
 import com.modeunsa.boundedcontext.member.app.facade.MemberSellerFacade;
 import com.modeunsa.global.config.CookieProperties;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.global.status.SuccessStatus;
-import com.modeunsa.boundedcontext.auth.domain.dto.JwtTokenResponse;
 import com.modeunsa.shared.member.dto.request.SellerRegisterRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
