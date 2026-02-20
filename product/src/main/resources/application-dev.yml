@@ -78,6 +78,7 @@ custom:
       - /v3/api-docs/**
       - /
       - /favicon.ico
+      - /error
 
       # ========== 인증 API ==========
       - /api/v1/auths/me

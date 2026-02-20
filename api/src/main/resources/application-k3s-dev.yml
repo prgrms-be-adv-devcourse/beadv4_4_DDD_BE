@@ -24,6 +24,7 @@ custom:
       - /v3/api-docs/**
       - /
       - /favicon.ico
+      - /error
 
       # ========== 인증 API ==========
       - /api/v1/auths/me
@@ -45,10 +46,6 @@ custom:
       - /api/v1/products/search
       - /api/v2/products/search
 
-    oauth2:
-      allowed-redirect-domains:
-        - localhost
-        - 127.0.0.1
   cors:
     enabled: true
     allowed-origins:
