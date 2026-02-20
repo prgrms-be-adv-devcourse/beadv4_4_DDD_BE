@@ -9,6 +9,7 @@ import com.modeunsa.boundedcontext.product.domain.ProductCategory;
 import com.modeunsa.boundedcontext.product.domain.ProductPolicy;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -84,7 +85,11 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
     return product
         .createdAt
-        .lt(cursor.createdAt())
-        .or(product.createdAt.eq(cursor.createdAt()).and(product.id.lt(cursor.id())));
+        .lt((LocalDateTime) cursor.createdAt())
+        .or(
+            product
+                .createdAt
+                .eq((LocalDateTime) cursor.createdAt())
+                .and(product.id.lt(cursor.id())));
   }
 }

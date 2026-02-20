@@ -30,6 +30,7 @@ repositories {
 
 dependencies {
 
+
     implementation project(":common")
     implementation project(":member") // todo: 나중에 auth 분리되면 제거
 
@@ -82,9 +83,9 @@ dependencies {
     runtimeOnly 'com.mysql:mysql-connector-j'
 
     // ElasticSearch
-    implementation'org.springframework.boot:spring-boot-starter-data-elasticsearch'
-
-    testImplementation'org.springframework.boot:spring-boot-starter-data-elasticsearch-test'
+    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+    // 통합 테스트 시 ON
+    // testImplementation'org.springframework.boot:spring-boot-starter-data-elasticsearch-test'
 
     implementation 'io.hypersistence:hypersistence-tsid:2.1.1'
 

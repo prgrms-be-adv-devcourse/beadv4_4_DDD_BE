@@ -2,6 +2,7 @@ package com.modeunsa.boundedcontext.payment.out.persistence.accountlog;
 
 import com.modeunsa.boundedcontext.payment.app.dto.accountlog.PaymentAccountLogDto;
 import com.modeunsa.boundedcontext.payment.app.dto.accountlog.PaymentAccountSearchRequest;
+import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.boundedcontext.payment.domain.types.ReferenceType;
 import com.modeunsa.boundedcontext.payment.out.PaymentAccountLogReader;
 import lombok.RequiredArgsConstructor;
@@ -23,5 +24,12 @@ public class JpaPaymentAccountLogReader implements PaymentAccountLogReader {
   public Page<PaymentAccountLogDto> getAccountLedgerPageBySearch(
       Long memberId, PaymentAccountSearchRequest paymentAccountSearchRequest) {
     return queryRepository.getAccountLedgerPageBySearch(memberId, paymentAccountSearchRequest);
+  }
+
+  @Override
+  public boolean existsByAlreadyAccountLogEvent(
+      Long accountId, ReferenceType referenceType, Long referenceId, PaymentEventType eventType) {
+    return queryRepository.countByAccountLogEvent(accountId, referenceType, referenceId, eventType)
+        > 0;
   }
 }

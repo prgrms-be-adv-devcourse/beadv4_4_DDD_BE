@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
@@ -27,7 +28,12 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table
+@Table(
+    uniqueConstraints = {
+      @UniqueConstraint(
+          name = "ux_payment_account_log_account_ref_evt",
+          columnNames = {"account_id", "reference_type", "reference_id", "event_type"})
+    })
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
