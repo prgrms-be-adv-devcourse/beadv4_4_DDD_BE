@@ -9,10 +9,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 @Component
-public class MemberServiceClient {
+public class AuthServiceClient {
   private final WebClient webClient;
 
-  public MemberServiceClient(
+  public AuthServiceClient(
     @Value("${services.member.host:localhost}") String memberHost) {
     String baseUrl = "http://" + memberHost + ":8086";
 
