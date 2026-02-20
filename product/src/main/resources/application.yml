@@ -80,6 +80,12 @@ spring:
         "max.poll.records": 20 # 폴링 레코드 수
         "fetch.max.wait.ms": 500 # 최대 대기 시간
         "max.poll.interval.ms": 300000 # 최대 풀 대기 시간
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY:}
+      embedding:
+        options:
+          model: text-embedding-3-small
 
 settlement:
   scheduler:

@@ -26,6 +26,22 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven { url "https://repo.spring.io/milestone" }
+    maven { url "https://repo.spring.io/snapshot" }
+    maven {
+        name = "Central Portal Snapshots"
+        url = "https://repo.spring.io/snapshots/central-portal"
+    }
+}
+
+ext {
+    springAiVersion = "2.0.0-M2"
+}
+
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.ai:spring-ai-bom:${springAiVersion}")
+    }
 }
 
 dependencies {
@@ -86,6 +102,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
     // 통합 테스트 시 ON
     // testImplementation'org.springframework.boot:spring-boot-starter-data-elasticsearch-test'
+
+    // spring ai
+    implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+    implementation 'org.springframework.ai:spring-ai-elasticsearch-store'
 
     implementation 'io.hypersistence:hypersistence-tsid:2.1.1'
 

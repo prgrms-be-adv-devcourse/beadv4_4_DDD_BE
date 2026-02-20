@@ -3,10 +3,15 @@ package com.modeunsa.boundedcontext.product.out.elasticsearch;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import com.modeunsa.api.pagination.CursorDto;
-import com.modeunsa.boundedcontext.product.app.query.port.out.ProductSearchPort;
+import com.modeunsa.boundedcontext.product.app.query.port.out.ProductAutoCompletePort;
+import com.modeunsa.boundedcontext.product.app.query.port.out.ProductKeywordSearchPort;
+import com.modeunsa.boundedcontext.product.app.query.port.out.ProductVectorSearchPort;
 import com.modeunsa.boundedcontext.product.domain.search.document.ProductSearch;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.ai.embedding.EmbeddingModel;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -22,10 +27,13 @@ import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-@Component
+@Component("esSearchAdapter")
 @RequiredArgsConstructor
-public class ProductEsSearchAdapter implements ProductSearchPort {
+@Primary
+public class ProductEsSearchAdapter
+    implements ProductKeywordSearchPort, ProductAutoCompletePort, ProductVectorSearchPort {
   private final ElasticsearchOperations elasticsearchOperations;
+  private final EmbeddingModel embeddingModel;
 
   @Override
   public Slice<ProductSearch> search(String keyword, CursorDto cursor, int size) {
@@ -126,5 +134,42 @@ public class ProductEsSearchAdapter implements ProductSearchPort {
 
   private boolean isChosung(String keyword) {
     return keyword.matches("^[ㄱ-ㅎ]+$");
+  }
+
+  @Override
+  public List<ProductSearch> knnSearch(String keyword, int k) {
+    if (!StringUtils.hasText(keyword)) {
+      return List.of();
+    }
+
+    float[] vector = embeddingModel.embed(keyword);
+    BoolQuery.Builder bool = QueryBuilders.bool();
+    List<Float> list = new ArrayList<>();
+
+    for (float v : vector) {
+      list.add(v);
+    }
+
+    bool.should(s -> s.knn(m -> m.field("embedding").queryVector(list).k(k).numCandidates(100)));
+
+    NativeQuery query =
+        NativeQuery.builder()
+            .withQuery(bool.build()._toQuery())
+            .withSort(Sort.by(Sort.Order.desc("createdAt"), Sort.Order.desc("id")))
+            .withPageable(PageRequest.of(0, 10))
+            .build();
+
+    SearchHits<ProductSearch> hits = elasticsearchOperations.search(query, ProductSearch.class);
+
+    //    float[] queryVector = calculateAverage(embeddings);
+
+    //    return productRepository.searchByEmbeddingNear(
+    //        Vector.of(queryVector), Score.of(Double.MAX_VALUE, ScoringFunction.euclidean()),
+    // Limit.of(k))
+    //      .stream()
+    //      .map(result -> result.getContent())
+    //      .toList();
+    //    return null;
+    return hits.getSearchHits().stream().map(SearchHit::getContent).toList();
   }
 }

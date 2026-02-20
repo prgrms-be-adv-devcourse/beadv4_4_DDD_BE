@@ -6,6 +6,8 @@ import com.modeunsa.boundedcontext.product.app.ProductMapper;
 import com.modeunsa.boundedcontext.product.domain.search.document.ProductSearch;
 import com.modeunsa.boundedcontext.product.in.dto.ProductSliceResultDto;
 import com.modeunsa.shared.product.dto.search.ProductSearchRequest;
+import com.modeunsa.shared.product.dto.search.ProductSearchResponse;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
@@ -53,5 +55,11 @@ public class ProductSearchFacade {
 
   public Page<String> autoComplete(String keyword) {
     return productSearchService.autoComplete(keyword);
+  }
+
+  public List<ProductSearchResponse> knnSearch(String keyword) {
+    return productSearchService.knnSearch(keyword, 3).stream()
+        .map(productMapper::toProductSearchResponse)
+        .toList();
   }
 }

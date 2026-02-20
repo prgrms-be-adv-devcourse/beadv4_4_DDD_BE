@@ -5,6 +5,7 @@ import com.modeunsa.boundedcontext.product.domain.search.document.ProductSearch;
 import com.modeunsa.boundedcontext.product.out.ProductRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
@@ -16,6 +17,7 @@ public class ProductSearchReindexUseCase {
 
   private final ProductRepository productRepository;
   private final ElasticsearchOperations elasticsearchOperations;
+  private final EmbeddingModel embeddingModel;
 
   public void reindexAll() {
 
@@ -25,7 +27,14 @@ public class ProductSearchReindexUseCase {
         products.stream()
             .map(
                 product -> {
-                  ProductSearch doc = ProductSearch.from(product);
+                  String text =
+                      "%s %s %s"
+                          .formatted(
+                              product.getName(),
+                              product.getSeller().getBusinessName(),
+                              product.getDescription());
+                  float[] vector = embeddingModel.embed(text);
+                  ProductSearch doc = ProductSearch.from(product, vector);
                   IndexQuery query = new IndexQuery();
                   query.setId(doc.getId());
                   query.setObject(doc);

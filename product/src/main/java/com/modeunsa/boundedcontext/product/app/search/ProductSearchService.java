@@ -1,9 +1,13 @@
 package com.modeunsa.boundedcontext.product.app.search;
 
 import com.modeunsa.api.pagination.CursorDto;
-import com.modeunsa.boundedcontext.product.app.query.port.out.ProductSearchPort;
+import com.modeunsa.boundedcontext.product.app.query.port.out.ProductAutoCompletePort;
+import com.modeunsa.boundedcontext.product.app.query.port.out.ProductKeywordSearchPort;
+import com.modeunsa.boundedcontext.product.app.query.port.out.ProductVectorSearchPort;
 import com.modeunsa.boundedcontext.product.domain.search.document.ProductSearch;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -12,13 +16,19 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ProductSearchService {
 
-  private final ProductSearchPort productSearchPort;
+  private final @Qualifier("esSearchAdapter") ProductKeywordSearchPort productKeywordSearchPort;
+  private final ProductAutoCompletePort productAutoCompletePort;
+  private final ProductVectorSearchPort productVectorSearchPort;
 
   public Slice<ProductSearch> searchByKeyword(String keyword, CursorDto cursor, int size) {
-    return productSearchPort.search(keyword, cursor, size);
+    return productKeywordSearchPort.search(keyword, cursor, size);
   }
 
   public Page<String> autoComplete(String keyword) {
-    return productSearchPort.autoComplete(keyword);
+    return productAutoCompletePort.autoComplete(keyword);
+  }
+
+  public List<ProductSearch> knnSearch(String keyword, int k) {
+    return productVectorSearchPort.knnSearch(keyword, k);
   }
 }

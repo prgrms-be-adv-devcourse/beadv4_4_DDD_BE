@@ -4,8 +4,10 @@ import com.modeunsa.boundedcontext.product.app.search.ProductSearchFacade;
 import com.modeunsa.boundedcontext.product.in.dto.ProductSliceResultDto;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.status.SuccessStatus;
+import com.modeunsa.shared.product.dto.search.ProductSearchResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;
@@ -49,5 +51,12 @@ public class ProductSearchController {
   @GetMapping("/auto-complete")
   public ResponseEntity<ApiResponse> autoComplete(@RequestParam String keyword) {
     return ApiResponse.onSuccess(SuccessStatus.OK, productSearchFacade.autoComplete(keyword));
+  }
+
+  @Operation(summary = "knn search")
+  @GetMapping("/knn")
+  public ResponseEntity<ApiResponse> knnSearch(@RequestParam String keyword) {
+    List<ProductSearchResponse> responses = productSearchFacade.knnSearch(keyword);
+    return ApiResponse.onSuccess(SuccessStatus.OK, responses);
   }
 }
