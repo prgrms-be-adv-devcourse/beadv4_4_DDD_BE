@@ -15,13 +15,13 @@ public class ContentRequest {
 
   @NotBlank
   @Size(max = 500)
-  private String text;
+  private final String text;
 
   @NotEmpty
   @Size(max = 5)
-  private List<@NotBlank @Size(max = 10) String> tags;
+  private final List<@NotBlank @Size(max = 10) String> tags;
 
   @NotEmpty
   @Size(max = 5)
-  private List<ContentImageRequest> images;
+  private final List<ContentImageRequest> images;
 }

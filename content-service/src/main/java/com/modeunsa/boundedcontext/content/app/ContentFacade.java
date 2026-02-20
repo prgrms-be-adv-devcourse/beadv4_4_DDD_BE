@@ -30,6 +30,7 @@ public class ContentFacade {
   private final ContentGetContentsUseCase contentGetContentsUseCase;
   private final ContentCreateCommentUseCase contentCreateCommentUseCase;
   private final ContentDeleteCommentUseCase contentDeleteCommentUseCase;
+  private final ContentSupport contentSupport;
 
   public void syncContentMember(ContentMemberDto member) {
     contentSyncMemberUseCase.syncContentMember(member);
@@ -66,5 +67,10 @@ public class ContentFacade {
   @Transactional
   public void deleteContentComment(Long contentId, Long commentId, ContentMember author) {
     contentDeleteCommentUseCase.deleteContentComment(contentId, commentId, author);
+  }
+
+  @Transactional(readOnly = true)
+  public ContentMember findMemberById(Long memberId) {
+    return contentSupport.getContentMemberById(memberId);
   }
 }

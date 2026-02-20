@@ -9,9 +9,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ContentImageRequest {
 
-  @NotBlank private String imageUrl;
+  @NotBlank private final String imageUrl;
 
-  @NotEmpty private Boolean isPrimary;
+  @NotEmpty private final Boolean isPrimary;
 
-  @NotEmpty private Integer sortOrder;
+  @NotEmpty private final Integer sortOrder;
 }
