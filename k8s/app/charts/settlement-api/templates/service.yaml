@@ -2,13 +2,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "api.fullname" . }}
+  name: {{ include "settlementApi.fullname" . }}
   labels:
-    {{- include "api.labels" . | nindent 4 }}
+    {{- include "settlementApi.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
+    - port: {{ .Values.service.port }}  # 모듈별 포트 설정
       targetPort: {{ .Values.service.port }}
       {{- if eq .Values.service.type "NodePort" }}
       nodePort: {{ .Values.service.nodePort }}
@@ -16,5 +16,5 @@ spec:
       protocol: TCP
       name: http
   selector:
-    {{- include "api.selectorLabels" . | nindent 4 }}
+    {{- include "settlementApi.selectorLabels" . | nindent 4 }}
 {{- end }}

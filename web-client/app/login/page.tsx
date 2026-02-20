@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Header from '../components/Header'
 
-const API_URL = process.env.NEXT_PUBLIC_MEMBER_API_URL
+const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 export default function LoginPage() {
   const router = useRouter()
