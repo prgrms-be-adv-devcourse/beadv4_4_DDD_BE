@@ -1,6 +1,6 @@
 package com.modeunsa.boundedcontext.product.app;
 
-import com.modeunsa.api.pagination.CursorDto;
+import com.modeunsa.api.pagination.KeywordCursorDto;
 import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
 import com.modeunsa.boundedcontext.product.domain.ProductFavorite;
@@ -61,7 +61,7 @@ public class ProductSupport {
         pageable);
   }
 
-  public Slice<Product> getProducts(String keyword, CursorDto cursor, int size) {
+  public Slice<Product> getProducts(String keyword, KeywordCursorDto cursor, int size) {
     return jpaSearchAdapter.search(keyword, cursor, size);
   }
 

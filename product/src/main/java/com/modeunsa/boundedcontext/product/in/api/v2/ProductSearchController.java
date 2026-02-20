@@ -59,4 +59,14 @@ public class ProductSearchController {
     List<ProductSearchResponse> responses = productSearchFacade.knnSearch(keyword);
     return ApiResponse.onSuccess(SuccessStatus.OK, responses);
   }
+
+  @Operation(summary = "hybrid search")
+  @GetMapping("/hybrid")
+  public ResponseEntity<ApiResponse> hybridSearch(
+      @RequestParam String keyword,
+      @RequestParam(required = false) String cursor,
+      @RequestParam int size) {
+    ProductSliceResultDto resultDto = productSearchFacade.hybridSearch(keyword, cursor, size);
+    return ApiResponse.onSuccess(SuccessStatus.OK, resultDto.contents(), resultDto.cursor());
+  }
 }

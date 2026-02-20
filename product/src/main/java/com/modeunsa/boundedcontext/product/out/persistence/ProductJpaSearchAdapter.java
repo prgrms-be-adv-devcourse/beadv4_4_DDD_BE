@@ -1,6 +1,6 @@
 package com.modeunsa.boundedcontext.product.out.persistence;
 
-import com.modeunsa.api.pagination.CursorDto;
+import com.modeunsa.api.pagination.KeywordCursorDto;
 import com.modeunsa.boundedcontext.product.app.query.port.out.ProductKeywordSearchPort;
 import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.boundedcontext.product.out.ProductRepository;
@@ -15,7 +15,7 @@ public class ProductJpaSearchAdapter implements ProductKeywordSearchPort {
   private final ProductRepository productRepository;
 
   @Override
-  public Slice<Product> search(String keyword, CursorDto cursor, int size) {
+  public Slice<Product> search(String keyword, KeywordCursorDto cursor, int size) {
     return productRepository.searchByKeyword(keyword, cursor, size);
   }
 }
