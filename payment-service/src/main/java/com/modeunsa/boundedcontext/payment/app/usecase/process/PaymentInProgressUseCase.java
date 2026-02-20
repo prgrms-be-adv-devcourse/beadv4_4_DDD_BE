@@ -12,6 +12,9 @@ import com.modeunsa.boundedcontext.payment.domain.entity.PaymentMember;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentDomainException;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode;
 import com.modeunsa.boundedcontext.payment.domain.types.ProviderType;
+import com.modeunsa.global.aop.saga.OrderSagaStep;
+import com.modeunsa.global.aop.saga.SagaStep;
+import com.modeunsa.global.aop.saga.SagaType;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +30,7 @@ public class PaymentInProgressUseCase {
   private final PaymentAccountSupport paymentAccountSupport;
   private final PaymentFailureEventPublisher paymentFailedEventPublisher;
 
+  @SagaStep(sagaName = SagaType.ORDER_FLOW, step = OrderSagaStep.PAYMENT_IN_PROGRESS)
   public PaymentProcessContext executeForPaymentRequest(PaymentProcessContext context) {
     try {
       return processForPaymentRequest(context);
@@ -36,6 +40,7 @@ public class PaymentInProgressUseCase {
     }
   }
 
+  @SagaStep(sagaName = SagaType.ORDER_FLOW, step = OrderSagaStep.PAYMENT_IN_PROGRESS_FOR_PG)
   public void executeForPaymentConfirm(PaymentProcessContext context) {
     try {
       processForPaymentConfirm(context);

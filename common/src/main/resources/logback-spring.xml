@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+    </encoder>
+  </appender>
+
+  <!-- Saga 전용 JSON 로그 Appender (Console 출력) -->
+  <appender name="SAGA_JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+      <providers>
+        <!-- 기본 필드 -->
+        <timestamp>
+          <timeZone>UTC</timeZone>
+          <fieldName>timestamp</fieldName>
+        </timestamp>
+        <version/>
+        <logLevel>
+          <fieldName>level</fieldName>
+        </logLevel>
+        <loggerName>
+          <fieldName>logger</fieldName>
+        </loggerName>
+        <message>
+          <fieldName>message</fieldName>
+        </message>
+
+        <!-- MDC 필드 (traceId 등) -->
+        <mdc>
+          <includeMdcKeyName>TRACE_ID</includeMdcKeyName>
+          <includeMdcKeyName>saga</includeMdcKeyName>
+          <includeMdcKeyName>step</includeMdcKeyName>
+          <includeMdcKeyName>methodName</includeMdcKeyName>
+          <includeMdcKeyName>duration</includeMdcKeyName>
+          <includeMdcKeyName>status</includeMdcKeyName>
+        </mdc>
+
+        <!-- 예외 스택 트레이스 -->
+        <stackTrace>
+          <fieldName>stackTrace</fieldName>
+          <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
+            <maxDepth>50</maxDepth>
+            <shortenedClassNameLength>20</shortenedClassNameLength>
+          </throwableConverter>
+        </stackTrace>
+      </providers>
+    </encoder>
+  </appender>
+
+  <!-- SagaStepAspect 전용 Logger -->
+  <logger name="com.modeunsa.global.aop.SagaStepAspect" level="INFO" additivity="false">
+    <appender-ref ref="SAGA_JSON_CONSOLE"/>
+  </logger>
+
+  <!-- 루트 로거 (기존 로그는 그대로 유지) -->
+  <root level="INFO">
+    <appender-ref ref="CONSOLE"/>
+  </root>
+</configuration>

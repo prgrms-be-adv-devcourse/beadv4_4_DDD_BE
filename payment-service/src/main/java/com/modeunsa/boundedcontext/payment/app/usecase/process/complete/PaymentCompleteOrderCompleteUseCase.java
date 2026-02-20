@@ -12,6 +12,9 @@ import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentEventType;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentPurpose;
 import com.modeunsa.boundedcontext.payment.domain.types.ReferenceType;
+import com.modeunsa.global.aop.saga.OrderSagaStep;
+import com.modeunsa.global.aop.saga.SagaStep;
+import com.modeunsa.global.aop.saga.SagaType;
 import com.modeunsa.global.config.PaymentAccountConfig;
 import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.global.retry.RetryOnDbFailure;
@@ -38,6 +41,7 @@ public class PaymentCompleteOrderCompleteUseCase implements PaymentCompleteProce
     return PaymentPurpose.PRODUCT_PURCHASE;
   }
 
+  @SagaStep(sagaName = SagaType.ORDER_FLOW, step = OrderSagaStep.PAYMENT_SUCCESS)
   @Override
   @RetryOnDbFailure
   public void execute(PaymentProcessContext paymentProcessContext) {
