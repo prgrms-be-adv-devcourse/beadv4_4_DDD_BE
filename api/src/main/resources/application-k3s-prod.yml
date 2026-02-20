@@ -34,7 +34,7 @@ custom:
   security:
     permit-all: false
     permit-urls:
-      # ========== Swagger (prod에서는 제한 가능) ==========
+      # ========== 개발 도구 ==========
       - /swagger-ui/**
       - /v3/api-docs/**
       - /
