@@ -38,7 +38,7 @@ public class ProductSearchController {
     return ApiResponse.onSuccess(SuccessStatus.OK, resultDto.contents(), resultDto.cursor());
   }
 
-  @Operation(summary = "ES 재색인", description = "RDB의 상품 데이터를 재색인합니다. 기존 index 삭제가 선행되어야 합니다.")
+  @Operation(summary = "ES 재색인", description = "RDB의 상품 데이터 전체를 재색인합니다.")
   @PostMapping("/reindex")
   public ResponseEntity<ApiResponse> reindex() {
     // TODO: admin 권한만 수행 가능

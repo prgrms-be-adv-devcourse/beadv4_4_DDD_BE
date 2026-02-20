@@ -29,6 +29,7 @@ public class ProductSearchFacade {
   private final ProductCreateProductSearchUseCase productCreateProductSearchUseCase;
   private final ProductSearchReindexUseCase productSearchReindexUseCase;
   private final ProductSearchUpdateUseCase productSearchUpdateUseCase;
+  private final ProductSearchUpdateProductStatusUseCase productSearchUpdateProductStatusUseCase;
   private final ProductSearchService productSearchService;
   private final ProductMapper productMapper;
   private final CursorCodec cursorCodec;
@@ -93,7 +94,12 @@ public class ProductSearchFacade {
     return new ProductSliceResultDto<>(contents, nextCursor);
   }
 
-  public void updateProductSearch(
+  public void updateProductStatus(Long productId, String productStatus) {
+    productSearchUpdateProductStatusUseCase.updateProductStatus(
+        productId.toString(), productStatus);
+  }
+
+  public void updateProductStatus(
       Long productId, ProductUpdateRequest request, Set<String> changedFields) {
     if (isEmbeddingRequired(changedFields)) {
       // embedding 재생성 필요한 경우 es 재색인

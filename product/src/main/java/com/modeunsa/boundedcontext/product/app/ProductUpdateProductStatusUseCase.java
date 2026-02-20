@@ -7,7 +7,9 @@ import com.modeunsa.boundedcontext.product.domain.ProductStatus;
 import com.modeunsa.boundedcontext.product.domain.SaleStatus;
 import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.shared.product.dto.ProductOrderAvailableDto;
+import com.modeunsa.shared.product.dto.ProductStatusDto;
 import com.modeunsa.shared.product.event.ProductOrderAvailabilityChangedEvent;
+import com.modeunsa.shared.product.event.ProductStatusChangedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +33,7 @@ public class ProductUpdateProductStatusUseCase {
     boolean oldAvailable = product.isOrderAvailable();
     boolean newAvailable = checkIfOrderAvailable(productStatus, product.getSaleStatus());
     boolean isAvailableChanged = oldAvailable != newAvailable;
+    boolean isProductStatusChanged = !product.getProductStatus().equals(productStatus);
 
     // 4. 상태 업데이트
     product.updateProductStatus(productStatus);
@@ -40,6 +43,11 @@ public class ProductUpdateProductStatusUseCase {
       eventPublisher.publish(
           new ProductOrderAvailabilityChangedEvent(
               new ProductOrderAvailableDto(product.getId(), newAvailable)));
+    }
+    if (isProductStatusChanged) {
+      eventPublisher.publish(
+          new ProductStatusChangedEvent(
+              new ProductStatusDto(product.getId(), productStatus.name())));
     }
     return product;
   }
