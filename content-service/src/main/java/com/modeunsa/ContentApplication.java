@@ -7,14 +7,8 @@ import org.springframework.boot.data.elasticsearch.autoconfigure.DataElasticsear
 import org.springframework.boot.data.elasticsearch.autoconfigure.DataElasticsearchReactiveRepositoriesAutoConfiguration;
 import org.springframework.boot.data.elasticsearch.autoconfigure.DataElasticsearchRepositoriesAutoConfiguration;
 
-// @EnableJpaAuditing(auditorAwareRef = "userAuditorAware")
 @ConfigurationPropertiesScan
-@SpringBootApplication(
-    exclude = {
-      DataElasticsearchAutoConfiguration.class,
-      DataElasticsearchRepositoriesAutoConfiguration.class,
-      DataElasticsearchReactiveRepositoriesAutoConfiguration.class
-    })
+@SpringBootApplication
 public class ContentApplication {
 
   public static void main(String[] args) {
