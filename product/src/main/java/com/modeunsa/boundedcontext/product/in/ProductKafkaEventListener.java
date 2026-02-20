@@ -3,7 +3,6 @@ package com.modeunsa.boundedcontext.product.in;
 import com.modeunsa.boundedcontext.product.app.ProductFacade;
 import com.modeunsa.boundedcontext.product.app.ProductMapper;
 import com.modeunsa.boundedcontext.product.app.search.ProductSearchFacade;
-import com.modeunsa.boundedcontext.product.in.dto.ProductUpdateRequest;
 import com.modeunsa.global.eventpublisher.topic.DomainEventEnvelope;
 import com.modeunsa.global.json.JsonConverter;
 import com.modeunsa.shared.member.event.MemberBasicInfoUpdatedEvent;
@@ -72,15 +71,12 @@ public class ProductKafkaEventListener {
       case "ProductUpdatedEvent" -> {
         ProductUpdatedEvent event =
             jsonConverter.deserialize(eventEnvelope.payload(), ProductUpdatedEvent.class);
-        ProductUpdateRequest request = productMapper.toProductUpdateRequest(event.productDto());
-        productSearchFacade.updateProductStatus(
-            event.productDto().getId(), request, event.changedFields());
+        productSearchFacade.updateProductSearch(event.productDto().getId());
       }
       case "ProductStatusChangedEvent" -> {
         ProductStatusChangedEvent event =
             jsonConverter.deserialize(eventEnvelope.payload(), ProductStatusChangedEvent.class);
-        productSearchFacade.updateProductStatus(
-            event.productStatusDto().productId(), event.productStatusDto().productStatus());
+        productSearchFacade.updateProductStatus(event.productStatusDto().productId());
       }
       default -> {}
     }

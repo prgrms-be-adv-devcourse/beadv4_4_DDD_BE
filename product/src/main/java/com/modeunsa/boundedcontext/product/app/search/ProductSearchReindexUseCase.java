@@ -7,6 +7,7 @@ import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProductSearchReindexUseCase {
 
   private final ProductRepository productRepository;
@@ -23,23 +25,18 @@ public class ProductSearchReindexUseCase {
 
   public void reindexAll() {
 
-    List<Product> products = productRepository.findById(1009L).stream().toList();
+    List<Product> products = productRepository.findAll();
 
     List<IndexQuery> queries =
         products.stream()
             .map(
                 product -> {
-                  String text =
-                      "%s %s %s"
-                          .formatted(
-                              product.getName(),
-                              product.getSeller().getBusinessName(),
-                              product.getDescription());
-                  float[] vector = embeddingModel.embed(text);
+                  float[] vector = this.getVector(product);
                   ProductSearch doc = ProductSearch.from(product, vector);
                   IndexQuery query = new IndexQuery();
                   query.setId(doc.getId());
                   query.setObject(doc);
+                  log.debug("doc.getId() : {}", doc.getId());
                   return query;
                 })
             .toList();
@@ -54,12 +51,7 @@ public class ProductSearchReindexUseCase {
         productRepository
             .findById(id)
             .orElseThrow(() -> new GeneralException(ErrorStatus.PRODUCT_NOT_FOUND));
-
-    String text =
-        "%s %s %s"
-            .formatted(
-                product.getName(), product.getSeller().getBusinessName(), product.getDescription());
-    float[] vector = embeddingModel.embed(text);
+    float[] vector = this.getVector(product);
     ProductSearch doc = ProductSearch.from(product, vector);
     IndexQuery query = new IndexQuery();
     query.setId(doc.getId());
@@ -67,5 +59,21 @@ public class ProductSearchReindexUseCase {
 
     elasticsearchOperations.index(query, IndexCoordinates.of("product_search"));
     elasticsearchOperations.indexOps(IndexCoordinates.of("product_search")).refresh();
+  }
+
+  private float[] getVector(Product product) {
+    float[] vector = null;
+    // 주문 가능한 (=검색 가능한) 상품이 아닌 경우 embedding 생성 X
+    if (product.isOrderAvailable()) {
+      String text =
+          "%s %s %s"
+              .formatted(
+                  product.getName(),
+                  product.getSeller().getBusinessName(),
+                  product.getDescription());
+      vector = embeddingModel.embed(text);
+      log.debug("embed succeeded: {}", product.getId());
+    }
+    return vector;
   }
 }
