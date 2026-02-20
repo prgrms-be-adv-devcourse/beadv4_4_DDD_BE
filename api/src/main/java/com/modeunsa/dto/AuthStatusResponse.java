@@ -1,4 +1,4 @@
-package com.modeunsa.shared.auth.dto;
+package com.modeunsa.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
@@ -11,4 +11,6 @@ public class AuthStatusResponse {
   private boolean isAuthenticated;
 
   private String memberId;
+  private String role;
+  private Long sellerId;
 }
