@@ -62,12 +62,6 @@ custom:
       - /actuator/health
       - /actuator/prometheus
 
-  cors:
-    enabled: true
-    allowed-origins:
-      - https://modeunsa.store
-      - http://modeunsa.store
-
 springdoc:
   swagger-ui:
     persistAuthorization: true

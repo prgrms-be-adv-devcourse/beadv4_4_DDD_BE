@@ -42,13 +42,6 @@ custom:
       # ========== 헬스체크 ==========
       - /actuator/health
       - /actuator/prometheus
-  cors:
-    enabled: true
-    allowed-origins:
-      - http://localhost:3000
-      - http://127.0.0.1:3000
-      - http://localhost:8080
-      - http://127.0.0.1:8080
 
 springdoc:
   swagger-ui:

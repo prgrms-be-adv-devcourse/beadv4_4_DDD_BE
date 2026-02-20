@@ -100,11 +100,6 @@ custom:
     oauth2:
       allowed-redirect-domains:
         - modeunsa.store
-  cors:
-    enabled: true
-    allowed-origins:
-      - https://modeunsa.store
-      - http://modeunsa.store
 
 jwt:
   secret: ${JWT_SECRET:}
