@@ -59,6 +59,13 @@ dependencies {
 
     // dotenv for loading .env file in tests
     testImplementation 'io.github.cdimascio:dotenv-java:3.0.0'
+
+    // Prometheus
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+
+    // Test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 jar {
