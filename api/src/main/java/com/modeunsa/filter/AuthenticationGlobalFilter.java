@@ -43,7 +43,8 @@ public class AuthenticationGlobalFilter implements GlobalFilter, Ordered {
 
     // 3. Internal API Key 체크
     String internalApiKeyHeader = request.getHeaders().getFirst("X-INTERNAL-API-KEY");
-    if (internalApiKeyHeader != null && internalApiKeyHeader.equals(internalProperties.getApiKey())) {
+    if (internalApiKeyHeader != null
+        && internalApiKeyHeader.equals(internalProperties.getApiKey())) {
       return addInternalUserHeaders(exchange, chain);
     }
 
@@ -59,13 +60,15 @@ public class AuthenticationGlobalFilter implements GlobalFilter, Ordered {
     String accessToken = authHeader.substring(7).trim();
 
     // 5. Member 서비스로 토큰 검증
-    return authServiceClient.validateToken(accessToken)
-        .flatMap(authStatus -> {
-          if (!authStatus.isAuthenticated()) {
-            return unauthorized(exchange);
-          }
-          return addUserHeaders(exchange, chain, authStatus);
-        })
+    return authServiceClient
+        .validateToken(accessToken)
+        .flatMap(
+            authStatus -> {
+              if (!authStatus.isAuthenticated()) {
+                return unauthorized(exchange);
+              }
+              return addUserHeaders(exchange, chain, authStatus);
+            })
         .onErrorResume(e -> unauthorized(exchange));
   }
 
@@ -75,13 +78,14 @@ public class AuthenticationGlobalFilter implements GlobalFilter, Ordered {
   }
 
   private Mono<Void> addUserHeaders(
-      ServerWebExchange exchange,
-      GatewayFilterChain chain,
-      AuthStatusResponse authStatus) {
+      ServerWebExchange exchange, GatewayFilterChain chain, AuthStatusResponse authStatus) {
 
-    ServerHttpRequest.Builder requestBuilder = exchange.getRequest().mutate()
-        .header("X-User-Id", authStatus.getMemberId())
-        .header("X-User-Role", authStatus.getRole()); // 예: MEMBER, SELLER
+    ServerHttpRequest.Builder requestBuilder =
+        exchange
+            .getRequest()
+            .mutate()
+            .header("X-User-Id", authStatus.getMemberId())
+            .header("X-User-Role", authStatus.getRole()); // 예: MEMBER, SELLER
 
     // sellerId가 null이 아닌 경우(판매자인 경우)에만 헤더에 추가
     if (authStatus.getSellerId() != null) {
@@ -92,10 +96,13 @@ public class AuthenticationGlobalFilter implements GlobalFilter, Ordered {
   }
 
   private Mono<Void> addInternalUserHeaders(ServerWebExchange exchange, GatewayFilterChain chain) {
-    ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
-        .header("X-User-Id", "SYSTEM")
-        .header("X-User-Role", "ROLE_SYSTEM")
-        .build();
+    ServerHttpRequest mutatedRequest =
+        exchange
+            .getRequest()
+            .mutate()
+            .header("X-User-Id", "SYSTEM")
+            .header("X-User-Role", "ROLE_SYSTEM")
+            .build();
 
     return chain.filter(exchange.mutate().request(mutatedRequest).build());
   }

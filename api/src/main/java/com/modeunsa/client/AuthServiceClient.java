@@ -12,17 +12,15 @@ import reactor.core.publisher.Mono;
 public class AuthServiceClient {
   private final WebClient webClient;
 
-  public AuthServiceClient(
-    @Value("${services.member.host:localhost}") String memberHost) {
+  public AuthServiceClient(@Value("${services.member.host:localhost}") String memberHost) {
     String baseUrl = "http://" + memberHost + ":8086";
 
-    this.webClient = WebClient.builder()
-        .baseUrl(baseUrl)
-        .build();
+    this.webClient = WebClient.builder().baseUrl(baseUrl).build();
   }
 
   public Mono<AuthStatusResponse> validateToken(String accessToken) {
-    return webClient.get()
+    return webClient
+        .get()
         .uri("/api/v1/auths/me")
         .header("Authorization", "Bearer " + accessToken)
         .retrieve()

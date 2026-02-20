@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
-  private final ObjectMapper objectMapper =  new ObjectMapper();
+  private final ObjectMapper objectMapper = new ObjectMapper();
 
   @Override
   public void handle(
@@ -30,7 +30,10 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
       AccessDeniedException accessDeniedException)
       throws IOException, ServletException {
 
-    log.warn("권한 부족 (403) - URI: {} - Message: {}", request.getRequestURI(), accessDeniedException.getMessage());
+    log.warn(
+        "권한 부족 (403) - URI: {} - Message: {}",
+        request.getRequestURI(),
+        accessDeniedException.getMessage());
 
     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);

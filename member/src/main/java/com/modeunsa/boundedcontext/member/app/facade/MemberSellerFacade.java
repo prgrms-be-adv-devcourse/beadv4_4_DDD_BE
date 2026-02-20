@@ -1,8 +1,8 @@
 package com.modeunsa.boundedcontext.member.app.facade;
 
+import com.modeunsa.boundedcontext.auth.domain.dto.JwtTokenResponse;
 import com.modeunsa.boundedcontext.member.app.usecase.SellerInfoGetUseCase;
 import com.modeunsa.boundedcontext.member.app.usecase.SellerRegisterUseCase;
-import com.modeunsa.boundedcontext.auth.domain.dto.JwtTokenResponse;
 import com.modeunsa.shared.member.dto.request.SellerRegisterRequest;
 import com.modeunsa.shared.member.dto.response.SellerInfoResponse;
 import lombok.RequiredArgsConstructor;

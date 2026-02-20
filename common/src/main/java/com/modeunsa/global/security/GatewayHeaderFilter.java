@@ -15,7 +15,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class GatewayHeaderFilter extends OncePerRequestFilter {
 
   @Override
-  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+  protected void doFilterInternal(
+      HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
 
     String userIdStr = request.getHeader("X-User-Id");
@@ -32,7 +33,8 @@ public class GatewayHeaderFilter extends OncePerRequestFilter {
       else {
         try {
           Long memberId = Long.parseLong(userIdStr);
-          String roleName = userRoleStr.startsWith("ROLE_") ? userRoleStr.substring(5) : userRoleStr;
+          String roleName =
+              userRoleStr.startsWith("ROLE_") ? userRoleStr.substring(5) : userRoleStr;
           MemberRole role = MemberRole.valueOf(roleName);
           Long sellerId = sellerIdStr != null ? Long.parseLong(sellerIdStr) : null;
 

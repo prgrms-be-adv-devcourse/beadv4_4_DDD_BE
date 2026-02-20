@@ -1,5 +1,8 @@
 package com.modeunsa.boundedcontext.auth.app.usecase;
 
+import com.modeunsa.boundedcontext.auth.domain.dto.JwtTokenResponse;
+import com.modeunsa.boundedcontext.auth.domain.dto.OAuthProviderTokenResponse;
+import com.modeunsa.boundedcontext.auth.domain.dto.OAuthUserInfo;
 import com.modeunsa.boundedcontext.auth.domain.entity.OAuthAccount;
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import com.modeunsa.boundedcontext.auth.out.client.OAuthClient;
@@ -8,9 +11,6 @@ import com.modeunsa.boundedcontext.member.app.support.MemberSupport;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
-import com.modeunsa.boundedcontext.auth.domain.dto.JwtTokenResponse;
-import com.modeunsa.boundedcontext.auth.domain.dto.OAuthProviderTokenResponse;
-import com.modeunsa.boundedcontext.auth.domain.dto.OAuthUserInfo;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

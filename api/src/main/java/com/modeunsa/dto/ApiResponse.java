@@ -23,8 +23,7 @@ public class ApiResponse<T> {
   // 성공 - 기본 응답
   public static ResponseEntity<ApiResponse> onSuccess(SuccessStatus status) {
     return new ResponseEntity<>(
-        new ApiResponse(true, status.getCode(), status.getMessage(), null),
-        status.getHttpStatus());
+        new ApiResponse(true, status.getCode(), status.getMessage(), null), status.getHttpStatus());
   }
 
   // 성공 - 데이터 포함
@@ -37,8 +36,7 @@ public class ApiResponse<T> {
   // 실패한 경우 응답 생성
   public static ResponseEntity<ApiResponse> onFailure(ErrorStatus error) {
     return new ResponseEntity<>(
-        new ApiResponse(false, error.getCode(), error.getMessage(), null),
-        error.getHttpStatus());
+        new ApiResponse(false, error.getCode(), error.getMessage(), null), error.getHttpStatus());
   }
 
   public static ResponseEntity<ApiResponse> onFailure(ErrorStatus error, String message) {
@@ -49,7 +47,6 @@ public class ApiResponse<T> {
 
   public static ResponseEntity<ApiResponse> onFailure(ErrorStatus error, Object data) {
     return new ResponseEntity<>(
-        new ApiResponse(false, error.getCode(), error.getMessage(), data),
-        error.getHttpStatus());
+        new ApiResponse(false, error.getCode(), error.getMessage(), data), error.getHttpStatus());
   }
 }

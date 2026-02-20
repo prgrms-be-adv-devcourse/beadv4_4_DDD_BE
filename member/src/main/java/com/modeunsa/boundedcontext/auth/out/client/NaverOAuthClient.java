@@ -1,10 +1,10 @@
 package com.modeunsa.boundedcontext.auth.out.client;
 
+import com.modeunsa.boundedcontext.auth.domain.dto.OAuthProviderTokenResponse;
+import com.modeunsa.boundedcontext.auth.domain.dto.OAuthUserInfo;
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
-import com.modeunsa.boundedcontext.auth.domain.dto.OAuthProviderTokenResponse;
-import com.modeunsa.boundedcontext.auth.domain.dto.OAuthUserInfo;
 import java.time.Duration;
 import java.util.Map;
 import java.util.UUID;

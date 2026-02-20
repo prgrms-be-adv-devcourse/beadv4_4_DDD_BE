@@ -58,16 +58,20 @@ public class SecurityConfig {
 
       http.authorizeHttpRequests(
           auth ->
-              auth.requestMatchers("/api/*/*/internal/**").permitAll()
+              auth.requestMatchers("/api/*/*/internal/**")
+                  .permitAll()
 
                   // 공개 URL (yml에서 관리 - Swagger, Health 등)
-                  .requestMatchers(permitUrls).permitAll()
+                  .requestMatchers(permitUrls)
+                  .permitAll()
 
                   // File 관련 API 권한 설정
-                  .requestMatchers("/api/v1/files/**").hasAnyRole("PRE_ACTIVE", "MEMBER")
+                  .requestMatchers("/api/v1/files/**")
+                  .hasAnyRole("PRE_ACTIVE", "MEMBER")
 
                   // 나머지는 인증 필요
-                  .anyRequest().authenticated());
+                  .anyRequest()
+                  .authenticated());
     }
 
     // 3. 필터 등록 순서: Internal 검사 후 -> Gateway 헤더 검사
@@ -80,10 +84,14 @@ public class SecurityConfig {
   @Bean
   public RoleHierarchy roleHierarchy() {
     return RoleHierarchyImpl.withDefaultRolePrefix()
-        .role("SYSTEM").implies("ADMIN")
-        .role("HOLDER").implies("ADMIN")
-        .role("ADMIN").implies("SELLER")
-        .role("SELLER").implies("MEMBER")
+        .role("SYSTEM")
+        .implies("ADMIN")
+        .role("HOLDER")
+        .implies("ADMIN")
+        .role("ADMIN")
+        .implies("SELLER")
+        .role("SELLER")
+        .implies("MEMBER")
         .build();
   }
 
