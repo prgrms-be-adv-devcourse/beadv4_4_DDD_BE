@@ -4,11 +4,14 @@ import com.modeunsa.api.pagination.CursorCodec;
 import com.modeunsa.api.pagination.KeywordCursorDto;
 import com.modeunsa.api.pagination.VectorCursorDto;
 import com.modeunsa.boundedcontext.product.app.ProductMapper;
+import com.modeunsa.boundedcontext.product.domain.ProductUpdatableField;
 import com.modeunsa.boundedcontext.product.domain.search.document.ProductSearch;
 import com.modeunsa.boundedcontext.product.in.dto.ProductSliceResultDto;
+import com.modeunsa.boundedcontext.product.in.dto.ProductUpdateRequest;
 import com.modeunsa.shared.product.dto.search.ProductSearchRequest;
 import com.modeunsa.shared.product.dto.search.ProductSearchResponse;
 import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
@@ -25,6 +28,7 @@ public class ProductSearchFacade {
 
   private final ProductCreateProductSearchUseCase productCreateProductSearchUseCase;
   private final ProductSearchReindexUseCase productSearchReindexUseCase;
+  private final ProductSearchUpdateUseCase productSearchUpdateUseCase;
   private final ProductSearchService productSearchService;
   private final ProductMapper productMapper;
   private final CursorCodec cursorCodec;
@@ -56,6 +60,10 @@ public class ProductSearchFacade {
     productSearchReindexUseCase.reindexAll();
   }
 
+  public void reindexById(Long id) {
+    productSearchReindexUseCase.reindexById(id);
+  }
+
   public Page<String> autoComplete(String keyword) {
     return productSearchService.autoComplete(keyword);
   }
@@ -83,5 +91,21 @@ public class ProductSearchFacade {
     Slice<ProductSearchResponse> contents =
         products.map(product -> productMapper.toProductSearchResponse(product.getContent()));
     return new ProductSliceResultDto<>(contents, nextCursor);
+  }
+
+  public void updateProductSearch(
+      Long productId, ProductUpdateRequest request, Set<String> changedFields) {
+    if (isEmbeddingRequired(changedFields)) {
+      // embedding 재생성 필요한 경우 es 재색인
+      this.reindexById(productId);
+    } else {
+      // embedding 재생성 필요하지 않은 경우 es 부분 업데이트
+      productSearchUpdateUseCase.updateProductSearch(productId.toString(), request, changedFields);
+    }
+  }
+
+  private boolean isEmbeddingRequired(Set<String> changedFields) {
+    return changedFields.contains(ProductUpdatableField.NAME.name())
+        || changedFields.contains(ProductUpdatableField.DESCRIPTION.name());
   }
 }

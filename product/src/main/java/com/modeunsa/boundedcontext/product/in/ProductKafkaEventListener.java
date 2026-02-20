@@ -3,6 +3,7 @@ package com.modeunsa.boundedcontext.product.in;
 import com.modeunsa.boundedcontext.product.app.ProductFacade;
 import com.modeunsa.boundedcontext.product.app.ProductMapper;
 import com.modeunsa.boundedcontext.product.app.search.ProductSearchFacade;
+import com.modeunsa.boundedcontext.product.in.dto.ProductUpdateRequest;
 import com.modeunsa.global.eventpublisher.topic.DomainEventEnvelope;
 import com.modeunsa.global.json.JsonConverter;
 import com.modeunsa.shared.member.event.MemberBasicInfoUpdatedEvent;
@@ -10,6 +11,7 @@ import com.modeunsa.shared.member.event.MemberSignupEvent;
 import com.modeunsa.shared.member.event.SellerRegisteredEvent;
 import com.modeunsa.shared.product.dto.search.ProductSearchRequest;
 import com.modeunsa.shared.product.event.ProductCreatedEvent;
+import com.modeunsa.shared.product.event.ProductUpdatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -65,6 +67,13 @@ public class ProductKafkaEventListener {
             jsonConverter.deserialize(eventEnvelope.payload(), ProductCreatedEvent.class);
         ProductSearchRequest request = productMapper.toProductSearchRequest(event.productDto());
         productSearchFacade.createProductSearch(request);
+      }
+      case "ProductUpdatedEvent" -> {
+        ProductUpdatedEvent event =
+            jsonConverter.deserialize(eventEnvelope.payload(), ProductUpdatedEvent.class);
+        ProductUpdateRequest request = productMapper.toProductUpdateRequest(event.productDto());
+        productSearchFacade.updateProductSearch(
+            event.productDto().getId(), request, event.changedFields());
       }
       default -> {}
     }
