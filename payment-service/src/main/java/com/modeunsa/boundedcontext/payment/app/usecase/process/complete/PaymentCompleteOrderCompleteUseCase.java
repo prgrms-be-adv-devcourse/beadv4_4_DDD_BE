@@ -62,7 +62,7 @@ public class PaymentCompleteOrderCompleteUseCase implements PaymentCompleteProce
     }
   }
 
-  // Lock 없이 결제 처리 - 테스트용
+  // 테스트 용도: Lock 없이 결제 처리 로직을 검증하기 위한 메서드
   public void executeWithoutLock(PaymentProcessContext paymentProcessContext) {
 
     // 1. 결제 계좌 영속성 획득 (Lock 미획득)
