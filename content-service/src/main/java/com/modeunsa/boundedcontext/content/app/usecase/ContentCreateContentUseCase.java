@@ -19,7 +19,7 @@ public class ContentCreateContentUseCase {
 
   public void execute(Long memberId, ContentCreateCommand command) {
     ContentMember author = contentSupport.getContentMemberById(memberId);
-    Content content = Content.create(author, command);
+    Content content = Content.create(author, command.text(), command.tags(), command.images());
     contentStore.store(content);
   }
 }

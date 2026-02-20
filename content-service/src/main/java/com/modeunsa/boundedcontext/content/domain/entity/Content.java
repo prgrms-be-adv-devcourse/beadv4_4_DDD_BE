@@ -1,6 +1,5 @@
 package com.modeunsa.boundedcontext.content.domain.entity;
 
-import com.modeunsa.boundedcontext.content.app.dto.content.ContentCreateCommand;
 import com.modeunsa.boundedcontext.content.app.dto.image.ContentImageDto;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import jakarta.persistence.CascadeType;
@@ -76,14 +75,15 @@ public class Content extends GeneratedIdAndAuditedEntity {
   @Builder.Default
   private List<ContentComment> comments = new ArrayList<>();
 
-  public static Content create(ContentMember author, ContentCreateCommand command) {
-    Content content = Content.builder().author(author).text(command.text()).build();
+  public static Content create(
+      ContentMember author, String text, List<String> tags, List<ContentImageDto> images) {
+    Content content = Content.builder().author(author).text(text).build();
 
-    for (String tagValue : command.tags()) {
+    for (String tagValue : tags) {
       content.addTag(new ContentTag(tagValue));
     }
 
-    for (ContentImageDto spec : command.images()) {
+    for (ContentImageDto spec : images) {
       ContentImage image =
           new ContentImage(
               spec.imageUrl(), spec.isPrimary(), spec.sortOrder() != null ? spec.sortOrder() : 0);
