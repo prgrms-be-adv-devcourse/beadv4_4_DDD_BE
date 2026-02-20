@@ -1,7 +1,8 @@
 package com.modeunsa.boundedcontext.content.app;
 
-import com.modeunsa.boundedcontext.content.app.dto.ContentRequest;
 import com.modeunsa.boundedcontext.content.app.dto.ContentResponse;
+import com.modeunsa.boundedcontext.content.app.dto.content.ContentCreateCommand;
+import com.modeunsa.boundedcontext.content.app.dto.content.ContentDetailDto;
 import com.modeunsa.boundedcontext.content.app.dto.member.ContentMemberDto;
 import com.modeunsa.boundedcontext.content.app.usecase.ContentCreateCommentUseCase;
 import com.modeunsa.boundedcontext.content.app.usecase.ContentCreateContentUseCase;
@@ -9,10 +10,12 @@ import com.modeunsa.boundedcontext.content.app.usecase.ContentDeleteCommentUseCa
 import com.modeunsa.boundedcontext.content.app.usecase.ContentDeleteContentUseCase;
 import com.modeunsa.boundedcontext.content.app.usecase.ContentGetContentsUseCase;
 import com.modeunsa.boundedcontext.content.app.usecase.ContentUpdateContentUseCase;
+import com.modeunsa.boundedcontext.content.app.usecase.content.ContentGetContentUseCase;
 import com.modeunsa.boundedcontext.content.app.usecase.member.ContentSyncMemberUseCase;
 import com.modeunsa.boundedcontext.content.domain.entity.ContentMember;
 import com.modeunsa.shared.content.dto.ContentCommentRequest;
 import com.modeunsa.shared.content.dto.ContentCommentResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
@@ -24,6 +27,7 @@ public class ContentFacade {
 
   private final ContentSyncMemberUseCase contentSyncMemberUseCase;
 
+  private final ContentGetContentUseCase contentGetContentUseCase;
   private final ContentCreateContentUseCase contentCreateContentUseCase;
   private final ContentUpdateContentUseCase contentUpdateContentUseCase;
   private final ContentDeleteContentUseCase contentDeleteContentUseCase;
@@ -36,15 +40,18 @@ public class ContentFacade {
     contentSyncMemberUseCase.syncContentMember(member);
   }
 
-  @Transactional
-  public ContentResponse createContent(Long memberId, ContentRequest contentRequest) {
-    return contentCreateContentUseCase.createContent(memberId, contentRequest);
+  public ContentDetailDto getContent(@Valid Long contentId) {
+    return contentGetContentUseCase.execute(contentId);
+  }
+
+  public void createContent(Long memberId, ContentCreateCommand command) {
+    contentCreateContentUseCase.createContent(memberId, command);
   }
 
   @Transactional
   public ContentResponse updateContent(
-      Long contentId, ContentRequest contentRequest, ContentMember author) {
-    return contentUpdateContentUseCase.updateContent(contentId, contentRequest, author);
+      Long contentId, ContentCreateCommand command, ContentMember author) {
+    return contentUpdateContentUseCase.updateContent(contentId, command, author);
   }
 
   @Transactional

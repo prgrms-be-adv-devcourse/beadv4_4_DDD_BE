@@ -1,5 +1,7 @@
 package com.modeunsa.boundedcontext.content.domain.entity;
 
+import com.modeunsa.boundedcontext.content.app.dto.content.ContentCreateCommand;
+import com.modeunsa.boundedcontext.content.app.dto.image.ContentImageDto;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -40,6 +42,8 @@ public class Content extends GeneratedIdAndAuditedEntity {
   @Builder.Default
   private List<ContentTag> tags = new ArrayList<>();
 
+  private String mainImageUrl;
+
   @OneToMany(
       mappedBy = "content",
       cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
@@ -54,12 +58,36 @@ public class Content extends GeneratedIdAndAuditedEntity {
     this.text = text;
   }
 
+  public void updateMainImageUrl(String url) {
+    this.mainImageUrl = url;
+  }
+
   @OneToMany(
       mappedBy = "content",
       cascade = {CascadeType.PERSIST, CascadeType.MERGE},
       orphanRemoval = true)
   @Builder.Default
   private List<ContentComment> comments = new ArrayList<>();
+
+  public static Content create(ContentMember author, ContentCreateCommand command) {
+    Content content = Content.builder().author(author).text(command.text()).build();
+
+    for (String tagValue : command.tags()) {
+      content.addTag(new ContentTag(tagValue));
+    }
+
+    for (ContentImageDto spec : command.images()) {
+      ContentImage image =
+          new ContentImage(
+              spec.imageUrl(), spec.isPrimary(), spec.sortOrder() != null ? spec.sortOrder() : 0);
+      if (Boolean.TRUE.equals(spec.isPrimary())) {
+        content.mainImageUrl = spec.imageUrl();
+      }
+      content.addImage(image);
+    }
+
+    return content;
+  }
 
   // 태그 추가, 내부 연관관계 일관되게 유지
   public void addTag(ContentTag tag) {
@@ -83,10 +111,6 @@ public class Content extends GeneratedIdAndAuditedEntity {
   public void removeImage(ContentImage image) {
     images.remove(image);
     image.setContent(null);
-  }
-
-  public void setAuthor(ContentMember author) {
-    this.author = author;
   }
 
   public void delete() {

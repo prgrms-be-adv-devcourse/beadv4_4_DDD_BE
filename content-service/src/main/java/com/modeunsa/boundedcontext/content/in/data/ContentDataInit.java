@@ -1,8 +1,8 @@
 package com.modeunsa.boundedcontext.content.in.data;
 
 import com.modeunsa.boundedcontext.content.app.ContentFacade;
-import com.modeunsa.boundedcontext.content.app.dto.ContentImageRequest;
-import com.modeunsa.boundedcontext.content.app.dto.ContentRequest;
+import com.modeunsa.boundedcontext.content.app.dto.content.ContentCreateCommand;
+import com.modeunsa.boundedcontext.content.app.dto.image.ContentImageDto;
 import com.modeunsa.boundedcontext.content.domain.entity.ContentMember;
 import java.util.List;
 import org.springframework.boot.ApplicationRunner;
@@ -36,16 +36,16 @@ public class ContentDataInit {
 
     contentFacade.createContent(
         user1Member.getId(),
-        new ContentRequest(
+        new ContentCreateCommand(
             "첫 번째 콘텐츠 내용입니다.",
             List.of("테스트"),
-            List.of(new ContentImageRequest("https://example.com/placeholder.png", true, 0))));
+            List.of(new ContentImageDto("https://example.com/placeholder.png", true, 0))));
 
     contentFacade.createContent(
         user2Member.getId(),
-        new ContentRequest(
+        new ContentCreateCommand(
             "두 번째 콘텐츠 내용입니다.",
             List.of("샘플"),
-            List.of(new ContentImageRequest("https://example.com/placeholder.png", true, 0))));
+            List.of(new ContentImageDto("https://example.com/placeholder.png", true, 0))));
   }
 }
