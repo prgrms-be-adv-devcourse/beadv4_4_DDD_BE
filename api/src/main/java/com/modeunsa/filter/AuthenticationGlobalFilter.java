@@ -1,6 +1,6 @@
 package com.modeunsa.filter;
 
-import com.modeunsa.client.MemberServiceClient;
+import com.modeunsa.client.AuthServiceClient;
 import com.modeunsa.config.GatewaySecurityProperties;
 import com.modeunsa.config.InternalProperties;
 import com.modeunsa.dto.AuthStatusResponse;
@@ -21,7 +21,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class AuthenticationGlobalFilter implements GlobalFilter, Ordered {
 
-  private final MemberServiceClient memberServiceClient;
+  private final AuthServiceClient authServiceClient;
   private final InternalProperties internalProperties;
   private final GatewaySecurityProperties securityProperties;
   private final AntPathMatcher pathMatcher = new AntPathMatcher();
@@ -59,7 +59,7 @@ public class AuthenticationGlobalFilter implements GlobalFilter, Ordered {
     String accessToken = authHeader.substring(7).trim();
 
     // 5. Member 서비스로 토큰 검증
-    return memberServiceClient.validateToken(accessToken)
+    return authServiceClient.validateToken(accessToken)
         .flatMap(authStatus -> {
           if (!authStatus.isAuthenticated()) {
             return unauthorized(exchange);
