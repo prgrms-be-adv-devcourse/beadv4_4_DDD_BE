@@ -43,6 +43,8 @@ spec:
             # Kafka
             - name: KAFKA_BOOTSTRAP_SERVERS
               value: {{ .Values.env.kafkaBootstrapServers | quote }}
+            - name: KAFKA_LISTENER_AUTO_STARTUP
+              value: "true"
             # Elasticsearch
             - name: ES_HOST
               value: {{ .Values.env.esHost | quote }}

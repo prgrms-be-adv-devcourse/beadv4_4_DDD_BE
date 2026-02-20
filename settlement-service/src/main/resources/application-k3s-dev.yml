@@ -59,6 +59,8 @@ spring:
 
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:modeunsa-infra-kafka:9092}
+    listener:
+      auto-startup: ${KAFKA_LISTENER_AUTO_STARTUP:false}
 
 management:
   health:
