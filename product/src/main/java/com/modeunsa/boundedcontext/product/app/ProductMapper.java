@@ -7,7 +7,6 @@ import com.modeunsa.boundedcontext.product.domain.search.document.ProductSearch;
 import com.modeunsa.boundedcontext.product.in.dto.ProductDetailResponse;
 import com.modeunsa.boundedcontext.product.in.dto.ProductOrderDto;
 import com.modeunsa.boundedcontext.product.in.dto.ProductResponse;
-import com.modeunsa.boundedcontext.product.in.dto.ProductUpdateRequest;
 import com.modeunsa.shared.product.dto.ProductDto;
 import com.modeunsa.shared.product.dto.ProductFavoriteResponse;
 import com.modeunsa.shared.product.dto.ProductOrderResponse;
@@ -48,8 +47,6 @@ public abstract class ProductMapper {
   public abstract ProductSearchResponse toProductSearchResponse(ProductSearch product);
 
   public abstract ProductSearchRequest toProductSearchRequest(ProductDto productDto);
-
-  public abstract ProductUpdateRequest toProductUpdateRequest(ProductDto productDto);
 
   @Mapping(source = "member.id", target = "memberId")
   @Mapping(source = "product.id", target = "productId")
