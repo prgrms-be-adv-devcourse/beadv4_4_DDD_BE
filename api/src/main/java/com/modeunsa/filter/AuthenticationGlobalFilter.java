@@ -113,6 +113,7 @@ public class AuthenticationGlobalFilter implements GlobalFilter, Ordered {
         exchange
             .getRequest()
             .mutate()
+            .header("X-Gateway-Token", internalProperties.getApiKey()) // 게이트웨이 인증 토큰 추가
             .header("X-User-Id", authStatus.getMemberId()) // memberId 매핑
             .header("X-User-Role", authStatus.getRole()); // role 매핑
 
