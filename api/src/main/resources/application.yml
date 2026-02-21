@@ -42,12 +42,12 @@ spring:
               filters:
                 - RewritePath=/v3/api-docs/order, /v3/api-docs
 
-#            - id: inventory-service
-#              uri: http://${services.inventory.host}:8082
-#              predicates:
-#                - Path=/api/v1/inventories/**,/api/v2/inventories/**,/v3/api-docs/inventory
-#              filters:
-#                - RewritePath=/v3/api-docs/inventory, /v3/api-docs
+            - id: inventory-service
+              uri: http://${services.inventory.host}:8082
+              predicates:
+                - Path=/api/v1/inventories/**,/api/v2/inventories/**,/v3/api-docs/inventory
+              filters:
+                - RewritePath=/v3/api-docs/inventory, /v3/api-docs
 
             - id: payment-service
               uri: http://${services.payment.host}:8083
