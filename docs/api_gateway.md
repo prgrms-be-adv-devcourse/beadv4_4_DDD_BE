@@ -11,8 +11,8 @@
 
 ### 2. 전체 인증/인가 파이프라인
 
-* **[Client]** ➡️ (Bearer Token) ➡️ **[API Gateway]** * **[API Gateway]** ➡️ (WebClient 비동기 검증 요청) ➡️ **[Member 모듈 (/me)]**
-* **[API Gateway]** ⬅️ (검증 결과 및 User Info 반환) ⬅️ **[Member 모듈]**
+* **[Client]** ➡️ (Bearer Token) ➡️ **[API Gateway]** ➡️ (WebClient 비동기 검증 요청) ➡️ **[Member 모듈 (/me)]**
+* **[Member 모듈]** ➡️ (검증 결과 및 User Info 반환) ➡️ **[API Gateway]**
 * **[API Gateway]** ➡️ (`X-User-Id`, `X-User-Role` 헤더 주입) ➡️ **[각 다운스트림 모듈 (File, Product 등)]**
 * **[다운스트림 모듈]** ➡️ (자체 `SecurityConfig`로 최종 권한 확인 후 로직 수행)
 
