@@ -23,9 +23,11 @@ public class InventoryRedisAdapter implements InventoryCommandPort, InventoryQue
   @Qualifier("releaseInventoryScript")
   private final RedisScript<Long> releaseInventoryScript;
 
+  private static final String INVENTORY_KEY_PREFIX = "inventory:available:";
+
   @Override
   public void reserve(List<Long> productIds, List<Integer> quantities) {
-    List<String> keys = productIds.stream().map(id -> "inventory:available:" + id).toList();
+    List<String> keys = productIds.stream().map(id -> INVENTORY_KEY_PREFIX + id).toList();
     List<String> args = quantities.stream().map(String::valueOf).toList();
 
     Long result = redisTemplate.execute(reserveInventoryScript, keys, args.toArray(new String[0]));
@@ -59,7 +61,7 @@ public class InventoryRedisAdapter implements InventoryCommandPort, InventoryQue
   }
 
   private String inventoryKey(Long productId) {
-    return "inventory:available:" + productId;
+    return INVENTORY_KEY_PREFIX + productId;
   }
 
   private int refreshRedisFromDb(Long productId, String key) {
