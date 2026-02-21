@@ -48,16 +48,23 @@ public class AuthenticationGlobalFilter implements GlobalFilter, Ordered {
       return addInternalUserHeaders(exchange, chain);
     }
 
-    // 4. 일반 유저 토큰(JWT) 체크
+    // 4. 일반 유저 토큰(JWT) 체크 (헤더와 쿠키 모두 확인)
+    String accessToken = null;
     String authHeader = request.getHeaders().getFirst("Authorization");
 
-    // Authorization 헤더가 없거나 "Bearer "로 시작하지 않으면 401 에러
-    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-      return unauthorized(exchange);
+    // 1) 먼저 Authorization 헤더에서 토큰을 찾아본다
+    if (authHeader != null && authHeader.startsWith("Bearer ")) {
+      accessToken = authHeader.substring(7).trim();
+    }
+    // 2) 헤더에 없다면, accessToken 이름의 쿠키가 있는지 찾아본다
+    else if (request.getCookies().containsKey("accessToken")) {
+      accessToken = request.getCookies().getFirst("accessToken").getValue();
     }
 
-    // 순수 토큰만 추출
-    String accessToken = authHeader.substring(7).trim();
+    // 3) 헤더와 쿠키 둘 다 뒤져봤는데도 토큰이 없으면 401 에러
+    if (accessToken == null || accessToken.isBlank()) {
+      return unauthorized(exchange);
+    }
 
     // 5. Member 서비스로 토큰 검증
     return authServiceClient
