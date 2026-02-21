@@ -69,9 +69,9 @@ public class SecurityConfig {
                   .authenticated());
     }
 
-    // 3. 필터 등록 순서: Internal 검사 후 -> Gateway 헤더 검사
-    http.addFilterBefore(internalApiKeyFilter, UsernamePasswordAuthenticationFilter.class);
-    http.addFilterBefore(gatewayHeaderFilter, InternalApiKeyFilter.class);
+    // 3. 필터 등록 순서: Internal 검사 -> Gateway 헤더 검사 -> UsernamePassword 검사
+    http.addFilterBefore(gatewayHeaderFilter, UsernamePasswordAuthenticationFilter.class);
+    http.addFilterBefore(internalApiKeyFilter, GatewayHeaderFilter.class);
 
     return http.build();
   }

@@ -13,6 +13,7 @@ import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -29,6 +30,12 @@ public class GatewayHeaderFilter extends OncePerRequestFilter {
   protected void doFilterInternal(
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
+
+    Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
+    if (existingAuth != null && existingAuth.isAuthenticated()) {
+      filterChain.doFilter(request, response);
+      return;
+    }
 
     String userIdStr = request.getHeader("X-User-Id");
     String userRoleStr = request.getHeader("X-User-Role");
