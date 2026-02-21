@@ -67,7 +67,8 @@ public class GatewayHeaderFilter extends OncePerRequestFilter {
           return;
         } catch (Exception e) {
           logger.error("Gateway 헤더 처리 중 예기치 않은 오류 발생: " + e.getMessage());
-          sendErrorResponse(response, ErrorStatus.INTERNAL_SERVER_ERROR, "서버 내부 인증 처리 중 오류가 발생했습니다.");
+          sendErrorResponse(
+              response, ErrorStatus.INTERNAL_SERVER_ERROR, "서버 내부 인증 처리 중 오류가 발생했습니다.");
           return;
         }
       }
@@ -82,17 +83,19 @@ public class GatewayHeaderFilter extends OncePerRequestFilter {
     SecurityContextHolder.getContext().setAuthentication(authentication);
   }
 
-  private void sendErrorResponse(HttpServletResponse response, ErrorStatus errorStatus, String customMessage) throws IOException {
+  private void sendErrorResponse(
+      HttpServletResponse response, ErrorStatus errorStatus, String customMessage)
+      throws IOException {
     response.setStatus(errorStatus.getHttpStatus().value());
     response.setContentType("application/json;charset=UTF-8");
 
-    ApiResponse<Void> apiResponse = new ApiResponse<>(
-        false,
-        errorStatus.getCode(),
-        customMessage != null ? customMessage : errorStatus.getMessage(),
-        null,
-        null
-    );
+    ApiResponse<Void> apiResponse =
+        new ApiResponse<>(
+            false,
+            errorStatus.getCode(),
+            customMessage != null ? customMessage : errorStatus.getMessage(),
+            null,
+            null);
 
     // ObjectMapper를 통해 객체를 JSON 문자열로 변환하여 응답
     String jsonResponse = objectMapper.writeValueAsString(apiResponse);
