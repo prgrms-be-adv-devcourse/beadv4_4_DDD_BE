@@ -20,8 +20,7 @@ public class SecurityConfig {
 
   @Bean
   public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-    return http
-        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+    return http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .csrf(ServerHttpSecurity.CsrfSpec::disable)
         .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
         .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)

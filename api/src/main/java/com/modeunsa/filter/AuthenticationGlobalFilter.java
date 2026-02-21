@@ -52,16 +52,12 @@ public class AuthenticationGlobalFilter implements GlobalFilter, Ordered {
     String accessToken = null;
     String authHeader = request.getHeaders().getFirst("Authorization");
 
-    // 1) 먼저 Authorization 헤더에서 토큰을 찾아본다
     if (authHeader != null && authHeader.startsWith("Bearer ")) {
       accessToken = authHeader.substring(7).trim();
-    }
-    // 2) 헤더에 없다면, accessToken 이름의 쿠키가 있는지 찾아본다
-    else if (request.getCookies().containsKey("accessToken")) {
+    } else if (request.getCookies().containsKey("accessToken")) {
       accessToken = request.getCookies().getFirst("accessToken").getValue();
     }
 
-    // 3) 헤더와 쿠키 둘 다 뒤져봤는데도 토큰이 없으면 401 에러
     if (accessToken == null || accessToken.isBlank()) {
       return unauthorized(exchange);
     }
