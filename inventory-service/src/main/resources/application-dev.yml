@@ -71,7 +71,7 @@ management:
 
 custom:
   swagger:
-    serverUrl: ${SWAGGER_SERVER_URL:http://localhost:8083}
+    serverUrl: ${SWAGGER_SERVER_URL:http://localhost:8080}
     description: "Local Server"
   security:
     permit-all: false
@@ -112,8 +112,8 @@ custom:
     allowed-origins:
       - http://localhost:3000
       - http://127.0.0.1:3000
-      - http://localhost:8083
-      - http://127.0.0.1:8083
+      - http://localhost:8080
+      - http://127.0.0.1:8080
 
 jwt:
   secret: ${JWT_SECRET:local-test-jwt-secret-key-which-is-long-enough-32bytes}
