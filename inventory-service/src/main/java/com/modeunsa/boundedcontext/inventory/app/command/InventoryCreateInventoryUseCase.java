@@ -5,8 +5,11 @@ import com.modeunsa.boundedcontext.inventory.domain.Inventory;
 import com.modeunsa.boundedcontext.inventory.domain.InventoryProduct;
 import com.modeunsa.boundedcontext.inventory.out.InventoryRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class InventoryCreateInventoryUseCase {
@@ -14,11 +17,11 @@ public class InventoryCreateInventoryUseCase {
   private final InventoryRepository inventoryRepository;
 
   public void createInventory(InventoryProduct product) {
-    if (inventoryRepository.existsByProductId(product.getId())) {
-      return;
+    try {
+      Inventory inventory = inventoryMapper.toInventoryFromProduct(product);
+      inventoryRepository.save(inventory);
+    } catch (DataIntegrityViolationException e) {
+      log.info("이미 생성된 재고입니다. productId: {}", product.getId());
     }
-
-    Inventory inventory = inventoryMapper.toInventoryFromProduct(product);
-    inventoryRepository.save(inventory);
   }
 }
