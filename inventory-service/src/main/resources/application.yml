@@ -68,10 +68,10 @@ spring:
               predicates:
                 - Path=/api/v1/orders/**,/api/v2/orders/**
 
-#            - id: inventory-service
-#              uri: http://${services.inventory.host}:8082
-#              predicates:
-#                - Path=/api/v1/inventories/**,/api/v2/inventories/**
+            - id: inventory-service
+              uri: http://${services.inventory.host}:8090
+              predicates:
+               - Path=/api/v1/inventories/**,/api/v2/inventories/**
 
             - id: payment-service
               uri: http://${services.payment.host}:8083
