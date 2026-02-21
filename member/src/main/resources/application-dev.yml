@@ -95,13 +95,6 @@ custom:
       - /actuator/health
       - /actuator/prometheus
 
-      # ========== 콘텐츠 ==========
-      - /api/v1/contents/**
-
-      # ========== 상품 ===========
-      - /api/v1/products/search
-      - /api/v2/products/search
-
     oauth2:
       allowed-redirect-domains:
         - localhost

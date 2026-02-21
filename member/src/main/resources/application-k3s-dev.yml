@@ -104,8 +104,6 @@ custom:
       - /actuator/health
       - /actuator/prometheus
 
-      # ========== 콘텐츠 ==========
-      - /api/v1/contents/**
     oauth2:
       allowed-redirect-domains:
         - localhost

@@ -72,21 +72,6 @@ public class SecurityConfig {
                   .requestMatchers("/api/v1/members/me/basic-info")
                   .hasAnyRole("PRE_ACTIVE", "MEMBER")
 
-                  // 이미지 업로드 (프로필용)
-                  .requestMatchers("/api/v1/files/**")
-                  .hasAnyRole("PRE_ACTIVE", "MEMBER")
-
-                  // ========================================
-                  // 상품 API - GET만 공개
-                  // ========================================
-                  .requestMatchers(HttpMethod.GET, "/api/v1/products")
-                  .permitAll()
-                  .requestMatchers(HttpMethod.GET, "/api/v1/products/{id:[0-9]+}")
-                  .permitAll()
-                  // 재고
-                  .requestMatchers(HttpMethod.GET, "/api/v2/inventories/*/available-quantity")
-                  .permitAll()
-
                   // ========================================
                   // 관리자 전용
                   // ========================================
@@ -100,42 +85,11 @@ public class SecurityConfig {
                   .requestMatchers(HttpMethod.GET, "/api/v2/members/seller")
                   .hasRole("SELLER")
 
-                  // 상품 CUD
-                  .requestMatchers(HttpMethod.POST, "/api/v1/products")
-                  .hasRole("SELLER")
-                  .requestMatchers(HttpMethod.PATCH, "/api/v1/products/**")
-                  .hasRole("SELLER")
-
-                  // 정산
-                  .requestMatchers("/api/v1/settlements/**")
-                  .hasRole("SELLER")
-
                   // ========================================
                   // 회원 전용
                   // ========================================
                   // 마이페이지
                   .requestMatchers("/api/v1/members/me/**")
-                  .hasRole("MEMBER")
-
-                  // 관심상품
-                  .requestMatchers(HttpMethod.POST, "/api/v1/products/*/favorite")
-                  .hasRole("MEMBER")
-                  .requestMatchers(HttpMethod.DELETE, "/api/v1/products/*/favorite")
-                  .hasRole("MEMBER")
-
-                  // 주문
-                  .requestMatchers("/api/*/orders/**")
-                  .hasRole("MEMBER")
-
-                  // 결제
-                  .requestMatchers(HttpMethod.POST, "/api/v1/payments")
-                  .hasRole("MEMBER")
-                  .requestMatchers(
-                      HttpMethod.POST, "/api/v1/payments/*/payment/confirm/by/tossPayments")
-                  .hasRole("MEMBER")
-                  .requestMatchers("/api/v1/payments/accounts/**")
-                  .hasRole("MEMBER")
-                  .requestMatchers("/api/v1/payments/members/**")
                   .hasRole("MEMBER")
 
                   // ========================================
