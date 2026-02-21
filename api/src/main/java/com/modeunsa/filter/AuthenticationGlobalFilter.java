@@ -1,16 +1,23 @@
 package com.modeunsa.filter;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.modeunsa.client.AuthServiceClient;
 import com.modeunsa.config.GatewaySecurityProperties;
 import com.modeunsa.config.InternalProperties;
+import com.modeunsa.dto.ApiResponse;
 import com.modeunsa.dto.AuthStatusResponse;
+import com.modeunsa.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.server.ServerWebExchange;
@@ -24,42 +31,53 @@ public class AuthenticationGlobalFilter implements GlobalFilter, Ordered {
   private final AuthServiceClient authServiceClient;
   private final InternalProperties internalProperties;
   private final GatewaySecurityProperties securityProperties;
+  private final ObjectMapper objectMapper = new ObjectMapper();
   private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
   @Override
   public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-    ServerHttpRequest request = exchange.getRequest();
-    String path = request.getPath().value();
+    ServerHttpRequest originalRequest = exchange.getRequest();
+    String path = originalRequest.getPath().value();
+
+    // Header Injection 방지: 클라이언트가 보낸 내부 인증용 헤더 선제적 제거
+    ServerHttpRequest cleanRequest = originalRequest.mutate()
+        .headers(httpHeaders -> {
+          httpHeaders.remove("X-User-Id");
+          httpHeaders.remove("X-User-Role");
+          httpHeaders.remove("X-Seller-Id");
+        }).build();
+
+    ServerWebExchange cleanExchange = exchange.mutate().request(cleanRequest).build();
 
     // 1. /api/로 시작하지 않으면 통과
     if (!path.startsWith("/api/")) {
-      return chain.filter(exchange);
+      return chain.filter(cleanExchange);
     }
 
     // 2. 공개 엔드포인트 체크
     if (isPublicEndpoint(path)) {
-      return chain.filter(exchange);
+      return chain.filter(cleanExchange);
     }
 
     // 3. Internal API Key 체크
-    String internalApiKeyHeader = request.getHeaders().getFirst("X-INTERNAL-API-KEY");
+    String internalApiKeyHeader = cleanRequest.getHeaders().getFirst("X-INTERNAL-API-KEY");
     if (internalApiKeyHeader != null
         && internalApiKeyHeader.equals(internalProperties.getApiKey())) {
-      return addInternalUserHeaders(exchange, chain);
+      return addInternalUserHeaders(cleanExchange, chain);
     }
 
     // 4. 일반 유저 토큰(JWT) 체크 (헤더와 쿠키 모두 확인)
     String accessToken = null;
-    String authHeader = request.getHeaders().getFirst("Authorization");
+    String authHeader = cleanRequest.getHeaders().getFirst("Authorization");
 
     if (authHeader != null && authHeader.startsWith("Bearer ")) {
       accessToken = authHeader.substring(7).trim();
-    } else if (request.getCookies().containsKey("accessToken")) {
-      accessToken = request.getCookies().getFirst("accessToken").getValue();
+    } else if (cleanRequest.getCookies().containsKey("accessToken")) {
+      accessToken = cleanRequest.getCookies().getFirst("accessToken").getValue();
     }
 
     if (accessToken == null || accessToken.isBlank()) {
-      return unauthorized(exchange);
+      return unauthorized(cleanExchange);
     }
 
     // 5. Member 서비스로 토큰 검증
@@ -68,11 +86,14 @@ public class AuthenticationGlobalFilter implements GlobalFilter, Ordered {
         .flatMap(
             authStatus -> {
               if (!authStatus.isAuthenticated()) {
-                return unauthorized(exchange);
+                return unauthorized(cleanExchange);
               }
-              return addUserHeaders(exchange, chain, authStatus);
+              return addUserHeaders(cleanExchange, chain, authStatus);
             })
-        .onErrorResume(e -> unauthorized(exchange));
+        .onErrorResume(e -> {
+          log.error("토큰 검증 과정 중 오류 발생 - Path: {}, Message: {}", path, e.getMessage(), e);
+          return unauthorized(cleanExchange);
+        });
   }
 
   private boolean isPublicEndpoint(String path) {
@@ -87,11 +108,10 @@ public class AuthenticationGlobalFilter implements GlobalFilter, Ordered {
         exchange
             .getRequest()
             .mutate()
-            .header("X-User-Id", authStatus.getMemberId())
-            .header("X-User-Role", authStatus.getRole()); // 예: MEMBER, SELLER
+            .header("X-User-Id", authStatus.getMemberId()) // memberId 매핑
+            .header("X-User-Role", authStatus.getRole()); // role 매핑
 
-    // sellerId가 null이 아닌 경우(판매자인 경우)에만 헤더에 추가
-    if (authStatus.getSellerId() != null) {
+    if (authStatus.getSellerId() != null) { // sellerId 매핑
       requestBuilder.header("X-Seller-Id", String.valueOf(authStatus.getSellerId()));
     }
 
@@ -111,10 +131,31 @@ public class AuthenticationGlobalFilter implements GlobalFilter, Ordered {
   }
 
   private Mono<Void> unauthorized(ServerWebExchange exchange) {
-    exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-    return exchange.getResponse().setComplete();
+    ServerHttpResponse response = exchange.getResponse();
+    response.setStatusCode(HttpStatus.UNAUTHORIZED);
+    response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+
+    ApiResponse<Void> errorResponse = new ApiResponse<>(
+        false,
+        ErrorStatus.AUTH_INVALID_TOKEN.getCode(),
+        ErrorStatus.AUTH_INVALID_TOKEN.getMessage(),
+        null
+    ); // ApiResponse 생성자 규격에 맞춤
+
+    try {
+      byte[] bytes = objectMapper.writeValueAsBytes(errorResponse);
+      DataBuffer buffer = response.bufferFactory().wrap(bytes);
+      return response.writeWith(Mono.just(buffer));
+    } catch (JsonProcessingException e) {
+      log.error("JSON 직렬화 에러", e);
+      return response.setComplete();
+    }
   }
 
+  /**
+   * Gateway의 라우팅 필터가 실행되어 하위 서비스로 트래픽이 넘어가기 전에
+   * 인증 및 헤더 조작을 완료해야 하므로 우선순위를 -1로 설정하여 타 필터들보다 먼저 실행되도록 보장합니다.
+   */
   @Override
   public int getOrder() {
     return -1;
