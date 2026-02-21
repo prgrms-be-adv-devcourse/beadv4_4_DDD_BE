@@ -19,8 +19,8 @@ import org.junit.jupiter.api.Test;
 class PaymentSuccessStatusTest {
 
   @Test
-  @DisplayName("changeSuccess 성공 - MODEUNSA_PAY이고 IN_PROGRESS 상태인 경우")
-  void changeSuccessModeunsaPayInProgress() {
+  @DisplayName("changeToSuccess 성공 - MODEUNSA_PAY이고 IN_PROGRESS 상태인 경우")
+  void changeToSuccessModeunsaPayInProgress() {
 
     PaymentId paymentId = PaymentId.create(1L, "ORDER12345");
     Payment payment =
@@ -32,18 +32,18 @@ class PaymentSuccessStatusTest {
             ProviderType.MODEUNSA_PAY,
             PaymentPurpose.PRODUCT_PURCHASE);
 
-    payment.changeInProgress();
+    payment.changeToInProgress();
 
     // when
-    payment.changeSuccess();
+    payment.changeToSuccess();
 
     // then
     assertThat(payment.getStatus()).isEqualTo(PaymentStatus.SUCCESS);
   }
 
   @Test
-  @DisplayName("changeSuccess 실패 - MODEUNSA_PAY이고 IN_PROGRESS 상태가 아닌 경우")
-  void changeSuccessFailureWhenNotInProgress() {
+  @DisplayName("changeToSuccess 실패 - MODEUNSA_PAY이고 IN_PROGRESS 상태가 아닌 경우")
+  void changeToSuccessFailureWhenNotInProgress() {
 
     PaymentId paymentId = PaymentId.create(1L, "ORDER12345");
     LocalDateTime futureDeadline = LocalDateTime.now().plusDays(1);
@@ -60,7 +60,7 @@ class PaymentSuccessStatusTest {
             .build();
 
     // when, then
-    assertThatThrownBy(payment::changeSuccess)
+    assertThatThrownBy(payment::changeToSuccess)
         .isInstanceOf(PaymentDomainException.class)
         .satisfies(
             exception -> {
@@ -70,8 +70,8 @@ class PaymentSuccessStatusTest {
   }
 
   @Test
-  @DisplayName("changeSuccess 성공 - TOSS PG 결제이면서 APPROVED 상태인 경우")
-  void changeSuccessTossPayInProgress() {
+  @DisplayName("changeToSuccess 성공 - TOSS PG 결제이면서 APPROVED 상태인 경우")
+  void changeToSuccessTossPayInProgress() {
 
     PaymentId paymentId = PaymentId.create(1L, "ORDER12345");
     LocalDateTime futureDeadline = LocalDateTime.now().plusDays(1);
@@ -88,15 +88,15 @@ class PaymentSuccessStatusTest {
             .build();
 
     // when
-    payment.changeSuccess();
+    payment.changeToSuccess();
 
     // then
     assertThat(payment.getStatus()).isEqualTo(PaymentStatus.SUCCESS);
   }
 
   @Test
-  @DisplayName("changeSuccess 성공 - TOSS PG 결제이면서 APPROVED 상태인 경우")
-  void changeSuccessFailureTossPayInProgress() {
+  @DisplayName("changeToSuccess 실패 - TOSS PG 결제이면서 APPROVED 상태인 경우")
+  void changeToSuccessFailureTossPayInProgress() {
 
     PaymentId paymentId = PaymentId.create(1L, "ORDER12345");
     LocalDateTime futureDeadline = LocalDateTime.now().plusDays(1);
@@ -113,7 +113,7 @@ class PaymentSuccessStatusTest {
             .build();
 
     // when, then
-    assertThatThrownBy(payment::changeSuccess)
+    assertThatThrownBy(payment::changeToSuccess)
         .isInstanceOf(PaymentDomainException.class)
         .satisfies(
             exception -> {

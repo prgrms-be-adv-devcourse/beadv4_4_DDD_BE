@@ -1,11 +1,15 @@
 package com.modeunsa.boundedcontext.payment.domain.entity;
 
+import static jakarta.persistence.GenerationType.IDENTITY;
+
 import com.modeunsa.boundedcontext.payment.domain.types.TossWebhookStatus;
-import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
+import com.modeunsa.global.jpa.entity.AuditedEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
@@ -22,7 +26,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class PaymentTossWebhookLog extends GeneratedIdAndAuditedEntity {
+public class PaymentTossWebhookLog extends AuditedEntity {
+
+  @Id
+  @GeneratedValue(strategy = IDENTITY)
+  private Long id;
 
   @Column(nullable = false, unique = true)
   private String transmissionId;

@@ -30,12 +30,12 @@ class PaymentFailedStatusTest {
             LocalDateTime.now().plusDays(1),
             ProviderType.MODEUNSA_PAY,
             PaymentPurpose.PRODUCT_PURCHASE);
-    payment.changeInProgress();
+    payment.changeToInProgress();
     PaymentErrorCode errorCode = PaymentErrorCode.INVALID_PAYMENT;
     String message = "유효한 결제가 아닙니다.";
 
     // when
-    payment.failedPayment(errorCode, message);
+    payment.updateFailureInfo(errorCode, message);
 
     // then
     assertThat(payment.getStatus()).isEqualTo(PaymentStatus.FAILED);
@@ -58,12 +58,12 @@ class PaymentFailedStatusTest {
             LocalDateTime.now().plusDays(1),
             ProviderType.TOSS_PAYMENTS,
             PaymentPurpose.PRODUCT_PURCHASE);
-    payment.changeInProgress();
+    payment.changeToInProgress();
     PaymentErrorCode errorCode = PaymentErrorCode.OVERDUE_PAYMENT_DEADLINE;
     String message = "결제 기한이 초과되었습니다.";
 
     // when
-    payment.failedPayment(errorCode, message);
+    payment.updateFailureInfo(errorCode, message);
 
     // then
     assertThat(payment.getStatus()).isEqualTo(PaymentStatus.FINAL_FAILED);
