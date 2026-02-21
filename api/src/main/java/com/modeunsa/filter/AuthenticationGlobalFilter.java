@@ -40,12 +40,16 @@ public class AuthenticationGlobalFilter implements GlobalFilter, Ordered {
     String path = originalRequest.getPath().value();
 
     // Header Injection 방지: 클라이언트가 보낸 내부 인증용 헤더 선제적 제거
-    ServerHttpRequest cleanRequest = originalRequest.mutate()
-        .headers(httpHeaders -> {
-          httpHeaders.remove("X-User-Id");
-          httpHeaders.remove("X-User-Role");
-          httpHeaders.remove("X-Seller-Id");
-        }).build();
+    ServerHttpRequest cleanRequest =
+        originalRequest
+            .mutate()
+            .headers(
+                httpHeaders -> {
+                  httpHeaders.remove("X-User-Id");
+                  httpHeaders.remove("X-User-Role");
+                  httpHeaders.remove("X-Seller-Id");
+                })
+            .build();
 
     ServerWebExchange cleanExchange = exchange.mutate().request(cleanRequest).build();
 
@@ -90,10 +94,11 @@ public class AuthenticationGlobalFilter implements GlobalFilter, Ordered {
               }
               return addUserHeaders(cleanExchange, chain, authStatus);
             })
-        .onErrorResume(e -> {
-          log.error("토큰 검증 과정 중 오류 발생 - Path: {}, Message: {}", path, e.getMessage(), e);
-          return unauthorized(cleanExchange);
-        });
+        .onErrorResume(
+            e -> {
+              log.error("토큰 검증 과정 중 오류 발생 - Path: {}, Message: {}", path, e.getMessage(), e);
+              return unauthorized(cleanExchange);
+            });
   }
 
   private boolean isPublicEndpoint(String path) {
@@ -135,12 +140,12 @@ public class AuthenticationGlobalFilter implements GlobalFilter, Ordered {
     response.setStatusCode(HttpStatus.UNAUTHORIZED);
     response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
-    ApiResponse<Void> errorResponse = new ApiResponse<>(
-        false,
-        ErrorStatus.AUTH_INVALID_TOKEN.getCode(),
-        ErrorStatus.AUTH_INVALID_TOKEN.getMessage(),
-        null
-    ); // ApiResponse 생성자 규격에 맞춤
+    ApiResponse<Void> errorResponse =
+        new ApiResponse<>(
+            false,
+            ErrorStatus.AUTH_INVALID_TOKEN.getCode(),
+            ErrorStatus.AUTH_INVALID_TOKEN.getMessage(),
+            null); // ApiResponse 생성자 규격에 맞춤
 
     try {
       byte[] bytes = objectMapper.writeValueAsBytes(errorResponse);
@@ -153,8 +158,8 @@ public class AuthenticationGlobalFilter implements GlobalFilter, Ordered {
   }
 
   /**
-   * Gateway의 라우팅 필터가 실행되어 하위 서비스로 트래픽이 넘어가기 전에
-   * 인증 및 헤더 조작을 완료해야 하므로 우선순위를 -1로 설정하여 타 필터들보다 먼저 실행되도록 보장합니다.
+   * Gateway의 라우팅 필터가 실행되어 하위 서비스로 트래픽이 넘어가기 전에 인증 및 헤더 조작을 완료해야 하므로 우선순위를 -1로 설정하여 타 필터들보다 먼저 실행되도록
+   * 보장합니다.
    */
   @Override
   public int getOrder() {
