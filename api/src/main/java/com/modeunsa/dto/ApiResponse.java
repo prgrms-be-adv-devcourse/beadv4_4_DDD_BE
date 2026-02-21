@@ -6,19 +6,21 @@ import com.modeunsa.status.ErrorStatus;
 import com.modeunsa.status.SuccessStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.http.ResponseEntity;
 
 @Getter
+@NoArgsConstructor
 @AllArgsConstructor
 @JsonPropertyOrder({"isSuccess", "code", "message", "pagination", "result"})
 public class ApiResponse<T> {
 
-  private final Boolean isSuccess;
-  private final String code;
-  private final String message;
+  private Boolean isSuccess;
+  private String code;
+  private String message;
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
-  private final T result;
+  private T result;
 
   // 성공 - 기본 응답
   public static ResponseEntity<ApiResponse> onSuccess(SuccessStatus status) {
