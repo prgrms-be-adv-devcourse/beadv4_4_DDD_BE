@@ -2,6 +2,7 @@ package com.modeunsa.boundedcontext.inventory.app;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+import com.modeunsa.boundedcontext.inventory.app.command.InventoryReserveInventoryUseCase;
 import com.modeunsa.shared.inventory.dto.InventoryReserveRequest;
 import com.modeunsa.shared.inventory.dto.InventoryReserveRequest.Item;
 import java.util.Collections;

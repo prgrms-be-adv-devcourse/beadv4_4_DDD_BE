@@ -3,6 +3,8 @@ package com.modeunsa.boundedcontext.inventory.app;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import com.modeunsa.InventoryServiceApplication;
+import com.modeunsa.boundedcontext.inventory.app.command.InventoryReleaseInventoryUseCase;
+import com.modeunsa.boundedcontext.inventory.app.command.InventoryReserveInventoryUseCase;
 import com.modeunsa.shared.inventory.dto.InventoryReserveRequest;
 import com.modeunsa.shared.order.dto.OrderItemDto;
 import java.math.BigDecimal;

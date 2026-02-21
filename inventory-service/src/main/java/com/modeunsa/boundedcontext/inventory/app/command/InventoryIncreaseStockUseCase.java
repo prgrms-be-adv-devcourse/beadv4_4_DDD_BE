@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.inventory.app;
+package com.modeunsa.boundedcontext.inventory.app.command;
 
 import com.modeunsa.boundedcontext.inventory.out.InventoryRepository;
 import com.modeunsa.global.exception.GeneralException;

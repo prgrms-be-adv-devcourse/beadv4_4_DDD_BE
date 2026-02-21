@@ -1,5 +1,6 @@
-package com.modeunsa.boundedcontext.inventory.app;
+package com.modeunsa.boundedcontext.inventory.app.query;
 
+import com.modeunsa.boundedcontext.inventory.app.port.InventoryQueryPort;
 import com.modeunsa.boundedcontext.inventory.domain.Inventory;
 import com.modeunsa.boundedcontext.inventory.out.InventoryRepository;
 import com.modeunsa.global.exception.GeneralException;

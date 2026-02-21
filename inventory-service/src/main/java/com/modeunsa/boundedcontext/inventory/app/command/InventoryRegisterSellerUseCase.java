@@ -1,5 +1,6 @@
-package com.modeunsa.boundedcontext.inventory.app;
+package com.modeunsa.boundedcontext.inventory.app.command;
 
+import com.modeunsa.boundedcontext.inventory.app.common.InventoryMapper;
 import com.modeunsa.boundedcontext.inventory.domain.InventorySeller;
 import com.modeunsa.boundedcontext.inventory.out.InventorySellerRepository;
 import lombok.RequiredArgsConstructor;

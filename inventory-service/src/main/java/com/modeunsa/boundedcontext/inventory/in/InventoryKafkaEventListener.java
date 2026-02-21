@@ -1,6 +1,6 @@
 package com.modeunsa.boundedcontext.inventory.in;
 
-import com.modeunsa.boundedcontext.inventory.app.InventoryFacade;
+import com.modeunsa.boundedcontext.inventory.app.common.InventoryFacade;
 import com.modeunsa.global.eventpublisher.topic.DomainEventEnvelope;
 import com.modeunsa.global.json.JsonConverter;
 import com.modeunsa.shared.inventory.event.InventoryStockRecoverEvent;

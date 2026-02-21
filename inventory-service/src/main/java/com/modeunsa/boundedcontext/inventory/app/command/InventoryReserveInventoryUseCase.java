@@ -1,5 +1,6 @@
-package com.modeunsa.boundedcontext.inventory.app;
+package com.modeunsa.boundedcontext.inventory.app.command;
 
+import com.modeunsa.boundedcontext.inventory.app.port.InventoryCommandPort;
 import com.modeunsa.shared.inventory.dto.InventoryReserveRequest;
 import java.util.Comparator;
 import java.util.List;

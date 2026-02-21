@@ -1,7 +1,7 @@
 package com.modeunsa.boundedcontext.inventory.out.redis;
 
-import com.modeunsa.boundedcontext.inventory.app.InventoryCommandPort;
-import com.modeunsa.boundedcontext.inventory.app.InventoryQueryPort;
+import com.modeunsa.boundedcontext.inventory.app.port.InventoryCommandPort;
+import com.modeunsa.boundedcontext.inventory.app.port.InventoryQueryPort;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import java.time.Duration;

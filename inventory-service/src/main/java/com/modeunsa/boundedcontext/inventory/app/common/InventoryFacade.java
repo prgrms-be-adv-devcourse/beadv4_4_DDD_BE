@@ -1,5 +1,14 @@
-package com.modeunsa.boundedcontext.inventory.app;
+package com.modeunsa.boundedcontext.inventory.app.common;
 
+import com.modeunsa.boundedcontext.inventory.app.command.InventoryCreateInventoryUseCase;
+import com.modeunsa.boundedcontext.inventory.app.command.InventoryCreateProductUseCase;
+import com.modeunsa.boundedcontext.inventory.app.command.InventoryDecreaseStockUseCase;
+import com.modeunsa.boundedcontext.inventory.app.command.InventoryIncreaseStockUseCase;
+import com.modeunsa.boundedcontext.inventory.app.command.InventoryRegisterSellerUseCase;
+import com.modeunsa.boundedcontext.inventory.app.command.InventoryReleaseInventoryUseCase;
+import com.modeunsa.boundedcontext.inventory.app.command.InventoryReserveInventoryUseCase;
+import com.modeunsa.boundedcontext.inventory.app.command.InventoryUpdateInventoryUseCase;
+import com.modeunsa.boundedcontext.inventory.app.query.InventoryGetAvailableQuantityUseCase;
 import com.modeunsa.boundedcontext.inventory.domain.InventoryProduct;
 import com.modeunsa.shared.inventory.dto.InventoryAvailableQuantityResponse;
 import com.modeunsa.shared.inventory.dto.InventoryDto;

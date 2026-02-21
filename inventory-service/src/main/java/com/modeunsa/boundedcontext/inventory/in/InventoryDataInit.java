@@ -1,6 +1,6 @@
 package com.modeunsa.boundedcontext.inventory.in;
 
-import com.modeunsa.boundedcontext.inventory.app.InventoryFacade;
+import com.modeunsa.boundedcontext.inventory.app.common.InventoryFacade;
 import jakarta.transaction.Transactional;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

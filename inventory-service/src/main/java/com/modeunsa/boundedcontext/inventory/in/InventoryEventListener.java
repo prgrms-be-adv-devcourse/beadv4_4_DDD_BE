@@ -3,7 +3,7 @@ package com.modeunsa.boundedcontext.inventory.in;
 import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
-import com.modeunsa.boundedcontext.inventory.app.InventoryFacade;
+import com.modeunsa.boundedcontext.inventory.app.common.InventoryFacade;
 import com.modeunsa.shared.inventory.event.InventoryStockRecoverEvent;
 import com.modeunsa.shared.member.event.SellerRegisteredEvent;
 import com.modeunsa.shared.order.event.OrderCancellationConfirmedEvent;
