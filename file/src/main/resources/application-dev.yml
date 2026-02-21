@@ -38,6 +38,7 @@ custom:
       - /v3/api-docs/**
       - /
       - /favicon.ico
+      - /error
 
       # ========== 헬스체크 ==========
       - /actuator/health
