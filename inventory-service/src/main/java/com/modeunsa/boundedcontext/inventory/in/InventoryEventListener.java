@@ -10,6 +10,7 @@ import com.modeunsa.shared.order.event.OrderCancellationConfirmedEvent;
 import com.modeunsa.shared.order.event.OrderPaidEvent;
 import com.modeunsa.shared.product.event.ProductCreatedEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
@@ -29,7 +30,10 @@ public class InventoryEventListener {
         event.memberSellerId(), event.businessName(), event.representativeName());
   }
 
-  @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000))
+  @Retryable(
+      exclude = {DataIntegrityViolationException.class},
+      maxAttempts = 3,
+      backoff = @Backoff(delay = 1000))
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Transactional(propagation = REQUIRES_NEW)
   public void handle(ProductCreatedEvent event) {
