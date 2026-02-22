@@ -16,8 +16,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
+import org.springframework.resilience.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
@@ -64,10 +63,11 @@ public class RestTossPaymentClient implements TossPaymentClient {
 
   @Override
   @Retryable(
-      retryFor = {TossConfirmRetryableException.class, ResourceAccessException.class},
-      noRetryFor = {TossConfirmFailedException.class},
-      maxAttempts = 3,
-      backoff = @Backoff(delay = 500, multiplier = 2))
+      includes = {TossConfirmRetryableException.class, ResourceAccessException.class},
+      excludes = {TossConfirmFailedException.class},
+      maxRetries = 2,
+      delay = 500,
+      multiplier = 2)
   public TossPaymentsConfirmResponse confirmPayment(
       TossPaymentsConfirmRequest tossPaymentsConfirmRequest) {
     String paymentKey = tossPaymentsConfirmRequest.paymentKey();

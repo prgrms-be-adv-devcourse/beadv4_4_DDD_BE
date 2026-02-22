@@ -1,6 +1,5 @@
 package com.modeunsa.boundedcontext.payment.app.usecase.process.complete;
 
-import co.elastic.clients.util.VisibleForTesting;
 import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentProcessContext;
 import com.modeunsa.boundedcontext.payment.app.lock.LockedPaymentAccounts;
 import com.modeunsa.boundedcontext.payment.app.lock.PaymentAccountLockManager;
@@ -63,7 +62,7 @@ public class PaymentCompleteOrderCompleteUseCase implements PaymentCompleteProce
     }
   }
 
-  @VisibleForTesting
+  // Lock 없이 결제 처리 - 테스트용
   public void executeWithoutLock(PaymentProcessContext paymentProcessContext) {
 
     // 1. 결제 계좌 영속성 획득 (Lock 미획득)
