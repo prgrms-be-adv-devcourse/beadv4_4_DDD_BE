@@ -12,7 +12,6 @@ import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.inventory.dto.InventoryReserveRequest;
-import com.modeunsa.shared.order.dto.CreateCartOrderRequestDto;
 import com.modeunsa.shared.order.dto.OrderResponseDto;
 import com.modeunsa.shared.product.dto.ProductOrderResponse;
 import com.modeunsa.shared.product.dto.ProductOrderValidateRequest;
@@ -33,7 +32,7 @@ public class OrderCreateCartOrderUseCase {
   private final ProductApiClient productApiClient;
   private final InventoryApiClient inventoryApiClient;
 
-  public OrderResponseDto createCartOrder(Long memberId, CreateCartOrderRequestDto requestDto) {
+  public OrderResponseDto createCartOrder(Long memberId) {
     // 회원 및 장바구니 목록 조회
     OrderMember member = orderSupport.findByMemberId(memberId);
     List<CartItem> cartItems = orderSupport.getCartItemsByMemberId(memberId);
@@ -46,7 +45,7 @@ public class OrderCreateCartOrderUseCase {
     Map<Long, ProductOrderResponse> productMap = getValidatedProductsMap(cartItems);
 
     // 주문 생성 및 저장
-    Order order = createAndSaveOrder(member, cartItems, productMap, requestDto);
+    Order order = createAndSaveOrder(member, cartItems, productMap);
 
     // 재고 일괄 차감 요청
     requestReserveInventory(order);
@@ -91,10 +90,7 @@ public class OrderCreateCartOrderUseCase {
 
   // 주문 생성 및 저장
   private Order createAndSaveOrder(
-      OrderMember member,
-      List<CartItem> cartItems,
-      Map<Long, ProductOrderResponse> productMap,
-      CreateCartOrderRequestDto request) {
+      OrderMember member, List<CartItem> cartItems, Map<Long, ProductOrderResponse> productMap) {
 
     List<OrderItem> orderItems = new ArrayList<>();
 

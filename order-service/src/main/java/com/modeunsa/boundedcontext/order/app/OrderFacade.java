@@ -5,7 +5,6 @@ import com.modeunsa.boundedcontext.order.domain.OrderMapper;
 import com.modeunsa.boundedcontext.order.domain.OrderMember;
 import com.modeunsa.boundedcontext.order.domain.OrderProduct;
 import com.modeunsa.shared.order.dto.CartItemsResponseDto;
-import com.modeunsa.shared.order.dto.CreateCartOrderRequestDto;
 import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
 import com.modeunsa.shared.order.dto.DeleteCartItemsRequestDto;
 import com.modeunsa.shared.order.dto.OrderDeliveryRequestDto;
@@ -66,8 +65,8 @@ public class OrderFacade {
 
   // 장바구니 주문 생성
   @Transactional
-  public OrderResponseDto createCartOrder(Long memberId, CreateCartOrderRequestDto requestDto) {
-    return orderCreateCartOrderUseCase.createCartOrder(memberId, requestDto);
+  public OrderResponseDto createCartOrder(Long memberId) {
+    return orderCreateCartOrderUseCase.createCartOrder(memberId);
   }
 
   public Page<OrderListResponseDto> getOrders(Long memberId, Pageable pageable) {

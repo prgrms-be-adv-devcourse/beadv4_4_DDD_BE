@@ -9,10 +9,6 @@ spring:
       enabled: false
   application:
     name: modeunsa
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.elasticsearch.autoconfigure.ElasticsearchClientAutoConfiguration
-      - org.springframework.boot.data.elasticsearch.autoconfigure.DataElasticsearchAutoConfiguration
   data:
     redis:
       host: localhost

@@ -67,7 +67,7 @@ management:
 
 custom:
   swagger:
-    serverUrl: "http://localhost:8081"
+    serverUrl: "http://localhost:8080"
     description: "Product Local Server"
   security:
     permit-all: false

@@ -126,6 +126,8 @@ springdoc:
     persistAuthorization: true
 
 app:
+  elasticsearch:
+    enabled: true
   cookie:
     secure: false
     http-only: true
