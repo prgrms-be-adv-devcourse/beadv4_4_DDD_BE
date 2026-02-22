@@ -1,12 +1,12 @@
 package com.modeunsa.boundedcontext.order.app;
 
+import com.modeunsa.boundedcontext.inventory.out.InventoryApiClient;
 import com.modeunsa.boundedcontext.order.domain.CartItem;
 import com.modeunsa.boundedcontext.order.domain.OrderMapper;
 import com.modeunsa.boundedcontext.order.domain.OrderMember;
 import com.modeunsa.boundedcontext.order.domain.OrderProduct;
 import com.modeunsa.boundedcontext.order.out.OrderCartItemRepository;
 import com.modeunsa.shared.inventory.dto.InventoryDto;
-import com.modeunsa.shared.inventory.out.InventoryApiClient;
 import com.modeunsa.shared.order.dto.SyncCartItemRequestDto;
 import com.modeunsa.shared.order.dto.SyncCartItemResponseDto;
 import lombok.RequiredArgsConstructor;

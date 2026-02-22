@@ -1,5 +1,6 @@
 package com.modeunsa.boundedcontext.content.domain.entity;
 
+import com.modeunsa.boundedcontext.content.app.dto.image.ContentImageDto;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -30,6 +31,9 @@ public class Content extends GeneratedIdAndAuditedEntity {
   @JoinColumn(name = "content_author_id", nullable = false)
   private ContentMember author;
 
+  @Column(nullable = false)
+  private String title;
+
   @Column(nullable = false, length = 500)
   private String text;
 
@@ -39,6 +43,8 @@ public class Content extends GeneratedIdAndAuditedEntity {
       orphanRemoval = true)
   @Builder.Default
   private List<ContentTag> tags = new ArrayList<>();
+
+  private String mainImageUrl;
 
   @OneToMany(
       mappedBy = "content",
@@ -50,8 +56,16 @@ public class Content extends GeneratedIdAndAuditedEntity {
   @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
 
+  private int likeCount;
+
+  private int commentCount;
+
   public void updateText(String text) {
     this.text = text;
+  }
+
+  public void updateMainImageUrl(String url) {
+    this.mainImageUrl = url;
   }
 
   @OneToMany(
@@ -60,6 +74,31 @@ public class Content extends GeneratedIdAndAuditedEntity {
       orphanRemoval = true)
   @Builder.Default
   private List<ContentComment> comments = new ArrayList<>();
+
+  public static Content create(
+      ContentMember author,
+      String title,
+      String text,
+      List<String> tags,
+      List<ContentImageDto> images) {
+    Content content = Content.builder().title(title).author(author).text(text).build();
+
+    for (String tagValue : tags) {
+      content.addTag(new ContentTag(tagValue));
+    }
+
+    for (ContentImageDto spec : images) {
+      ContentImage image =
+          new ContentImage(
+              spec.imageUrl(), spec.isPrimary(), spec.sortOrder() != null ? spec.sortOrder() : 0);
+      if (Boolean.TRUE.equals(spec.isPrimary())) {
+        content.mainImageUrl = spec.imageUrl();
+      }
+      content.addImage(image);
+    }
+
+    return content;
+  }
 
   // 태그 추가, 내부 연관관계 일관되게 유지
   public void addTag(ContentTag tag) {
@@ -83,10 +122,6 @@ public class Content extends GeneratedIdAndAuditedEntity {
   public void removeImage(ContentImage image) {
     images.remove(image);
     image.setContent(null);
-  }
-
-  public void setAuthor(ContentMember author) {
-    this.author = author;
   }
 
   public void delete() {

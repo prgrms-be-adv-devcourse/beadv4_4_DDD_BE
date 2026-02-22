@@ -46,15 +46,14 @@ dependencies {
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
     testAnnotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
 
-    // Security + OAuth2
+    // Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     testImplementation 'org.springframework.security:spring-security-test'
 
-    // JWT
-    implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
-    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
-    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+
+    // aop
+    implementation 'org.springframework:spring-aop'
+    implementation 'org.aspectj:aspectjweaver'
 
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
@@ -66,19 +65,12 @@ dependencies {
 
     // dotenv for loading .env file in tests
     testImplementation 'io.github.cdimascio:dotenv-java:3.0.0'
+
     // swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1'
 
     // MySQL Connector
     runtimeOnly 'com.mysql:mysql-connector-j'
-
-    // AWS SDK
-    implementation 'software.amazon.awssdk:s3:2.25.0'
-
-    // ElasticSearch
-    implementation'org.springframework.boot:spring-boot-starter-data-elasticsearch'
-
-    testImplementation'org.springframework.boot:spring-boot-starter-data-elasticsearch-test'
 
     implementation 'io.hypersistence:hypersistence-tsid:2.1.1'
 
