@@ -39,7 +39,7 @@ management:
 
 custom:
   swagger:
-    serverUrl: ${SWAGGER_SERVER_URL:http://localhost:8083}
+    serverUrl: ${SWAGGER_SERVER_URL:http://localhost:8080}
     description: "Local Server"
   security:
     permit-all: false
@@ -51,15 +51,6 @@ custom:
       - /
       - /favicon.ico
       - /error
-
-      # ========== 인증 API ==========
-      - /api/v1/auths/me
-      - /api/v1/auths/oauth/*/url
-      - /api/v1/auths/login/**
-      - /api/v1/auths/reissue
-      - /api/v1/auths/dev/**
-      - /login/oauth2/code/**
-      - /api/v1/test/roles/**
 
       # ========== 헬스체크 ==========
       - /actuator/health

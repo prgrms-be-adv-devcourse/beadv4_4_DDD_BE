@@ -55,14 +55,6 @@ custom:
       - /favicon.ico
       - /error
 
-      # ========== 인증 API ==========
-      - /api/v1/auths/me
-      - /api/v1/auths/oauth/*/url
-      - /api/v1/auths/login/**
-      - /api/v1/auths/dev/**
-      - /api/v1/auths/reissue
-      - /login/oauth2/code/**
-
       # ========== 헬스체크 ==========
       - /actuator/health
       - /actuator/prometheus
