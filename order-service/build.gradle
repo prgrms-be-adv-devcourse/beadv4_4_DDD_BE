@@ -32,6 +32,7 @@ repositories {
 	}
 }
 
+// TODO: ai 관련 의존성은 상품 모듈 의존성 제거 시 함께 삭제될 예정입니다.
 ext {
 	springAiVersion = "2.0.0-M2"
 }
