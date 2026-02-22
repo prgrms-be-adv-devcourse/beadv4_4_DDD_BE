@@ -11,10 +11,14 @@ public class CommonSecurityConfig {
   @Bean
   public RoleHierarchy roleHierarchy() {
     return RoleHierarchyImpl.withDefaultRolePrefix()
-        .role("SYSTEM").implies("ADMIN")
-        .role("HOLDER").implies("ADMIN")
-        .role("ADMIN").implies("SELLER")
-        .role("SELLER").implies("MEMBER")
+        .role("SYSTEM")
+        .implies("ADMIN")
+        .role("HOLDER")
+        .implies("ADMIN")
+        .role("ADMIN")
+        .implies("SELLER")
+        .role("SELLER")
+        .implies("MEMBER")
         .build();
   }
 }
