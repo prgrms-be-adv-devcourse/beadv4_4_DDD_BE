@@ -15,7 +15,7 @@ spring:
 
 custom:
   swagger:
-    serverUrl: ${SWAGGER_SERVER_URL:http://localhost:8080}
+    serverUrl: ${SWAGGER_SERVER_URL:http://localhost:8083}
     description: "Local Server"
   security:
     permit-all: false
@@ -53,8 +53,8 @@ custom:
     allowed-origins:
       - http://localhost:3000
       - http://127.0.0.1:3000
-      - http://localhost:8080
-      - http://127.0.0.1:8080
+      - http://localhost:8083
+      - http://127.0.0.1:8083
 
 springdoc:
   swagger-ui:
