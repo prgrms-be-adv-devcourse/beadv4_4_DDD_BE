@@ -1,10 +1,12 @@
 mysql:
+  enabled: true
   service:
     type: NodePort
     nodePort: 30306
   storage:
     size: 10Gi
 redis:
+  enabled: true
   service:
     type: ClusterIP
 elasticsearch:
@@ -12,17 +14,19 @@ elasticsearch:
   service:
     type: ClusterIP
 kafka:
-  enabled: false
+  enabled: true
   service:
     type: ClusterIP
 kafkaui:
-  enabled: false
+  enabled: true
   service:
     type: ClusterIP
 prometheus:
+  enabled: true
   service:
     type: ClusterIP
 grafana:
+  enabled: true
   service:
     type: ClusterIP
 ingress:

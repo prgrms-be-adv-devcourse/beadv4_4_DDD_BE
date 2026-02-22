@@ -2,7 +2,7 @@ spring:
   config:
     import: optional:file:.env.k3s-dev[.properties]
   datasource:
-    url: jdbc:mysql://127.0.0.1:30306/${DB_NAME:modeunsa}
+    url: jdbc:mysql://${DB_HOST:modeunsa-infra-mysql}:${DB_PORT:3306}/${DB_NAME:modeunsa}
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver

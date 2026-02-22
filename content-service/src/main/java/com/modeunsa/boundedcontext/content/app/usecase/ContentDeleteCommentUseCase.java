@@ -7,7 +7,7 @@ import com.modeunsa.boundedcontext.content.domain.entity.Content;
 import com.modeunsa.boundedcontext.content.domain.entity.ContentComment;
 import com.modeunsa.boundedcontext.content.domain.entity.ContentMember;
 import com.modeunsa.boundedcontext.content.out.ContentCommentRepository;
-import com.modeunsa.boundedcontext.content.out.ContentRepository;
+import com.modeunsa.boundedcontext.content.out.persistence.content.ContentRepository;
 import com.modeunsa.global.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

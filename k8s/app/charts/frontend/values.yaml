@@ -1,7 +1,7 @@
 enabled: true
 
 image:
-  repository: ""        # .env에서 주입 (FRONTEND_IMAGE)
+  repository: ""        # .env.k3s-*에서 주입 (FRONTEND_IMAGE)
   tag: "latest"
   pullPolicy: Always
 
@@ -15,6 +15,9 @@ service:
 # Next.js는 환경변수로 API URL 주입 가능
 env:
   apiUrl: ""            # 필요시 사용 (보통 Ingress로 /api 처리하면 불필요)
+
+secrets:
+  jwtSecret: ""         # .env.k3s-*에서 주입 (JWT_SECRET)
 
 resources:
   requests:

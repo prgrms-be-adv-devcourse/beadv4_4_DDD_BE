@@ -1,8 +1,8 @@
 package com.modeunsa.boundedcontext.content.in.api.v1;
 
 import com.modeunsa.boundedcontext.content.app.ContentFacade;
-import com.modeunsa.boundedcontext.content.app.dto.ContentRequest;
 import com.modeunsa.boundedcontext.content.app.dto.ContentResponse;
+import com.modeunsa.boundedcontext.content.app.dto.content.ContentCreateCommand;
 import com.modeunsa.boundedcontext.content.domain.entity.ContentMember;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.security.CustomUserDetails;
@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Content", description = "콘텐츠 API")
-@RestController
+@RestController("ContentV1Controller")
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/contents")
 public class ContentController {
@@ -38,20 +38,18 @@ public class ContentController {
   @PostMapping
   public ResponseEntity<ApiResponse> createContent(
       @AuthenticationPrincipal CustomUserDetails user,
-      @Valid @RequestBody ContentRequest contentRequest) {
-    ContentResponse contentResponse =
-        contentFacade.createContent(user.getMemberId(), contentRequest);
-    return ApiResponse.onSuccess(SuccessStatus.CREATED, contentResponse);
+      @Valid @RequestBody ContentCreateCommand command) {
+    contentFacade.create(user.getMemberId(), command);
+    return ApiResponse.onSuccess(SuccessStatus.CREATED);
   }
 
   @Operation(summary = "콘텐츠 수정", description = "콘텐츠를 수정합니다.")
   @PatchMapping("/{contentId}")
   public ResponseEntity<ApiResponse> updateContent(
       @PathVariable Long contentId,
-      @Valid @RequestBody ContentRequest contentRequest,
+      @Valid @RequestBody ContentCreateCommand command,
       @AuthenticationPrincipal ContentMember author) {
-    ContentResponse contentResponse =
-        contentFacade.updateContent(contentId, contentRequest, author);
+    ContentResponse contentResponse = contentFacade.updateContent(contentId, command, author);
     return ApiResponse.onSuccess(SuccessStatus.OK, contentResponse);
   }
 
