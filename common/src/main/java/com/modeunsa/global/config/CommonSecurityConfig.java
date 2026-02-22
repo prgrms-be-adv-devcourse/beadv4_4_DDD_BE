@@ -12,13 +12,13 @@ public class CommonSecurityConfig {
   public RoleHierarchy roleHierarchy() {
     return RoleHierarchyImpl.withDefaultRolePrefix()
         .role("SYSTEM")
-        .implies("ADMIN")
+        .implies("ADMIN") // SYSTEM은 ADMIN의 모든 권한을 가짐
         .role("HOLDER")
-        .implies("ADMIN")
+        .implies("ADMIN") // HOLDER는 ADMIN의 모든 권한을 가짐
         .role("ADMIN")
-        .implies("SELLER")
+        .implies("SELLER") // ADMIN은 SELLER의 모든 권한을 가짐
         .role("SELLER")
-        .implies("MEMBER")
+        .implies("MEMBER") // SELLER는 MEMBER의 모든 권한을 가짐
         .build();
   }
 }
