@@ -28,7 +28,7 @@ repositories {
 
 dependencies {
 	implementation project(":common")
-	implementation project(":member")
+	implementation project(":member-service")
 	implementation project(":product") //TODO: 상품 조회 제거 후 삭제
 
 	// spring boot

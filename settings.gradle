@@ -2,10 +2,11 @@
 rootProject.name = 'modeunsa'
 
 // 사용할 도메인 설정
+include 'api-gateway'
 include 'product'
 include 'common'
 include 'file'
-include 'member'
+include 'member-service'
 include 'settlement-service'
 include 'payment-service'
 include 'order-service'
