@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import com.modeunsa.SettlementApplication;
 import com.modeunsa.boundedcontext.settlement.app.SettlementAddItemsAndCalculatePayoutsUseCase;
 import com.modeunsa.boundedcontext.settlement.domain.entity.Settlement;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementCandidateItem;
@@ -31,7 +32,7 @@ import org.springframework.test.context.ActiveProfiles;
 @Disabled
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
-@SpringBootTest
+@SpringBootTest(classes = SettlementApplication.class)
 @DisplayName("SettlementAddItemsAndCalculatePayoutsUseCase 테스트")
 class SettlementAddItemsAndCalculatePayoutsUseCaseTest {
 

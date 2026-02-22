@@ -12,11 +12,10 @@ import com.modeunsa.shared.settlement.dto.SettlementItemResponseDto;
 import com.modeunsa.shared.settlement.dto.SettlementResponseDto;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -76,8 +75,8 @@ public class SettlementSupport {
     return settlementResponseDto;
   }
 
-  public Page<SettlementCandidateItem> getSettlementCandidateItems(
-      LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
-    return settlementCandidateItemRepository.findUncollectedItems(startDate, endDate, pageable);
+  public List<SettlementCandidateItem> getSettlementCandidateItems(
+      LocalDateTime startDate, LocalDateTime endDate) {
+    return settlementCandidateItemRepository.findUncollectedItems(startDate, endDate);
   }
 }
