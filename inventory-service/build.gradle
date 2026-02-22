@@ -28,7 +28,7 @@ repositories {
 
 dependencies {
     implementation project(":common")
-    implementation project(":member")
+    implementation project(":member-service")
     implementation project(":order-service")
 
     // spring boot
