@@ -5,7 +5,7 @@ import static com.modeunsa.global.status.ErrorStatus.CONTENT_MEMBER_NOT_FOUND;
 import com.modeunsa.boundedcontext.content.domain.entity.Content;
 import com.modeunsa.boundedcontext.content.domain.entity.ContentMember;
 import com.modeunsa.boundedcontext.content.out.ContentMemberRepository;
-import com.modeunsa.boundedcontext.content.out.ContentRepository;
+import com.modeunsa.boundedcontext.content.out.persistence.content.ContentRepository;
 import com.modeunsa.global.exception.GeneralException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
