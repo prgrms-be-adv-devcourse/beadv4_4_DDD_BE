@@ -41,10 +41,10 @@ public class RestTossPaymentClient implements TossPaymentClient {
   @Value("${payment.toss.secret-key:}")
   private String tossSecretKey;
 
-  @Value("${payment.toss.connect-timeout-seconds:3}")
+  @Value("${payment.toss.connect-timeout-seconds:3s}")
   private Duration connectTimeout;
 
-  @Value("${payment.toss.read-timeout-seconds:10}")
+  @Value("${payment.toss.read-timeout-seconds:10s}")
   private Duration readTimeout;
 
   public RestTossPaymentClient(ObjectMapper objectMapper) {
@@ -57,16 +57,11 @@ public class RestTossPaymentClient implements TossPaymentClient {
       throw new IllegalStateException("payment.toss.base-url이 설정되지 않았습니다.");
     }
     SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-    factory.setConnectTimeout(connectTimeout);
-    factory.setReadTimeout(readTimeout);
+    factory.setConnectTimeout((int) connectTimeout.toMillis());
+    factory.setReadTimeout((int) readTimeout.toMillis());
     this.tossRestClient = RestClient.builder().baseUrl(tossBaseUrl).requestFactory(factory).build();
   }
 
-  /**
-   * Toss PG 전용 재시도 정책: 재시도 가능 예외만 N회 재시도, 그 외는 즉시 실패. - 재시도: {@link TossConfirmRetryableException}
-   * (502/503/504), {@link ResourceAccessException} (네트워크/타임아웃) - 재시도 안 함: {@link
-   * TossConfirmFailedException} (4xx, 500 등)
-   */
   @Override
   @Retryable(
       retryFor = {TossConfirmRetryableException.class, ResourceAccessException.class},
