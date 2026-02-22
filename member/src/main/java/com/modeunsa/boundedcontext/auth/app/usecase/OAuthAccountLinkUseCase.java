@@ -1,12 +1,12 @@
 package com.modeunsa.boundedcontext.auth.app.usecase;
 
+import com.modeunsa.boundedcontext.auth.domain.dto.OAuthProviderTokenResponse;
+import com.modeunsa.boundedcontext.auth.domain.dto.OAuthUserInfo;
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import com.modeunsa.boundedcontext.auth.out.client.OAuthClient;
 import com.modeunsa.boundedcontext.auth.out.client.OAuthClientFactory;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
-import com.modeunsa.shared.auth.dto.OAuthProviderTokenResponse;
-import com.modeunsa.shared.auth.dto.OAuthUserInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;

@@ -1,15 +1,16 @@
 package com.modeunsa.boundedcontext.auth.in.api.v1;
 
 import com.modeunsa.boundedcontext.auth.app.facade.AuthFacade;
+import com.modeunsa.boundedcontext.auth.domain.dto.AuthStatusResponse;
+import com.modeunsa.boundedcontext.auth.domain.dto.JwtTokenResponse;
 import com.modeunsa.boundedcontext.auth.domain.types.OAuthProvider;
 import com.modeunsa.boundedcontext.auth.in.util.AuthRequestUtils;
 import com.modeunsa.global.config.CookieProperties;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.response.ApiResponse;
+import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.global.status.SuccessStatus;
-import com.modeunsa.shared.auth.dto.AuthStatusResponse;
-import com.modeunsa.shared.auth.dto.JwtTokenResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -157,25 +158,25 @@ public class AuthController {
   @Operation(summary = "인증 확인", description = "현재 로그인 상태를 확인합니다.")
   @GetMapping("/me")
   public ResponseEntity<ApiResponse> checkAuth() {
-    // SecurityContext에서 인증 정보 가져오기
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-    // 비로그인 상태 - 200 OK로 응답
+    // 비로그인 상태
     if (authentication == null
         || !authentication.isAuthenticated()
         || "anonymousUser".equals(authentication.getPrincipal())) {
-
-      AuthStatusResponse response =
-          AuthStatusResponse.builder().isAuthenticated(false).memberId(null).build();
-
+      AuthStatusResponse response = AuthStatusResponse.builder().isAuthenticated(false).build();
       return ApiResponse.onSuccess(SuccessStatus.OK, response);
     }
 
-    // 로그인 상태 - 200 OK로 응답
+    // 로그인 상태 - CustomUserDetails로 캐스팅
+    CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
     AuthStatusResponse response =
         AuthStatusResponse.builder()
             .isAuthenticated(true)
-            .memberId(authentication.getName())
+            .memberId(String.valueOf(userDetails.getMemberId()))
+            .role(userDetails.getRole().name())
+            .sellerId(userDetails.getSellerId()) // 없으면 null 반환
             .build();
 
     return ApiResponse.onSuccess(SuccessStatus.OK, response);

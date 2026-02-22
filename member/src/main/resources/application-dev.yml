@@ -69,7 +69,7 @@ management:
 
 custom:
   swagger:
-    serverUrl: "http://localhost:8086"
+    serverUrl: "http://localhost:8080"
     description: "Member Local Server"
   security:
     permit-all: false
@@ -80,6 +80,7 @@ custom:
       - /v3/api-docs/**
       - /
       - /favicon.ico
+      - /error
 
       # ========== 인증 API ==========
       - /api/v1/auths/me
@@ -94,24 +95,10 @@ custom:
       - /actuator/health
       - /actuator/prometheus
 
-      # ========== 콘텐츠 ==========
-      - /api/v1/contents/**
-
-      # ========== 상품 ===========
-      - /api/v1/products/search
-      - /api/v2/products/search
-
     oauth2:
       allowed-redirect-domains:
         - localhost
         - 127.0.0.1
-  cors:
-    enabled: true
-    allowed-origins:
-      - http://localhost:3000
-      - http://127.0.0.1:3000
-      - http://localhost:8086
-      - http://127.0.0.1:8086
 
 jwt:
   secret: ${JWT_SECRET:local-test-jwt-secret-key-which-is-long-enough-32bytes}
