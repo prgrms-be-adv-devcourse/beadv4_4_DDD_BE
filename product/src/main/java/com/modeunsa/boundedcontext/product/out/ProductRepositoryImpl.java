@@ -3,7 +3,7 @@ package com.modeunsa.boundedcontext.product.out;
 import static com.modeunsa.boundedcontext.product.domain.QProduct.product;
 import static com.modeunsa.boundedcontext.product.domain.QProductMemberSeller.productMemberSeller;
 
-import com.modeunsa.api.pagination.CursorDto;
+import com.modeunsa.api.pagination.KeywordCursorDto;
 import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
 import com.modeunsa.boundedcontext.product.domain.ProductPolicy;
@@ -25,7 +25,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
   private final JPAQueryFactory queryFactory;
 
   @Override
-  public Slice<Product> searchByKeyword(String keyword, CursorDto cursor, int size) {
+  public Slice<Product> searchByKeyword(String keyword, KeywordCursorDto cursor, int size) {
     List<Product> content =
         queryFactory
             .selectFrom(product)
@@ -78,7 +78,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     return product.productStatus.in(ProductPolicy.ORDERABLE_PRODUCT_STATUES);
   }
 
-  private BooleanExpression cursorCondition(CursorDto cursor) {
+  private BooleanExpression cursorCondition(KeywordCursorDto cursor) {
     if (cursor == null) {
       // 첫 조회 시 null
       return null;

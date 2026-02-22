@@ -1,7 +1,7 @@
 package com.modeunsa.boundedcontext.product.app;
 
 import com.modeunsa.api.pagination.CursorCodec;
-import com.modeunsa.api.pagination.CursorDto;
+import com.modeunsa.api.pagination.KeywordCursorDto;
 import com.modeunsa.boundedcontext.product.domain.Product;
 import com.modeunsa.boundedcontext.product.domain.ProductCategory;
 import com.modeunsa.boundedcontext.product.domain.ProductFavorite;
@@ -79,14 +79,14 @@ public class ProductFacade {
 
   public ProductSliceResultDto getProducts(String keyword, String cursor, int size) {
     // 1. cursor 복호화
-    CursorDto decodedCursor = cursorCodec.decodeIfPresent(cursor);
+    KeywordCursorDto decodedCursor = cursorCodec.decodeIfPresent(cursor, KeywordCursorDto.class);
     // 2. cursor 기반 검색
     Slice<Product> products = productSupport.getProducts(keyword, decodedCursor, size);
     // 3. nextCursor 가져와서 암호화 & 인코딩
     String nextCursor = null;
     if (products.hasNext()) {
       Product last = products.getContent().getLast();
-      nextCursor = cursorCodec.encode(new CursorDto(last.getCreatedAt(), last.getId()));
+      nextCursor = cursorCodec.encode(new KeywordCursorDto<>(last.getCreatedAt(), last.getId()));
     }
 
     return new ProductSliceResultDto(

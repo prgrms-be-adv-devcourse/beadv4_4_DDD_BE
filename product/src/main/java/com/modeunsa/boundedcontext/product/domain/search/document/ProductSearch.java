@@ -56,6 +56,9 @@ public class ProductSearch {
   @Field(type = FieldType.Date, format = DateFormat.date_time)
   private Instant createdAt;
 
+  @Field(type = FieldType.Dense_Vector, dims = 1536)
+  private float[] embedding;
+
   public ProductSearch(
       String id,
       String name,
@@ -66,7 +69,8 @@ public class ProductSearch {
       String productStatus,
       BigDecimal salePrice,
       String primaryImageUrl,
-      Instant createdAt) {
+      Instant createdAt,
+      float[] embedding) {
     this.id = id;
     this.name = name;
     this.nameAutoComplete = name;
@@ -79,9 +83,10 @@ public class ProductSearch {
     this.salePrice = salePrice;
     this.primaryImageUrl = primaryImageUrl;
     this.createdAt = createdAt;
+    this.embedding = embedding;
   }
 
-  public static ProductSearch from(Product product) {
+  public static ProductSearch from(Product product, float[] embedding) {
     return ProductSearch.create(
         product.getId().toString(),
         product.getName(),
@@ -92,7 +97,8 @@ public class ProductSearch {
         product.getProductStatus().name(),
         product.getSalePrice(),
         product.getPrimaryImageUrl(),
-        product.getCreatedAt().atZone(ZoneId.of("Asia/Seoul")).toInstant());
+        product.getCreatedAt().atZone(ZoneId.of("Asia/Seoul")).toInstant(),
+        embedding);
   }
 
   public static ProductSearch create(
@@ -105,7 +111,8 @@ public class ProductSearch {
       String productStatus,
       BigDecimal salePrice,
       String primaryImageUrl,
-      Instant createdAt) {
+      Instant createdAt,
+      float[] embedding) {
     return new ProductSearch(
         id,
         name,
@@ -116,6 +123,7 @@ public class ProductSearch {
         productStatus,
         salePrice,
         primaryImageUrl,
-        createdAt);
+        createdAt,
+        embedding);
   }
 }

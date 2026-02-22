@@ -27,7 +27,8 @@ public class ProductCreateProductSearchUseCase {
             request.productStatus(),
             request.salePrice(),
             request.primaryImageUrl(),
-            request.createdAt().atZone(ZoneId.of("Asia/Seoul")).toInstant());
+            request.createdAt().atZone(ZoneId.of("Asia/Seoul")).toInstant(),
+            null); // 초기 상품 생성 시 검색 불가능하므로 embedding 생성 불필요
     return productSearchRepository.save(productSearch);
   }
 }
