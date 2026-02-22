@@ -1,3 +1,5 @@
+// app/login/oauth2/code/naver
+
 'use client'
 
 import api from '../../../../lib/axios';
@@ -30,12 +32,20 @@ function LoginCallbackContent() {
       params: { code, state, redirectUri }
     })
     .then((response) => {
-      if (response.data.isSuccess) {
-        setMessage('로그인 성공!')
-        window.dispatchEvent(new Event('loginStatusChanged'))
-        setTimeout(() => router.push('/'), 1000)
+      const { isSuccess, result, message } = response.data;
+      if (isSuccess) {
+        const memberStatus = result.status;
+        if (memberStatus === 'PRE_ACTIVE') {
+          setMessage('회원가입 마무리를 위해 추가 정보 입력 페이지로 이동합니다...');
+          // 잠시 후 회원가입 완료 페이지로 이동
+          setTimeout(() => router.replace('/signup/complete'), 1000);
+        } else {
+          setMessage('로그인 성공! 홈으로 이동합니다.');
+          window.dispatchEvent(new Event('loginStatusChanged'));
+          setTimeout(() => router.replace('/'), 1000);
+        }
       } else {
-        setMessage(`실패: ${response.data.message}`)
+        setMessage(`로그인 실패: ${message}`)
         setTimeout(() => router.replace('/login'), 1500)
       }
     })

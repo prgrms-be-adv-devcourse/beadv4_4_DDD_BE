@@ -1,3 +1,5 @@
+// web-client/app/mypage/profile
+
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -114,60 +116,117 @@ export default function ProfilePage() {
   }
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    // 프로필 부재 시 업로드 차단 (이전 리뷰 반영)
+    // 이벤트 타겟을 미리 저장해둡니다 (비동기 처리 후 접근 및 초기화를 위해)
+    const fileInput = e.target;
+
     if (!hasProfile) {
       alert('프로필 정보를 먼저 저장(생성)한 후 이미지를 업로드할 수 있습니다.');
-      e.target.value = '';
+      fileInput.value = ''; // 초기화
       return;
     }
 
-    const file = e.target.files?.[0]
-    if (!file) return
+    const file = fileInput.files?.[0];
+    if (!file) {
+      fileInput.value = ''; // 초기화
+      return;
+    }
 
     try {
-      setUploading(true)
-      const ext = file.type.split('/')[1]
+      setUploading(true);
 
+      let ext = '';
+      const nameParts = file.name.split('.');
+
+      // 1. 파일명에 점(.)이 존재하고 분리된 배열 길이가 2 이상인 경우 확장자 추출
+      if (nameParts.length > 1) {
+        ext = nameParts.pop() || '';
+      }
+
+      // 2. 확장자가 없거나 빈 문자열인 경우 MIME Type 기반 매핑
+      if (!ext) {
+        const mimeToExt: { [key: string]: string } = {
+          'image/jpeg': 'jpg', 'image/jpg': 'jpg', 'image/png': 'png',
+          'image/gif': 'gif', 'image/webp': 'webp',
+          'image/svg+xml': 'svg', 'image/bmp': 'bmp'
+        };
+        // 매핑된 타입이 없으면 기본값 'jpg' 사용
+        ext = mimeToExt[file.type] || 'jpg';
+      }
+
+      // 3. 소문자 정규화
+      ext = ext.toLowerCase();
+
+      // 개발 환경에서만 로그 출력
+      if (process.env.NODE_ENV === 'development') {
+        console.log('1. 파일 선택됨:', file.name, file.type);
+      }
+
+      // 1. URL 발급
       const presignedResponse = await api.post('/api/v1/files/presigned-url', {
         domainType: 'MEMBER',
         contentType: file.type,
         ext: ext,
-      })
+      });
 
-      const result = presignedResponse.data.result
-      const presignedUrl = result.presignedUrl || result.url
-      const rawKey = result.key || result.rawKey || result.objectKey
+      if (process.env.NODE_ENV === 'development') {
+        console.log('2. Presigned Response:', presignedResponse.data);
+      }
+
+      const { presignedUrl, key } = presignedResponse.data.result;
+
+      if (!presignedUrl) throw new Error('Presigned URL이 없습니다!');
+
+      // 2. S3 업로드
+      if (process.env.NODE_ENV === 'development') {
+        console.log('3. S3 업로드 시작');
+      }
 
       const s3Response = await fetch(presignedUrl, {
         method: 'PUT',
         headers: { 'Content-Type': file.type },
         body: file,
-      })
+      });
 
-      if (!s3Response.ok) throw new Error('S3 업로드 실패')
+      console.log('4. S3 응답 상태:', s3Response.status);
 
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      if (!s3Response.ok) {
+        const errorText = await s3Response.text(); // AWS 에러 메시지 확인
+        console.error(`S3 업로드 실패: ${s3Response.status}`, errorText);
+        throw new Error(`S3 업로드 실패: ${s3Response.status}`);
+      }
 
-      const updateResponse = await api.patch('/api/v1/members/me/profile/image', {
-        rawKey: rawKey,
+      // 3. Public URL 전환
+      const publicUrlResponse = await api.post('/api/v1/files/public-url', {
+        rawKey: key,
         domainType: 'MEMBER',
-        contentType: file.type,
-      })
+        contentType: file.type
+      });
 
-      const imageUrl = updateResponse.data.result?.imageUrl || updateResponse.data.result?.publicUrl
-      if (imageUrl) setProfileImageUrl(imageUrl)
+      const finalImageUrl = publicUrlResponse.data.result.imageUrl;
 
-      alert('프로필 이미지가 업로드되었습니다.')
-      await fetchData()
-    } catch (error: any) {
-      console.error('이미지 업로드 실패:', error)
-      alert('이미지 업로드에 실패했습니다.')
+      console.log('최종 이미지 URL 획득 완료');
+
+      // 4. 최종 URL을 Member 도메인에 저장
+      await api.patch('/api/v1/members/me/profile/image', {
+        imageUrl: finalImageUrl
+      });
+
+      setProfileImageUrl(finalImageUrl);
+      alert('프로필 이미지가 업로드되었습니다.');
+      await fetchData();
+      window.dispatchEvent(new Event('loginStatusChanged'));
+
+    } catch (error) {
+      console.error('업로드 실패:', error);
+      alert('이미지 업로드에 실패했습니다.');
     } finally {
-      setUploading(false)
-      e.target.value = ''
+      setUploading(false);
+      // 성공/실패 여부와 상관없이 input 값 초기화 (재업로드 가능하도록)
+      if (fileInput) {
+        fileInput.value = '';
+      }
     }
-    window.dispatchEvent(new Event('loginStatusChanged'));
-  }
+  };
 
   if (loading) {
     return (

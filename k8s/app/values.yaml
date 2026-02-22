@@ -1,67 +1,14 @@
 # 부모 values.yaml — 서브차트에 전달할 값
-# 나중에 멀티모듈 추가 시 여기에 추가
+# 자식 차트의 기본값을 사용하고, 여기서는 활성화 여부/환경 오버라이드만 관리
 
 api:
   enabled: false
-  image:
-    repository: ""      # .env에서 주입 (DOCKER_IMAGE)
-    tag: "latest"
-    pullPolicy: Always  # TODO: 추후 prod에서는 tag 버전 관리 필요, IfNotPresent로 처리
-  replicas: 1
-  service:
-    type: NodePort
-    port: 8080
-    nodePort: 30080
-  env:
-    springProfile: "dev"
-    # 아래 값들은 helm install 시 --set 또는 secret으로 주입
-    dbHost: "modeunsa-infra-mysql"
-    dbPort: "3306"
-    dbName: ""          # .env에서 주입
-    redisHost: "modeunsa-infra-redis"
-    redisPort: "6379"
-    esHost: "modeunsa-infra-elasticsearch"
-    esPort: "9200"
-  secrets:
-    # .env에서 주입되는 민감한 값들
-    dbUsername: "root"
-    dbPassword: ""
-    redisPassword: ""
-    jwtSecret: ""
-    kakaoClientId: ""
-    kakaoClientSecret: ""
-    naverClientId: ""
-    naverClientSecret: ""
-    awsAccessKey: ""
-    awsSecretKey: ""
-    encryptionMasterKey: ""
-    tossPaymentsSecretKey: ""
-  javaOpts: "-Xmx512m"
-  resources:
-    requests:
-      cpu: 150m
-      memory: 512Mi
-    limits:
-      cpu: 400m
-      memory: 1536Mi
+
+settlement-api:
+  enabled: false
+
 frontend:
   enabled: false
-  image:
-    repository: ""      # .env에서 주입 (FRONTEND_IMAGE)
-    tag: "latest"
-    pullPolicy: Always
-  replicas: 1
-  service:
-    type: NodePort
-    port: 3000
-    nodePort: 30000
-  resources:
-    requests:
-      cpu: 50m
-      memory: 128Mi
-    limits:
-      cpu: 200m
-      memory: 256Mi
 
 ingress:
   enabled: false        # dev에서는 NodePort 사용, prod에서 true로 덮어씀

@@ -27,8 +27,8 @@ interface PaymentAccountLedgerItem {
   createdAt: string
 }
 
-// 백엔드 PageInfo (ApiResponse.pageInfo)
-interface ApiPageInfo {
+// 백엔드 pagination (ApiResponse.pagination)
+interface ApiPagination {
   page: number
   size: number
   hasNext: boolean
@@ -40,7 +40,7 @@ interface ApiResponsePage<T> {
   isSuccess: boolean
   code: string
   message: string
-  pageInfo?: ApiPageInfo
+  pagination?: ApiPagination
   result: T[] // Page<?> 일 때 ApiResponse.result 는 content 배열만 내려옴
 }
 
@@ -114,7 +114,7 @@ export default function MoneyHistoryPage() {
       }
 
       setHistory(data.result || [])
-      const totalPagesFromServer = data.pageInfo?.totalPages ?? 1
+      const totalPagesFromServer = data.pagination?.totalPages ?? 1
       setTotalPages(Math.max(1, totalPagesFromServer))
     } catch {
       setHistoryError('사용 내역을 불러오지 못했습니다.')

@@ -1,0 +1,14 @@
+// root 프로젝트 이름 설정
+rootProject.name = 'modeunsa'
+
+// 사용할 도메인 설정
+include 'product'
+include 'common'
+include 'file'
+include 'member'
+include 'settlement-service'
+include 'payment-service'
+include 'order-service'
+include 'kafka-connector'
+include 'content-service'
+include 'inventory-service'

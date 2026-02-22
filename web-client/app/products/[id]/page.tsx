@@ -53,14 +53,6 @@ interface ApiResponse {
   result: ProductDetailResponse
 }
 
-const getCookie = (name: string) => {
-  if (typeof document === 'undefined') return null
-  const value = `; ${document.cookie}`
-  const parts = value.split(`; ${name}=`)
-  if (parts.length === 2) return parts.pop()?.split(';').shift()
-  return null
-}
-
 export default function ProductDetailPage() {
   const params = useParams()
   const router = useRouter()
@@ -219,14 +211,17 @@ export default function ProductDetailPage() {
   const handleToggleFavorite = async () => {
     // API 호출 or optimistic update
     if (!product || isTogglingFavorite) return
-    const accessToken = getCookie('accessToken')
-    if (!accessToken) {
-      alert('로그인이 필요한 서비스입니다.')
-      router.push('/login')
-      return
+    const res = await api.get('/api/v1/auths/me', {
+      withCredentials: true
+    })
+
+    if (!res.data.result.isAuthenticated) {
+        alert('로그인이 필요한 서비스입니다.')
+        router.push('/login')
+        return
     }
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
     if (!apiUrl) return
 
     const prevIsFavorite = product.isFavorite
@@ -244,16 +239,18 @@ export default function ProductDetailPage() {
     setIsTogglingFavorite(true)
 
     try {
-      const method = prevIsFavorite ? 'DELETE' : 'POST'
-      const res = await fetch(
-          `${apiUrl}/api/v1/products/favorites/${product.id}`,
-          {
-            method,
-            headers: { Authorization: `Bearer ${accessToken}` },
-          }
-      )
+      let res;
+      if (prevIsFavorite) {
+        res = await api.delete(
+            `${apiUrl}/api/v1/products/favorites/${product.id}`
+        )
+      } else {
+        res = await api.post(
+            `${apiUrl}/api/v1/products/favorites/${product.id}`
+        );
+      }
 
-      if (!res.ok) {
+      if (!res.data?.isSuccess) {
         throw new Error('관심상품 처리 실패')
       }
     } catch (e) {

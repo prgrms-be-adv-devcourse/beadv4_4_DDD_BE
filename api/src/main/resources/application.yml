@@ -1,0 +1,124 @@
+server:
+  port: 8080
+
+spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  devtools:
+    restart:
+      enabled: false
+  application:
+    name: api
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: member
+              uri: http://${services.member.host}:8086
+              predicates:
+                - Path=/api/v1/members/**,/api/v2/members/**,/api/v1/auths/**,/api/v2/auths/**,/v3/api-docs/member
+              filters:
+                - RewritePath=/v3/api-docs/member, /v3/api-docs
+
+#            - id: auth-service
+#              uri: http://${services.auth.host}:8087
+#              predicates:
+#                - Path=/api/v1/auths/**,/api/v2/auths/**,/v3/api-docs/auth
+#               filters:
+#                  - RewritePath=/v3/api-docs/auth, /v3/api-docs
+
+            - id: product
+              uri: http://${services.product.host}:8081
+              predicates:
+                - Path=/api/v1/products/**,/api/v2/products/**,/v3/api-docs/product
+              filters:
+                - RewritePath=/v3/api-docs/product, /v3/api-docs
+
+            - id: order-service
+              uri: http://${services.order.host}:8082
+              predicates:
+                - Path=/api/v1/orders/**,/api/v2/orders/**,/v3/api-docs/order
+              filters:
+                - RewritePath=/v3/api-docs/order, /v3/api-docs
+
+            - id: inventory-service
+              uri: http://${services.inventory.host}:8082
+              predicates:
+                - Path=/api/v1/inventories/**,/api/v2/inventories/**,/v3/api-docs/inventory
+              filters:
+                - RewritePath=/v3/api-docs/inventory, /v3/api-docs
+
+            - id: payment-service
+              uri: http://${services.payment.host}:8083
+              predicates:
+                - Path=/api/v1/payments/**,/api/v2/payments/**,/v3/api-docs/payment
+              filters:
+                - RewritePath=/v3/api-docs/payment, /v3/api-docs
+
+            - id: settlement-service
+              uri: http://${services.settlement.host}:8084
+              predicates:
+                - Path=/api/v1/settlements/**,/api/v2/settlements/**,/v3/api-docs/settlement
+              filters:
+                - RewritePath=/v3/api-docs/settlement, /v3/api-docs
+
+            - id: file
+              uri: http://${services.file.host}:8088
+              predicates:
+                - Path=/api/v1/files/**,/api/v2/files/**,/v3/api-docs/file
+              filters:
+                - RewritePath=/v3/api-docs/file, /v3/api-docs
+
+            - id: content-service
+              uri: http://${services.content.host}:8089
+              predicates:
+                - Path=/api/v1/contents/**,/api/v2/contents/**,/v3/api-docs/content
+              filters:
+                - RewritePath=/v3/api-docs/content, /v3/api-docs
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+
+custom:
+  global:
+    internalBackUrl: http://localhost:${server.port:8080}
+
+encryption:
+  enabled: false
+  master-key: ${ENCRYPTION_MASTER_KEY}
+
+app:
+  simulation:
+    enabled: true
+  event-publisher:
+    type: ${EVENT_PUBLISHER_TYPE:spring}
+  data-init:
+    enabled: ${DATA_INIT:true}
+
+internal:
+  api-key: ${INTERNAL_API_KEY}
+
+# 각 서비스의 API docs를 Gateway에서 통합
+springdoc:
+  swagger-ui:
+    urls:
+      - name: member
+        url: /v3/api-docs/member
+      - name: product
+        url: /v3/api-docs/product
+      - name: order-service
+        url: /v3/api-docs/order
+      - name: payment-service
+        url: /v3/api-docs/payment
+      - name: settlement-service
+        url: /v3/api-docs/settlement
+      - name: file
+        url: /v3/api-docs/file
+      - name: content-service
+        url: /v3/api-docs/content

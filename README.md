@@ -42,16 +42,16 @@
 
 
 ## 4. User Flow
-![userflow](./src/main/resources/static/image/userflow_0125.png)
+![userflow](./docs/image/userflow_0125.png)
 
 ## 5. System Architecture
-![architecture_diagram](./src/main/resources/static/image/architecture_diagram.png)
+![architecture_diagram](./docs/image/architecture_diagram.png)
 
 ## 6. Infrastructure Architecture
-![infrastructure_diagram](./src/main/resources/static/image/infrastructure_diagram.png)
+![infrastructure_diagram](./docs/image/infrastructure_diagram.png)
 
 ## 7. CICD Diagram
-![cicd_diagram](./src/main/resources/static/image/cicd_diagram.png)
+![cicd_diagram](./docs/image/cicd_diagram.png)
 
 ## 8. Design Principles
 <!-- (왜 이런 구조인가) -->

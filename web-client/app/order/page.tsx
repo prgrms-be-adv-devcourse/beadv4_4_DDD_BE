@@ -3,7 +3,7 @@
 import api from '@/app/lib/axios'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import {useEffect, useRef, useState} from 'react'
+import {Suspense, useEffect, useRef, useState} from 'react'
 import Header from '../components/Header'
 
 declare global {
@@ -31,6 +31,7 @@ interface OrderResult {
   address: string
   addressDetail: string
   paymentDeadlineAt: string
+  createdAt?: string
 }
 
 interface OrderApiResponse {
@@ -88,6 +89,14 @@ const getCookie = (name: string) => {
 }
 
 export default function OrderPage() {
+  return (
+    <Suspense>
+      <OrderContent />
+    </Suspense>
+  )
+}
+
+function OrderContent() {
   const router = useRouter()
   const searchParams = useSearchParams() // URL 파라미터 읽기용
   const orderId = searchParams.get('orderId') // URL에서 orderId 가져오기
@@ -346,15 +355,19 @@ export default function OrderPage() {
         // 뭐든사페이: 부족한 금액만 PG 결제(requestPgAmount). 토스페이먼츠: 전체 금액(requestPgAmount === totalAmount)
         const amount = result.requestPgAmount
         const origin = typeof window !== 'undefined' ? window.location.origin : ''
-        const successUrl = `${origin}/order/success?orderNo=${encodeURIComponent(result.orderNo)}&amount=${amount}&memberId=${result.buyerId}&pgCustomerName=${encodeURIComponent(memberInfo.customerName || '')}&pgCustomerEmail=${encodeURIComponent(memberInfo.customerEmail || '')}`
+        const successUrl = `${origin}/order/success?orderNo=${encodeURIComponent(result.orderNo)}&amount=${amount}&orderId=${encodeURIComponent(String(result.orderNo))}&memberId=${result.buyerId}&pgCustomerName=${encodeURIComponent(memberInfo.customerName || '')}&pgCustomerEmail=${encodeURIComponent(memberInfo.customerEmail || '')}`
         const failUrl = `${origin}/order/failure?orderNo=${encodeURIComponent(result.orderNo)}&amount=${amount}`
 
         const tossClient = window.TossPayments?.(clientKey)
         if (tossClient?.requestPayment) {
+          const firstItem = orderInfo.orderItems[0]
+          const orderName =
+            firstItem?.productName || '뭐든사 주문 결제'
+
           await tossClient.requestPayment('카드', {
             amount,
-            orderId: String(result.orderId),
-            orderName: '뭐든사 주문 결제',
+            orderId: String(result.orderNo),
+            orderName,
             successUrl,
             failUrl,
             customerName: memberInfo.customerName,
@@ -399,6 +412,36 @@ export default function OrderPage() {
                 marginBottom: '32px',
                 textAlign: 'center'
               }}>주문하기</h1>
+
+              {/* 주문 번호 / 생성 일시 섹션 */}
+              {orderInfo && (
+                <section className="order-card" style={{ marginBottom: '16px' }}>
+                  <h2 className="card-title">주문 정보</h2>
+                  <div className="payment-summary">
+                    <div className="summary-row">
+                      <span style={{ fontSize: '14px', color: '#666' }}>주문번호</span>
+                      <span style={{ fontWeight: 600 }}>
+                        {orderInfo.orderNo || `#${orderInfo.orderId}`}
+                      </span>
+                    </div>
+                    <div className="summary-row">
+                      <span style={{ fontSize: '14px', color: '#666' }}>주문일시</span>
+                      <span style={{ fontSize: '14px' }}>
+                        {orderInfo.createdAt
+                          ? new Date(orderInfo.createdAt).toLocaleString('ko-KR', {
+                              year: 'numeric',
+                              month: '2-digit',
+                              day: '2-digit',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              second: '2-digit',
+                            })
+                          : '-'}
+                      </span>
+                    </div>
+                  </div>
+                </section>
+              )}
 
               {/* 주문서 섹션 */}
               <section className="order-card">
@@ -635,21 +678,15 @@ export default function OrderPage() {
               <button
                   className="order-payment-button"
                   onClick={handlePayment}
-                  disabled={isLoadingMember || !memberInfo || isSubmitting}
+                  disabled={isLoadingMember || !memberInfo || isSubmitting || !orderInfo}
               >
                 {isSubmitting
                     ? '처리 중...'
-                    : isLoadingMember || !memberInfo
+                    : isLoadingMember || !memberInfo || !orderInfo
                         ? '로딩 중...'
                         : (() => {
-                          const totalAmount = 19800
-                          if (selectedMethod === 'modeunsa') {
-                            const balance = Number(memberInfo.balance ?? 0)
-                            const shortage = Math.max(totalAmount - balance, 0)
-                            return shortage > 0
-                                ? `${new Intl.NumberFormat('ko-KR').format(shortage)}원 결제하기`
-                                : '결제하기'
-                          }
+                          const totalAmount = Number(orderInfo.totalAmount ?? 0)
+                          // 총 결제 금액 기준 버튼 문구
                           return `${new Intl.NumberFormat('ko-KR').format(totalAmount)}원 결제하기`
                         })()}
               </button>

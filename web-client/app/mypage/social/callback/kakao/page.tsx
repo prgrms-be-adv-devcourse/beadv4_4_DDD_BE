@@ -1,3 +1,4 @@
+// web-client/app/mypage/social/callback/kakao/page.tsx
 'use client'
 
 import { Suspense, useEffect, useRef, useCallback } from 'react'
