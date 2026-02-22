@@ -58,24 +58,7 @@ custom:
 
       # ========== 토스 웹훅 ===========
       - /api/v2/payments/webhooks/toss
-    oauth2:
-      allowed-redirect-domains:
-        - localhost
-        - 127.0.0.1
-  cors:
-    enabled: true
-    allowed-origins:
-      - http://localhost:3000
-      - http://127.0.0.1:3000
-      - http://localhost:8083
-      - http://127.0.0.1:8083
 
 springdoc:
   swagger-ui:
     persistAuthorization: true
-
-app:
-  cookie:
-    secure: false
-    http-only: true
-    same-site: Lax

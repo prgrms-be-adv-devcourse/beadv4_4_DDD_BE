@@ -4,6 +4,15 @@ spring:
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+    hikari:
+      maximum-pool-size: 40        # 최대 커넥션 (우선 올려서 acquire 대기 줄이기)
+      minimum-idle: 10             # 유휴 커넥션 유지
+      connection-timeout: 3000     # 커넥션 빌리기 최대 대기(ms) - 지금 3~4s 스파이크라 3s로 제한 추천
+      validation-timeout: 1000
+      idle-timeout: 600000         # 10분
+      max-lifetime: 1800000        # 30분 (MySQL idle timeout과 충돌 방지용으로 무난)
+      leak-detection-threshold: 20000 # 20초 이상 반납 안하면 로그(원인 추적용, 운영에서는 상황 보고 끄기)
   h2:
     console:
       enabled: false
@@ -61,18 +70,7 @@ custom:
 
       # ========== 토스 웹훅 ===========
       - /api/v2/payments/webhooks/toss
-  cors:
-    enabled: true
-    allowed-origins:
-      - https://modeunsa.store
-      - http://modeunsa.store
 
 springdoc:
   swagger-ui:
     persistAuthorization: true
-
-app:
-  cookie:
-    secure: true
-    http-only: true
-    same-site: Strict

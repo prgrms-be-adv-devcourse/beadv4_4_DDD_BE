@@ -39,11 +39,6 @@ custom:
 
       # ========== 토스 웹훅 ===========
       - /api/v2/payments/webhooks/toss
-  cors:
-    enabled: true
-    allowed-origins:
-      - https://modeunsa.store
-      - https://www.modeunsa.store
 
 management:
   health:
@@ -63,9 +58,3 @@ management:
     export:
       prometheus:
         enabled: true
-
-app:
-  cookie:
-    secure: true
-    http-only: true
-    same-site: Lax
