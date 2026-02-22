@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.content.out;
+package com.modeunsa.boundedcontext.content.out.persistence.content;
 
 import com.modeunsa.boundedcontext.content.domain.entity.Content;
 import java.util.Optional;

@@ -88,7 +88,7 @@ spring:
               predicates:
                 - Path=/api/v1/files/**,/api/v2/files/**
 
-            - id: content
+            - id: content-service
               uri: http://${services.content.host}:8089
               predicates:
                 - Path=/api/v1/contents/**,/api/v2/contents/**

@@ -2,8 +2,9 @@ package com.modeunsa.boundedcontext.content.app.usecase;
 
 import com.modeunsa.boundedcontext.content.app.ContentMapper;
 import com.modeunsa.boundedcontext.content.app.ContentSupport;
-import com.modeunsa.boundedcontext.content.app.dto.ContentRequest;
 import com.modeunsa.boundedcontext.content.app.dto.ContentResponse;
+import com.modeunsa.boundedcontext.content.app.dto.content.ContentCreateCommand;
+import com.modeunsa.boundedcontext.content.app.dto.image.ContentImageDto;
 import com.modeunsa.boundedcontext.content.domain.entity.Content;
 import com.modeunsa.boundedcontext.content.domain.entity.ContentImage;
 import com.modeunsa.boundedcontext.content.domain.entity.ContentMember;
@@ -23,59 +24,44 @@ public class ContentUpdateContentUseCase {
 
   @Transactional
   public ContentResponse updateContent(
-      Long contentId, ContentRequest contentRequest, ContentMember author) {
+      Long contentId, ContentCreateCommand command, ContentMember author) {
     Content content =
         contentSupport
             .findById(contentId)
             .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND));
 
-    // validate
-    this.validateContent(content, contentRequest, author);
+    validateContent(content, command, author);
+    applyUpdate(content, command);
 
-    // 수정 상태
-    applyUpdate(content, contentRequest);
-
-    // 결과 반환
     return contentMapper.toResponse(content);
   }
 
   private void validateContent(
-      Content content, ContentRequest contentRequest, ContentMember author) {
-    // 작성자 검증
+      Content content, ContentCreateCommand command, ContentMember author) {
     if (!content.getAuthor().equals(author)) {
       throw new GeneralException(ErrorStatus.FORBIDDEN);
     }
-
-    // text 검증
-    if (contentRequest.getText() == null || contentRequest.getText().isBlank()) {
+    if (command.text() == null || command.text().isBlank()) {
       throw new GeneralException(ErrorStatus.CONTENT_TEXT_REQUIRED);
     }
-
-    if (contentRequest.getText().length() > 500) {
+    if (command.text().length() > 500) {
       throw new GeneralException(ErrorStatus.CONTENT_TEXT_LENGTH_EXCEEDED);
     }
-
-    // image
-    if (contentRequest.getImages() == null) {
+    if (command.images() == null) {
       throw new GeneralException(ErrorStatus.VALIDATION_ERROR);
     }
-
-    for (var image : contentRequest.getImages()) {
-      if (image.getImageUrl() == null || image.getImageUrl().isBlank()) {
+    for (ContentImageDto image : command.images()) {
+      if (image.imageUrl() == null || image.imageUrl().isBlank()) {
         throw new GeneralException(ErrorStatus.CONTENT_IMAGE_REQUIRED);
       }
     }
-
-    // tag
-    if (contentRequest.getTags() == null) {
+    if (command.tags() == null) {
       throw new GeneralException(ErrorStatus.VALIDATION_ERROR);
     }
-
-    if (contentRequest.getTags().size() > 5) {
+    if (command.tags().size() > 5) {
       throw new GeneralException(ErrorStatus.CONTENT_TAG_SIZE_EXCEEDED);
     }
-
-    for (String tag : contentRequest.getTags()) {
+    for (String tag : command.tags()) {
       if (tag == null || tag.isBlank()) {
         throw new GeneralException(ErrorStatus.CONTENT_TAG_REQUIRED);
       }
@@ -85,22 +71,23 @@ public class ContentUpdateContentUseCase {
     }
   }
 
-  private void applyUpdate(Content content, ContentRequest contentRequest) {
+  private void applyUpdate(Content content, ContentCreateCommand command) {
+    content.updateText(command.text());
 
-    // text
-    content.updateText(contentRequest.getText()); // or content.setText() 대신 도메인 메서드 권장
-
-    // tags
     content.getTags().clear();
-    for (String tagValue : contentRequest.getTags()) {
+    for (String tagValue : command.tags()) {
       content.addTag(new ContentTag(tagValue));
     }
 
-    // images
     content.getImages().clear();
-    int order = 0;
-    for (var imageReq : contentRequest.getImages()) {
-      content.addImage(new ContentImage(imageReq.getImageUrl(), imageReq.getIsPrimary(), order++));
+    for (ContentImageDto spec : command.images()) {
+      ContentImage image =
+          new ContentImage(
+              spec.imageUrl(), spec.isPrimary(), spec.sortOrder() != null ? spec.sortOrder() : 0);
+      if (Boolean.TRUE.equals(spec.isPrimary())) {
+        content.updateMainImageUrl(spec.imageUrl());
+      }
+      content.addImage(image);
     }
   }
 }
