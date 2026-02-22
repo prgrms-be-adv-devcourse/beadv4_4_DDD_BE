@@ -1,6 +1,6 @@
 package com.modeunsa.boundedcontext.inventory.in.api.v2;
 
-import com.modeunsa.boundedcontext.inventory.app.InventoryFacade;
+import com.modeunsa.boundedcontext.inventory.app.common.InventoryFacade;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.status.SuccessStatus;
 import com.modeunsa.shared.inventory.dto.InventoryAvailableQuantityResponse;
