@@ -66,6 +66,9 @@ custom:
       # ========== 헬스체크 ==========
       - /actuator/health
       - /actuator/prometheus
+
+      # ========== 토스 웹훅 ===========
+      - /api/v2/payments/webhooks/toss
   cors:
     enabled: true
     allowed-origins:
