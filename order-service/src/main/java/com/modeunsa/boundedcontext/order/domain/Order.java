@@ -1,7 +1,6 @@
 package com.modeunsa.boundedcontext.order.domain;
 
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
-import io.hypersistence.tsid.TSID;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -126,7 +126,7 @@ public class Order extends GeneratedIdAndAuditedEntity {
   public static String generateOrderNo() {
     return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"))
         + "-"
-        + TSID.fast().toString();
+        + UUID.randomUUID().toString().replace("-", "").substring(0, 12);
   }
 
   // 주문 총 가격 생성
