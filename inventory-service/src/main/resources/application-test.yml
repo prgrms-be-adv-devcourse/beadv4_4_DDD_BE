@@ -2,17 +2,6 @@ spring:
   config:
     activate:
       on-profile: test
-
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.elasticsearch.autoconfigure.ElasticsearchClientAutoConfiguration
-      - org.springframework.boot.data.elasticsearch.autoconfigure.DataElasticsearchAutoConfiguration
-
-  data:
-    elasticsearch:
-      repositories:
-        enabled: false
-
   datasource:
     url: jdbc:h2:mem:testdb;MODE=MySQL
     username: sa
@@ -24,21 +13,6 @@ spring:
       idle-timeout: 600000
       max-lifetime: 1800000
       connection-timeout: 30000
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
-    open-in-view: false
-    show-sql: false
-  batch:
-    jdbc:
-      initialize-schema: embedded
-# 테스트용 스케줄러 - 매 1초마다 실행
-settlement:
-  scheduler:
-    daily-03: "* * * * * *"
-    monthly-25-04: "* * * * * *"
-  member:
-    system-member-id: 1
 
 internal:
   api-key: test-internal-key

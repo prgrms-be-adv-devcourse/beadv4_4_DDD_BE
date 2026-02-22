@@ -1,9 +1,9 @@
 package com.modeunsa.boundedcontext.auth.app.usecase;
 
+import com.modeunsa.boundedcontext.auth.domain.dto.OAuthUserInfo;
 import com.modeunsa.boundedcontext.auth.domain.entity.OAuthAccount;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
-import com.modeunsa.shared.auth.dto.OAuthUserInfo;
 import com.modeunsa.shared.member.MemberRole;
 import com.modeunsa.shared.member.MemberStatus;
 import lombok.RequiredArgsConstructor;

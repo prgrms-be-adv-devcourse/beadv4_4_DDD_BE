@@ -1,6 +1,7 @@
 package com.modeunsa.boundedcontext.member.app.usecase;
 
 import com.modeunsa.boundedcontext.auth.app.usecase.AuthTokenIssueUseCase;
+import com.modeunsa.boundedcontext.auth.domain.dto.JwtTokenResponse;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.entity.MemberSeller;
 import com.modeunsa.boundedcontext.member.domain.types.SellerStatus;
@@ -9,7 +10,6 @@ import com.modeunsa.boundedcontext.member.out.repository.MemberSellerRepository;
 import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
-import com.modeunsa.shared.auth.dto.JwtTokenResponse;
 import com.modeunsa.shared.member.MemberRole;
 import com.modeunsa.shared.member.dto.request.SellerRegisterRequest;
 import com.modeunsa.shared.member.event.SellerRegisteredEvent;

@@ -4,7 +4,21 @@
 
 import { useEffect, useState } from 'react'
 import MypageLayout from '../../components/MypageLayout'
-import api from "@/app/lib/axios";
+import api from '@/app/lib/axios'
+
+interface MemberProfile {
+  nickname: string
+  profileImageUrl?: string
+  heightCm?: number
+  weightKg?: number
+  skinType?: string
+}
+
+interface MemberBasicInfo {
+  realName: string
+  email: string
+  phoneNumber?: string
+}
 
 export default function BasicInfoPage() {
   const [loading, setLoading] = useState(true)
@@ -14,21 +28,47 @@ export default function BasicInfoPage() {
   const [email, setEmail] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
 
-  // 기본정보 조회
+  const [hasProfile, setHasProfile] = useState(false)
+  const [profileImageUrl, setProfileImageUrl] = useState('')
+
   useEffect(() => {
-    fetchBasicInfo()
+    fetchData()
+    const onLoginStatusChanged = () => {
+      fetchData()
+    }
+
+    window.addEventListener('loginStatusChanged', onLoginStatusChanged)
+    return () => window.removeEventListener('loginStatusChanged', onLoginStatusChanged)
   }, [])
 
-  const fetchBasicInfo = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true)
 
-      const response = await api.get('/api/v1/members/me/basic-info')
-      const basicInfo = response.data.result
+      // 1) basic-info 조회
+      const basicInfoResponse = await api.get('/api/v1/members/me/basic-info')
+      const basicInfo: MemberBasicInfo = basicInfoResponse.data.result
 
       setRealName(basicInfo.realName || '')
       setEmail(basicInfo.email || '')
       setPhoneNumber(basicInfo.phoneNumber || '')
+
+      // 2) profile 조회
+      try {
+        const profileResponse = await api.get('/api/v1/members/me/profile')
+        const profile: MemberProfile = profileResponse.data.result
+
+        setHasProfile(true)
+        setProfileImageUrl(profile.profileImageUrl || '')
+      } catch (error: any) {
+        if (error.response?.status === 404) {
+          // 프로필이 아직 생성되지 않은 경우
+          setHasProfile(false)
+          setProfileImageUrl('')
+        } else {
+          console.error('프로필 조회 실패:', error)
+        }
+      }
     } catch (error) {
       console.error('기본정보 조회 실패:', error)
       alert('기본정보를 불러오는데 실패했습니다.')
@@ -54,6 +94,7 @@ export default function BasicInfoPage() {
       }
 
       alert('기본정보가 저장되었습니다.')
+      await fetchData()
     } catch (error: any) {
       console.error('기본정보 저장 실패:', error)
 
@@ -68,18 +109,19 @@ export default function BasicInfoPage() {
   if (loading) {
     return (
         <MypageLayout>
-          <div style={{ maxWidth: '600px', textAlign: 'center', padding: '40px' }}>
-            로딩 중...
-          </div>
+          <div style={{ maxWidth: '600px', textAlign: 'center', padding: '40px' }}>로딩 중...</div>
         </MypageLayout>
     )
   }
+
+  const avatarLetter = realName ? realName.charAt(0).toUpperCase() : 'U'
 
   return (
       <MypageLayout>
         <div style={{ maxWidth: '600px' }}>
           <h1 style={{ fontSize: '28px', fontWeight: 700, marginBottom: '24px' }}>기본 정보</h1>
 
+          {/* 상단 카드: 프로필 이미지 + 이름/이메일 */}
           <div
               style={{
                 background: 'white',
@@ -95,7 +137,9 @@ export default function BasicInfoPage() {
                     width: '64px',
                     height: '64px',
                     borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    background: profileImageUrl
+                        ? `url(${profileImageUrl}) center/cover`
+                        : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -103,17 +147,26 @@ export default function BasicInfoPage() {
                     fontWeight: '600',
                     fontSize: '26px',
                   }}
+                  title={profileImageUrl ? '프로필 이미지' : '이니셜'}
               >
-                {realName ? realName.charAt(0).toUpperCase() : 'T'}
+                {!profileImageUrl && avatarLetter}
               </div>
+
               <div>
                 <div style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>이름</div>
-                <div style={{ fontSize: '16px', fontWeight: 600 }}>{realName || '테스트 사용자'}</div>
+                <div style={{ fontSize: '16px', fontWeight: 600 }}>{realName || '사용자'}</div>
                 <div style={{ fontSize: '13px', color: '#666', marginTop: '2px' }}>{email}</div>
               </div>
             </div>
+
+            {!hasProfile && (
+                <div style={{ fontSize: '12px', color: '#ff4d4f' }}>
+                  * 프로필이 아직 생성되지 않아 프로필 이미지를 표시할 수 없습니다. (프로필 페이지에서 생성 후 업로드 가능)
+                </div>
+            )}
           </div>
 
+          {/* 입력 폼 카드 */}
           <div
               style={{
                 background: 'white',

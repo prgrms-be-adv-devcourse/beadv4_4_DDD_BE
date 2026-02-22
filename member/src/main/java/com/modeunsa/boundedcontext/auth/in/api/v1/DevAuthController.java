@@ -1,13 +1,13 @@
 package com.modeunsa.boundedcontext.auth.in.api.v1;
 
 import com.modeunsa.boundedcontext.auth.app.facade.AuthFacade;
+import com.modeunsa.boundedcontext.auth.domain.dto.JwtTokenResponse;
 import com.modeunsa.boundedcontext.member.app.support.MemberSupport;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
 import com.modeunsa.global.config.CookieProperties;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
-import com.modeunsa.shared.auth.dto.JwtTokenResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;

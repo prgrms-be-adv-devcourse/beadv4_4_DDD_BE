@@ -89,8 +89,10 @@ custom:
       - /v3/api-docs/**
       - /
       - /favicon.ico
+      - /error
 
       # ========== 인증 API ==========
+      - /api/v1/auths/me
       - /api/v1/auths/oauth/*/url
       - /api/v1/auths/login/**
       - /api/v1/auths/reissue
@@ -102,20 +104,10 @@ custom:
       - /actuator/health
       - /actuator/prometheus
 
-      # ========== 콘텐츠 ==========
-      - /api/v1/contents/**
     oauth2:
       allowed-redirect-domains:
         - localhost
         - 127.0.0.1
-  cors:
-    enabled: true
-    allowed-origins:
-      - http://localhost:3000
-      - http://127.0.0.1:3000
-      - http://localhost:8080
-      - http://127.0.0.1:8080
-      - http://localhost:30080
 
 jwt:
   secret: ${JWT_SECRET:local-test-jwt-secret-key-which-is-long-enough-32bytes}

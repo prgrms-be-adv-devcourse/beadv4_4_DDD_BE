@@ -61,6 +61,7 @@ custom:
       - /v3/api-docs/**
       - /
       - /favicon.ico
+      - /error
 
       # 내부 통신용 API
       - /api/v1/orders/internal/**
