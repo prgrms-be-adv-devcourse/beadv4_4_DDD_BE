@@ -1,4 +1,4 @@
-package com.modeunsa.shared.order.out;
+package com.modeunsa.boundedcontext.order.out;
 
 import com.modeunsa.shared.order.dto.OrderDto;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.modeunsa.shared.inventory.out;
+package com.modeunsa.boundedcontext.inventory.out;
 
 import com.modeunsa.shared.inventory.dto.InventoryAvailableQuantityResponse;
 import com.modeunsa.shared.inventory.dto.InventoryDto;
