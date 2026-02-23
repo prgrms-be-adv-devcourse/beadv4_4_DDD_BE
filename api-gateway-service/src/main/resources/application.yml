@@ -14,6 +14,12 @@ spring:
       server:
         webflux:
           routes:
+            - id: api-gateway-service
+              uri: http://${services.api-gateway.host}:8080
+              predicates:
+                - Path=/v3/api-docs/api-gateway
+              filters:
+                - RewritePath=/v3/api-docs/api-gateway, /v3/api-docs
             - id: member-service
               uri: http://${services.member.host}:8086
               predicates:

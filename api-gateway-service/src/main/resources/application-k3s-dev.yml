@@ -1,4 +1,6 @@
 spring:
+  config:
+    import: optional:file:.env.k3s-dev[.properties]
   datasource:
     url: jdbc:mysql://${DB_HOST:modeunsa-infra-mysql}:${DB_PORT:3306}/${DB_NAME:modeunsa}
     username: ${DB_USERNAME:root}
@@ -6,35 +8,18 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   h2:
     console:
-      enabled: false
-
-management:
-  health:
-    elasticsearch:
-      enabled: false
-  endpoints:
-    web:
-      exposure:
-        include: health,info,prometheus
-      base-path: /actuator
-  endpoint:
-    health:
-      show-details: never
-    prometheus:
       enabled: true
-  metrics:
-    export:
-      prometheus:
-        enabled: true
+      path: /h2-console
 
 custom:
   swagger:
-    serverUrl: https://modeunsa.store
-    description: "Production Server"
+    serverUrl: ${SWAGGER_SERVER_URL:http://localhost:8080}
+    description: "Local Server"
   security:
     permit-all: false
     permit-urls:
       # ========== 개발 도구 ==========
+      - /h2-console/**
       - /swagger-ui/**
       - /v3/api-docs/**
       - /
@@ -45,9 +30,10 @@ custom:
       - /api/v1/auths/me
       - /api/v1/auths/oauth/*/url
       - /api/v1/auths/login/**
-      - /api/v1/auths/dev/**
       - /api/v1/auths/reissue
+      - /api/v1/auths/dev/**
       - /login/oauth2/code/**
+      - /api/v1/test/roles/**
 
       # ========== 헬스체크 ==========
       - /actuator/health
@@ -56,35 +42,44 @@ custom:
       # ========== 콘텐츠 ==========
       - /api/v1/contents/**
 
+      # ========== 상품 ===========
+      - /api/v1/products/search
+      - /api/v2/products/search
+
       # ========== 결제 ===========
       - /api/v2/payments/webhooks/toss
 
   cors:
     enabled: true
     allowed-origins:
-      - https://modeunsa.store
-      - http://modeunsa.store
+      - http://localhost:3000
+      - http://127.0.0.1:3000
+      - http://localhost:8080
+      - http://127.0.0.1:8080
+
 
 springdoc:
   swagger-ui:
     persistAuthorization: true
 
 services:
+  api-gateway:
+    host: localhost
   member:
-    host: member
+    host: localhost
   auth:
-    host: auth
+    host: localhost
   product:
-    host: product
+    host: localhost
   order:
-    host: order
+    host: localhost
   inventory:
-    host: inventory
+    host: localhost
   payment:
-    host: payment
+    host: localhost
   settlement:
-    host: settlement
+    host: localhost
   file:
-    host: file
+    host: localhost
   content:
-    host: content
+    host: localhost

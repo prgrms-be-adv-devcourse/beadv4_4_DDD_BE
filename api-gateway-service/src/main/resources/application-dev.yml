@@ -1,10 +1,10 @@
 spring:
   config:
-    import: optional:file:.env.k3s-dev[.properties]
+    import: optional:file:.env.dev[.properties]
   datasource:
-    url: jdbc:mysql://${DB_HOST:modeunsa-infra-mysql}:${DB_PORT:3306}/${DB_NAME:modeunsa}
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:modeunsa}
     username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:}
+    password: ${MYSQL_ROOT_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
   h2:
     console:
@@ -43,8 +43,13 @@ custom:
       - /api/v1/contents/**
 
       # ========== 상품 ===========
+      - /api/v1/products
+      - /api/v1/products/{id}
       - /api/v1/products/search
       - /api/v2/products/search
+      - /api/v2/products/search/auto-complete
+      - /api/v2/products/search/knn
+      - /api/v2/products/search/hybrid
 
       # ========== 결제 ===========
       - /api/v2/payments/webhooks/toss
@@ -57,12 +62,13 @@ custom:
       - http://localhost:8080
       - http://127.0.0.1:8080
 
-
 springdoc:
   swagger-ui:
     persistAuthorization: true
 
 services:
+  api-gateway:
+    host: localhost
   member:
     host: localhost
   auth:
