@@ -366,10 +366,17 @@ export default function MoneyPaymentsPage() {
             overflow: 'hidden',
           }}
         >
-          <div style={{ overflowX: 'auto' }}>
+          <div
+            style={{
+              overflowX: 'auto',
+              overflowY: 'hidden',
+              WebkitOverflowScrolling: 'touch',
+            }}
+          >
             <table
               style={{
                 width: '100%',
+                minWidth: '720px',
                 borderCollapse: 'collapse',
                 fontSize: '14px',
               }}
@@ -382,6 +389,7 @@ export default function MoneyPaymentsPage() {
                       textAlign: 'left',
                       fontWeight: 600,
                       color: '#333',
+                      whiteSpace: 'nowrap',
                     }}
                   >
                     결제일시
@@ -392,6 +400,7 @@ export default function MoneyPaymentsPage() {
                       textAlign: 'left',
                       fontWeight: 600,
                       color: '#333',
+                      whiteSpace: 'nowrap',
                     }}
                   >
                     주문번호
@@ -399,22 +408,13 @@ export default function MoneyPaymentsPage() {
                   <th
                     style={{
                       padding: '14px 12px',
-                      textAlign: 'center',
+                      textAlign: 'right',
                       fontWeight: 600,
                       color: '#333',
+                      whiteSpace: 'nowrap',
                     }}
                   >
-                    결제 수단
-                  </th>
-                  <th
-                    style={{
-                      padding: '14px 12px',
-                      textAlign: 'left',
-                      fontWeight: 600,
-                      color: '#333',
-                    }}
-                  >
-                    상품명
+                    결제 금액
                   </th>
                   <th
                     style={{
@@ -422,6 +422,7 @@ export default function MoneyPaymentsPage() {
                       textAlign: 'center',
                       fontWeight: 600,
                       color: '#333',
+                      whiteSpace: 'nowrap',
                     }}
                   >
                     결제 상태
@@ -429,12 +430,24 @@ export default function MoneyPaymentsPage() {
                   <th
                     style={{
                       padding: '14px 12px',
-                      textAlign: 'right',
+                      textAlign: 'left',
                       fontWeight: 600,
                       color: '#333',
+                      whiteSpace: 'nowrap',
                     }}
                   >
-                    결제 금액
+                    결제 유형
+                  </th>
+                  <th
+                    style={{
+                      padding: '14px 12px',
+                      textAlign: 'center',
+                      fontWeight: 600,
+                      color: '#333',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    결제 수단
                   </th>
                 </tr>
               </thead>
@@ -485,26 +498,30 @@ export default function MoneyPaymentsPage() {
                     const amountFormatted = new Intl.NumberFormat('ko-KR').format(
                       Number(item.totalAmount ?? 0)
                     )
+                    const cellNoWrap = { whiteSpace: 'nowrap' as const }
                     return (
                       <tr
                         key={`${item.orderNo}-${item.createdAt}-${idx}`}
                         style={{ borderBottom: '1px solid #f0f0f0' }}
                       >
-                        <td style={{ padding: '14px 12px', color: '#666' }}>
+                        <td style={{ padding: '14px 12px', color: '#666', ...cellNoWrap }}>
                           {dateDisplay}
                         </td>
-                        <td style={{ padding: '14px 12px', color: '#333' }}>
+                        <td style={{ padding: '14px 12px', color: '#333', ...cellNoWrap }}>
                           {item.orderNo}
                         </td>
-                        <td style={{ padding: '14px 12px', textAlign: 'center', color: '#333' }}>
-                          {item.paymentProvider
-                            ? PAYMENT_PROVIDER_LABEL[item.paymentProvider] ?? item.paymentProvider
-                            : '-'}
+                        <td
+                          style={{
+                            padding: '14px 12px',
+                            textAlign: 'right',
+                            fontWeight: 600,
+                            color: '#333',
+                            ...cellNoWrap,
+                          }}
+                        >
+                          {`${amountFormatted}원`}
                         </td>
-                        <td style={{ padding: '14px 12px', color: '#333' }}>
-                          {item.productName || '-'}
-                        </td>
-                        <td style={{ padding: '14px 12px', textAlign: 'center' }}>
+                        <td style={{ padding: '14px 12px', textAlign: 'center', ...cellNoWrap }}>
                           <span
                             style={{
                               color:
@@ -520,15 +537,13 @@ export default function MoneyPaymentsPage() {
                             {statusLabel}
                           </span>
                         </td>
-                        <td
-                          style={{
-                            padding: '14px 12px',
-                            textAlign: 'right',
-                            fontWeight: 600,
-                            color: '#333',
-                          }}
-                        >
-                          {`${amountFormatted}원`}
+                        <td style={{ padding: '14px 12px', color: '#333', ...cellNoWrap }}>
+                          {item.productName || '-'}
+                        </td>
+                        <td style={{ padding: '14px 12px', textAlign: 'center', color: '#333', ...cellNoWrap }}>
+                          {item.paymentProvider
+                            ? PAYMENT_PROVIDER_LABEL[item.paymentProvider] ?? item.paymentProvider
+                            : '-'}
                         </td>
                       </tr>
                     )
