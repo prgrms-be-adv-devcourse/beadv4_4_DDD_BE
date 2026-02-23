@@ -12,6 +12,26 @@ spring:
     console:
       enabled: true
       path: /h2-console
+  jpa:
+    open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+        use_sql_comments: true
+    data:
+      redis:
+        host: localhost
+        port: 6379
+        password: ${REDIS_PASSWORD:}
+
+management:
+  health:
+    elasticsearch:
+      enabled: false
 
 custom:
   swagger:
@@ -28,33 +48,9 @@ custom:
       - /favicon.ico
       - /error
 
-      # ========== 인증 API ==========
-      - /api/v1/auths/me
-      - /api/v1/auths/oauth/*/url
-      - /api/v1/auths/login/**
-      - /api/v1/auths/reissue
-      - /api/v1/auths/dev/**
-      - /login/oauth2/code/**
-      - /api/v1/test/roles/**
-
       # ========== 헬스체크 ==========
       - /actuator/health
       - /actuator/prometheus
-
-      # ========== 콘텐츠 ==========
-      - /api/v1/contents/**
-
-      # ========== 상품 ===========
-      - /api/v1/products/search
-      - /api/v2/products/search
-
-  cors:
-    enabled: true
-    allowed-origins:
-      - http://localhost:3000
-      - http://127.0.0.1:3000
-      - http://localhost:8080
-      - http://127.0.0.1:8080
 
 springdoc:
   swagger-ui:
