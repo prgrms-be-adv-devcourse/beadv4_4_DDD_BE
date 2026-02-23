@@ -14,7 +14,7 @@ spring:
       server:
         webflux:
           routes:
-            - id: member
+            - id: member-service
               uri: http://${services.member.host}:8086
               predicates:
                 - Path=/api/v1/members/**,/api/v2/members/**,/api/v1/auths/**,/api/v2/auths/**,/v3/api-docs/member
@@ -28,7 +28,7 @@ spring:
 #               filters:
 #                  - RewritePath=/v3/api-docs/auth, /v3/api-docs
 
-            - id: product
+            - id: product-service
               uri: http://${services.product.host}:8081
               predicates:
                 - Path=/api/v1/products/**,/api/v2/products/**,/v3/api-docs/product
@@ -63,7 +63,7 @@ spring:
               filters:
                 - RewritePath=/v3/api-docs/settlement, /v3/api-docs
 
-            - id: file
+            - id: file-service
               uri: http://${services.file.host}:8088
               predicates:
                 - Path=/api/v1/files/**,/api/v2/files/**,/v3/api-docs/file
@@ -108,9 +108,9 @@ internal:
 springdoc:
   swagger-ui:
     urls:
-      - name: member
+      - name: member-service
         url: /v3/api-docs/member
-      - name: product
+      - name: product-service
         url: /v3/api-docs/product
       - name: order-service
         url: /v3/api-docs/order
@@ -120,7 +120,7 @@ springdoc:
         url: /v3/api-docs/payment
       - name: settlement-service
         url: /v3/api-docs/settlement
-      - name: file
+      - name: file-service
         url: /v3/api-docs/file
       - name: content-service
         url: /v3/api-docs/content
