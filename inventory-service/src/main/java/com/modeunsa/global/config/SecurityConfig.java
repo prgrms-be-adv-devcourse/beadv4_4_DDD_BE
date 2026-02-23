@@ -7,6 +7,9 @@ import com.modeunsa.global.security.InternalApiKeyFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -49,10 +52,26 @@ public class SecurityConfig {
                   .permitAll()
                   .requestMatchers(permitUrls)
                   .permitAll()
+                  .requestMatchers(HttpMethod.POST, "/api/v1/inventories/*")
+                  .hasRole("SELLER")
                   .anyRequest()
                   .authenticated());
     }
 
     return http.build();
+  }
+
+  @Bean
+  public RoleHierarchy roleHierarchy() {
+    return RoleHierarchyImpl.withDefaultRolePrefix()
+        .role("SYSTEM")
+        .implies("ADMIN")
+        .role("HOLDER")
+        .implies("ADMIN")
+        .role("ADMIN")
+        .implies("SELLER")
+        .role("SELLER")
+        .implies("MEMBER")
+        .build();
   }
 }

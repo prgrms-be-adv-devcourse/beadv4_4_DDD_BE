@@ -17,12 +17,17 @@ public class InventoryInitializeUseCase {
   private final InventoryRepository inventoryRepository;
   private final InventoryCommandPort inventoryCommandPort;
 
-  public void initializeInventory(Long productId, InventoryInitializeRequest request) {
+  public void initializeInventory(
+      Long sellerId, Long productId, InventoryInitializeRequest request) {
     // 비관적 락(차감 이벤트와 동시 접근 시 대기)
     Inventory inventory =
         inventoryRepository
             .findWithLockByProductId(productId)
             .orElseThrow(() -> new GeneralException(ErrorStatus.INVENTORY_NOT_FOUND));
+
+    if (!inventory.getSellerId().equals(sellerId)) {
+      throw new GeneralException(ErrorStatus.INVENTORY_ACCESS_DENIED);
+    }
 
     inventory.initializeQuantity(request.quantity());
 

@@ -88,7 +88,8 @@ public class InventoryFacade {
   }
 
   @Transactional
-  public void initializeInventory(Long productId, InventoryInitializeRequest request) {
-    inventoryInitializeInventoryUseCase.initializeInventory(productId, request);
+  public void initializeInventory(
+      Long sellerId, Long productId, InventoryInitializeRequest request) {
+    inventoryInitializeInventoryUseCase.initializeInventory(sellerId, productId, request);
   }
 }

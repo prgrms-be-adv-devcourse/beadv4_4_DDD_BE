@@ -35,13 +35,14 @@ public class InventoryInitializeUseCaseTest {
   void setInitialStock_savesToRealRedis() {
     // given
     Long productId = 1L;
+    Long sellerId = 1L;
     String expectedKey = "inventory:available:" + productId;
 
     // (수량 0, 초기화 안 됨)
     Inventory emptyInventory =
         Inventory.builder()
             .productId(productId)
-            .sellerId(1L)
+            .sellerId(sellerId)
             .quantity(0)
             .isInitialized(false)
             .build();
@@ -49,7 +50,8 @@ public class InventoryInitializeUseCaseTest {
     inventoryRepository.save(emptyInventory);
 
     // when:
-    inventoryInitializeUseCase.initializeInventory(productId, new InventoryInitializeRequest(100));
+    inventoryInitializeUseCase.initializeInventory(
+        sellerId, productId, new InventoryInitializeRequest(100));
 
     // then:
     String savedQuantity = redisTemplate.opsForValue().get(expectedKey);
