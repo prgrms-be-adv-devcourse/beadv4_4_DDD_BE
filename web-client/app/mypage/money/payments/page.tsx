@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import MypageLayout from '../../../components/MypageLayout'
 import api from '@/app/lib/axios'
 
-// GET /api/v1/payments/list 응답 항목
+// GET /api/v2/payments 응답 항목
 interface PaymentListItem {
   orderNo: string
   orderId: number
@@ -82,7 +82,7 @@ export default function MoneyPaymentsPage() {
 
     try {
       const res = await api.get<ApiResponsePage<PaymentListItem>>(
-        `/api/v1/payments/list?${params.toString()}`
+        `/api/v2/payments?${params.toString()}`
       )
       const data = res.data
 
