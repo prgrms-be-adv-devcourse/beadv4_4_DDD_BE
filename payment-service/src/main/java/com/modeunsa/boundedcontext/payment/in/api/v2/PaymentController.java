@@ -35,7 +35,7 @@ public class PaymentController {
   private final PaymentFacade paymentFacade;
   private final JsonConverter jsonConverter;
 
-  @Operation(summary = "결제 목록 조회", description = "조회 기간, 결제 상태, 주문 번호, 상품 이름으로 결제 내역을 검색합니다.")
+  @Operation(summary = "결제 목록 조회", description = "조회 기간, 결제 상태, 주문 번호로 결제 내역을 검색합니다.")
   @GetMapping
   public ResponseEntity<ApiResponse> getPaymentList(
       @AuthenticationPrincipal CustomUserDetails user,
