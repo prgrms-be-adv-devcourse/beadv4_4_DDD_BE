@@ -1,0 +1,42 @@
+enabled: true
+image:
+  repository: ""
+  tag: "latest"
+  pullPolicy: Always
+replicas: 1
+service:
+  type: NodePort
+  port: 8086  # 모듈별 포트 설정
+  nodePort: 8086
+env:
+  springProfile: "k3s-dev"
+  dbHost: "modeunsa-infra-mysql"
+  dbPort: "3306"
+  dbName: ""
+  redisHost: "modeunsa-infra-redis"
+  redisPort: "6379"
+  kafkaBootstrapServers: "modeunsa-infra-kafka:9092"
+  esHost: "modeunsa-infra-elasticsearch"
+  esPort: "9200"
+secrets:
+  dbUsername: "root"
+  dbPassword: ""
+  redisPassword: ""
+  jwtSecret: ""
+  kakaoClientId: ""
+  kakaoClientSecret: ""
+  naverClientId: ""
+  naverClientSecret: ""
+  awsAccessKey: ""
+  awsSecretKey: ""
+  encryptionMasterKey: ""
+  tossPaymentsSecretKey: ""
+  internalApiKey: ""
+javaOpts: "-Xmx512m"
+resources:
+  requests:
+    cpu: 150m
+    memory: 512Mi
+  limits:
+    cpu: 400m
+    memory: 1536Mi

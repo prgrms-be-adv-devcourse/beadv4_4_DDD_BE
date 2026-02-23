@@ -14,3 +14,6 @@ dependencies:
   - name: frontend
     version: 0.1.0
     condition: frontend.enabled
+  - name: member-api
+    version: "0.1.0"
+    condition: member-api.enabled

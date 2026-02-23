@@ -12,3 +12,6 @@ frontend:
 
 ingress:
   enabled: false        # dev에서는 NodePort 사용, prod에서 true로 덮어씀
+
+member-api:
+  enabled: false
