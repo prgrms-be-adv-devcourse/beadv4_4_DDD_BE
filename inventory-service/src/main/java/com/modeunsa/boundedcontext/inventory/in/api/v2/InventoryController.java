@@ -2,15 +2,18 @@ package com.modeunsa.boundedcontext.inventory.in.api.v2;
 
 import com.modeunsa.boundedcontext.inventory.app.common.InventoryFacade;
 import com.modeunsa.global.response.ApiResponse;
+import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.global.status.SuccessStatus;
 import com.modeunsa.shared.inventory.dto.InventoryAvailableQuantityResponse;
 import com.modeunsa.shared.inventory.dto.InventoryDto;
+import com.modeunsa.shared.inventory.dto.InventoryInitializeRequest;
 import com.modeunsa.shared.inventory.dto.InventoryReserveRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -59,5 +62,14 @@ public class InventoryController {
   @PostMapping("/internal/reserve")
   public void reserveInventory(@Valid @RequestBody InventoryReserveRequest request) {
     inventoryFacade.reserveInventory(request);
+  }
+
+  @Operation(summary = "실재고 등록", description = "판매자가 상품의 실재고를 등록합니다.")
+  @PostMapping("/{productId}")
+  public void initializeInventory(
+      @AuthenticationPrincipal CustomUserDetails user,
+      @PathVariable Long productId,
+      @Valid @RequestBody InventoryInitializeRequest request) {
+    inventoryFacade.initializeInventory(user.getSellerId(), productId, request);
   }
 }
