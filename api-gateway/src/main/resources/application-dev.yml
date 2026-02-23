@@ -44,7 +44,7 @@ custom:
 
       # ========== 상품 ===========
       - /api/v1/products/search
-      - /api/v2/products/search
+      - /api/v2/products/search # todo: 삭제 예정
 
       # ========== 결제 ===========
       - /api/v2/payments/webhooks/toss

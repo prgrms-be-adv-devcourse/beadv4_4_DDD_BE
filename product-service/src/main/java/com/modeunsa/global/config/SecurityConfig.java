@@ -67,8 +67,10 @@ public class SecurityConfig {
                   // ========================================
                   // 어드민 전용
                   // ========================================
-                  .requestMatchers(HttpMethod.POST, "/api/v1/products/search/reindex")
-                  .hasRole("ADMIN")
+                  // TODO: admin 전용 처리 후 주석 제거
+                  //                  .requestMatchers(HttpMethod.POST,
+                  // "/api/v1/products/search/reindex")
+                  //                  .hasRole("ADMIN")
 
                   // ========================================
                   // 판매자 전용
