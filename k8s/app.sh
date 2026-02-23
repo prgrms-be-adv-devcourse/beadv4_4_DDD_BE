@@ -41,6 +41,7 @@ BACKEND_MODULES=(
   "settlement-api|SETTLEMENT_IMAGE|Settlement|localhost:30084|optional"
   "member-api|MEMBER_IMAGE|Member|localhost:30086|optional"
   "payment-api|PAYMENT_IMAGE|Payment|localhost:30083|optional"
+  "order-api|ORDER_IMAGE|Order|localhost:30082|optional"
 )
 
 # k3s 환경에서 KUBECONFIG 자동 설정
