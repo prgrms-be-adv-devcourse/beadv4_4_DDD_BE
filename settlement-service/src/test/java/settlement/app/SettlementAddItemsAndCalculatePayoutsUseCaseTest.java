@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import com.modeunsa.SettlementApplication;
 import com.modeunsa.boundedcontext.settlement.app.SettlementAddItemsAndCalculatePayoutsUseCase;
 import com.modeunsa.boundedcontext.settlement.domain.entity.Settlement;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementCandidateItem;
@@ -18,7 +19,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,10 +28,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-@Disabled
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
-@SpringBootTest
+@SpringBootTest(classes = SettlementApplication.class)
 @DisplayName("SettlementAddItemsAndCalculatePayoutsUseCase 테스트")
 class SettlementAddItemsAndCalculatePayoutsUseCaseTest {
 

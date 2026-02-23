@@ -21,7 +21,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 @Profile("!test")
@@ -98,9 +97,9 @@ public class SettlementDataInit {
       LocalDateTime startInclusive = LocalDate.now().minusDays(1).atStartOfDay();
       LocalDateTime endExclusive = LocalDate.now().atStartOfDay();
       boolean hasYesterdayTargets =
-          settlementCandidateItemRepository
-              .findUncollectedItems(startInclusive, endExclusive, PageRequest.of(0, 1))
-              .hasContent();
+          !settlementCandidateItemRepository
+              .findUncollectedItems(startInclusive, endExclusive)
+              .isEmpty();
 
       if (hasYesterdayTargets) {
         log.debug("[정산] 어제 대상 정산 후보 항목 존재 (count={}), 생성 스킵", count);
