@@ -9,6 +9,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -56,7 +58,7 @@ public class SecurityConfig {
                   .requestMatchers(permitUrls)
                   .permitAll()
 
-                  // 상품 API - GET만 공개
+                  //                // 상품 API - GET만 공개
                   .requestMatchers(HttpMethod.GET, "/api/v1/products")
                   .permitAll()
                   .requestMatchers(HttpMethod.GET, "/api/v1/products/{id:[0-9]+}")
@@ -75,19 +77,23 @@ public class SecurityConfig {
                   // ========================================
                   // 판매자 전용
                   // ========================================
-                  // 상품 CUD
+                  // 상품 CRUD
                   .requestMatchers(HttpMethod.POST, "/api/v1/products")
                   .hasRole("SELLER")
                   .requestMatchers(HttpMethod.PATCH, "/api/v1/products/**")
+                  .hasRole("SELLER")
+                  .requestMatchers(HttpMethod.GET, "/api/v1/products/sellers/**")
                   .hasRole("SELLER")
 
                   // ========================================
                   // 회원 전용
                   // ========================================
                   // 관심상품
-                  .requestMatchers(HttpMethod.POST, "/api/v1/products/*/favorite")
+                  .requestMatchers(HttpMethod.GET, "/api/v1/products/favorites")
                   .hasRole("MEMBER")
-                  .requestMatchers(HttpMethod.DELETE, "/api/v1/products/*/favorite")
+                  .requestMatchers(HttpMethod.POST, "/api/v1/products/favorite/**")
+                  .hasRole("MEMBER")
+                  .requestMatchers(HttpMethod.DELETE, "/api/v1/products/favorite/**")
                   .hasRole("MEMBER")
 
                   // 나머지는 인증 필요
@@ -100,5 +106,20 @@ public class SecurityConfig {
     http.addFilterBefore(internalApiKeyFilter, GatewayHeaderFilter.class);
 
     return http.build();
+  }
+
+  /** Role Hierarchy 설정 */
+  @Bean
+  public RoleHierarchy roleHierarchy() {
+    return RoleHierarchyImpl.withDefaultRolePrefix()
+        .role("SYSTEM")
+        .implies("ADMIN") // SYSTEM은 ADMIN의 모든 권한을 가짐
+        .role("HOLDER")
+        .implies("ADMIN") // HOLDER는 ADMIN의 모든 권한을 가짐
+        .role("ADMIN")
+        .implies("SELLER") // ADMIN은 SELLER의 모든 권한을 가짐
+        .role("SELLER")
+        .implies("MEMBER") // SELLER는 MEMBER의 모든 권한을 가짐
+        .build();
   }
 }
