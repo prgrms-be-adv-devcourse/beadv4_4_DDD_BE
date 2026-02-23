@@ -58,9 +58,9 @@ public class AuthenticationGlobalFilter implements GlobalFilter, Ordered {
       return chain.filter(cleanExchange);
     }
 
-    // 2. 공개 엔드포인트 체크
+    // 2. 공개 엔드포인트: JWT 있으면 검증 후 헤더 추가, 없으면 그대로 통과 (헤더는 null로 downstream 전달)
     if (isPublicEndpoint(path)) {
-      return chain.filter(cleanExchange);
+      return handlePublicEndpoint(cleanExchange, chain);
     }
 
     // 3. Internal API Key 체크
@@ -98,6 +98,39 @@ public class AuthenticationGlobalFilter implements GlobalFilter, Ordered {
             e -> {
               log.error("토큰 검증 과정 중 오류 발생 - Path: {}, Message: {}", path, e.getMessage(), e);
               return unauthorized(cleanExchange);
+            });
+  }
+
+  /**
+   * 공개(permitAll) 경로: JWT가 있으면 검증 후 유효할 때만 X-User-Id 등 헤더 추가. JWT 없거나 무효면 헤더 없이 통과 → downstream에서
+   * Principal은 null.
+   */
+  private Mono<Void> handlePublicEndpoint(
+      ServerWebExchange cleanExchange, GatewayFilterChain chain) {
+    ServerHttpRequest request = cleanExchange.getRequest();
+    String accessToken = null;
+    String authHeader = request.getHeaders().getFirst("Authorization");
+    if (authHeader != null && authHeader.startsWith("Bearer ")) {
+      accessToken = authHeader.substring(7).trim();
+    } else if (request.getCookies().containsKey("accessToken")) {
+      accessToken = request.getCookies().getFirst("accessToken").getValue();
+    }
+    if (accessToken == null || accessToken.isBlank()) {
+      return chain.filter(cleanExchange);
+    }
+    return authServiceClient
+        .validateToken(accessToken)
+        .flatMap(
+            authStatus -> {
+              if (!authStatus.isAuthenticated()) {
+                return chain.filter(cleanExchange);
+              }
+              return addUserHeaders(cleanExchange, chain, authStatus);
+            })
+        .onErrorResume(
+            e -> {
+              log.debug("공개 경로 JWT 검증 실패(무시하고 통과): {}", e.getMessage());
+              return chain.filter(cleanExchange);
             });
   }
 

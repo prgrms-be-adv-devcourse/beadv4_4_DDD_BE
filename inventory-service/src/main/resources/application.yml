@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8090
 
 spring:
   profiles:
@@ -9,6 +9,12 @@ spring:
       enabled: false
   application:
     name: api
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ${REDIS_PASSWORD:}
+      username: default
   cloud:
     gateway:
       globalcors:
@@ -58,7 +64,7 @@ spring:
                 - RewritePath=/v3/api-docs/order, /v3/api-docs
 
             - id: inventory-service
-              uri: http://${services.inventory.host}:8082
+              uri: http://${services.inventory.host}:8090
               predicates:
                 - Path=/api/v1/inventories/**,/api/v2/inventories/**,/v3/api-docs/inventory
               filters:
@@ -129,6 +135,8 @@ springdoc:
         url: /v3/api-docs/product
       - name: order-service
         url: /v3/api-docs/order
+      - name: inventory-service
+        url: /v3/api-docs/inventory
       - name: payment-service
         url: /v3/api-docs/payment
       - name: settlement-service

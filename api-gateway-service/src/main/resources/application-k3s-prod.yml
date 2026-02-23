@@ -56,6 +56,9 @@ custom:
       # ========== 콘텐츠 ==========
       - /api/v1/contents/**
 
+      # ========== 결제 ===========
+      - /api/v2/payments/webhooks/toss
+
   cors:
     enabled: true
     allowed-origins:

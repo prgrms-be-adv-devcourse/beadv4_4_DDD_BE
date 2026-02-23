@@ -118,7 +118,9 @@ function FashionContent() {
     try {
       const category = toApiCategory(currentCategory)
       const url = `${apiUrl}/api/v1/products?category=${encodeURIComponent(category)}&page=${currentPage}&size=${PAGE_SIZE}`
-      const res = await fetch(url)
+      const res = await fetch(url, {
+        credentials: 'include' // 브라우저에 저장된 쿠키(accessToken)를 함께 전송
+      })
       const data: ProductsApiResponse = await res.json()
       if (!res.ok) {
         setError(data.message || '상품 목록을 불러오지 못했습니다.')
