@@ -46,7 +46,7 @@ dependencyManagement {
 dependencies {
 	implementation project(":common")
 	implementation project(":member-service")
-	implementation project(":product") //TODO: 상품 조회 제거 후 삭제
+	implementation project(":product-service") //TODO: 상품 조회 제거 후 삭제
 
 	// spring boot
 	implementation 'org.springframework.boot:spring-boot-h2console'
