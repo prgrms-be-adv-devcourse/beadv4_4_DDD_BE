@@ -10,6 +10,9 @@ settlement-api:
 payment-api:
   enabled: false
 
+order-api:
+  enabled: false
+
 frontend:
   enabled: false
 
