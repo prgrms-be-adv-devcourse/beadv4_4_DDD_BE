@@ -40,6 +40,9 @@ spec:
               value: {{ .Values.env.redisHost | quote }}
             - name: REDIS_PORT
               value: {{ .Values.env.redisPort | quote }}
+            # Kafka
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: {{ .Values.env.kafkaBootstrapServers | quote }}
             {{- if .Values.javaOpts }}
             - name: JAVA_TOOL_OPTIONS
               value: {{ .Values.javaOpts | quote }}
@@ -66,4 +69,4 @@ spec:
               path: /actuator/health
               port: {{ .Values.service.port }}
             periodSeconds: 30
-{{- end }}
+  {{- end }}
