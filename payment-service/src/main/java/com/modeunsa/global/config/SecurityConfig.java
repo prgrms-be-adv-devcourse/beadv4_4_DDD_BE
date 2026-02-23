@@ -63,6 +63,8 @@ public class SecurityConfig {
                   .hasAnyRole("MEMBER", "SELLER")
                   .requestMatchers("/api/v1/payments/members/**")
                   .hasAnyRole("MEMBER", "SELLER")
+                  .requestMatchers(HttpMethod.GET, "/api/v1/payments/list")
+                  .hasAnyRole("MEMBER", "SELLER")
                   .anyRequest()
                   .authenticated());
     }
