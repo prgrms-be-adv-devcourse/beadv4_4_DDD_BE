@@ -21,3 +21,7 @@ spring:
 
 internal:
   api-key: test-internal-key
+
+custom:
+  swagger:
+    serverUrl: http://localhost

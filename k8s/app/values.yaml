@@ -7,6 +7,9 @@ api:
 settlement-api:
   enabled: false
 
+payment-api:
+  enabled: false
+
 frontend:
   enabled: false
 
