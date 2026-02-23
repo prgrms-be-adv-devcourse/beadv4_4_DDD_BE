@@ -46,6 +46,9 @@ custom:
       - /api/v1/products/search
       - /api/v2/products/search
 
+      # ========== 결제 ===========
+      - /api/v2/payments/webhooks/toss
+
   cors:
     enabled: true
     allowed-origins:

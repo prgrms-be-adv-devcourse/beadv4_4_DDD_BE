@@ -18,36 +18,6 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
-  security:
-    oauth2:
-      client:
-        registration:
-          kakao:
-            client-id: ${KAKAO_CLIENT_ID}
-            client-secret: ${KAKAO_CLIENT_SECRET}
-            redirect-uri: ${KAKAO_REDIRECT_URI}
-            authorization-grant-type: authorization_code
-            client-authentication-method: client_secret_post
-            client-name: KAKAO
-          naver:
-            client-id: ${NAVER_CLIENT_ID}
-            client-secret: ${NAVER_CLIENT_SECRET}
-            redirect-uri: ${NAVER_REDIRECT_URI}
-            authorization-grant-type: authorization_code
-            client-name: NAVER
-            scope:
-              - name
-              - email
-              - mobile
-  batch:
-    job:
-      enabled: false
-    jdbc:
-      initialize-schema: never
-
-  elasticsearch:
-    uris:
-      - http://${ES_HOST:elasticsearch}:${ES_PORT:9200}
 
 custom:
   swagger:
@@ -63,39 +33,12 @@ custom:
       - /favicon.ico
       - /error
 
-      # 내부 통신용 API
-      - /api/v1/orders/internal/**
-      - /api/v1/products/validate-order
-      - /api/v1/products/stock
-
-      # 인증 API
-      - /api/v1/auths/me
-      - /api/v1/auths/oauth/*/url
-      - /api/v1/auths/login/**
-      - /api/v1/auths/reissue
-      - /api/v1/auths/dev/**
-      - /api/v1/test/roles/**
-      - /login/oauth2/code/**
-
       # 헬스체크
       - /actuator/health
       - /actuator/prometheus
 
-      # 콘텐츠
-      - /api/v1/contents/**
-
-      # 상품
-      - /api/v1/products/search
-      - /api/v2/products/search
-    oauth2:
-      allowed-redirect-domains:
-        - modeunsa.store
-        - www.modeunsa.store
-  cors:
-    enabled: true
-    allowed-origins:
-      - https://modeunsa.store
-      - https://www.modeunsa.store
+      # ========== 토스 웹훅 ===========
+      - /api/v2/payments/webhooks/toss
 
 management:
   health:
@@ -115,9 +58,3 @@ management:
     export:
       prometheus:
         enabled: true
-
-app:
-  cookie:
-    secure: true
-    http-only: true
-    same-site: Lax

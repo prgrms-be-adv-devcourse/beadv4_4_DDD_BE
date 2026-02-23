@@ -19,6 +19,7 @@ import com.modeunsa.shared.payment.event.PaymentRefundSuccessEvent;
 import com.modeunsa.shared.payment.event.PaymentSuccessEvent;
 import com.modeunsa.shared.product.event.ProductCreatedEvent;
 import com.modeunsa.shared.product.event.ProductOrderAvailabilityChangedEvent;
+import com.modeunsa.shared.product.event.ProductStatusChangedEvent;
 import com.modeunsa.shared.product.event.ProductUpdatedEvent;
 import com.modeunsa.shared.settlement.event.SettlementCompletedPayoutEvent;
 import java.util.UUID;
@@ -66,6 +67,7 @@ public class KafkaResolver {
       case ProductUpdatedEvent e -> resolveProduct(e.productDto().getId());
       case ProductOrderAvailabilityChangedEvent e ->
           resolveProduct(e.productOrderAvailableDto().productId());
+      case ProductStatusChangedEvent e -> resolveProduct(e.productStatusDto().productId());
 
       // order
       case OrderPurchaseConfirmedEvent e -> resolveOrder(e.orderDto().getOrderId());

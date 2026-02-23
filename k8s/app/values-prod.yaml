@@ -28,6 +28,19 @@ settlement-api:
       cpu: 1
       memory: 1536Mi
 
+payment-api:
+  enabled: true
+  image:
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+  env:
+    springProfile: *backendCommonProdSpringProfile
+  resources:
+    limits:
+      cpu: 1
+      memory: 1536Mi
+
 frontend:
   enabled: true
   image:
