@@ -5,6 +5,7 @@ import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.status.SuccessStatus;
 import com.modeunsa.shared.inventory.dto.InventoryAvailableQuantityResponse;
 import com.modeunsa.shared.inventory.dto.InventoryDto;
+import com.modeunsa.shared.inventory.dto.InventoryInitializeRequest;
 import com.modeunsa.shared.inventory.dto.InventoryReserveRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -59,5 +60,12 @@ public class InventoryController {
   @PostMapping("/internal/reserve")
   public void reserveInventory(@Valid @RequestBody InventoryReserveRequest request) {
     inventoryFacade.reserveInventory(request);
+  }
+
+  @Operation(summary = "실재고 등록", description = "판매자가 상품의 실재고를 등록합니다.")
+  @PostMapping("/{productId}")
+  public void initializeInventory(
+      @PathVariable Long productId, @Valid @RequestBody InventoryInitializeRequest request) {
+    inventoryFacade.initializeInventory(productId, request);
   }
 }

@@ -28,8 +28,6 @@ repositories {
 
 dependencies {
     implementation project(":common")
-    implementation project(":member-service")
-    implementation project(":order-service")
 
     // spring boot
     implementation 'org.springframework.boot:spring-boot-h2console'
@@ -53,15 +51,9 @@ dependencies {
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
     testAnnotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
 
-    // Security + OAuth2
+    // Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     testImplementation 'org.springframework.security:spring-security-test'
-
-    // JWT
-    implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
-    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
-    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'

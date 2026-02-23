@@ -4,6 +4,7 @@ import com.modeunsa.boundedcontext.inventory.app.command.InventoryCreateInventor
 import com.modeunsa.boundedcontext.inventory.app.command.InventoryCreateProductUseCase;
 import com.modeunsa.boundedcontext.inventory.app.command.InventoryDecreaseStockUseCase;
 import com.modeunsa.boundedcontext.inventory.app.command.InventoryIncreaseStockUseCase;
+import com.modeunsa.boundedcontext.inventory.app.command.InventoryInitializeUseCase;
 import com.modeunsa.boundedcontext.inventory.app.command.InventoryRegisterSellerUseCase;
 import com.modeunsa.boundedcontext.inventory.app.command.InventoryReleaseInventoryUseCase;
 import com.modeunsa.boundedcontext.inventory.app.command.InventoryReserveInventoryUseCase;
@@ -12,6 +13,7 @@ import com.modeunsa.boundedcontext.inventory.app.query.InventoryGetAvailableQuan
 import com.modeunsa.boundedcontext.inventory.domain.InventoryProduct;
 import com.modeunsa.shared.inventory.dto.InventoryAvailableQuantityResponse;
 import com.modeunsa.shared.inventory.dto.InventoryDto;
+import com.modeunsa.shared.inventory.dto.InventoryInitializeRequest;
 import com.modeunsa.shared.inventory.dto.InventoryReserveRequest;
 import com.modeunsa.shared.order.dto.OrderItemDto;
 import com.modeunsa.shared.product.dto.ProductDto;
@@ -35,6 +37,7 @@ public class InventoryFacade {
   private final InventoryReleaseInventoryUseCase inventoryReleaseInventoryUseCase;
   private final InventoryDecreaseStockUseCase inventoryDecreaseStockUseCase;
   private final InventoryIncreaseStockUseCase inventoryIncreaseStockUseCase;
+  private final InventoryInitializeUseCase inventoryInitializeInventoryUseCase;
 
   @Transactional
   public void registerSeller(Long sellerId, String businessName, String representativeName) {
@@ -82,5 +85,10 @@ public class InventoryFacade {
   @Transactional
   public void increaseStock(List<OrderItemDto> orderItems) {
     inventoryIncreaseStockUseCase.increaseStock(orderItems);
+  }
+
+  @Transactional
+  public void initializeInventory(Long productId, InventoryInitializeRequest request) {
+    inventoryInitializeInventoryUseCase.initializeInventory(productId, request);
   }
 }
