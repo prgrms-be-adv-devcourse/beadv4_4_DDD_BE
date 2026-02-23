@@ -26,6 +26,12 @@ public class InventoryRedisAdapter implements InventoryCommandPort, InventoryQue
   private static final String INVENTORY_KEY_PREFIX = "inventory:available:";
 
   @Override
+  public void initialize(Long productId, int quantity) {
+    String key = INVENTORY_KEY_PREFIX + productId;
+    redisTemplate.opsForValue().set(key, String.valueOf(quantity));
+  }
+
+  @Override
   public void reserve(List<Long> productIds, List<Integer> quantities) {
     List<String> keys = productIds.stream().map(id -> INVENTORY_KEY_PREFIX + id).toList();
     List<String> args = quantities.stream().map(String::valueOf).toList();

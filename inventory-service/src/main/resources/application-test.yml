@@ -19,4 +19,4 @@ internal:
 
 encryption:
   enabled: false
-  master-key: ${ENCRYPTION_MASTER_KEY}
+  master-key: ${ENCRYPTION_MASTER_KEY:empty}
