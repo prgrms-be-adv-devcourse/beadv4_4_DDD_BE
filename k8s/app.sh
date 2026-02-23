@@ -34,9 +34,9 @@ WAIT_LOG_FILE="${WAIT_LOG_FILE:-/tmp/modeunsa-app-pod-wait.log}"
 # 백엔드 모듈 메타데이터
 # 형식: module|IMAGE_ENV|표시명|dev접속주소|required(optional/required)
 BACKEND_MODULES=(
-  "api|DOCKER_IMAGE|API Server|localhost:30080|required"
+  "api-gateway-api|API_GATEWAY_IMAGE|API Gateway|localhost:30080|required"
   "settlement-api|SETTLEMENT_IMAGE|Settlement|localhost:30084|optional"
-  "member-api|MEMBER_IMAGE|API Server|MEMBER_IMAGE|optional"
+  "member-api|MEMBER_IMAGE|Member|localhost:30086|optional"
 )
 
 # k3s 환경에서 KUBECONFIG 자동 설정

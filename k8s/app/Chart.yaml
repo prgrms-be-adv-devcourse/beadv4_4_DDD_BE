@@ -5,9 +5,9 @@ type: application
 version: 0.1.0
 
 dependencies:
-  - name: api
+  - name: api-gateway-api
     version: "0.1.0"
-    condition: api.enabled
+    condition: api-gateway-api.enabled
   - name: settlement-api
     version: "0.1.0"
     condition: settlement-api.enabled
