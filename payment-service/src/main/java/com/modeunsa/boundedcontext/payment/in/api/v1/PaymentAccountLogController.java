@@ -1,4 +1,4 @@
-package com.modeunsa.boundedcontext.payment.in.api.v2;
+package com.modeunsa.boundedcontext.payment.in.api.v1;
 
 import com.modeunsa.boundedcontext.payment.app.PaymentFacade;
 import com.modeunsa.boundedcontext.payment.app.dto.accountlog.PaymentAccountLedgerPageResponse;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Payment Account Log", description = "결제 계좌 입출금 내역 도메인 API")
-@RestController("PaymentAccountLogV2Controller")
+@RestController("PaymentAccountLogV1Controller")
 @RequestMapping("/api/v1/payments/accounts/logs")
 @RequiredArgsConstructor
 public class PaymentAccountLogController {

@@ -35,8 +35,8 @@ public class PaymentCompleteDepositChargeUseCase implements PaymentCompleteProce
         buyerAccount,
         context.requestPgAmount(),
         PaymentEventType.CHARGE_PG_TOSS_PAYMENTS,
-        ReferenceType.PAYMENT_MEMBER,
-        context.buyerId());
+        ReferenceType.ORDER,
+        context.orderId());
 
     Payment payment = loadPayment(context.buyerId(), context.orderNo());
     payment.changeToSuccess();
