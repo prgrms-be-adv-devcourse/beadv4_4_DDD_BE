@@ -43,8 +43,13 @@ custom:
       - /api/v1/contents/**
 
       # ========== 상품 ===========
+      - /api/v1/products
+      - /api/v1/products/{id}
       - /api/v1/products/search
       - /api/v2/products/search
+      - /api/v2/products/search/auto-complete
+      - /api/v2/products/search/knn
+      - /api/v2/products/search/hybrid
 
       # ========== 결제 ===========
       - /api/v2/payments/webhooks/toss
