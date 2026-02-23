@@ -6,12 +6,36 @@ service:
   nodePort: 30090
 scrapeInterval: "15s"
 scrapeConfigs:
-  - jobName: "modeunsa-app"
+  - jobName: "api-gateway-api"
     metricsPath: "/actuator/prometheus"
     scrapeInterval: "15s"
     scrapeTimeout: "10s"
     targets:
-      - "modeunsa-app-api:8080"
+      - "modeunsa-app-api-gateway-api:8080"
+  - jobName: "payment-api"
+    metricsPath: "/actuator/prometheus"
+    scrapeInterval: "15s"
+    scrapeTimeout: "10s"
+    targets:
+      - "modeunsa-app-payment-api:8083"
+  - jobName: "order-api"
+    metricsPath: "/actuator/prometheus"
+    scrapeInterval: "15s"
+    scrapeTimeout: "10s"
+    targets:
+      - "modeunsa-app-order-api:8082"
+  - jobName: "settlement-api"
+    metricsPath: "/actuator/prometheus"
+    scrapeInterval: "15s"
+    scrapeTimeout: "10s"
+    targets:
+      - "modeunsa-app-settlement-api:8084"
+  - jobName: "member-api"
+    metricsPath: "/actuator/prometheus"
+    scrapeInterval: "15s"
+    scrapeTimeout: "10s"
+    targets:
+      - "modeunsa-app-member-api:8086"
 resources:
   requests:
     cpu: 50m
