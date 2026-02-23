@@ -59,6 +59,8 @@ springdoc:
     persistAuthorization: true
 
 services:
+  api-gateway:
+    host: localhost
   member:
     host: localhost
   auth:

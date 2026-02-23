@@ -14,7 +14,13 @@ spring:
       server:
         webflux:
           routes:
-            - id: member
+            - id: api-gateway-service
+              uri: http://${services.api-gateway.host}:8080
+              predicates:
+                - Path=/v3/api-docs/api-gateway
+              filters:
+                - RewritePath=/v3/api-docs/api-gateway, /v3/api-docs
+            - id: member-service
               uri: http://${services.member.host}:8086
               predicates:
                 - Path=/api/v1/members/**,/api/v2/members/**,/api/v1/auths/**,/api/v2/auths/**,/v3/api-docs/member
@@ -28,7 +34,7 @@ spring:
 #               filters:
 #                  - RewritePath=/v3/api-docs/auth, /v3/api-docs
 
-            - id: product
+            - id: product-service
               uri: http://${services.product.host}:8081
               predicates:
                 - Path=/api/v1/products/**,/api/v2/products/**,/v3/api-docs/product
@@ -63,7 +69,7 @@ spring:
               filters:
                 - RewritePath=/v3/api-docs/settlement, /v3/api-docs
 
-            - id: file
+            - id: file-service
               uri: http://${services.file.host}:8088
               predicates:
                 - Path=/api/v1/files/**,/api/v2/files/**,/v3/api-docs/file

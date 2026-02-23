@@ -67,6 +67,8 @@ springdoc:
     persistAuthorization: true
 
 services:
+  api-gateway:
+    host: api-gateway
   member:
     host: member
   auth:
