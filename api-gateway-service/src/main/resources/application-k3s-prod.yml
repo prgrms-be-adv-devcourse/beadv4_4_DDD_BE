@@ -1,25 +1,40 @@
 spring:
-  config:
-    import: optional:file:.env.dev[.properties]
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:modeunsa}
+    url: jdbc:mysql://${DB_HOST:modeunsa-infra-mysql}:${DB_PORT:3306}/${DB_NAME:modeunsa}
     username: ${DB_USERNAME:root}
-    password: ${MYSQL_ROOT_PASSWORD:}
+    password: ${DB_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
   h2:
     console:
+      enabled: false
+
+management:
+  health:
+    elasticsearch:
+      enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: never
+    prometheus:
       enabled: true
-      path: /h2-console
+  metrics:
+    export:
+      prometheus:
+        enabled: true
 
 custom:
   swagger:
-    serverUrl: ${SWAGGER_SERVER_URL:http://localhost:8080}
-    description: "Local Server"
+    serverUrl: https://modeunsa.store
+    description: "Production Server"
   security:
     permit-all: false
     permit-urls:
       # ========== 개발 도구 ==========
-      - /h2-console/**
       - /swagger-ui/**
       - /v3/api-docs/**
       - /
@@ -30,10 +45,9 @@ custom:
       - /api/v1/auths/me
       - /api/v1/auths/oauth/*/url
       - /api/v1/auths/login/**
-      - /api/v1/auths/reissue
       - /api/v1/auths/dev/**
+      - /api/v1/auths/reissue
       - /login/oauth2/code/**
-      - /api/v1/test/roles/**
 
       # ========== 헬스체크 ==========
       - /actuator/health
@@ -42,46 +56,37 @@ custom:
       # ========== 콘텐츠 ==========
       - /api/v1/contents/**
 
-      # ========== 상품 ===========
-      - /api/v1/products
-      - /api/v1/products/{id}
-      - /api/v1/products/search
-      - /api/v2/products/search
-      - /api/v2/products/search/auto-complete
-      - /api/v2/products/search/knn
-      - /api/v2/products/search/hybrid
-
       # ========== 결제 ===========
       - /api/v2/payments/webhooks/toss
 
   cors:
     enabled: true
     allowed-origins:
-      - http://localhost:3000
-      - http://127.0.0.1:3000
-      - http://localhost:8080
-      - http://127.0.0.1:8080
+      - https://modeunsa.store
+      - http://modeunsa.store
 
 springdoc:
   swagger-ui:
     persistAuthorization: true
 
 services:
+  api-gateway:
+    host: api-gateway
   member:
-    host: localhost
+    host: member
   auth:
-    host: localhost
+    host: auth
   product:
-    host: localhost
+    host: product
   order:
-    host: localhost
+    host: order
   inventory:
-    host: localhost
+    host: inventory
   payment:
-    host: localhost
+    host: payment
   settlement:
-    host: localhost
+    host: settlement
   file:
-    host: localhost
+    host: file
   content:
-    host: localhost
+    host: content
