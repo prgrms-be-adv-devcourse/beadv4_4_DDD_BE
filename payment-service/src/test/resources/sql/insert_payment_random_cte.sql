@@ -2,7 +2,7 @@
 -- order_no, order_id UNIQUE 전제: 매 실행마다 run_id를 섞어서 중복 방지
 
 SET @member_id = 10;     -- 조회할 회원 ID
-SET @max_n = 900;        -- 삽입 건수
+SET @max_n = 1000;        -- 삽입 건수
 
 -- 실행 배치 식별자(마이크로초 포함). 매 실행마다 값이 달라짐
 SET @run_id = DATE_FORMAT(NOW(6), '%Y%m%d%H%i%s%f');  -- 예: 20260223112345123456 (20자리)
