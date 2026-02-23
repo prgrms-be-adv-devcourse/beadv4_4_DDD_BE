@@ -21,3 +21,6 @@ ingress:
 
 member-api:
   enabled: false
+
+product-api:
+  enabled: false
