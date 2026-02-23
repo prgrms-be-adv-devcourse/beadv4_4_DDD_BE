@@ -70,7 +70,7 @@ dependencies {
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
     testAnnotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
 
-    // Security + OAuth2
+    // Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
     testImplementation 'org.springframework.security:spring-security-test'
 
