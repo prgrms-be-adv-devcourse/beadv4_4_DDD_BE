@@ -36,7 +36,42 @@ settlement/           # ❌ 이미지 빌드 대상에서 제외됨
 
 ---
 
-## Step 2: 이미지 빌드 & 푸시
+## Step 2: `application.yml` / `application-k3s-*.yml` 정합성 점검 (중요)
+
+모듈별 기본 설정이 `settlement`와 다르면, 이미지 빌드/배포는 성공해도 k3s 내부 연결이 실패할 수 있습니다.
+
+체크 포인트:
+
+1. `application-k3s-dev.yml`에서 infra 서비스명을 사용
+   - DB: `modeunsa-infra-mysql:3306`
+   - Redis: `modeunsa-infra-redis:6379`
+   - Kafka: `modeunsa-infra-kafka:9092`
+   - Elasticsearch: `modeunsa-infra-elasticsearch:9200`
+2. `${REDIS_HOST}`처럼 환경변수로 쓰이는 부분은 로컬 환경에서 IntelliJ로 띄운 모듈을 위한 것이고, 실제 k3s 내부에서 
+pod들은 `modeunsa-infra-mysql`와 같은 값을 사용합니다. 변하지 않을 값들은 헬름 차트의 `values.yaml`에서 직접적으로
+선언해놓습니다.
+
+예시(권장):
+
+```yaml
+# application-k3s-dev.yml
+spring:
+  datasource:
+    url: jdbc:mysql://${DB_HOST:modeunsa-infra-mysql}:${DB_PORT:3306}/${DB_NAME:modeunsa}
+  data:
+    redis:
+      host: ${REDIS_HOST:modeunsa-infra-redis}
+      port: ${REDIS_PORT:6379}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:modeunsa-infra-kafka:9092}
+  elasticsearch:
+    uris:
+      - http://${ES_HOST:modeunsa-infra-elasticsearch}:${ES_PORT:9200}
+```
+
+---
+
+## Step 3: 이미지 빌드 & 푸시
 
 ```bash
 make backend prod
@@ -72,7 +107,7 @@ CONTENT_IMAGE=chanheess/modeunsa-content:0.0.1
 
 ---
 
-## Step 3: 헬름 차트 작성
+## Step 4: 헬름 차트 작성
 
 `settlement-api`를 기준으로 `k8s/app/charts/<module-name>/` 디렉토리를 만들고 6개 파일을 작성합니다.
 
@@ -292,7 +327,7 @@ stringData:
 
 ---
 
-## Step 4: 부모 차트에 등록
+## Step 5: 부모 차트에 등록
 
 ### `k8s/app/Chart.yaml`
 
@@ -354,7 +389,7 @@ prod 환경에서는 `values.yaml`의 기본값을 덮어쓰는 `values-prod.yam
 
 ---
 
-## Step 5: `app.sh` BACKEND_MODULES 등록
+## Step 6: `app.sh` BACKEND_MODULES 등록
 
 `k8s/app.sh`의 `BACKEND_MODULES` 배열에 새 모듈을 추가합니다.
 
@@ -373,11 +408,11 @@ BACKEND_MODULES=(
 "content-api|CONTENT_IMAGE|Content|localhost:30085|optional"
 ```
 
-`IMAGE_ENV_KEY`는 Step 2에서 자동 계산된 키와 일치해야 합니다 (`CONTENT_IMAGE` 등).
+`IMAGE_ENV_KEY`는 Step 3에서 자동 계산된 키와 일치해야 합니다 (`CONTENT_IMAGE` 등).
 
 ---
 
-## Step 6: 배포
+## Step 7: 배포
 
 ### 로컬 → EC2 파일 전송
 
@@ -394,7 +429,7 @@ scp -i /Users/chpark/Documents/aws/modeunsa_pem.pem -r k8s/ ec2-user@52.79.155.2
 scp -i /Users/chpark/Documents/aws/modeunsa_pem.pem .env.k3s-prod ec2-user@52.79.155.221:/home/ec2-user/app/.env.k3s-prod
 ```
 
-> `.env.k3s-prod`는 Step 2(`make backend prod`)에서 이미 업데이트되었습니다.
+> `.env.k3s-prod`는 Step 3(`make backend prod`)에서 이미 업데이트되었습니다.
 
 ### EC2에서 배포 실행
 
