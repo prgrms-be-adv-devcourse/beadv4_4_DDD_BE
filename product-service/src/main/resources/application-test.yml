@@ -32,13 +32,6 @@ spring:
   batch:
     jdbc:
       initialize-schema: embedded
-# 테스트용 스케줄러 - 매 1초마다 실행
-settlement:
-  scheduler:
-    daily-03: "* * * * * *"
-    monthly-25-04: "* * * * * *"
-  member:
-    system-member-id: 1
 
 internal:
   api-key: test-internal-key
