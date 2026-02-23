@@ -55,7 +55,7 @@ public class InventoryController {
   }
 
   @Operation(summary = "실재고 조회", description = "판매자가 확인하는 상품별 실재고 조회 기능입니다.")
-  @GetMapping("/internal/{productId}")
+  @GetMapping("/{productId}")
   public ResponseEntity<ApiResponse> getInventory(@PathVariable Long productId) {
     InventoryDto dto = inventoryFacade.getInventory(productId);
     return ApiResponse.onSuccess(SuccessStatus.OK, dto);
