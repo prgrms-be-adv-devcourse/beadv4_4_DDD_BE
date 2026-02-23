@@ -7,6 +7,7 @@ import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentSearchRequest;
 import com.modeunsa.boundedcontext.payment.domain.entity.Payment;
 import com.modeunsa.boundedcontext.payment.domain.entity.PaymentId;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentStatus;
+import com.modeunsa.boundedcontext.payment.domain.types.ProviderType;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -45,7 +46,7 @@ public class PaymentQueryRepository {
     where.and(betweenCreatedAt(condition.from(), condition.to()));
     where.and(eqStatus(condition.status()));
     where.and(eqOrderNo(condition.orderNo()));
-    where.and(containsProductName(condition.productName()));
+    where.and(eqPaymentProvider(condition.paymentProvider()));
 
     Pageable pageable = condition.pageable();
     JPAQuery<PaymentListItemResponse> contentQuery =
@@ -58,6 +59,7 @@ public class PaymentQueryRepository {
                     payment.status,
                     payment.totalAmount,
                     payment.pgOrderName,
+                    payment.paymentProvider,
                     payment.createdAt))
             .from(payment)
             .where(where)
@@ -96,9 +98,7 @@ public class PaymentQueryRepository {
     return status != null ? payment.status.eq(status) : null;
   }
 
-  private BooleanExpression containsProductName(String productName) {
-    return StringUtils.hasText(productName)
-        ? payment.pgOrderName.containsIgnoreCase(productName)
-        : null;
+  private BooleanExpression eqPaymentProvider(ProviderType paymentProvider) {
+    return paymentProvider != null ? payment.paymentProvider.eq(paymentProvider) : null;
   }
 }

@@ -11,6 +11,7 @@ interface PaymentListItem {
   status: string
   totalAmount: number
   productName: string | null
+  paymentProvider: string | null // MODEUNSA_PAY | TOSS_PAYMENTS
   createdAt: string
 }
 
@@ -44,6 +45,11 @@ const PAYMENT_STATUS_LABEL: Record<string, string> = {
   REFUNDED: '환불 완료',
 }
 
+const PAYMENT_PROVIDER_LABEL: Record<string, string> = {
+  MODEUNSA_PAY: '뭐든사 페이',
+  TOSS_PAYMENTS: '토스 페이먼츠',
+}
+
 type PresetKey = 'week' | 'month1' | 'month3' | 'month6' | 'direct'
 
 export default function MoneyPaymentsPage() {
@@ -60,7 +66,7 @@ export default function MoneyPaymentsPage() {
   })
   const [status, setStatus] = useState<string>('')
   const [orderNo, setOrderNo] = useState('')
-  const [productName, setProductName] = useState('')
+  const [paymentProvider, setPaymentProvider] = useState<string>('')
   const [currentPage, setCurrentPage] = useState(1)
   const [list, setList] = useState<PaymentListItem[]>([])
   const [listLoading, setListLoading] = useState(false)
@@ -78,7 +84,7 @@ export default function MoneyPaymentsPage() {
     if (endDate) params.set('to', `${endDate}T23:59:59`)
     if (status) params.set('status', status)
     if (orderNo.trim()) params.set('orderNo', orderNo.trim())
-    if (productName.trim()) params.set('productName', productName.trim())
+    if (paymentProvider) params.set('paymentProvider', paymentProvider)
 
     try {
       const res = await api.get<ApiResponsePage<PaymentListItem>>(
@@ -144,7 +150,7 @@ export default function MoneyPaymentsPage() {
           뭐든사 머니 결제 내역
         </h1>
         <p style={{ color: '#666', fontSize: '14px', marginBottom: '24px' }}>
-          조회 기간, 결제 상태, 주문 번호, 상품 이름으로 결제 내역을 검색할 수 있어요.
+          조회 기간, 결제 상태, 주문 번호, 결제 수단으로 결제 내역을 검색할 수 있어요.
         </p>
 
         {/* 검색 영역 */}
@@ -227,7 +233,7 @@ export default function MoneyPaymentsPage() {
             />
           </div>
           <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px', color: '#333' }}>
-            결제 상태 · 주문 번호 · 상품 이름
+            결제 상태 · 주문 번호 · 결제 수단
           </div>
           <div
             style={{
@@ -269,19 +275,24 @@ export default function MoneyPaymentsPage() {
                 width: '160px',
               }}
             />
-            <input
-              type="text"
-              placeholder="상품 이름"
-              value={productName}
-              onChange={(e) => setProductName(e.target.value)}
+            <select
+              value={paymentProvider}
+              onChange={(e) => setPaymentProvider(e.target.value)}
               style={{
                 padding: '8px 12px',
                 borderRadius: '8px',
                 border: '1px solid #e0e0e0',
                 fontSize: '14px',
-                width: '180px',
+                minWidth: '140px',
               }}
-            />
+            >
+              <option value="">전체</option>
+              {Object.entries(PAYMENT_PROVIDER_LABEL).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
             <button
               type="button"
               onClick={handleSearch}
@@ -344,6 +355,16 @@ export default function MoneyPaymentsPage() {
                   <th
                     style={{
                       padding: '14px 12px',
+                      textAlign: 'center',
+                      fontWeight: 600,
+                      color: '#333',
+                    }}
+                  >
+                    결제 수단
+                  </th>
+                  <th
+                    style={{
+                      padding: '14px 12px',
                       textAlign: 'left',
                       fontWeight: 600,
                       color: '#333',
@@ -377,7 +398,7 @@ export default function MoneyPaymentsPage() {
                 {listLoading && (
                   <tr>
                     <td
-                      colSpan={5}
+                      colSpan={6}
                       style={{ padding: '24px', textAlign: 'center', color: '#999' }}
                     >
                       조회 중입니다...
@@ -387,7 +408,7 @@ export default function MoneyPaymentsPage() {
                 {!listLoading && listError && (
                   <tr>
                     <td
-                      colSpan={5}
+                      colSpan={6}
                       style={{ padding: '24px', textAlign: 'center', color: '#dc3545' }}
                     >
                       {listError}
@@ -397,7 +418,7 @@ export default function MoneyPaymentsPage() {
                 {!listLoading && !listError && list.length === 0 && (
                   <tr>
                     <td
-                      colSpan={5}
+                      colSpan={6}
                       style={{ padding: '24px', textAlign: 'center', color: '#999' }}
                     >
                       해당 조건의 결제 내역이 없습니다.
@@ -430,6 +451,11 @@ export default function MoneyPaymentsPage() {
                         </td>
                         <td style={{ padding: '14px 12px', color: '#333' }}>
                           {item.orderNo}
+                        </td>
+                        <td style={{ padding: '14px 12px', textAlign: 'center', color: '#333' }}>
+                          {item.paymentProvider
+                            ? PAYMENT_PROVIDER_LABEL[item.paymentProvider] ?? item.paymentProvider
+                            : '-'}
                         </td>
                         <td style={{ padding: '14px 12px', color: '#333' }}>
                           {item.productName || '-'}
