@@ -21,6 +21,8 @@ spring:
       host: ${REDIS_HOST:modeunsa-infra-redis}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:modeunsa-infra-kafka:9092}
 
 management:
   health:
@@ -36,9 +38,9 @@ management:
       show-details: never
     prometheus:
       enabled: true
-  metrics:
-    export:
-      prometheus:
+  prometheus:
+    metrics:
+      export:
         enabled: true
 
 custom:
