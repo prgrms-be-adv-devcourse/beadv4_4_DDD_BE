@@ -17,7 +17,6 @@ public class SwaggerConfig {
 
   @Bean
   public OpenAPI customOpenAPI() {
-    return new OpenAPI()
-        .addServersItem(new Server().url(serverUrl).description(description));
+    return new OpenAPI().addServersItem(new Server().url(serverUrl).description(description));
   }
 }
