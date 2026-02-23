@@ -138,6 +138,20 @@ export default function MoneyPaymentsPage() {
     fetchList(0)
   }
 
+  const handleReset = () => {
+    setPreset('week')
+    const today = new Date()
+    const weekAgo = new Date(today)
+    weekAgo.setDate(weekAgo.getDate() - 7)
+    setStartDate(weekAgo.toISOString().slice(0, 10))
+    setEndDate(today.toISOString().slice(0, 10))
+    setStatus('')
+    setOrderNo('')
+    setPaymentProvider('')
+    setCurrentPage(1)
+    fetchList(0)
+  }
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
     fetchList(page - 1)
@@ -232,67 +246,81 @@ export default function MoneyPaymentsPage() {
               }}
             />
           </div>
-          <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px', color: '#333' }}>
-            결제 상태 · 주문 번호 · 결제 수단
-          </div>
           <div
             style={{
               display: 'flex',
               flexWrap: 'wrap',
-              alignItems: 'center',
-              gap: '8px',
-              marginBottom: '12px',
+              alignItems: 'flex-end',
+              gap: '24px',
+              marginBottom: '20px',
             }}
           >
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              style={{
-                padding: '8px 12px',
-                borderRadius: '8px',
-                border: '1px solid #e0e0e0',
-                fontSize: '14px',
-                minWidth: '140px',
-              }}
-            >
-              <option value="">전체</option>
-              {Object.entries(PAYMENT_STATUS_LABEL).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-            <input
-              type="text"
-              placeholder="주문 번호"
-              value={orderNo}
-              onChange={(e) => setOrderNo(e.target.value)}
-              style={{
-                padding: '8px 12px',
-                borderRadius: '8px',
-                border: '1px solid #e0e0e0',
-                fontSize: '14px',
-                width: '160px',
-              }}
-            />
-            <select
-              value={paymentProvider}
-              onChange={(e) => setPaymentProvider(e.target.value)}
-              style={{
-                padding: '8px 12px',
-                borderRadius: '8px',
-                border: '1px solid #e0e0e0',
-                fontSize: '14px',
-                minWidth: '140px',
-              }}
-            >
-              <option value="">전체</option>
-              {Object.entries(PAYMENT_PROVIDER_LABEL).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <span style={{ fontSize: '14px', fontWeight: 600, color: '#333' }}>
+                주문 번호
+              </span>
+              <input
+                type="text"
+                placeholder="주문 번호"
+                value={orderNo}
+                onChange={(e) => setOrderNo(e.target.value)}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  border: '1px solid #e0e0e0',
+                  fontSize: '14px',
+                  width: '260px',
+                }}
+              />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <span style={{ fontSize: '14px', fontWeight: 600, color: '#333' }}>
+                결제 상태
+              </span>
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  border: '1px solid #e0e0e0',
+                  fontSize: '14px',
+                  minWidth: '140px',
+                }}
+              >
+                <option value="">전체</option>
+                {Object.entries(PAYMENT_STATUS_LABEL).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <span style={{ fontSize: '14px', fontWeight: 600, color: '#333' }}>
+                결제 수단
+              </span>
+              <select
+                value={paymentProvider}
+                onChange={(e) => setPaymentProvider(e.target.value)}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  border: '1px solid #e0e0e0',
+                  fontSize: '14px',
+                  minWidth: '140px',
+                }}
+              >
+                <option value="">전체</option>
+                {Object.entries(PAYMENT_PROVIDER_LABEL).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             <button
               type="button"
               onClick={handleSearch}
@@ -308,6 +336,22 @@ export default function MoneyPaymentsPage() {
               }}
             >
               검색
+            </button>
+            <button
+              type="button"
+              onClick={handleReset}
+              style={{
+                padding: '8px 20px',
+                borderRadius: '8px',
+                border: '1px solid #e0e0e0',
+                background: '#fff',
+                color: '#666',
+                fontSize: '14px',
+                fontWeight: 500,
+                cursor: 'pointer',
+              }}
+            >
+              초기화
             </button>
           </div>
         </div>
