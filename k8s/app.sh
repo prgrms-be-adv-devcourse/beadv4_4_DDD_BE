@@ -15,6 +15,7 @@
 #
 # 접속 정보 (dev - NodePort):
 #   API Server    localhost:30080
+#   Payment       localhost:30083
 #   Settlement    localhost:30084
 #   Frontend      localhost:30000
 #

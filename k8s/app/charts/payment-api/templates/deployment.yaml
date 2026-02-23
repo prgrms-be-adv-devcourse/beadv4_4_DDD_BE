@@ -40,13 +40,6 @@ spec:
               value: {{ .Values.env.redisHost | quote }}
             - name: REDIS_PORT
               value: {{ .Values.env.redisPort | quote }}
-            # Elasticsearch
-            - name: ES_HOST
-              value: {{ .Values.env.esHost | quote }}
-            - name: ES_PORT
-              value: {{ .Values.env.esPort | quote }}
-            - name: SPRING_ELASTICSEARCH_URIS
-              value: "http://{{ .Values.env.esHost }}:{{ .Values.env.esPort }}"
             {{- if .Values.javaOpts }}
             - name: JAVA_TOOL_OPTIONS
               value: {{ .Values.javaOpts | quote }}
