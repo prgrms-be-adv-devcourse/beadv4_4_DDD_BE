@@ -8,9 +8,7 @@ import com.modeunsa.boundedcontext.inventory.app.command.InventoryRegisterSeller
 import com.modeunsa.boundedcontext.inventory.app.command.InventoryReleaseInventoryUseCase;
 import com.modeunsa.boundedcontext.inventory.app.command.InventoryReserveInventoryUseCase;
 import com.modeunsa.boundedcontext.inventory.app.command.InventoryUpdateInventoryUseCase;
-import com.modeunsa.boundedcontext.inventory.app.query.InventoryGetAvailableQuantityUseCase;
 import com.modeunsa.boundedcontext.inventory.domain.InventoryProduct;
-import com.modeunsa.shared.inventory.dto.InventoryAvailableQuantityResponse;
 import com.modeunsa.shared.inventory.dto.InventoryDto;
 import com.modeunsa.shared.inventory.dto.InventoryReserveRequest;
 import com.modeunsa.shared.order.dto.OrderItemDto;
@@ -31,7 +29,6 @@ public class InventoryFacade {
   private final InventorySupport inventorySupport;
   private final InventoryMapper inventoryMapper;
   private final InventoryReserveInventoryUseCase inventoryReserveInventoryUseCase;
-  private final InventoryGetAvailableQuantityUseCase inventoryGetAvailableQuantityUseCase;
   private final InventoryReleaseInventoryUseCase inventoryReleaseInventoryUseCase;
   private final InventoryDecreaseStockUseCase inventoryDecreaseStockUseCase;
   private final InventoryIncreaseStockUseCase inventoryIncreaseStockUseCase;
@@ -63,10 +60,6 @@ public class InventoryFacade {
   @Transactional
   public void reserveInventory(InventoryReserveRequest request) {
     inventoryReserveInventoryUseCase.reserveInventory(request);
-  }
-
-  public InventoryAvailableQuantityResponse getAvailableQuantity(Long productId) {
-    return inventoryGetAvailableQuantityUseCase.getAvailableQuantity(productId);
   }
 
   @Transactional
