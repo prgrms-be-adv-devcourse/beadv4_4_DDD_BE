@@ -7,6 +7,18 @@ spring:
   h2:
     console:
       enabled: false
+  cloud:
+    gateway:
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "https://modeunsa.store"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: true
+            exposedHeaders: "Authorization"
 
 management:
   health:
@@ -52,6 +64,10 @@ custom:
       # ========== 헬스체크 ==========
       - /actuator/health
       - /actuator/prometheus
+
+      # ========== 상품 ===========
+      - /api/v1/products/search
+      - /api/v2/products/search
 
       # ========== 콘텐츠 ==========
       - /api/v1/contents/**
