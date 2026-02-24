@@ -240,6 +240,7 @@ export default function MyPage() {
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                     <Link href="/mypage/money/charge" style={linkStyle}>충전하기</Link>
                     <Link href="/mypage/money/history" style={linkStyle}>사용 내역</Link>
+                    <Link href="/mypage/money/payments" style={linkStyle}>결제 내역</Link>
                   </div>
                 </div>
 

@@ -2,8 +2,7 @@ package com.modeunsa.boundedcontext.settlement.out;
 
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementCandidateItem;
 import java.time.LocalDateTime;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,8 +18,7 @@ public interface SettlementCandidateItemRepository
         AND s.purchaseConfirmedAt < :endExclusive
       ORDER BY s.id ASC
       """)
-  Page<SettlementCandidateItem> findUncollectedItems(
+  List<SettlementCandidateItem> findUncollectedItems(
       @Param("startInclusive") LocalDateTime startInclusive,
-      @Param("endExclusive") LocalDateTime endExclusive,
-      Pageable pageable);
+      @Param("endExclusive") LocalDateTime endExclusive);
 }

@@ -16,8 +16,6 @@ import org.springframework.batch.infrastructure.item.ItemReader;
 import org.springframework.batch.infrastructure.item.ItemWriter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
@@ -43,8 +41,7 @@ public class SettlementCollectItemsAndCalculatePayoutsStepConfig {
   @Bean
   public ItemReader<SettlementCandidateItem> collectItemsReader() {
     return new ItemReader<>() {
-      private int page = 0;
-      private List<SettlementCandidateItem> currentPage;
+      private List<SettlementCandidateItem> candidates;
       private int index = 0;
 
       // 어제 00:00:00 ~ 오늘 00:00:00 (어제 결제 건)
@@ -53,19 +50,13 @@ public class SettlementCollectItemsAndCalculatePayoutsStepConfig {
 
       @Override
       public SettlementCandidateItem read() {
-        if (currentPage == null || index >= currentPage.size()) {
-          Page<SettlementCandidateItem> pageResult =
-              settlementFacade.getSettlementCandidateItems(
-                  startInclusive, endExclusive, PageRequest.of(page++, CHUNK_SIZE));
-
-          currentPage = pageResult.getContent();
-          index = 0;
-
-          if (currentPage.isEmpty()) {
-            return null;
-          }
+        if (candidates == null) {
+          candidates = settlementFacade.getSettlementCandidateItems(startInclusive, endExclusive);
         }
-        return currentPage.get(index++);
+        if (index >= candidates.size()) {
+          return null;
+        }
+        return candidates.get(index++);
       }
     };
   }

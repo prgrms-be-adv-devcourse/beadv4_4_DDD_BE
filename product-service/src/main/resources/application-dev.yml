@@ -46,12 +46,6 @@ spring:
               - name
               - email
               - mobile
-  batch:
-    job:
-      enabled: false
-    jdbc:
-      initialize-schema: never
-
   elasticsearch:
     uris:
       - http://localhost:9200
@@ -67,7 +61,7 @@ management:
 
 custom:
   swagger:
-    serverUrl: "http://localhost:8081"
+    serverUrl: ${SWAGGER_SERVER_URL:http://localhost:8080}
     description: "Product Local Server"
   security:
     permit-all: false
@@ -80,52 +74,24 @@ custom:
       - /favicon.ico
       - /error
 
-      # ========== 인증 API ==========
-      - /api/v1/auths/me
-      - /api/v1/auths/oauth/*/url
-      - /api/v1/auths/login/**
-      - /api/v1/auths/reissue
-      - /api/v1/auths/dev/**
-      - /login/oauth2/code/**
-      - /api/v1/test/roles/**
-
       # ========== 헬스체크 ==========
       - /actuator/health
       - /actuator/prometheus
 
-      # ========== 콘텐츠 ==========
-      - /api/v1/contents/**
-
       # ========== 상품 ===========
+      - /api/v1/products
+      - /api/v1/products/{id}
       - /api/v1/products/search
       - /api/v2/products/search
-
-    oauth2:
-      allowed-redirect-domains:
-        - localhost
-        - 127.0.0.1
-  cors:
-    enabled: true
-    allowed-origins:
-      - http://localhost:3000
-      - http://127.0.0.1:3000
-      - http://localhost:8081
-      - http://127.0.0.1:8081
-
-jwt:
-  secret: ${JWT_SECRET:local-test-jwt-secret-key-which-is-long-enough-32bytes}
-  access-token-expiration: 86400000 # 24시간
-  refresh-token-expiration: 604800000 # 7일
+      - /api/v2/products/search/auto-complete
+      - /api/v2/products/search/knn
+      - /api/v2/products/search/hybrid
 
 springdoc:
   swagger-ui:
     persistAuthorization: true
 
 app:
-  cookie:
-    secure: false
-    http-only: true
-    same-site: Lax
   elasticsearch:
     enabled: true
 

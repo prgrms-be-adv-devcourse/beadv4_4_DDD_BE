@@ -155,6 +155,7 @@ export default function MypageNav({ role: externalRole }: MypageNavProps) {
             <div style={{ fontSize: '12px', color: '#999', margin: '12px 0 4px' }}>뭐든사 머니</div>
             <NavLink href="/mypage/money/charge">충전하기</NavLink>
             <NavLink href="/mypage/money/history">사용 내역</NavLink>
+            <NavLink href="/mypage/money/payments">결제 내역</NavLink>
 
             <div style={{ fontSize: '12px', color: '#999', margin: '12px 0 4px' }}>저장</div>
             <NavLink href="/mypage/favorites">좋아요</NavLink>

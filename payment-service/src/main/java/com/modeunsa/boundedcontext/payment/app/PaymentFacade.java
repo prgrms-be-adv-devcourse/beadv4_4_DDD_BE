@@ -9,9 +9,11 @@ import com.modeunsa.boundedcontext.payment.app.dto.member.PaymentMemberSyncReque
 import com.modeunsa.boundedcontext.payment.app.dto.order.PaymentOrderInfo;
 import com.modeunsa.boundedcontext.payment.app.dto.payment.ConfirmPaymentRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.payment.ConfirmPaymentResponse;
+import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentListItemResponse;
 import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentProcessContext;
 import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentResponse;
+import com.modeunsa.boundedcontext.payment.app.dto.payment.PaymentSearchRequest;
 import com.modeunsa.boundedcontext.payment.app.dto.settlement.PaymentPayoutInfo;
 import com.modeunsa.boundedcontext.payment.app.dto.toss.TossWebhookRequest;
 import com.modeunsa.boundedcontext.payment.app.support.PaymentAccountSupport;
@@ -20,6 +22,7 @@ import com.modeunsa.boundedcontext.payment.app.usecase.account.PaymentCreditAcco
 import com.modeunsa.boundedcontext.payment.app.usecase.ledger.PaymentAccountLedgerUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.member.PaymentGetMemberUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.member.PaymentSyncMemberUseCase;
+import com.modeunsa.boundedcontext.payment.app.usecase.payment.PaymentListUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentCompleteUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentConfirmTossPaymentUseCase;
 import com.modeunsa.boundedcontext.payment.app.usecase.process.PaymentFailureUseCase;
@@ -60,6 +63,7 @@ public class PaymentFacade {
   private final PaymentConfirmTossPaymentUseCase paymentConfirmTossPaymentUseCase;
   private final PaymentCompleteUseCase paymentCompleteUseCase;
   private final PaymentAccountLedgerUseCase paymentAccountLedgerUseCase;
+  private final PaymentListUseCase paymentListUseCase;
 
   private final SyncTossPaymentStatusUseCase syncTossPaymentStatusUseCase;
   private final TossWebhookLogUseCase tossWebhookLogUseCase;
@@ -161,6 +165,11 @@ public class PaymentFacade {
   public Page<PaymentAccountLogDto> getAccountLogPageListBySearch(
       Long memberId, PaymentAccountSearchRequest paymentAccountSearchRequest) {
     return paymentAccountLedgerUseCase.execute(memberId, paymentAccountSearchRequest);
+  }
+
+  public Page<PaymentListItemResponse> getPaymentListPage(
+      Long memberId, PaymentSearchRequest paymentSearchRequest) {
+    return paymentListUseCase.execute(memberId, paymentSearchRequest);
   }
 
   public void handleTossWebhookEvent(

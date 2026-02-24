@@ -2,7 +2,7 @@
 backendCommonProd:
   springProfile: &backendCommonProdSpringProfile "k3s-prod"
 
-api:
+api-gateway-api:
   enabled: true
   image:
     pullPolicy: IfNotPresent
@@ -41,6 +41,19 @@ payment-api:
       cpu: 1
       memory: 1536Mi
 
+order-api:
+  enabled: true
+  image:
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+  env:
+    springProfile: *backendCommonProdSpringProfile
+  resources:
+    limits:
+      cpu: 1
+      memory: 1536Mi
+
 frontend:
   enabled: true
   image:
@@ -50,3 +63,29 @@ frontend:
 
 ingress:
   enabled: true
+
+member-api:
+  enabled: true
+  image:
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+  env:
+    springProfile: *backendCommonProdSpringProfile
+  resources:
+    limits:
+      cpu: 1
+      memory: 1536Mi
+
+product-api:
+  enabled: true
+  image:
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+  env:
+    springProfile: *backendCommonProdSpringProfile
+  resources:
+    limits:
+      cpu: 1
+      memory: 1536Mi
