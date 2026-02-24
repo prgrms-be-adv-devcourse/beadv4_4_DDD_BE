@@ -19,6 +19,7 @@ import com.modeunsa.global.status.ErrorStatus;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -107,5 +108,10 @@ public class ProductSupport {
 
   public Page<ProductFavorite> getProductFavorites(Long memberId, Pageable pageable) {
     return productFavoriteRepository.findAllByMemberId(memberId, pageable);
+  }
+
+  public List<ProductFavorite> getRecentFavoriteProducts(Long memberId, int n) {
+    Pageable pageable = PageRequest.of(0, n);
+    return productFavoriteRepository.findRecentFavoritesWithProduct(memberId, pageable);
   }
 }
