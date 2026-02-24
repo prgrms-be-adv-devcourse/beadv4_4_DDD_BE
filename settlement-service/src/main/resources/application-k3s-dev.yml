@@ -81,7 +81,7 @@ management:
 
 custom:
   swagger:
-    serverUrl: "http://127.0.0.1:8084"
+    serverUrl: "http://127.0.0.1:8080"
     description: "Local Server"
   security:
     permit-all: false
