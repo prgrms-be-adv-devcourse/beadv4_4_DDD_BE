@@ -1,3 +1,3 @@
 package com.modeunsa.shared.inventory.dto;
 
-public record InventoryDto(Long productId, Long sellerId, int quantity, boolean isInitialized) {}
+public record InventoryDto(Long productId, Long sellerId, int quantity, boolean initialized) {}

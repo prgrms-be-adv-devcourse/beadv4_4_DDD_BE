@@ -12,6 +12,8 @@ import com.modeunsa.boundedcontext.inventory.app.command.InventoryUpdateInventor
 import com.modeunsa.boundedcontext.inventory.domain.InventoryProduct;
 import com.modeunsa.shared.inventory.dto.InventoryDto;
 import com.modeunsa.shared.inventory.dto.InventoryInitializeRequest;
+import com.modeunsa.shared.inventory.dto.InventoryListRequest;
+import com.modeunsa.shared.inventory.dto.InventoryListResponse;
 import com.modeunsa.shared.inventory.dto.InventoryReserveRequest;
 import com.modeunsa.shared.order.dto.OrderItemDto;
 import com.modeunsa.shared.product.dto.ProductDto;
@@ -35,6 +37,7 @@ public class InventoryFacade {
   private final InventoryDecreaseStockUseCase inventoryDecreaseStockUseCase;
   private final InventoryIncreaseStockUseCase inventoryIncreaseStockUseCase;
   private final InventoryInitializeUseCase inventoryInitializeInventoryUseCase;
+  private final InventoryGetInventoriesUseCase inventoryGetInventoriesUseCase;
 
   @Transactional
   public void registerSeller(Long sellerId, String businessName, String representativeName) {
@@ -84,5 +87,9 @@ public class InventoryFacade {
   public void initializeInventory(
       Long sellerId, Long productId, InventoryInitializeRequest request) {
     inventoryInitializeInventoryUseCase.initializeInventory(sellerId, productId, request);
+  }
+
+  public InventoryListResponse getInventories(Long sellerId, InventoryListRequest request) {
+    return inventoryGetInventoriesUseCase.getInventories(sellerId, request);
   }
 }

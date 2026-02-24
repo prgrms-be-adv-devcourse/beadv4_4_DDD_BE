@@ -6,6 +6,7 @@ import com.modeunsa.boundedcontext.inventory.domain.InventorySeller;
 import com.modeunsa.shared.inventory.dto.InventoryDto;
 import com.modeunsa.shared.inventory.dto.InventoryUpdateResponse;
 import com.modeunsa.shared.product.dto.ProductDto;
+import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -24,4 +25,6 @@ public interface InventoryMapper {
   InventoryUpdateResponse toInventoryUpdateResponse(Inventory inventory);
 
   InventoryDto toInventoryDto(Inventory inventory);
+
+  List<InventoryDto> toDtoList(List<Inventory> inventories);
 }

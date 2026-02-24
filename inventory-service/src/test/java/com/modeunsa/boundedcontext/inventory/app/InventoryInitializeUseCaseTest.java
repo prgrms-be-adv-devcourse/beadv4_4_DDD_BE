@@ -44,7 +44,7 @@ public class InventoryInitializeUseCaseTest {
             .productId(productId)
             .sellerId(sellerId)
             .quantity(0)
-            .isInitialized(false)
+            .initialized(false)
             .build();
 
     inventoryRepository.save(emptyInventory);
