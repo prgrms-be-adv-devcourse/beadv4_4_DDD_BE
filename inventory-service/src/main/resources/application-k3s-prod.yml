@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://${DB_HOST:modeunsa-infra-mysql}:${DB_PORT:3306}/${DB_NAME:modeunsa}
+    url: jdbc:mysql://${DB_HOST:modeunsa-infra-mysql}:${DB_PORT:3306}/modeunsa_inventory
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
