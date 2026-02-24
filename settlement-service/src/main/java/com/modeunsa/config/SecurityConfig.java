@@ -53,8 +53,8 @@ public class SecurityConfig {
                   .permitAll()
                   .requestMatchers(permitUrls)
                   .permitAll()
-                  .requestMatchers(HttpMethod.POST, "/api/v1/settlements")
-                  .hasAnyRole("SELLER", "ADMIN")
+                  .requestMatchers(HttpMethod.POST, "/api/v1/settlements/**")
+                  .hasAnyRole("SELLER", "SYSTEM", "ADMIN")
                   .anyRequest()
                   .authenticated());
     }

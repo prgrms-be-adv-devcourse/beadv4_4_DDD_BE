@@ -1,6 +1,6 @@
 # prod 환경 - EC2 + k3s (ClusterIP + Ingress)
 backendCommonProd:
-  springProfile: &backendCommonProdSpringProfile "prod"
+  springProfile: &backendCommonProdSpringProfile "k3s-prod"
 
 api:
   enabled: true
