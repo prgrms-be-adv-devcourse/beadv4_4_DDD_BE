@@ -36,6 +36,18 @@ scrapeConfigs:
     scrapeTimeout: "10s"
     targets:
       - "modeunsa-app-member-api:8086"
+  - jobName: "product-api"
+    metricsPath: "/actuator/prometheus"
+    scrapeInterval: "15s"
+    scrapeTimeout: "10s"
+    targets:
+      - "modeunsa-app-product-api:8081"
+  - jobName: "mysql"
+    metricsPath: "/metrics"
+    scrapeInterval: "15s"
+    scrapeTimeout: "10s"
+    targets:
+      - "modeunsa-infra-mysql-exporter:9104"
 resources:
   requests:
     cpu: 50m
