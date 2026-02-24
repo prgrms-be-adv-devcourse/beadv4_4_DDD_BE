@@ -5,8 +5,10 @@ import com.modeunsa.boundedcontext.product.domain.ProductFavorite;
 import com.modeunsa.boundedcontext.recommendation.domain.MemberProfile;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
+@ConditionalOnProperty(name = "app.elasticsearch.enabled", havingValue = "true")
 @Service
 @RequiredArgsConstructor
 public class BuildRecommendationMemberProfileUseCase {

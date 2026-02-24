@@ -11,9 +11,11 @@ import com.modeunsa.boundedcontext.recommendation.out.OpenAiClient;
 import com.modeunsa.shared.product.dto.search.ProductSearchResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@ConditionalOnProperty(name = "app.elasticsearch.enabled", havingValue = "true")
 @Service
 @RequiredArgsConstructor
 @Transactional

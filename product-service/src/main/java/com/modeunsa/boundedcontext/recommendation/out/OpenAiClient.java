@@ -7,9 +7,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 
+@ConditionalOnProperty(name = "app.elasticsearch.enabled", havingValue = "true")
 @Component
 @RequiredArgsConstructor
 public class OpenAiClient {
