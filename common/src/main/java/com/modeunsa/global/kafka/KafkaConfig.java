@@ -1,9 +1,13 @@
 package com.modeunsa.global.kafka;
 
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -20,18 +24,22 @@ import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.ContainerProperties.AckMode;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
+import org.springframework.kafka.support.ExponentialBackOffWithMaxRetries;
 import org.springframework.kafka.support.serializer.DeserializationException;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
 import org.springframework.kafka.support.serializer.JacksonJsonSerializer;
-import org.springframework.util.backoff.FixedBackOff;
+import org.springframework.web.client.ResourceAccessException;
 
+@Slf4j
 @Configuration
 @EnableKafka
 public class KafkaConfig {
 
   @Value("${spring.kafka.bootstrap-servers:localhost:29092}")
   private String bootstrapServers;
+
+  private static final String DLT_SUFFIX = ".DLT";
 
   @Bean
   public ProducerFactory<String, Object> producerFactory() {
@@ -105,17 +113,38 @@ public class KafkaConfig {
     var recoverer =
         new DeadLetterPublishingRecoverer(
             kafkaTemplate(),
-            (record, ex) -> new TopicPartition(record.topic() + ".DLT", record.partition()));
+            (record, ex) -> {
+              log.error(
+                  "[DLT] topic={} partition={} offset={} key={} value={}",
+                  record.topic(),
+                  record.partition(),
+                  record.offset(),
+                  record.key(),
+                  record.value(),
+                  ex);
+              return new TopicPartition(record.topic() + DLT_SUFFIX, record.partition());
+            });
 
-    // 재시도 정책 : 1초 간격 3번 재시도
-    var backoff = new FixedBackOff(1000L, 3);
+    // 지수 백오프로 backoff 전략을 사용
+    var backoff = new ExponentialBackOffWithMaxRetries(5);
+    backoff.setInitialInterval(1_000L);
+    backoff.setMultiplier(2.0);
+    backoff.setMaxInterval(30_000L);
+
     var errorHandler = new DefaultErrorHandler(recoverer, backoff);
 
     // 역직렬화 예외의 경우에는 재시도 하지 않음
-    errorHandler.addNotRetryableExceptions(DeserializationException.class);
+    // 비즈니스 로직에 대한 예외를 wrapping 할 수 있는 예외를 생성할 시 아래에 추가
+    errorHandler.addNotRetryableExceptions(
+        DeserializationException.class, IllegalArgumentException.class);
+
+    errorHandler.addRetryableExceptions(
+        SocketTimeoutException.class,
+        ConnectException.class,
+        ResourceAccessException.class,
+        KafkaException.class);
 
     factory.setCommonErrorHandler(errorHandler);
-
     return factory;
   }
 }
