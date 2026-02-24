@@ -61,6 +61,12 @@ public class PaymentMember extends AuditedEntity {
         .build();
   }
 
+  public void sync(String email, String name, PaymentMemberStatus status) {
+    this.email = email;
+    this.name = name;
+    this.status = status != null ? status : this.status;
+  }
+
   public void validateCanOrder() {
     if (!canOrder()) {
       throw new PaymentDomainException(
