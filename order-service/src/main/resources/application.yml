@@ -61,14 +61,14 @@ custom:
     internalBackUrl: http://localhost:8080
 
 encryption:
-  enabled: false
+  enabled: true
   master-key: ${ENCRYPTION_MASTER_KEY}
 
 app:
   simulation:
     enabled: true
   event-publisher:
-    type: ${EVENT_PUBLISHER_TYPE:spring}
+    type: ${EVENT_PUBLISHER_TYPE:kafka}
   event-consumer:
     type: ${EVENT_CONSUMER_TYPE:kafka}
   data-init:
