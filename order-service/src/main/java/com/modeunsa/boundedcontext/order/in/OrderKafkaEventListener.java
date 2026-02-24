@@ -30,7 +30,7 @@ public class OrderKafkaEventListener {
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void handleMemberEvent(DomainEventEnvelope eventEnvelope) {
     switch (eventEnvelope.eventType()) {
-      case "MemberSignUpEvent" -> {
+      case "MemberSignupEvent" -> {
         MemberSignupEvent event =
             jsonConverter.deserialize(eventEnvelope.payload(), MemberSignupEvent.class);
         orderFacade.syncMember(event.memberId(), event.realName(), event.phoneNumber());

@@ -33,7 +33,7 @@ public class ProductKafkaEventListener {
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void handleMemberEvent(DomainEventEnvelope eventEnvelope) {
     switch (eventEnvelope.eventType()) {
-      case "MemberSignUpEvent" -> {
+      case "MemberSignupEvent" -> {
         MemberSignupEvent event =
             jsonConverter.deserialize(eventEnvelope.payload(), MemberSignupEvent.class);
         productFacade.syncMember(
