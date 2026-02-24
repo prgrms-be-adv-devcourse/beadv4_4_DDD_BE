@@ -25,7 +25,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
-@Profile("dev")
+@Profile("k3s-prod")
 @ConditionalOnProperty(name = "app.data-init.enabled", havingValue = "true", matchIfMissing = true)
 @Slf4j
 @Configuration // 필요 시 주석 처리

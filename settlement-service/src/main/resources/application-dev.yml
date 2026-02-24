@@ -106,13 +106,6 @@ custom:
       allowed-redirect-domains:
         - localhost
         - 127.0.0.1
-  cors:
-    enabled: true
-    allowed-origins:
-      - http://localhost:3000
-      - http://127.0.0.1:3000
-      - http://localhost:8084
-      - http://127.0.0.1:8084
 
 jwt:
   secret: ${JWT_SECRET:local-test-jwt-secret-key-which-is-long-enough-32bytes}

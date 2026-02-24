@@ -108,14 +108,9 @@ export default function Header() {
           <div className="logo">
             <Link href="/">뭐든사</Link>
           </div>
-
-          {/* 중앙 내비게이션 메뉴 */}
           <nav className="nav">
             <Link href="/fashion">패션</Link>
-            <Link href="/beauty">뷰티</Link>
-            <Link href="/magazine">매거진</Link>
           </nav>
-
           <div className="header-actions">
             <Link href="/cart" className="cart-btn">장바구니</Link>
 

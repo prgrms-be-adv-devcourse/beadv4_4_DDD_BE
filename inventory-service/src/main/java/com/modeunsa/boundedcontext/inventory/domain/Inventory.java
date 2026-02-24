@@ -36,8 +36,8 @@ public class Inventory extends GeneratedIdAndAuditedEntity {
   private int quantity = 0;
 
   // 초기화 여부 확인하는 필드
-  @Column(name = "is_initialized", nullable = false)
-  private boolean isInitialized = false;
+  @Column(name = "initialized", nullable = false)
+  private boolean initialized = false;
 
   // ----- 메서드 -----
   public boolean isOwner(Long requestSellerId) {
@@ -53,7 +53,7 @@ public class Inventory extends GeneratedIdAndAuditedEntity {
 
   public void initializeQuantity(int quantity) {
     // TODO: 도메인에러로 변경
-    if (this.isInitialized) {
+    if (this.initialized) {
       throw new IllegalStateException("이미 초기화된 재고입니다. 수량 변경은 입고/출고 API를 이용해주세요.");
     }
 
@@ -62,6 +62,6 @@ public class Inventory extends GeneratedIdAndAuditedEntity {
     }
 
     this.quantity = quantity;
-    this.isInitialized = true;
+    this.initialized = true;
   }
 }

@@ -1,6 +1,5 @@
 package com.modeunsa.boundedcontext.inventory.out;
 
-import com.modeunsa.shared.inventory.dto.InventoryAvailableQuantityResponse;
 import com.modeunsa.shared.inventory.dto.InventoryDto;
 import com.modeunsa.shared.inventory.dto.InventoryReserveRequest;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,13 +37,5 @@ public class InventoryApiClient {
         .body(inventoryReserveRequest)
         .retrieve()
         .toBodilessEntity();
-  }
-
-  public InventoryAvailableQuantityResponse getAvailableQuantity(Long productId) {
-    return restClient
-        .get()
-        .uri("/{productId}/available", productId)
-        .retrieve()
-        .body(InventoryAvailableQuantityResponse.class);
   }
 }
