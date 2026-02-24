@@ -18,8 +18,6 @@ internal:
   api-key: test-internal-key
 
 services:
-  api-gateway:
-    host: localhost
   member:
     host: localhost
   auth:
