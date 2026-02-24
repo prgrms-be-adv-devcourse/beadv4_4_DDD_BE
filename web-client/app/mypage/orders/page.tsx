@@ -38,14 +38,15 @@ type PresetKey = 'week' | 'month1' | 'month3' | 'month6' | 'direct'
 
 const getStatusLabel = (status: string) => {
   switch (status) {
-    case 'ORDER_RECEIVED': return { label: '주문접수', color: '#666' }
+    case 'PAYMENT_FAILED': return { label: '주문접수', color: '#666' }
     case 'PENDING_PAYMENT': return { label: '결제대기', color: '#f59e0b' }
     case 'PAYMENT_COMPLETED': return { label: '결제완료', color: '#22c55e' }
     case 'PREPARING_PRODUCT': return { label: '상품준비중', color: '#3b82f6' }
     case 'SHIPPING': return { label: '배송중', color: '#667eea' }
-    case 'SHIPPING_COMPLETED': return { label: '배송완료', color: '#22c55e' }
+    case 'DELIVERED': return { label: '배송완료', color: '#22c55e' }
+    case 'PURCHASE_CONFIRMED': return { label: '구매확정', color: '#22c55f' }
     case 'CANCEL_REQUESTED' : return { label: "취소 요청", color: '#ef7777'}
-    case 'CANCELED': return { label: '주문취소', color: '#ef4444' }
+    case 'CANCELLED': return { label: '주문취소', color: '#ef4444' }
     default: return { label: status, color: '#999' }
   }
 }
