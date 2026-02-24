@@ -55,23 +55,6 @@ public class ProductDataInit {
 
   @Transactional
   public void makeBaseProducts() {
-
-    redisTemplate.opsForValue().set("inventory:available:" + 1, String.valueOf(100));
-
-    redisTemplate.opsForValue().set("inventory:available:" + 2, String.valueOf(100));
-
-    redisTemplate.opsForValue().set("inventory:available:" + 3, String.valueOf(100));
-
-    redisTemplate.opsForValue().set("inventory:available:" + 4, String.valueOf(100));
-
-    redisTemplate.opsForValue().set("inventory:available:" + 5, String.valueOf(100));
-
-    redisTemplate.opsForValue().set("inventory:available:" + 6, String.valueOf(100));
-
-    redisTemplate.opsForValue().set("inventory:available:" + 7, String.valueOf(100));
-
-    redisTemplate.opsForValue().set("inventory:available:" + 8, String.valueOf(100));
-
     if (productRepository.count() > 0) {
       return;
     }
