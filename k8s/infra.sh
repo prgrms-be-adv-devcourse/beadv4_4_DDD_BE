@@ -27,6 +27,7 @@
 #   ./k8s/infra.sh up [dev|prod]    인프라 시작 (기본: dev)
 #   ./k8s/infra.sh down             인프라 중지 (데이터 유지)
 #   ./k8s/infra.sh clean            인프라 중지 + 데이터 삭제 (PVC 포함 전체 삭제)
+#   ./k8s/infra.sh mysql-reset      MySQL 데이터 초기화 (mysql PVC 삭제 후 재생성)
 #   ./k8s/infra.sh status           인프라 상태 확인
 #   ./k8s/infra.sh restart [dev|prod] 인프라 재시작
 #
@@ -212,6 +213,26 @@ case "$1" in
     echo "=== Infrastructure stopped (데이터 삭제됨) ==="
     ;;
 
+  mysql-reset)
+    echo "=== MySQL 데이터 초기화 시작 ==="
+
+    # 1) MySQL 파드 내리기
+    kubectl scale statefulset $RELEASE-mysql -n $NAMESPACE --replicas=0 || exit 1
+
+    # 2) MySQL 데이터 볼륨(PVC) 삭제
+    kubectl delete pvc $RELEASE-mysql-pvc -n $NAMESPACE || exit 1
+
+    # 3) Helm으로 PVC 리소스 재생성
+    helm upgrade --install $RELEASE $CHART_DIR -n $NAMESPACE --reuse-values || exit 1
+
+    # 4) MySQL 다시 올리기
+    kubectl scale statefulset $RELEASE-mysql -n $NAMESPACE --replicas=1 || exit 1
+
+    # 5) 상태 확인
+    kubectl get pod,pvc -n $NAMESPACE | grep mysql
+    echo "=== MySQL 데이터 초기화 완료 ==="
+    ;;
+
   status)
     case "$2" in
       pod|pods|"")  kubectl get pods -n $NAMESPACE ;;
@@ -231,12 +252,13 @@ case "$1" in
     ;;
 
   *)
-    echo "Usage: $0 {up|down|clean|status|restart} [dev|prod]"
+    echo "Usage: $0 {up|down|clean|mysql-reset|status|restart} [dev|prod]"
     echo ""
     echo "Examples:"
     echo "  $0 up dev       # dev 환경으로 시작"
     echo "  $0 up prod      # prod 환경으로 시작"
     echo "  $0 down         # 중지"
+    echo "  $0 mysql-reset  # mysql 데이터 초기화"
     echo "  $0 status       # 상태 확인"
     ;;
 esac
