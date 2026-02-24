@@ -37,8 +37,6 @@ public class SwaggerConfig {
         .info(info)
         // 두 가지 인증 방식을 모두 API 레벨에 적용
         .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
-        .components(
-            new Components()
-                .addSecuritySchemes("bearerAuth", bearerAuth));
+        .components(new Components().addSecuritySchemes("bearerAuth", bearerAuth));
   }
 }
