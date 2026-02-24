@@ -5,6 +5,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -39,6 +40,7 @@ public class SwaggerConfig {
             .description("프로그래머스 단기심화4 DDD 세미프로젝트 스웨거 API 문서입니다.");
 
     return new OpenAPI()
+        .addServersItem(new Server().url("/"))
         .info(info)
         // 두 가지 인증 방식을 모두 API 레벨에 적용
         .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))

@@ -10,6 +10,21 @@ spring:
     console:
       enabled: true
       path: /h2-console
+  cloud:
+    gateway:
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:3000"
+              - "http://127.0.0.1:3000"
+              - "http://localhost:8080"
+              - "http://127.0.0.1:8080"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: true
+            exposedHeaders: "Authorization"
 
 custom:
   swagger:
@@ -53,14 +68,6 @@ custom:
 
       # ========== 결제 ===========
       - /api/v2/payments/webhooks/toss
-
-  cors:
-    enabled: true
-    allowed-origins:
-      - http://localhost:3000
-      - http://127.0.0.1:3000
-      - http://localhost:8080
-      - http://127.0.0.1:8080
 
 springdoc:
   swagger-ui:
