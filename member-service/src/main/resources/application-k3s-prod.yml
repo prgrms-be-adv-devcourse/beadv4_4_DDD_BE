@@ -114,4 +114,4 @@ app:
   cookie:
     secure: true
     http-only: true
-    same-site: Strict
+    same-site: Lax
