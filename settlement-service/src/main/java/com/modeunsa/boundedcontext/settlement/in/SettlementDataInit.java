@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Configuration
 @Slf4j
 public class SettlementDataInit {
-  private static final Long SELLER_MEMBER_ID = 7L;
+  private static final Long SELLER_MEMBER_ID = 8L;
   private static final Long BUYER_MEMBER_ID = 4L;
 
   private final SettlementDataInit self;
