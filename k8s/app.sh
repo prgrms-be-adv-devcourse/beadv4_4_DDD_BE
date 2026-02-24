@@ -42,6 +42,7 @@ BACKEND_MODULES=(
   "member-api|MEMBER_IMAGE|Member|localhost:30086|optional"
   "payment-api|PAYMENT_IMAGE|Payment|localhost:30083|optional"
   "order-api|ORDER_IMAGE|Order|localhost:30082|optional"
+  "product-api|PRODUCT_IMAGE|Product|localhost:30081|optional"
 )
 
 # k3s 환경에서 KUBECONFIG 자동 설정
@@ -85,6 +86,7 @@ add_backend_helm_args() {
     --set "$prefix.secrets.encryptionMasterKey=$ENCRYPTION_MASTER_KEY"
     --set "$prefix.secrets.tossPaymentsSecretKey=$TOSS_PAYMENTS_SECRET_KEY"
     --set "$prefix.secrets.internalApiKey=$INTERNAL_API_KEY"
+    --set "$prefix.secrets.openaiApiKey=$OPENAI_API_KEY"
   )
 }
 

@@ -23,3 +23,7 @@ dependencies:
   - name: member-api
     version: "0.1.0"
     condition: member-api.enabled
+  - name: product-api
+    version: "0.1.0"
+    condition: product-api.enabled
+

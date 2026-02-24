@@ -76,3 +76,16 @@ member-api:
     limits:
       cpu: 1
       memory: 1536Mi
+
+product-api:
+  enabled: true
+  image:
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+  env:
+    springProfile: *backendCommonProdSpringProfile
+  resources:
+    limits:
+      cpu: 1
+      memory: 1536Mi
