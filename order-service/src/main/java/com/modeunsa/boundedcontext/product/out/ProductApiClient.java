@@ -14,7 +14,7 @@ public class ProductApiClient {
   private final RestClient restClient;
 
   public ProductApiClient(
-      @Value("${custom.global.productInternalBackUrl}") String productInternalBackUrl,
+      @Value("${custom.global.internalBackUrl}") String productInternalBackUrl,
       @Value("${internal.api-key}") String internalApiKey) {
     this.restClient =
         RestClient.builder()

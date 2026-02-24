@@ -57,8 +57,7 @@ cloud:
 
 custom:
   global:
-    internalBackUrl: http://localhost:${server.port:8080}
-    productInternalBackUrl: http://localhost:8081
+    internalBackUrl: http://localhost:8080
 
 encryption:
   enabled: false

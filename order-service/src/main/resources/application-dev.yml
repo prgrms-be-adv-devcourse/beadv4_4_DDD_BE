@@ -39,7 +39,7 @@ management:
 
 custom:
   swagger:
-    serverUrl: ${SWAGGER_SERVER_URL:http://localhost:8083}
+    serverUrl: ${SWAGGER_SERVER_URL:http://localhost:8080}
     description: "Local Server"
   security:
     permit-all: false
