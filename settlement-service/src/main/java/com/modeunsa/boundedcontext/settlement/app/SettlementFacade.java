@@ -7,8 +7,6 @@ import com.modeunsa.shared.settlement.dto.SettlementResponseDto;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,8 +46,8 @@ public class SettlementFacade {
   }
 
   @Transactional(readOnly = true)
-  public Page<SettlementCandidateItem> getSettlementCandidateItems(
-      LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
-    return settlementSupport.getSettlementCandidateItems(startDate, endDate, pageable);
+  public List<SettlementCandidateItem> getSettlementCandidateItems(
+      LocalDateTime startDate, LocalDateTime endDate) {
+    return settlementSupport.getSettlementCandidateItems(startDate, endDate);
   }
 }

@@ -2,31 +2,29 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "api.fullname" . }}
+  name: {{ include "orderApi.fullname" . }}
   labels:
-    {{- include "api.labels" . | nindent 4 }}
+    {{- include "orderApi.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicas }}
   selector:
     matchLabels:
-      {{- include "api.selectorLabels" . | nindent 6 }}
+      {{- include "orderApi.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "api.selectorLabels" . | nindent 8 }}
+        {{- include "orderApi.selectorLabels" . | nindent 8 }}
     spec:
       containers:
-        - name: api
+        - name: order-api
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.service.port }}
               protocol: TCP
           env:
-            # Spring Profile
             - name: SPRING_PROFILES_ACTIVE
               value: {{ .Values.env.springProfile | quote }}
-            # Database
             - name: DB_HOST
               value: {{ .Values.env.dbHost | quote }}
             - name: DB_PORT
@@ -35,12 +33,12 @@ spec:
               value: {{ .Values.env.dbName | quote }}
             - name: MYSQL_DATABASE
               value: {{ .Values.env.dbName | quote }}
-            # Redis
             - name: REDIS_HOST
               value: {{ .Values.env.redisHost | quote }}
             - name: REDIS_PORT
               value: {{ .Values.env.redisPort | quote }}
-            # Elasticsearch
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: {{ .Values.env.kafkaBootstrapServers | quote }}
             - name: ES_HOST
               value: {{ .Values.env.esHost | quote }}
             - name: ES_PORT
@@ -53,7 +51,7 @@ spec:
             {{- end }}
           envFrom:
             - secretRef:
-                name: {{ include "api.fullname" . }}-secret
+                name: {{ include "orderApi.fullname" . }}-secret
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           startupProbe:
@@ -73,4 +71,4 @@ spec:
               path: /actuator/health
               port: {{ .Values.service.port }}
             periodSeconds: 30
-{{- end }}
+  {{- end }}

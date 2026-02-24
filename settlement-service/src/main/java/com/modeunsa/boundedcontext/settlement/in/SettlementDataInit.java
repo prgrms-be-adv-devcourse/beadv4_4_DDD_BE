@@ -17,15 +17,15 @@ import org.springframework.batch.core.job.JobExecution;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 @Profile("!test")
 @ConditionalOnProperty(name = "app.data-init.enabled", havingValue = "true", matchIfMissing = true)
-// @Configuration
+@Configuration
 @Slf4j
 public class SettlementDataInit {
   private static final Long SELLER_MEMBER_ID = 7L;
@@ -97,9 +97,9 @@ public class SettlementDataInit {
       LocalDateTime startInclusive = LocalDate.now().minusDays(1).atStartOfDay();
       LocalDateTime endExclusive = LocalDate.now().atStartOfDay();
       boolean hasYesterdayTargets =
-          settlementCandidateItemRepository
-              .findUncollectedItems(startInclusive, endExclusive, PageRequest.of(0, 1))
-              .hasContent();
+          !settlementCandidateItemRepository
+              .findUncollectedItems(startInclusive, endExclusive)
+              .isEmpty();
 
       if (hasYesterdayTargets) {
         log.debug("[정산] 어제 대상 정산 후보 항목 존재 (count={}), 생성 스킵", count);

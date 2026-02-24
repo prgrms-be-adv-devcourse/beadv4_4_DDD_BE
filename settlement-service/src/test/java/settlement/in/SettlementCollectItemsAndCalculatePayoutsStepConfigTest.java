@@ -7,6 +7,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.modeunsa.SettlementApplication;
 import com.modeunsa.boundedcontext.settlement.app.SettlementFacade;
 import com.modeunsa.boundedcontext.settlement.domain.entity.Settlement;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementCandidateItem;
@@ -17,7 +18,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.job.Job;
@@ -27,15 +27,11 @@ import org.springframework.batch.core.job.parameters.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-@Disabled
-@SpringBootTest
+@SpringBootTest(classes = SettlementApplication.class)
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @DisplayName("SettlementCollectItemsAndCalculatePayoutsStepConfig 통합 테스트")
@@ -90,12 +86,8 @@ class SettlementCollectItemsAndCalculatePayoutsStepConfigTest {
   @DisplayName("배치 Job 실행 성공")
   void job_executes_successfully() throws Exception {
     // given
-    Page<SettlementCandidateItem> firstPage = new PageImpl<>(List.of(candidateItem));
-    Page<SettlementCandidateItem> emptyPage = new PageImpl<>(List.of());
-
-    when(settlementFacade.getSettlementCandidateItems(any(), any(), any(Pageable.class)))
-        .thenReturn(firstPage)
-        .thenReturn(emptyPage);
+    when(settlementFacade.getSettlementCandidateItems(any(), any()))
+        .thenReturn(List.of(candidateItem));
     when(settlementFacade.addItemsAndCalculatePayouts(any())).thenReturn(testItems);
 
     // when
@@ -109,12 +101,8 @@ class SettlementCollectItemsAndCalculatePayoutsStepConfigTest {
   @DisplayName("Step 실행 시 Facade의 addItemsAndCalculatePayouts 호출")
   void step_calls_facade_addItemsAndCalculatePayouts() throws Exception {
     // given
-    Page<SettlementCandidateItem> firstPage = new PageImpl<>(List.of(candidateItem));
-    Page<SettlementCandidateItem> emptyPage = new PageImpl<>(List.of());
-
-    when(settlementFacade.getSettlementCandidateItems(any(), any(), any(Pageable.class)))
-        .thenReturn(firstPage)
-        .thenReturn(emptyPage);
+    when(settlementFacade.getSettlementCandidateItems(any(), any()))
+        .thenReturn(List.of(candidateItem));
     when(settlementFacade.addItemsAndCalculatePayouts(any())).thenReturn(testItems);
 
     // when
@@ -128,12 +116,8 @@ class SettlementCollectItemsAndCalculatePayoutsStepConfigTest {
   @DisplayName("Step 실행 시 Facade의 saveItems 호출")
   void step_calls_facade_saveItems() throws Exception {
     // given
-    Page<SettlementCandidateItem> firstPage = new PageImpl<>(List.of(candidateItem));
-    Page<SettlementCandidateItem> emptyPage = new PageImpl<>(List.of());
-
-    when(settlementFacade.getSettlementCandidateItems(any(), any(), any(Pageable.class)))
-        .thenReturn(firstPage)
-        .thenReturn(emptyPage);
+    when(settlementFacade.getSettlementCandidateItems(any(), any()))
+        .thenReturn(List.of(candidateItem));
     when(settlementFacade.addItemsAndCalculatePayouts(any())).thenReturn(testItems);
 
     // when
@@ -147,9 +131,7 @@ class SettlementCollectItemsAndCalculatePayoutsStepConfigTest {
   @DisplayName("빈 주문 목록일 때 정상 종료")
   void step_completes_when_noOrders() throws Exception {
     // given
-    Page<SettlementCandidateItem> emptyPage = new PageImpl<>(List.of());
-    when(settlementFacade.getSettlementCandidateItems(any(), any(), any(Pageable.class)))
-        .thenReturn(emptyPage);
+    when(settlementFacade.getSettlementCandidateItems(any(), any())).thenReturn(List.of());
 
     // when
     JobExecution jobExecution = launchJob();

@@ -6,8 +6,8 @@ image:
 replicas: 1
 service:
   type: NodePort
-  port: 8080
-  nodePort: 30080
+  port: 8081
+  nodePort: 30081
 env:
   springProfile: "k3s-dev"
   dbHost: "modeunsa-infra-mysql"
@@ -15,8 +15,7 @@ env:
   dbName: ""
   redisHost: "modeunsa-infra-redis"
   redisPort: "6379"
-  esHost: "modeunsa-infra-elasticsearch"
-  esPort: "9200"
+  kafkaBootstrapServers: "modeunsa-infra-kafka:9092"
 secrets:
   dbUsername: "root"
   dbPassword: ""
@@ -31,6 +30,7 @@ secrets:
   encryptionMasterKey: ""
   tossPaymentsSecretKey: ""
   internalApiKey: ""
+  openaiApiKey: ""
 javaOpts: "-Xmx512m"
 resources:
   requests:

@@ -48,3 +48,7 @@ app:
     type: spring
   event-consumer:
     type: spring
+
+encryption:
+  enabled: false
+  master-key: test

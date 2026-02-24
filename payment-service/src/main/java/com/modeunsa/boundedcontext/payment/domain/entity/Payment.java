@@ -22,6 +22,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.Index;
 import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -46,6 +47,9 @@ import org.springframework.http.HttpStatus;
       @UniqueConstraint(
           name = "uk_payment_member_order",
           columnNames = {"member_id", "order_no"})
+    },
+    indexes = {
+      @Index(name = "idx_payment_member_created_at", columnList = "member_id, created_at"),
     })
 @Getter
 @Builder

@@ -11,6 +11,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -33,6 +34,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
       @UniqueConstraint(
           name = "ux_payment_account_log_account_ref_evt",
           columnNames = {"account_id", "reference_type", "reference_id", "event_type"})
+    },
+    indexes = {
+      @Index(name = "idx_payment_account_id_created_at", columnList = "account_id, created_at"),
     })
 @Getter
 @Builder
