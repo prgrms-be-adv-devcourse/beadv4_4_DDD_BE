@@ -50,6 +50,11 @@ RELEASE="modeunsa-infra"
 CHART_DIR="$(dirname "$0")/infra"
 ROOT_DIR="$(dirname "$0")/.."
 
+# Linux(prod) 환경에서 KUBECONFIG 자동 설정
+if [[ "$(uname)" != "Darwin" ]] && [ -f /etc/rancher/k3s/k3s.yaml ]; then
+  export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+fi
+
 # 환경 인자 처리 (dev/prod, 기본값: dev)
 get_env_file() {
   local env="${1:-dev}"
