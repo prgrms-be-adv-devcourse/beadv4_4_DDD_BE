@@ -63,39 +63,12 @@ custom:
       - /favicon.ico
       - /error
 
-      # 내부 통신용 API
-      - /api/v1/orders/internal/**
-      - /api/v1/products/validate-order
-      - /api/v1/products/stock
-
-      # 인증 API
-      - /api/v1/auths/me
-      - /api/v1/auths/oauth/*/url
-      - /api/v1/auths/login/**
-      - /api/v1/auths/reissue
-      - /api/v1/auths/dev/**
-      - /api/v1/test/roles/**
-      - /login/oauth2/code/**
-
       # 헬스체크
       - /actuator/health
       - /actuator/prometheus
 
       # 콘텐츠
       - /api/v1/contents/**
-
-      # 상품
-      - /api/v1/products/search
-      - /api/v2/products/search
-    oauth2:
-      allowed-redirect-domains:
-        - modeunsa.store
-        - www.modeunsa.store
-  cors:
-    enabled: true
-    allowed-origins:
-      - https://modeunsa.store
-      - https://www.modeunsa.store
 
 management:
   health:
