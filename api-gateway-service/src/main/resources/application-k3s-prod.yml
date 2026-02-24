@@ -71,21 +71,21 @@ springdoc:
 
 services:
   api-gateway:
-    host: api-gateway
+    host: modeunsa-app-api-gateway-api
   member:
-    host: member
+    host: modeunsa-app-member-api
   auth:
     host: auth
   product:
-    host: product
+    host: modeunsa-app-product-api
   order:
-    host: order
+    host: modeunsa-app-order-api
   inventory:
     host: inventory
   payment:
-    host: payment
+    host: modeunsa-app-payment-api
   settlement:
-    host: settlement
+    host: modeunsa-app-settlement-api
   file:
     host: file
   content:

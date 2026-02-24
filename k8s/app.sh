@@ -38,11 +38,11 @@ WAIT_LOG_FILE="${WAIT_LOG_FILE:-/tmp/modeunsa-app-pod-wait.log}"
 # 형식: module|IMAGE_ENV|표시명|dev접속주소|required(optional/required)
 BACKEND_MODULES=(
   "api-gateway-api|API_GATEWAY_IMAGE|API Gateway|localhost:30080|required"
+  "product-api|PRODUCT_IMAGE|Product|localhost:30081|optional"
+  "order-api|ORDER_IMAGE|Order|localhost:30082|optional"
+  "payment-api|PAYMENT_IMAGE|Payment|localhost:30083|optional"
   "settlement-api|SETTLEMENT_IMAGE|Settlement|localhost:30084|optional"
   "member-api|MEMBER_IMAGE|Member|localhost:30086|optional"
-  "payment-api|PAYMENT_IMAGE|Payment|localhost:30083|optional"
-  "order-api|ORDER_IMAGE|Order|localhost:30082|optional"
-  "product-api|PRODUCT_IMAGE|Product|localhost:30081|optional"
 )
 
 # k3s 환경에서 KUBECONFIG 자동 설정
