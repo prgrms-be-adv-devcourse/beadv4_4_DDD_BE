@@ -1,7 +1,5 @@
 package com.modeunsa.boundedcontext.payment.domain.entity;
 
-import static jakarta.persistence.GenerationType.IDENTITY;
-
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentDomainException;
 import com.modeunsa.boundedcontext.payment.domain.exception.PaymentErrorCode;
 import com.modeunsa.boundedcontext.payment.domain.types.PaymentMemberStatus;
@@ -12,7 +10,6 @@ import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -29,9 +26,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class PaymentMember extends AuditedEntity {
 
-  @Id
-  @GeneratedValue(strategy = IDENTITY)
-  private Long id;
+  @Id private Long id;
 
   private static final String customerKeyPrefix = "CUSTOMER";
 
@@ -59,6 +54,12 @@ public class PaymentMember extends AuditedEntity {
         .customerKey(generateCustomerKey(id))
         .status(status)
         .build();
+  }
+
+  public void sync(String email, String name, PaymentMemberStatus status) {
+    this.email = email;
+    this.name = name;
+    this.status = status != null ? status : this.status;
   }
 
   public void validateCanOrder() {
