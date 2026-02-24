@@ -3,6 +3,7 @@ package com.modeunsa.boundedcontext.inventory.out;
 import com.modeunsa.boundedcontext.inventory.domain.Inventory;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.QueryHint;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
@@ -29,4 +30,6 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = "3000")})
   Optional<Inventory> findWithLockByProductId(Long productId);
+
+  List<Inventory> findByProductIdInAndSellerId(List<Long> longs, Long sellerId);
 }

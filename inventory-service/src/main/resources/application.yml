@@ -27,7 +27,7 @@ spring:
 
 custom:
   global:
-    internalBackUrl: http://localhost:${server.port:8080}
+    internalBackUrl: http://localhost:8080
 
 encryption:
   enabled: false
