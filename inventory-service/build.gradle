@@ -93,10 +93,6 @@ dependencies {
 
     testImplementation'org.springframework.boot:spring-boot-starter-data-elasticsearch-test'
 
-    // spring ai
-    implementation 'org.springframework.ai:spring-ai-starter-model-openai'
-    implementation 'org.springframework.ai:spring-ai-elasticsearch-store'
-
     implementation 'io.hypersistence:hypersistence-tsid:2.1.1'
 
     // prometheus
