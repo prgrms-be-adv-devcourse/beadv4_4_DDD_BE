@@ -44,7 +44,8 @@ public class GatewayHeaderFilter extends OncePerRequestFilter {
     if (userIdStr != null && userRoleStr != null) {
 
       // 요청이 진짜 게이트웨이에서 온 것인지 비밀키로 검증
-      String gatewayToken = request.getHeader("X-Gateway-Token");
+      String gatewayToken = request.getHeader("X-INTERNAL-API-KEY");
+
       if (!internalProperties.getApiKey().equals(gatewayToken)) {
         logger.error("보안 경고: 유효하지 않은 게이트웨이 토큰으로 접근 시도");
         sendErrorResponse(response, ErrorStatus.UNAUTHORIZED, "유효하지 않은 내부 접근입니다.");
