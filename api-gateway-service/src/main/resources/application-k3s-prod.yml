@@ -66,8 +66,13 @@ custom:
       - /actuator/prometheus
 
       # ========== 상품 ===========
+      - /api/v1/products
+      - /api/v1/products/{id}
       - /api/v1/products/search
       - /api/v2/products/search
+      - /api/v2/products/search/auto-complete
+      - /api/v2/products/search/knn
+      - /api/v2/products/search/hybrid
 
       # ========== 콘텐츠 ==========
       - /api/v1/contents/**

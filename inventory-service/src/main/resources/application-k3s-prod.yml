@@ -51,20 +51,20 @@ springdoc:
 
 services:
   member:
-    host: member
+    host: modeunsa-app-member-api
   auth:
     host: auth
   product:
-    host: product
+    host: modeunsa-app-product-api
   order:
-    host: order
+    host: modeunsa-app-order-api
   inventory:
-    host: inventory
+    host: modeunsa-app-inventory-api
   payment:
-    host: payment
+    host: modeunsa-app-payment-api
   settlement:
-    host: settlement
+    host: modeunsa-app-settlement-api
   file:
-    host: file
+    host: modeunsa-app-file-api
   content:
     host: content
