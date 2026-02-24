@@ -4,6 +4,7 @@ import com.modeunsa.boundedcontext.auth.app.facade.AuthFacade;
 import com.modeunsa.boundedcontext.auth.domain.dto.JwtTokenResponse;
 import com.modeunsa.boundedcontext.member.app.support.MemberSupport;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
+import com.modeunsa.boundedcontext.member.domain.entity.MemberProfile;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
 import com.modeunsa.global.config.CookieProperties;
 import com.modeunsa.global.exception.GeneralException;
@@ -47,8 +48,23 @@ public class DevAuthController {
             .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
     Long sellerId = memberSupport.getSellerIdByMemberId(memberId);
+
+    // 1. 필수값 4가지(이메일, 실명, 전화번호, 닉네임) 누락 여부 확인
+    MemberProfile profile = member.getProfile();
+
+    boolean isProfileIncomplete =
+        member.getEmail() == null
+            || member.getRealName() == null
+            || member.getPhoneNumber() == null
+            || profile == null
+            || profile.getNickname() == null;
+
+    // 2. 필수값이 하나라도 없다면 PRE_ACTIVE 상태 강제 부여, 모두 있다면 DB의 본래 상태 사용
+    String targetStatus = isProfileIncomplete ? "PRE_ACTIVE" : member.getStatus().name();
+
+    // 3. 결정된 targetStatus를 토큰 발급에 사용
     JwtTokenResponse tokenResponse =
-        authFacade.login(member.getId(), member.getRole(), sellerId, member.getStatus().name());
+        authFacade.login(member.getId(), member.getRole(), sellerId, targetStatus);
 
     addCookie(
         response, "accessToken", tokenResponse.accessToken(), tokenResponse.accessTokenExpiresIn());
