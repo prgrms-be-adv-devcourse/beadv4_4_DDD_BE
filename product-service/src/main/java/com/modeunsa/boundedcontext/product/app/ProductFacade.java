@@ -13,6 +13,7 @@ import com.modeunsa.boundedcontext.product.in.dto.ProductDetailResponse;
 import com.modeunsa.boundedcontext.product.in.dto.ProductResponse;
 import com.modeunsa.boundedcontext.product.in.dto.ProductSliceResultDto;
 import com.modeunsa.boundedcontext.product.in.dto.ProductUpdateRequest;
+import com.modeunsa.boundedcontext.recommendation.app.ProductRecommendationCacheService;
 import com.modeunsa.shared.product.dto.ProductFavoriteResponse;
 import com.modeunsa.shared.product.dto.ProductOrderResponse;
 import java.util.List;
@@ -37,6 +38,7 @@ public class ProductFacade {
   private final ProductCreateMemberUseCase productCreateMemberUseCase;
   private final ProductCreateSellerUseCase productCreateSellerUseCase;
   private final ProductUpdateMemberUseCase productUpdateMemberUseCase;
+  private final ProductRecommendationCacheService productRecommendationCacheService;
   private final ProductSupport productSupport;
   private final ProductMapper productMapper;
   private final CursorCodec cursorCodec;
@@ -122,11 +124,13 @@ public class ProductFacade {
   @Transactional
   public void createProductFavorite(Long memberId, Long productId) {
     productCreateFavoriteUseCase.createProductFavorite(memberId, productId);
+    productRecommendationCacheService.delete(memberId);
   }
 
   @Transactional
   public void deleteProductFavorite(Long memberId, Long productId) {
     productDeleteFavoriteUseCase.deleteProductFavorite(memberId, productId);
+    productRecommendationCacheService.delete(memberId);
   }
 
   public Page<ProductFavoriteResponse> getProductFavorites(Long memberId, Pageable pageable) {

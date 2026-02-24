@@ -26,24 +26,39 @@ public class RecommendationFacade {
   private final ProductSupport productSupport;
   private final ProductMapper productMapper;
   private final OpenAiClient openAiClient;
+  private final ProductRecommendationCacheService productRecommendationCacheService;
 
   public List<ProductSearchResponse> recommend(Long memberId) {
-    // 1. 사용자 행동 조회
+    // 1. redis 조회
+    List<ProductSearchResponse> cached = productRecommendationCacheService.get(memberId);
+    if (cached != null) {
+      return cached;
+    }
+
+    // 2. 실제 추천 로직
+    // 2-1. 사용자 행동 조회
     MemberProfile memberProfile = buildRecommendationMemberProfileUseCase.execute(memberId);
 
-    // 2. es vector search
+    // 2-2. es vector search
     List<ProductSearch> candidates =
         productSearchService.searchByVector(memberProfile.toEmbeddingText(), 10);
 
-    // 3. LLM re-ranking
-    List<RecommendationDto> response = openAiClient.rerank(memberProfile, candidates);
+    // 2-3. LLM re-ranking
+    List<RecommendationDto> recommendationDtos = openAiClient.rerank(memberProfile, candidates);
 
-    return response.stream()
-        .map(
-            item -> {
-              Product product = productSupport.getProduct(item.productId());
-              return productMapper.toProductSearchResponse(product);
-            })
-        .toList();
+    // 2-4. response용 dto로 변환
+    List<ProductSearchResponse> responses =
+        recommendationDtos.stream()
+            .map(
+                item -> {
+                  Product product = productSupport.getProduct(item.productId());
+                  return productMapper.toProductSearchResponse(product);
+                })
+            .toList();
+
+    // 3. redis 저장 (ttl: 1시간)
+    productRecommendationCacheService.set(memberId, responses);
+
+    return responses;
   }
 }
