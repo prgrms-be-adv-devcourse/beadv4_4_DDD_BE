@@ -4,6 +4,11 @@ spring:
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      host: ${REDIS_HOST:modeunsa-infra-redis}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
 
     hikari:
       maximum-pool-size: 40        # 최대 커넥션 (우선 올려서 acquire 대기 줄이기)
