@@ -1,0 +1,100 @@
+spring:
+  config:
+    import: optional:file:.env.dev[.properties]
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:modeunsa}
+    username: ${DB_USERNAME:root}
+    password: ${MYSQL_ROOT_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+        use_sql_comments: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ${REDIS_PASSWORD:}
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_CLIENT_SECRET}
+            redirect-uri: ${KAKAO_REDIRECT_URI}
+            authorization-grant-type: authorization_code
+            client-authentication-method: client_secret_post
+            client-name: KAKAO
+          naver:
+            client-id: ${NAVER_CLIENT_ID}
+            client-secret: ${NAVER_CLIENT_SECRET}
+            redirect-uri: ${NAVER_REDIRECT_URI}
+            authorization-grant-type: authorization_code
+            client-name: NAVER
+            scope:
+              - name
+              - email
+              - mobile
+  elasticsearch:
+    uris:
+      - http://localhost:9200
+
+management:
+  health:
+    elasticsearch:
+      enabled: true
+
+#  kafka:
+#    listener:
+#      auto-startup: false
+
+custom:
+  swagger:
+    serverUrl: ${SWAGGER_SERVER_URL:http://localhost:8080}
+    description: "Product Local Server"
+  security:
+    permit-all: false
+    permit-urls:
+      # ========== 개발 도구 ==========
+      - /h2-console/**
+      - /swagger-ui/**
+      - /v3/api-docs/**
+      - /
+      - /favicon.ico
+      - /error
+
+      # ========== 헬스체크 ==========
+      - /actuator/health
+      - /actuator/prometheus
+
+      # ========== 상품 ===========
+      - /api/v1/products
+      - /api/v1/products/{id}
+      - /api/v1/products/search
+      - /api/v2/products/search
+      - /api/v2/products/search/auto-complete
+      - /api/v2/products/search/knn
+      - /api/v2/products/search/hybrid
+
+springdoc:
+  swagger-ui:
+    persistAuthorization: true
+
+app:
+  elasticsearch:
+    enabled: true
+
+logging:
+  level:
+    org.springframework.data.elasticsearch.client.elc: TRACE

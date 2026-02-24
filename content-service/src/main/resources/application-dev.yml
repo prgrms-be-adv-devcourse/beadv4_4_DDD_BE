@@ -1,0 +1,79 @@
+spring:
+  config:
+    import: optional:file:.env.dev[.properties]
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:modeunsa}
+    username: ${DB_USERNAME:root}
+    password: ${MYSQL_ROOT_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+        use_sql_comments: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ${REDIS_PASSWORD:}
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: never
+
+  elasticsearch:
+    repositories:
+      enabled: false
+    uris:
+      - ${SPRING_ELASTICSEARCH_URIS:http://localhost:9200}
+
+management:
+  health:
+    elasticsearch:
+      enabled: false
+
+#  kafka:
+#    listener:
+#      auto-startup: false
+
+custom:
+  swagger:
+    serverUrl: "http://localhost:8089"
+    description: "Content Local Server"
+  security:
+    permit-all: false
+    permit-urls:
+      # ========== 개발 도구 ==========
+      - /h2-console/**
+      - /swagger-ui/**
+      - /v3/api-docs/**
+      - /
+      - /favicon.ico
+      - /error
+
+      # ========== 헬스체크 ==========
+      - /actuator/health
+      - /actuator/prometheus
+
+      # ========== 콘텐츠 ==========
+      - /api/v1/contents/**
+
+springdoc:
+  swagger-ui:
+    persistAuthorization: true
+
+app:
+  cookie:
+    secure: false
+    http-only: true
+    same-site: Lax

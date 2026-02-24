@@ -1,0 +1,86 @@
+spring:
+  datasource:
+    url: jdbc:mysql://${DB_HOST:modeunsa-infra-mysql}:${DB_PORT:3306}/${DB_NAME:modeunsa}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  h2:
+    console:
+      enabled: false
+  jpa:
+    open-in-view: false
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: false
+  data:
+    redis:
+      host: ${REDIS_HOST:modeunsa-infra-redis}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: never
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:modeunsa-infra-kafka:9092}
+
+  elasticsearch:
+    uris:
+      - http://${ES_HOST:modeunsa-infra-elasticsearch}:${ES_PORT:9200}
+
+management:
+  health:
+    elasticsearch:
+      enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: never
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+custom:
+  swagger:
+    serverUrl: https://modeunsa.store
+    description: "Production Server"
+  security:
+    permit-all: false
+    permit-urls:
+      # ========== Swagger (prod에서는 제한 가능) ==========
+      - /swagger-ui/**
+      - /v3/api-docs/**
+      - /
+      - /favicon.ico
+      - /error
+
+      # ========== 헬스체크 ==========
+      - /actuator/health
+      - /actuator/prometheus
+
+springdoc:
+  swagger-ui:
+    persistAuthorization: true
+
+app:
+  cookie:
+    secure: true
+    http-only: true
+    same-site: Strict
+  event-publisher:
+    type: kafka
+  event-consumer:
+    type: kafka

@@ -1,0 +1,70 @@
+spring:
+  datasource:
+    url: jdbc:mysql://${DB_HOST:modeunsa-infra-mysql}:${DB_PORT:3306}/${DB_NAME:modeunsa}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  h2:
+    console:
+      enabled: false
+
+management:
+  health:
+    elasticsearch:
+      enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: never
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+custom:
+  swagger:
+    serverUrl: https://modeunsa.store
+    description: "Production Server"
+  security:
+    permit-all: false
+    permit-urls:
+      # ========== 개발 도구 ==========
+      - /swagger-ui/**
+      - /v3/api-docs/**
+      - /
+      - /favicon.ico
+      - /error
+
+      # ========== 헬스체크 ==========
+      - /actuator/health
+      - /actuator/prometheus
+
+springdoc:
+  swagger-ui:
+    persistAuthorization: true
+
+services:
+  member:
+    host: member
+  auth:
+    host: auth
+  product:
+    host: product
+  order:
+    host: order
+  inventory:
+    host: inventory
+  payment:
+    host: payment
+  settlement:
+    host: settlement
+  file:
+    host: file
+  content:
+    host: content

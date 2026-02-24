@@ -4,8 +4,8 @@ mysql:
   image:
     tag: "8.0"
   auth:
-    rootPassword: ""    # .env에서 주입
-    database: ""        # .env에서 주입
+    rootPassword: ""    # .env.k3s-*에서 주입
+    database: ""        # .env.k3s-*에서 주입
 
 # MySQL Exporter (Prometheus 메트릭, 별도 차트)
 mysql-exporter:
@@ -14,14 +14,14 @@ mysql-exporter:
     host: "modeunsa-infra-mysql"
     port: 3306
     user: "root"
-    password: ""        # .env에서 주입 (mysql.auth.rootPassword 와 동일하게)
+    password: ""        # .env.k3s-*에서 주입 (mysql.auth.rootPassword 와 동일하게)
 
 redis:
   enabled: true
   image:
     tag: "7-alpine"
   auth:
-    password: ""        # .env에서 주입
+    password: ""        # .env.k3s-*에서 주입
 
 elasticsearch:
   enabled: true
@@ -36,12 +36,42 @@ prometheus:
     tag: "latest"
   scrapeInterval: "15s"
   scrapeConfigs:
-    - jobName: "modeunsa-app"
+    - jobName: "api-gateway-api"
       metricsPath: "/actuator/prometheus"
       scrapeInterval: "15s"
       scrapeTimeout: "10s"
       targets:
-        - "modeunsa-app-api:8080"
+        - "modeunsa-app-api-gateway-api:8080"
+    - jobName: "payment-api"
+      metricsPath: "/actuator/prometheus"
+      scrapeInterval: "15s"
+      scrapeTimeout: "10s"
+      targets:
+        - "modeunsa-app-payment-api:8083"
+    - jobName: "order-api"
+      metricsPath: "/actuator/prometheus"
+      scrapeInterval: "15s"
+      scrapeTimeout: "10s"
+      targets:
+        - "modeunsa-app-order-api:8082"
+    - jobName: "settlement-api"
+      metricsPath: "/actuator/prometheus"
+      scrapeInterval: "15s"
+      scrapeTimeout: "10s"
+      targets:
+        - "modeunsa-app-settlement-api:8084"
+    - jobName: "member-api"
+      metricsPath: "/actuator/prometheus"
+      scrapeInterval: "15s"
+      scrapeTimeout: "10s"
+      targets:
+        - "modeunsa-app-member-api:8086"
+    - jobName: "product-api"
+      metricsPath: "/actuator/prometheus"
+      scrapeInterval: "15s"
+      scrapeTimeout: "10s"
+      targets:
+        - "modeunsa-app-product-api:8081"
     - jobName: "mysql"
       metricsPath: "/metrics"
       scrapeInterval: "15s"
@@ -54,8 +84,8 @@ grafana:
   image:
     tag: "latest"
   auth:
-    adminUser: ""       # .env에서 주입
-    adminPassword: ""   # .env에서 주입
+    adminUser: ""       # .env.k3s-*에서 주입
+    adminPassword: ""   # .env.k3s-*에서 주입
   server:
     serveFromSubPath: true
 

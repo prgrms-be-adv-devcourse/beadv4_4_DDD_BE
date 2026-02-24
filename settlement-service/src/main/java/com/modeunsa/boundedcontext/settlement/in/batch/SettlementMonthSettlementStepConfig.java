@@ -1,0 +1,101 @@
+package com.modeunsa.boundedcontext.settlement.in.batch;
+
+import com.modeunsa.boundedcontext.settlement.domain.entity.Settlement;
+import com.modeunsa.boundedcontext.settlement.out.SettlementRepository;
+import com.modeunsa.global.eventpublisher.EventPublisher;
+import com.modeunsa.shared.settlement.dto.SettlementCompletedPayoutDto;
+import com.modeunsa.shared.settlement.event.SettlementCompletedPayoutEvent;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.Step;
+import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.infrastructure.item.ItemProcessor;
+import org.springframework.batch.infrastructure.item.ItemReader;
+import org.springframework.batch.infrastructure.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.PlatformTransactionManager;
+
+@Configuration
+@RequiredArgsConstructor
+public class SettlementMonthSettlementStepConfig {
+  private static final int CHUNK_SIZE = 10;
+
+  private final JobRepository jobRepository;
+  private final PlatformTransactionManager transactionManager;
+  private final SettlementRepository settlementRepository;
+  private final EventPublisher eventPublisher;
+
+  @Bean
+  public Step monthlySettlementStep(
+      ItemWriter<SettlementCompletedPayoutDto> monthSettlementWriter) {
+    return new StepBuilder("monthlySettlementStep", jobRepository)
+        .<Settlement, SettlementCompletedPayoutDto>chunk(CHUNK_SIZE)
+        .transactionManager(transactionManager)
+        .reader(monthSettlementReader())
+        .processor(monthSettlementProcessor())
+        .writer(monthSettlementWriter)
+        .build();
+  }
+
+  @Bean
+  public ItemReader<Settlement> monthSettlementReader() {
+    return new ItemReader<>() {
+      private List<Settlement> settlements;
+      private int index = 0;
+
+      @Override
+      public Settlement read() {
+        if (settlements == null) {
+          LocalDate lastMonth = LocalDate.now().minusMonths(1);
+          int year = lastMonth.getYear();
+          int month = lastMonth.getMonthValue();
+
+          settlements =
+              settlementRepository
+                  .findByPayoutAtIsNullAndSettlementYearAndSettlementMonthOrderByIdAsc(year, month);
+        }
+        if (index >= settlements.size()) {
+          return null;
+        }
+        return settlements.get(index++);
+      }
+    };
+  }
+
+  @Bean
+  public ItemProcessor<Settlement, SettlementCompletedPayoutDto> monthSettlementProcessor() {
+    return settlement -> {
+      settlement.completePayout();
+
+      return new SettlementCompletedPayoutDto(
+          settlement.getId(),
+          settlement.getSellerMemberId(),
+          settlement.getAmount(),
+          settlement.getType().getCompleteType(),
+          settlement.getPayoutAt());
+    };
+  }
+
+  @Bean
+  @StepScope // jobParameter를 받아오기 위해 사용
+  public ItemWriter<SettlementCompletedPayoutDto> monthSettlementWriter(
+      @Value("#{jobParameters['batchId']}") String batchId) {
+    return chunk -> {
+      List<SettlementCompletedPayoutDto> payouts = new ArrayList<>(chunk.getItems());
+
+      if (payouts.isEmpty()) {
+        return;
+      }
+
+      eventPublisher.publish(
+          new SettlementCompletedPayoutEvent(batchId, UUID.randomUUID().toString(), payouts));
+    };
+  }
+}

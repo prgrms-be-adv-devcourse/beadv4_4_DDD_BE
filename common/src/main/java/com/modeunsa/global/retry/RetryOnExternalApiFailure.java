@@ -4,8 +4,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
+import org.springframework.resilience.annotation.Retryable;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
@@ -18,16 +17,14 @@ import org.springframework.web.client.ResourceAccessException;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Retryable(
-    retryFor = {
+    includes = {
       ResourceAccessException.class,
       HttpServerErrorException.BadGateway.class,
       HttpServerErrorException.GatewayTimeout.class,
       HttpServerErrorException.ServiceUnavailable.class
     },
-    noRetryFor = {
-      HttpClientErrorException.class,
-      HttpServerErrorException.InternalServerError.class
-    },
-    maxAttempts = 3,
-    backoff = @Backoff(delay = 500, multiplier = 2))
+    excludes = {HttpClientErrorException.class, HttpServerErrorException.InternalServerError.class},
+    maxRetries = 2,
+    delay = 500,
+    multiplier = 2)
 public @interface RetryOnExternalApiFailure {}

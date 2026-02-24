@@ -1,14 +1,15 @@
 package com.modeunsa.shared.product.dto.search;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 
 public record ProductSearchResponse(
     String id,
     String name,
-    String description,
+    String sellerBusinessName,
     String category,
-    String saleStatus,
-    BigDecimal price,
-    OffsetDateTime createdAt,
-    OffsetDateTime updatedAt) {}
+    BigDecimal salePrice,
+    String primaryImageUrl,
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
+        LocalDateTime createdAt) {}

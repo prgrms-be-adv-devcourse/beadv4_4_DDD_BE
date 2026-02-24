@@ -1,4 +1,4 @@
-// app/mypage/seller-info
+// web-client/app/mypage/seller-info
 
 'use client'
 

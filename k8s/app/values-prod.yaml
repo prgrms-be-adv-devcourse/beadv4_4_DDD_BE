@@ -1,12 +1,54 @@
 # prod 환경 - EC2 + k3s (ClusterIP + Ingress)
-api:
+backendCommonProd:
+  springProfile: &backendCommonProdSpringProfile "k3s-prod"
+
+api-gateway-api:
   enabled: true
   image:
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
   env:
-    springProfile: "prod"
+    springProfile: *backendCommonProdSpringProfile
+  resources:
+    limits:
+      cpu: 1
+      memory: 1536Mi
+
+settlement-api:
+  enabled: true
+  image:
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+  env:
+    springProfile: *backendCommonProdSpringProfile
+  resources:
+    limits:
+      cpu: 1
+      memory: 1536Mi
+
+payment-api:
+  enabled: true
+  image:
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+  env:
+    springProfile: *backendCommonProdSpringProfile
+  resources:
+    limits:
+      cpu: 1
+      memory: 1536Mi
+
+order-api:
+  enabled: true
+  image:
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+  env:
+    springProfile: *backendCommonProdSpringProfile
   resources:
     limits:
       cpu: 1
@@ -21,3 +63,29 @@ frontend:
 
 ingress:
   enabled: true
+
+member-api:
+  enabled: true
+  image:
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+  env:
+    springProfile: *backendCommonProdSpringProfile
+  resources:
+    limits:
+      cpu: 1
+      memory: 1536Mi
+
+product-api:
+  enabled: true
+  image:
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+  env:
+    springProfile: *backendCommonProdSpringProfile
+  resources:
+    limits:
+      cpu: 1
+      memory: 1536Mi

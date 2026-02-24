@@ -16,7 +16,10 @@ const PUBLIC_PATH_PREFIXES = [
   '/products',  // 상품 목록, 상세
   '/categories', // 카테고리
   '/contents',  // 콘텐츠
-  '/auth'       // 인증 관련
+  '/auth',       // 인증 관련
+  '/fashion',
+  '/beauty',
+  '/magazine'
 ]
 
 // 3. 정확히 일치해야 하는 공개 페이지

@@ -6,27 +6,17 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
-import java.util.List;
-import lombok.RequiredArgsConstructor;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
+@Profile("!test")
 @Configuration
-@EnableConfigurationProperties(SwaggerProperties.class)
-@RequiredArgsConstructor
 public class SwaggerConfig {
-
-  private final SwaggerProperties swaggerProperties;
 
   @Bean
   public OpenAPI openAPI() {
-    // 현재 환경(dev/prod)에 맞는 서버 정보 하나만 설정
-    Server server = new Server();
-    server.setUrl(swaggerProperties.serverUrl());
-    server.setDescription(swaggerProperties.description());
-
-    // SecurityScheme 설정
+    // JWT 토큰 (Bearer) 설정
     SecurityScheme bearerAuth =
         new SecurityScheme()
             .type(SecurityScheme.Type.HTTP)
@@ -35,16 +25,7 @@ public class SwaggerConfig {
             .in(SecurityScheme.In.HEADER)
             .name("Authorization");
 
-    SecurityScheme internalApiKey =
-        new SecurityScheme()
-            .type(SecurityScheme.Type.APIKEY)
-            .in(SecurityScheme.In.HEADER)
-            .name("X-INTERNAL-API-KEY");
-
-    // SecurityRequirement 설정
-    SecurityRequirement securityRequirement =
-        new SecurityRequirement().addList("bearerAuth").addList("internalApiKey");
-
+    // API 기본 정보
     Info info =
         new Info()
             .title("Modeunsa API")
@@ -52,12 +33,10 @@ public class SwaggerConfig {
             .description("프로그래머스 단기심화4 DDD 세미프로젝트 스웨거 API 문서입니다.");
 
     return new OpenAPI()
-        .servers(List.of(server)) // 서버 목록에 현재 서버만 등록
+        .addServersItem(new Server().url("/"))
         .info(info)
-        .addSecurityItem(securityRequirement)
-        .components(
-            new Components()
-                .addSecuritySchemes("bearerAuth", bearerAuth)
-                .addSecuritySchemes("internalApiKey", internalApiKey));
+        // 두 가지 인증 방식을 모두 API 레벨에 적용
+        .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
+        .components(new Components().addSecuritySchemes("bearerAuth", bearerAuth));
   }
 }

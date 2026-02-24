@@ -27,6 +27,9 @@
 8. api 모듈에 남아있는 기존 모듈 패키지 삭제
 9. 모듈 관련 test 이동
 10. {module}Application 실행 후 swagger 정상 진입 & port 확인
+11. 프론트 연동 시 
+    1. .env.{environment} 파일에 `NEXT_PUBLIC_API_URL` 확인 필요
+    2. 여러 모듈 호출할 시 다중으로 관리 필요 -> 추후 API Gateway 적용 시 해결될 문제
 
 ## 1. 목적
 
@@ -52,6 +55,7 @@ modeunsa (Monorepo)
  ├─ auth       (8087)  → 인증 도메인 서비스
  ├─ file       (8088)  → 파일 도메인 서비스
  ├─ content    (8089)  → 컨텐츠 도메인 서비스
+ |- inventory  (8090) -> 재고 도메인 서비스
  └─ common     → 공통 라이브러리
 ```
 

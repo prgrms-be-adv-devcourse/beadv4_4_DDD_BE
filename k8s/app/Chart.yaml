@@ -5,9 +5,25 @@ type: application
 version: 0.1.0
 
 dependencies:
-  - name: api
+  - name: api-gateway-api
     version: "0.1.0"
-    condition: api.enabled
+    condition: api-gateway-api.enabled
+  - name: settlement-api
+    version: "0.1.0"
+    condition: settlement-api.enabled
+  - name: payment-api
+    version: "0.1.0"
+    condition: payment-api.enabled
+  - name: order-api
+    version: "0.1.0"
+    condition: order-api.enabled
   - name: frontend
     version: 0.1.0
     condition: frontend.enabled
+  - name: member-api
+    version: "0.1.0"
+    condition: member-api.enabled
+  - name: product-api
+    version: "0.1.0"
+    condition: product-api.enabled
+

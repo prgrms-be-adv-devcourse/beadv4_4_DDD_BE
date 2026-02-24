@@ -1,24 +1,12 @@
+// web-client/app/mypage/page.tsx
+
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react' // useCallback 추가
 import Header from '../components/Header'
 import MypageNav from '../components/MypageNav'
 import api from "@/app/lib/axios";
-
-interface PaymentMemberResponse {
-  customerKey: string
-  customerName: string
-  customerEmail: string
-  balance: number
-}
-
-interface MemberBasicInfo {
-  realName: string
-  email: string
-  phoneNumber: string
-  role: string
-}
 
 export default function MyPage() {
   // 회원 role (초기값을 'MEMBER'로 안전하게 설정)
@@ -37,58 +25,70 @@ export default function MyPage() {
   const [balanceLoading, setBalanceLoading] = useState(true)
   const [balanceError, setBalanceError] = useState<string | null>(null)
 
-  // 기본 정보 + 프로필 조회
-  useEffect(() => {
-    const fetchAllData = async () => {
-      try {
-        setBasicInfoLoading(true)
-        const [basicRes, profileRes] = await Promise.allSettled([
-          api.get('/api/v1/members/me/basic-info'),
-          api.get('/api/v1/members/me/profile')
-        ])
+  const fetchAllData = useCallback(async () => {
+    try {
+      setBasicInfoLoading(true)
+      const [basicRes, profileRes] = await Promise.allSettled([
+        api.get('/api/v1/members/me/basic-info'),
+        api.get('/api/v1/members/me/profile')
+      ])
 
-        if (basicRes.status === 'fulfilled' && basicRes.value.data.isSuccess) {
-          const result = basicRes.value.data.result;
-          setRealName(result.realName || '')
-          setEmail(result.email || '')
-          // API 응답의 role 적용 (없으면 기본값 MEMBER)
-          setRole(result.role || 'MEMBER')
-        }
-
-        if (profileRes.status === 'fulfilled' && profileRes.value.data.isSuccess) {
-          setProfileImageUrl(profileRes.value.data.result.profileImageUrl || '')
-        }
-      } catch (e) {
-        console.error(e)
-      } finally {
-        setBasicInfoLoading(false)
+      if (basicRes.status === 'fulfilled' && basicRes.value.data.isSuccess) {
+        const result = basicRes.value.data.result;
+        setRealName(result.realName || '')
+        setEmail(result.email || '')
+        setRole(result.role || 'MEMBER')
       }
+
+      if (profileRes.status === 'fulfilled' && profileRes.value.data.isSuccess) {
+        setProfileImageUrl(profileRes.value.data.result.profileImageUrl || '')
+      }
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setBasicInfoLoading(false)
     }
+  }, [])
+
+  const fetchBalance = useCallback(async () => {
+    try {
+      setBalanceLoading(true)
+      const response = await api.get('/api/v1/payments/members')
+      const data = response.data
+
+      if (data.isSuccess && data.result != null) {
+        setBalance(Number(data.result.balance))
+      } else {
+        setBalanceError(data.message || '잔액을 불러오지 못했습니다.')
+      }
+    } catch (error) {
+      // console.error('잔액 조회 실패:', error) // 404 등 로그 너무 많이 찍히면 주석 처리
+      setBalanceError('잔액을 불러오지 못했습니다.')
+    } finally {
+      setBalanceLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    // 1. 초기 로딩
     fetchAllData()
-  }, [])
+    fetchBalance()
 
-  // 잔액 조회
-  useEffect(() => {
-    const fetchBalance = async () => {
-      try {
-        const response = await api.get('/api/v1/payments/members')
-        const data = response.data
-
-        if (data.isSuccess && data.result != null) {
-          setBalance(Number(data.result.balance))
-        } else {
-          setBalanceError(data.message || '잔액을 불러오지 못했습니다.')
-        }
-      } catch (error) {
-        console.error('잔액 조회 실패:', error)
-        setBalanceError('잔액을 불러오지 못했습니다.')
-      } finally {
-        setBalanceLoading(false)
-      }
+    // 2. 이벤트 핸들러 정의
+    const handleLoginStatusChanged = () => {
+      console.log('로그인/권한 상태 변경 감지: 데이터 갱신')
+      fetchAllData()
+      fetchBalance()
     }
 
-    fetchBalance()
-  }, [])
+    // 3. 리스너 등록
+    window.addEventListener('loginStatusChanged', handleLoginStatusChanged)
+
+    // 4. 클린업 (언마운트 시 리스너 제거)
+    return () => {
+      window.removeEventListener('loginStatusChanged', handleLoginStatusChanged)
+    }
+  }, [fetchAllData, fetchBalance])
 
   const balanceDisplay =
       balanceLoading && balance === null
@@ -99,7 +99,6 @@ export default function MyPage() {
                   ? `${new Intl.NumberFormat('ko-KR').format(balance)}원`
                   : '-'
 
-  // 이름의 첫 글자 (아바타용)
   const avatarLetter = realName ? realName.charAt(0).toUpperCase() : 'U'
 
   // 링크 스타일 공통 상수
@@ -241,6 +240,7 @@ export default function MyPage() {
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                     <Link href="/mypage/money/charge" style={linkStyle}>충전하기</Link>
                     <Link href="/mypage/money/history" style={linkStyle}>사용 내역</Link>
+                    <Link href="/mypage/money/payments" style={linkStyle}>결제 내역</Link>
                   </div>
                 </div>
 

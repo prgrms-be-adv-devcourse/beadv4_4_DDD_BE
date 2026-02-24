@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import MypageLayout from '../../components/MypageLayout'
+import api from "@/app/lib/axios";
 
 type ProductCategory = 'OUTER' | 'UPPER' | 'LOWER' | 'CAP' | 'SHOES' | 'BAG' | 'BEAUTY'
 
@@ -69,8 +70,6 @@ export default function ProductCreatePage() {
   const [uploadingImageIndex, setUploadingImageIndex] = useState<Set<number>>(new Set()) // 업로드 중인 이미지 인덱스
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
-
-  const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
 
 
   const handleInputChange = (field: keyof ProductCreateRequest, value: any) => {
@@ -146,28 +145,21 @@ export default function ProductCreatePage() {
 
   // Presigned URL 요청 및 S3 업로드
   const uploadImageToS3 = async (file: File): Promise<string> => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL!
+    const fileApiUrl = process.env.NEXT_PUBLIC_API_URL!
 
     /** 1. presigned url 요청 */
-    const presignedRes = await fetch(`${apiUrl}/api/v1/files/presigned-url`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    const presignedRes = await api.post(`${fileApiUrl}/api/v1/files/presigned-url`,
+      JSON.stringify({
         domainType: 'PRODUCT',
-        // fileName: file.name,
         ext: 'png',
         contentType: file.type,
-      }),
-    })
+      }))
 
-    if (!presignedRes.ok) {
+    if (!presignedRes.data.isSuccess) {
       throw new Error('Presigned URL 발급 실패')
     }
 
-    const data: PresignedUrlApiResponse = await presignedRes.json()
+    const data: PresignedUrlApiResponse = await presignedRes.data
 
     /** 2. S3에 직접 PUT 업로드 */
     const uploadRes = await fetch(data.result.presignedUrl, {
@@ -183,25 +175,20 @@ export default function ProductCreatePage() {
     }
 
     /** 3. public-read URL 반환 */
-    const publicUrlApi = `${apiUrl}/api/v1/files/public-url`;
-    const downloadRes = await fetch(publicUrlApi, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    const publicUrlApi = `${fileApiUrl}/api/v1/files/public-url`;
+    const downloadRes = await api.post(publicUrlApi,
+      JSON.stringify({
           rawKey: data.result.key,
           domainType: 'PRODUCT',
           contentType: file.type,
-        }),
-    })
+        })
+    )
 
-    if (!downloadRes.ok) {
+    if (!downloadRes.data.isSuccess) {
       throw new Error('S3 다운로드 실패')
     }
 
-    const downloadData: PublicUrlApiResponse = await downloadRes.json()
+    const downloadData: PublicUrlApiResponse = await downloadRes.data
 
     return downloadData.result.imageUrl
   }
@@ -265,13 +252,8 @@ export default function ProductCreatePage() {
       }
 
       const url = `${apiUrl}/api/v1/products`
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
+      const res = await api.post(url,
+        JSON.stringify({
           name: formData.name,
           category: formData.category,
           description: formData.description,
@@ -280,10 +262,10 @@ export default function ProductCreatePage() {
           stock: formData.stock,
           images: uploadedImageUrls
         })
-      })
+      )
 
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}))
+      if (!res.data.isSuccess) {
+        const errData = await res.data.catch(() => ({}))
         const errorMessage = errData.message
         setErrorMessage(errorMessage)
         setIsSubmitting(false)

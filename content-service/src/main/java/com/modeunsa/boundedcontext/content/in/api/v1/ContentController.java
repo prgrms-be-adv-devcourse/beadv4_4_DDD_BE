@@ -1,0 +1,91 @@
+package com.modeunsa.boundedcontext.content.in.api.v1;
+
+import com.modeunsa.boundedcontext.content.app.ContentFacade;
+import com.modeunsa.boundedcontext.content.app.dto.ContentResponse;
+import com.modeunsa.boundedcontext.content.app.dto.content.ContentCreateCommand;
+import com.modeunsa.boundedcontext.content.domain.entity.ContentMember;
+import com.modeunsa.global.response.ApiResponse;
+import com.modeunsa.global.security.CustomUserDetails;
+import com.modeunsa.global.status.SuccessStatus;
+import com.modeunsa.shared.content.dto.ContentCommentRequest;
+import com.modeunsa.shared.content.dto.ContentCommentResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@Tag(name = "Content", description = "콘텐츠 API")
+@RestController("ContentV1Controller")
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/contents")
+public class ContentController {
+
+  private final ContentFacade contentFacade;
+
+  @Operation(summary = "콘텐츠 생성", description = "콘텐츠를 생성합니다.")
+  @PostMapping
+  public ResponseEntity<ApiResponse> createContent(
+      @AuthenticationPrincipal CustomUserDetails user,
+      @Valid @RequestBody ContentCreateCommand command) {
+    contentFacade.create(user.getMemberId(), command);
+    return ApiResponse.onSuccess(SuccessStatus.CREATED);
+  }
+
+  @Operation(summary = "콘텐츠 수정", description = "콘텐츠를 수정합니다.")
+  @PatchMapping("/{contentId}")
+  public ResponseEntity<ApiResponse> updateContent(
+      @PathVariable Long contentId,
+      @Valid @RequestBody ContentCreateCommand command,
+      @AuthenticationPrincipal ContentMember author) {
+    ContentResponse contentResponse = contentFacade.updateContent(contentId, command, author);
+    return ApiResponse.onSuccess(SuccessStatus.OK, contentResponse);
+  }
+
+  @Operation(summary = "콘텐츠 삭제", description = "콘텐츠를 삭제합니다.")
+  @DeleteMapping("/{contentId}")
+  public ResponseEntity<ApiResponse> deleteContent(
+      @PathVariable Long contentId, ContentMember author) {
+    contentFacade.deleteContent(contentId, author);
+    return ApiResponse.onSuccess(SuccessStatus.CONTENT_NO_DATA);
+  }
+
+  @Operation(summary = "콘텐츠 전체 조회", description = "콘텐츠 전체 목록을 최신순으로 조회합니다.")
+  @GetMapping
+  public ResponseEntity<ApiResponse> getContents(@RequestParam(defaultValue = "0") int page) {
+    Page<ContentResponse> result = contentFacade.getContents(page);
+
+    return ApiResponse.onSuccess(SuccessStatus.CONTENT_LIST_GET_SUCCESS, result);
+  }
+
+  @Operation(summary = "댓글 생성", description = "한 콘텐츠 내 댓글을 생성합니다.")
+  @PostMapping("/{contentId}/comments")
+  public ResponseEntity<ApiResponse> createContentComment(
+      @PathVariable Long contentId,
+      @Valid @RequestBody ContentCommentRequest contentCommentRequest,
+      ContentMember author) {
+    ContentCommentResponse contentCommentResponse =
+        contentFacade.createContentComment(contentId, contentCommentRequest, author);
+    return ApiResponse.onSuccess(SuccessStatus.CREATED, contentCommentResponse);
+  }
+
+  @Operation(summary = "댓글 삭제", description = "한 콘텐츠 내 댓글을 삭제합니다.")
+  @DeleteMapping("/{contentId}/comments/{commentId}")
+  public ResponseEntity<ApiResponse> deleteComment(
+      @PathVariable Long contentId, @PathVariable Long commentId, ContentMember author) {
+    contentFacade.deleteContentComment(contentId, commentId, author);
+
+    return ApiResponse.onSuccess(SuccessStatus.CONTENT_NO_DATA, null);
+  }
+}
