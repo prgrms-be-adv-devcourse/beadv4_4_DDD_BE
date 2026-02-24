@@ -14,74 +14,68 @@ spring:
       server:
         webflux:
           routes:
-            - id: api-gateway-service
-              uri: http://${services.api-gateway.host}:8080
-              predicates:
-                - Path=/v3/api-docs/api-gateway
-              filters:
-                - RewritePath=/v3/api-docs/api-gateway, /v3/api-docs
             - id: member-service
               uri: http://${services.member.host}:8086
               predicates:
                 - Path=/api/v1/members/**,/api/v2/members/**,/api/v1/auths/**,/api/v2/auths/**,/v3/api-docs/member
               filters:
-                - RewritePath=/v3/api-docs/member, /v3/api-docs
+                - RewritePath=/v3/api-docs/member,/v3/api-docs
 
 #            - id: auth-service
 #              uri: http://${services.auth.host}:8087
 #              predicates:
 #                - Path=/api/v1/auths/**,/api/v2/auths/**,/v3/api-docs/auth
 #               filters:
-#                  - RewritePath=/v3/api-docs/auth, /v3/api-docs
+#                  - RewritePath=/v3/api-docs/auth,/v3/api-docs
 
             - id: product-service
               uri: http://${services.product.host}:8081
               predicates:
                 - Path=/api/v1/products/**,/api/v2/products/**,/v3/api-docs/product
               filters:
-                - RewritePath=/v3/api-docs/product, /v3/api-docs
+                - RewritePath=/v3/api-docs/product,/v3/api-docs
 
             - id: order-service
               uri: http://${services.order.host}:8082
               predicates:
                 - Path=/api/v1/orders/**,/api/v2/orders/**,/v3/api-docs/order
               filters:
-                - RewritePath=/v3/api-docs/order, /v3/api-docs
+                - RewritePath=/v3/api-docs/order,/v3/api-docs
 
             - id: inventory-service
               uri: http://${services.inventory.host}:8090
               predicates:
                 - Path=/api/v1/inventories/**,/api/v2/inventories/**,/v3/api-docs/inventory
               filters:
-                - RewritePath=/v3/api-docs/inventory, /v3/api-docs
+                - RewritePath=/v3/api-docs/inventory,/v3/api-docs
 
             - id: payment-service
               uri: http://${services.payment.host}:8083
               predicates:
                 - Path=/api/v1/payments/**,/api/v2/payments/**,/v3/api-docs/payment
               filters:
-                - RewritePath=/v3/api-docs/payment, /v3/api-docs
+                - RewritePath=/v3/api-docs/payment,/v3/api-docs
 
             - id: settlement-service
               uri: http://${services.settlement.host}:8084
               predicates:
                 - Path=/api/v1/settlements/**,/api/v2/settlements/**,/v3/api-docs/settlement
               filters:
-                - RewritePath=/v3/api-docs/settlement, /v3/api-docs
+                - RewritePath=/v3/api-docs/settlement,/v3/api-docs
 
             - id: file-service
               uri: http://${services.file.host}:8088
               predicates:
                 - Path=/api/v1/files/**,/api/v2/files/**,/v3/api-docs/file
               filters:
-                - RewritePath=/v3/api-docs/file, /v3/api-docs
+                - RewritePath=/v3/api-docs/file,/v3/api-docs
 
             - id: content-service
               uri: http://${services.content.host}:8089
               predicates:
                 - Path=/api/v1/contents/**,/api/v2/contents/**,/v3/api-docs/content
               filters:
-                - RewritePath=/v3/api-docs/content, /v3/api-docs
+                - RewritePath=/v3/api-docs/content,/v3/api-docs
   servlet:
     multipart:
       max-file-size: 10MB
