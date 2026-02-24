@@ -53,11 +53,11 @@ public class DevAuthController {
     MemberProfile profile = member.getProfile();
 
     boolean isProfileIncomplete =
-        member.getEmail() == null ||
-            member.getRealName() == null ||
-            member.getPhoneNumber() == null ||
-            profile == null ||
-            profile.getNickname() == null;
+        member.getEmail() == null
+            || member.getRealName() == null
+            || member.getPhoneNumber() == null
+            || profile == null
+            || profile.getNickname() == null;
 
     // 2. 필수값이 하나라도 없다면 PRE_ACTIVE 상태 강제 부여, 모두 있다면 DB의 본래 상태 사용
     String targetStatus = isProfileIncomplete ? "PRE_ACTIVE" : member.getStatus().name();
