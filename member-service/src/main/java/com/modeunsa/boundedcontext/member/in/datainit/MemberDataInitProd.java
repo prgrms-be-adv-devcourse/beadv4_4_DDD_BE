@@ -17,7 +17,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
-//@Configuration
+// @Configuration
 @Profile("prod") // 필요 시 "dev", "!test" 등 원하는 프로필 지정
 public class MemberDataInitProd {
 
