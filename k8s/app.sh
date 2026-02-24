@@ -15,8 +15,12 @@
 #
 # 접속 정보 (dev - NodePort):
 #   API Server    localhost:30080
+#   Product       localhost:30081
+#   Order         localhost:30082
 #   Payment       localhost:30083
 #   Settlement    localhost:30084
+#   File          localhost:30088
+#   Inventory     localhost:30089
 #   Frontend      localhost:30000
 #   Member        localhost:30086
 
@@ -43,6 +47,8 @@ BACKEND_MODULES=(
   "payment-api|PAYMENT_IMAGE|Payment|localhost:30083|optional"
   "settlement-api|SETTLEMENT_IMAGE|Settlement|localhost:30084|optional"
   "member-api|MEMBER_IMAGE|Member|localhost:30086|optional"
+  "file-api|FILE_IMAGE|File|localhost:30088|optional"
+  "inventory-api|INVENTORY_IMAGE|Inventory|localhost:30089|optional"
 )
 
 # k3s 환경에서 KUBECONFIG 자동 설정

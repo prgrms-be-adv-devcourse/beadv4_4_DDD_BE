@@ -96,12 +96,12 @@ services:
   order:
     host: modeunsa-app-order-api
   inventory:
-    host: inventory
+    host: modeunsa-app-inventory-api
   payment:
     host: modeunsa-app-payment-api
   settlement:
     host: modeunsa-app-settlement-api
   file:
-    host: file
+    host: modeunsa-app-file-api
   content:
     host: content
