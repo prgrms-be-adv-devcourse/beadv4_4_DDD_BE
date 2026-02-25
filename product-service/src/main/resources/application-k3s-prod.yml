@@ -72,3 +72,7 @@ springdoc:
 app:
   elasticsearch:
     enabled: true
+  event-publisher:
+    type: kafka
+  event-consumer:
+    type: kafka
