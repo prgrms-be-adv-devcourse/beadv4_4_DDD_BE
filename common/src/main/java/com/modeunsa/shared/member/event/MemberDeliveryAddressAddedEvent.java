@@ -18,12 +18,27 @@ public record MemberDeliveryAddressAddedEvent(
 
   public static final String EVENT_NAME = "MemberDeliveryAddressAddedEvent";
 
-  public MemberDeliveryAddressAddedEvent(Long memberId, Long deliveryAddressId,
+  public MemberDeliveryAddressAddedEvent(
+      Long memberId,
+      Long deliveryAddressId,
       String recipientName,
-      String recipientPhone, String zipCode, String address, String addressDetail,
+      String recipientPhone,
+      String zipCode,
+      String address,
+      String addressDetail,
       String addressName,
       boolean isDefault) {
-    this(memberId, deliveryAddressId, recipientName, recipientPhone, zipCode, address, addressDetail, addressName, isDefault,  EventUtils.extractTraceId());
+    this(
+        memberId,
+        deliveryAddressId,
+        recipientName,
+        recipientPhone,
+        zipCode,
+        address,
+        addressDetail,
+        addressName,
+        isDefault,
+        EventUtils.extractTraceId());
   }
 
   @Override

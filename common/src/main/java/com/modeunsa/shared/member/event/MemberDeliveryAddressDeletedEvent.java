@@ -8,15 +8,9 @@ public record MemberDeliveryAddressDeletedEvent(
 
   public static final String EVENT_NAME = "MemberDeliveryAddressDeletedEvent";
 
-  public MemberDeliveryAddressDeletedEvent(
-      Long memberId,
-      Long deliveryAddressId) {
+  public MemberDeliveryAddressDeletedEvent(Long memberId, Long deliveryAddressId) {
 
-    this(
-        memberId,
-        deliveryAddressId,
-        EventUtils.extractTraceId()
-    );
+    this(memberId, deliveryAddressId, EventUtils.extractTraceId());
   }
 
   @Override

@@ -33,8 +33,7 @@ public record SellerRegisteredEvent(
         settlementBankName,
         settlementBankAccount,
         status,
-        EventUtils.extractTraceId()
-    );
+        EventUtils.extractTraceId());
   }
 
   @Override

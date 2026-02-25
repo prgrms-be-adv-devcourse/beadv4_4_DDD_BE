@@ -11,8 +11,6 @@ import com.modeunsa.boundedcontext.member.app.usecase.MemberProfileCreateUseCase
 import com.modeunsa.boundedcontext.member.app.usecase.MemberProfileUpdateImageUseCase;
 import com.modeunsa.boundedcontext.member.app.usecase.MemberProfileUpdateUseCase;
 import com.modeunsa.boundedcontext.member.app.usecase.MemberSignupCompleteUseCase;
-import com.modeunsa.boundedcontext.member.domain.entity.Member;
-import com.modeunsa.boundedcontext.member.domain.entity.MemberProfile;
 import com.modeunsa.boundedcontext.member.domain.dto.request.MemberBasicInfoUpdateRequest;
 import com.modeunsa.boundedcontext.member.domain.dto.request.MemberDeliveryAddressCreateRequest;
 import com.modeunsa.boundedcontext.member.domain.dto.request.MemberDeliveryAddressUpdateRequest;
@@ -22,6 +20,8 @@ import com.modeunsa.boundedcontext.member.domain.dto.request.MemberSignupComplet
 import com.modeunsa.boundedcontext.member.domain.dto.response.MemberBasicInfoResponse;
 import com.modeunsa.boundedcontext.member.domain.dto.response.MemberDeliveryAddressResponse;
 import com.modeunsa.boundedcontext.member.domain.dto.response.MemberProfileResponse;
+import com.modeunsa.boundedcontext.member.domain.entity.Member;
+import com.modeunsa.boundedcontext.member.domain.entity.MemberProfile;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;

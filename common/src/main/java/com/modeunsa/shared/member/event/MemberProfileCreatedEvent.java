@@ -33,8 +33,7 @@ public record MemberProfileCreatedEvent(
         heightCm,
         weightKg,
         skinType,
-        EventUtils.extractTraceId()
-    );
+        EventUtils.extractTraceId());
   }
 
   @Override

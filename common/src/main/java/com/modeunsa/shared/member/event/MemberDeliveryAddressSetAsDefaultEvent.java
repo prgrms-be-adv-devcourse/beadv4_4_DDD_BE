@@ -18,12 +18,27 @@ public record MemberDeliveryAddressSetAsDefaultEvent(
 
   public static final String EVENT_NAME = "MemberDeliveryAddressSetAsDefaultEvent";
 
-  public MemberDeliveryAddressSetAsDefaultEvent(Long memberId, Long deliveryAddressId,
+  public MemberDeliveryAddressSetAsDefaultEvent(
+      Long memberId,
+      Long deliveryAddressId,
       String recipientName,
-      String recipientPhone, String zipCode, String address, String addressDetail,
+      String recipientPhone,
+      String zipCode,
+      String address,
+      String addressDetail,
       String addressName,
       boolean isDefault) {
-    this(memberId, deliveryAddressId, recipientName, recipientPhone, zipCode, address, addressDetail, addressName, isDefault,  EventUtils.extractTraceId());
+    this(
+        memberId,
+        deliveryAddressId,
+        recipientName,
+        recipientPhone,
+        zipCode,
+        address,
+        addressDetail,
+        addressName,
+        isDefault,
+        EventUtils.extractTraceId());
   }
 
   @Override

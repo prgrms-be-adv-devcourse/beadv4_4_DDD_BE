@@ -1,13 +1,13 @@
 package com.modeunsa.boundedcontext.auth.app.usecase;
 
 import com.modeunsa.boundedcontext.member.app.support.MemberSupport;
+import com.modeunsa.boundedcontext.member.domain.dto.response.MemberRoleUpdateResponse;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.out.repository.MemberRepository;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.security.jwt.JwtTokenProvider;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.member.MemberRole;
-import com.modeunsa.boundedcontext.member.domain.dto.response.MemberRoleUpdateResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

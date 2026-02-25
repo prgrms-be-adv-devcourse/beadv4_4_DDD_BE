@@ -1,12 +1,12 @@
 package com.modeunsa.boundedcontext.member.app.usecase;
 
 import com.modeunsa.boundedcontext.member.app.support.MemberSupport;
+import com.modeunsa.boundedcontext.member.domain.dto.request.MemberProfileUpdateRequest;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.entity.MemberProfile;
 import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
-import com.modeunsa.boundedcontext.member.domain.dto.request.MemberProfileUpdateRequest;
 import com.modeunsa.shared.member.event.MemberProfileUpdatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
