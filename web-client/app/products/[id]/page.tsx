@@ -91,6 +91,22 @@ export default function ProductDetailPage() {
     }
   }, [productId])
 
+  const fetchInventory = async (productId: number): Promise<number | null> => {
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+      const res = await api.get(`${apiUrl}/api/v2/inventories/${productId}`)
+
+      if (res.data) {
+        return res.data.quantity
+      }
+
+      return null
+    } catch (error) {
+      console.error('재고 조회 실패:', error)
+      return null
+    }
+  }
+
   useEffect(() => {
     fetchProduct()
   }, [fetchProduct])
@@ -100,6 +116,19 @@ export default function ProductDetailPage() {
       setSelectedImageUrl(product.images[0].imageUrl);
     }
   }, [product, selectedImageUrl])
+
+  useEffect(() => {
+    const syncInventory = async () => {
+      if (!product) return
+
+      const stock = await fetchInventory(product.id)
+      if (stock !== null) {
+        setProduct(prev => prev ? { ...prev, stock } : prev)
+      }
+    }
+
+    syncInventory()
+  }, [product?.id])
 
   const [quantity, setQuantity] = useState(1)
   const [isCreatingOrder, setIsCreatingOrder] = useState(false)
@@ -118,24 +147,30 @@ export default function ProductDetailPage() {
   const handleOrder = async () => {
     if (!product) return
 
-
-    if (product.stock <= 0) {
-      alert('품절된 상품입니다.')
-      return
-    }
-
-    if (quantity > product.stock) {
-      alert(`재고가 부족합니다. (재고: ${product.stock}개)`)
-      return
-    }
-
     setIsCreatingOrder(true)
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+      // 1. 재고 조회 API 호출
+      const currentStock = await fetchInventory(product.id)
 
-      // 주문 생성 API 호출
+      if (currentStock === null) {
+        alert('재고 조회 중 오류가 발생했습니다.')
+        return
+      }
+
+      if (currentStock <= 0) {
+        alert('품절된 상품입니다.')
+        return
+      }
+
+      if (quantity > currentStock) {
+        alert(`재고가 부족합니다. (현재 재고: ${currentStock}개)`)
+        return
+      }
+
+      // 2. 주문 생성 API 호출
       // 주의: 백엔드 API 주소와 Body 형식을 확인해주세요!
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
       const res = await api.post(`${apiUrl}/api/v1/orders`, {
         productId: product.id,
         quantity: quantity,
@@ -272,19 +307,27 @@ export default function ProductDetailPage() {
   const handleAddToCart = async () => {
     if (!product) return
     
-    if (product.stock <= 0) {
-      alert('품절된 상품입니다.')
-      return
-    }
-
-    if (quantity > product.stock) {
-      alert(`재고가 부족합니다. (재고: ${product.stock}개)`)
-      return
-    }
-
     setIsAddingToCart(true)
 
     try {
+      // 1. 재고 조회
+      const currentStock = await fetchInventory(product.id)
+
+      if (currentStock === null) {
+        alert('재고 조회 중 오류가 발생했습니다.')
+        return
+      }
+
+      if (currentStock <= 0) {
+        alert('품절된 상품입니다.')
+        return
+      }
+
+      if (quantity > currentStock) {
+        alert(`재고가 부족합니다. (현재 재고: ${currentStock}개)`)
+        return
+      }
+
       // Mock 데이터로 장바구니에 추가하고 페이지 이동
       alert('장바구니에 상품이 추가되었습니다.')
       router.push('/cart')
