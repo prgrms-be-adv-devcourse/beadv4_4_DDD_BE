@@ -6,7 +6,7 @@ import com.modeunsa.global.config.CookieProperties;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.global.status.SuccessStatus;
-import com.modeunsa.shared.member.dto.request.SellerRegisterRequest;
+import com.modeunsa.boundedcontext.member.domain.dto.request.SellerRegisterRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

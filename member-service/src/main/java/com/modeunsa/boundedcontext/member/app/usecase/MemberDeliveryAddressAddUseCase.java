@@ -4,7 +4,7 @@ import com.modeunsa.boundedcontext.member.app.support.MemberSupport;
 import com.modeunsa.boundedcontext.member.domain.entity.Member;
 import com.modeunsa.boundedcontext.member.domain.entity.MemberDeliveryAddress;
 import com.modeunsa.global.eventpublisher.EventPublisher;
-import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressCreateRequest;
+import com.modeunsa.boundedcontext.member.domain.dto.request.MemberDeliveryAddressCreateRequest;
 import com.modeunsa.shared.member.event.MemberDeliveryAddressAddedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

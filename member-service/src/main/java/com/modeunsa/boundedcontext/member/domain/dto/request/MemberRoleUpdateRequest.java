@@ -1,4 +1,4 @@
-package com.modeunsa.shared.member.dto.request;
+package com.modeunsa.boundedcontext.member.domain.dto.request;
 
 import com.modeunsa.shared.member.MemberRole;
 import jakarta.validation.constraints.NotNull;

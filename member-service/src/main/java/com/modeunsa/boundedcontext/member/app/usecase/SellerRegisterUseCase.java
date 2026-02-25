@@ -11,7 +11,7 @@ import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.member.MemberRole;
-import com.modeunsa.shared.member.dto.request.SellerRegisterRequest;
+import com.modeunsa.boundedcontext.member.domain.dto.request.SellerRegisterRequest;
 import com.modeunsa.shared.member.event.SellerRegisteredEvent;
 import java.time.LocalDateTime;
 import java.util.Optional;

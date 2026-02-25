@@ -7,7 +7,7 @@ import com.modeunsa.boundedcontext.member.out.repository.MemberProfileRepository
 import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
-import com.modeunsa.shared.member.dto.request.MemberProfileCreateRequest;
+import com.modeunsa.boundedcontext.member.domain.dto.request.MemberProfileCreateRequest;
 import com.modeunsa.shared.member.event.MemberProfileCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package com.modeunsa.shared.member.dto.request;
+package com.modeunsa.boundedcontext.member.domain.dto.request;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
