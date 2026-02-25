@@ -18,7 +18,7 @@ public class ProductRecommendationCacheService {
   private final JsonConverter jsonConverter;
 
   private static final String PREFIX = "recommend:member:";
-  private static final int TTL = 1;
+  private static final int TTL = 24;
 
   private String buildKey(Long memberId) {
     return PREFIX + memberId;
