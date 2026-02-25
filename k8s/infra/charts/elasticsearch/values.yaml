@@ -10,8 +10,8 @@ storage:
   size: 5Gi
 resources:
   requests:
-    cpu: 150m
+    cpu: 180m
     memory: 768Mi
   limits:
-    cpu: 400m
+    cpu: 450m
     memory: 1280Mi
