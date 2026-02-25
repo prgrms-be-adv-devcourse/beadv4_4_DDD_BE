@@ -25,7 +25,7 @@ public class InventoryKafkaEventListener {
   @KafkaListener(topics = "member-events", groupId = "inventory-service")
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void handleMemberEvent(DomainEventEnvelope eventEnvelope) {
-    if (eventEnvelope.eventType().equals("SellerRegisteredEvent")) {
+    if (eventEnvelope.eventType().equals(SellerRegisteredEvent.EVENT_NAME)) {
       SellerRegisteredEvent event =
           jsonConverter.deserialize(eventEnvelope.payload(), SellerRegisteredEvent.class);
       inventoryFacade.registerSeller(
@@ -36,7 +36,7 @@ public class InventoryKafkaEventListener {
   @KafkaListener(topics = "product-events", groupId = "inventory-service")
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void handleProductEvent(DomainEventEnvelope eventEnvelope) {
-    if (eventEnvelope.eventType().equals("ProductCreatedEvent")) {
+    if (eventEnvelope.eventType().equals(ProductCreatedEvent.EVENT_NAME)) {
       ProductCreatedEvent event =
           jsonConverter.deserialize(eventEnvelope.payload(), ProductCreatedEvent.class);
       inventoryFacade.createProduct(event.productDto());
@@ -63,7 +63,7 @@ public class InventoryKafkaEventListener {
   @KafkaListener(topics = "inventory-events", groupId = "inventory-service")
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void handleInventoryEvent(DomainEventEnvelope eventEnvelope) {
-    if (eventEnvelope.eventType().equals("InventoryStockRecoverEvent")) {
+    if (eventEnvelope.eventType().equals(InventoryStockRecoverEvent.EVENT_NAME)) {
       InventoryStockRecoverEvent event =
           jsonConverter.deserialize(eventEnvelope.payload(), InventoryStockRecoverEvent.class);
       inventoryFacade.increaseStock(event.orderItems());
