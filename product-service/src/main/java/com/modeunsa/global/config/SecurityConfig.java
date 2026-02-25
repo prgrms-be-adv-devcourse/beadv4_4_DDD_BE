@@ -56,12 +56,10 @@ public class SecurityConfig {
                   .requestMatchers(permitUrls)
                   .permitAll()
 
-                  //                // 상품 API - GET만 공개
+                  // 상품 API - GET만 공개
                   .requestMatchers(HttpMethod.GET, "/api/v1/products")
                   .permitAll()
                   .requestMatchers(HttpMethod.GET, "/api/v1/products/{id:[0-9]+}")
-                  .permitAll()
-                  .requestMatchers(HttpMethod.GET, "/api/v2/products/search/**")
                   .permitAll()
 
                   // ========================================

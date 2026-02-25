@@ -30,17 +30,17 @@ public class OrderKafkaEventListener {
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void handleMemberEvent(DomainEventEnvelope eventEnvelope) {
     switch (eventEnvelope.eventType()) {
-      case "MemberSignupEvent" -> {
+      case MemberSignupEvent.EVENT_NAME -> {
         MemberSignupEvent event =
             jsonConverter.deserialize(eventEnvelope.payload(), MemberSignupEvent.class);
         orderFacade.syncMember(event.memberId(), event.realName(), event.phoneNumber());
       }
-      case "MemberBasicInfoUpdatedEvent" -> {
+      case MemberBasicInfoUpdatedEvent.EVENT_NAME -> {
         MemberBasicInfoUpdatedEvent event =
             jsonConverter.deserialize(eventEnvelope.payload(), MemberBasicInfoUpdatedEvent.class);
         orderFacade.updateMember(event.memberId(), event.realName(), event.phoneNumber());
       }
-      case "MemberDeliveryAddressSetAsDefaultEvent" -> {
+      case MemberDeliveryAddressSetAsDefaultEvent.EVENT_NAME -> {
         MemberDeliveryAddressSetAsDefaultEvent event =
             jsonConverter.deserialize(
                 eventEnvelope.payload(), MemberDeliveryAddressSetAsDefaultEvent.class);
@@ -61,12 +61,12 @@ public class OrderKafkaEventListener {
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void handleProductEvent(DomainEventEnvelope eventEnvelope) {
     switch (eventEnvelope.eventType()) {
-      case "ProductCreatedEvent" -> {
+      case ProductCreatedEvent.EVENT_NAME -> {
         ProductCreatedEvent event =
             jsonConverter.deserialize(eventEnvelope.payload(), ProductCreatedEvent.class);
         orderFacade.createProduct(event.productDto());
       }
-      case "ProductUpdatedEvent" -> {
+      case ProductUpdatedEvent.EVENT_NAME -> {
         ProductUpdatedEvent event =
             jsonConverter.deserialize(eventEnvelope.payload(), ProductUpdatedEvent.class);
         orderFacade.updateProduct(event.productDto());

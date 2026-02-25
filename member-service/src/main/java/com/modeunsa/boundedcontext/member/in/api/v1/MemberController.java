@@ -1,18 +1,18 @@
 package com.modeunsa.boundedcontext.member.in.api.v1;
 
 import com.modeunsa.boundedcontext.member.app.facade.MemberFacade;
+import com.modeunsa.boundedcontext.member.domain.dto.request.MemberBasicInfoUpdateRequest;
+import com.modeunsa.boundedcontext.member.domain.dto.request.MemberDeliveryAddressCreateRequest;
+import com.modeunsa.boundedcontext.member.domain.dto.request.MemberDeliveryAddressUpdateRequest;
+import com.modeunsa.boundedcontext.member.domain.dto.request.MemberProfileCreateRequest;
+import com.modeunsa.boundedcontext.member.domain.dto.request.MemberProfileUpdateImageRequest;
+import com.modeunsa.boundedcontext.member.domain.dto.request.MemberProfileUpdateRequest;
+import com.modeunsa.boundedcontext.member.domain.dto.response.MemberBasicInfoResponse;
+import com.modeunsa.boundedcontext.member.domain.dto.response.MemberDeliveryAddressResponse;
+import com.modeunsa.boundedcontext.member.domain.dto.response.MemberProfileResponse;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.global.status.SuccessStatus;
-import com.modeunsa.shared.member.dto.request.MemberBasicInfoUpdateRequest;
-import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressCreateRequest;
-import com.modeunsa.shared.member.dto.request.MemberDeliveryAddressUpdateRequest;
-import com.modeunsa.shared.member.dto.request.MemberProfileCreateRequest;
-import com.modeunsa.shared.member.dto.request.MemberProfileUpdateImageRequest;
-import com.modeunsa.shared.member.dto.request.MemberProfileUpdateRequest;
-import com.modeunsa.shared.member.dto.response.MemberBasicInfoResponse;
-import com.modeunsa.shared.member.dto.response.MemberDeliveryAddressResponse;
-import com.modeunsa.shared.member.dto.response.MemberProfileResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

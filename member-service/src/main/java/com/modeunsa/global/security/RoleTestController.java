@@ -1,8 +1,8 @@
 package com.modeunsa.global.security;
 
 import com.modeunsa.boundedcontext.auth.app.facade.AuthFacade;
-import com.modeunsa.shared.member.dto.request.MemberRoleUpdateRequest;
-import com.modeunsa.shared.member.dto.response.MemberRoleUpdateResponse;
+import com.modeunsa.boundedcontext.member.domain.dto.request.MemberRoleUpdateRequest;
+import com.modeunsa.boundedcontext.member.domain.dto.response.MemberRoleUpdateResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Map;

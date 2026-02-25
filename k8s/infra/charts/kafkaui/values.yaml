@@ -8,11 +8,12 @@ kafka:
   bootstrapServers: "modeunsa-infra-kafka:9092"
 server:
   contextPath: "/kafka-ui"
-javaOpts: "-Xmx256m"
+javaOpts: "-Xms256m -Xmx512m"
 resources:
   requests:
-    cpu: 50m
-    memory: 128Mi
+    cpu: 80m
+    memory: 256Mi
   limits:
-    cpu: 150m
-    memory: 384Mi
+    cpu: 250m
+    memory: 768Mi
+

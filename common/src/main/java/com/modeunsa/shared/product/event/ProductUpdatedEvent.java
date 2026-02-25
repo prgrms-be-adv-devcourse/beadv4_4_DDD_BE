@@ -6,6 +6,8 @@ import com.modeunsa.shared.product.dto.ProductDto;
 
 public record ProductUpdatedEvent(ProductDto productDto, String traceId) implements TraceableEvent {
 
+  public static final String EVENT_NAME = "ProductUpdatedEvent";
+
   public ProductUpdatedEvent(ProductDto productDto) {
     this(productDto, EventUtils.extractTraceId());
   }
