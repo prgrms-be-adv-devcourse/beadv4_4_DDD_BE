@@ -12,6 +12,8 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -45,6 +47,27 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     return new SliceImpl<>(content, Pageable.unpaged(), hasNext);
+  }
+
+  @Override
+  public Page<Product> searchByConditions(ProductCategory category, Pageable pageable) {
+
+    List<Product> content =
+        queryFactory
+            .selectFrom(product)
+            .where(categoryEq(category), saleStatusIn(), productStatusIn())
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch();
+
+    Long total =
+        queryFactory
+            .select(product.count())
+            .from(product)
+            .where(categoryEq(category), saleStatusIn(), productStatusIn())
+            .fetchOne();
+
+    return new PageImpl<>(content, pageable, total == null ? 0 : total);
   }
 
   private BooleanExpression keywordCondition(String keyword) {
@@ -91,5 +114,13 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .createdAt
                 .eq((LocalDateTime) cursor.createdAt())
                 .and(product.id.lt(cursor.id())));
+  }
+
+  private BooleanExpression categoryEq(ProductCategory category) {
+    // as-is: 패션 화면에서 뷰티 카테고리 노출 안되게 설정
+    // TODO: 카테고리 세분화하고 수정 필요
+    return category != null
+        ? product.category.eq(category)
+        : product.category.notIn(ProductPolicy.BEAUTY_CATEGORIES);
   }
 }

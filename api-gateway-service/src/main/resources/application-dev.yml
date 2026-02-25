@@ -51,6 +51,9 @@ custom:
       - /api/v2/products/search/knn
       - /api/v2/products/search/hybrid
 
+      # ========== 재고 ===========
+      - /api/v2/inventories/{productId}
+
       # ========== 결제 ===========
       - /api/v2/payments/webhooks/toss
   cors:
