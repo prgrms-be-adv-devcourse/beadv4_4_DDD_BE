@@ -84,7 +84,7 @@ spring:
           model: text-embedding-3-small
       chat:
         options:
-          model: gpt-4o-mini
+          model: gpt-5.2
 
 cloud:
   aws:

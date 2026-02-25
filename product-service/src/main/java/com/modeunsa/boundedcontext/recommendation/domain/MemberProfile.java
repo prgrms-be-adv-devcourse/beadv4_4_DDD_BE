@@ -41,13 +41,13 @@ public class MemberProfile {
     Map<String, Double> brandScore = new HashMap<>();
     List<BigDecimal> salePrices = new ArrayList<>();
 
-    // 장바구니 (가중치 2.0)
-    //    for (Product p : cartItems) {
-    //    nameScore.merge(p.getProduct().getName(), 2.0, Double::sum);
-    //      categoryScore.merge(p.getCategory().getDescription(), 2.0, Double::sum);
-    //      brandScore.merge(p.getSeller().getBusinessName(), 2.0, Double::sum);
-    //      salePrices.add(p.getSalePrice());
-    //    }
+    //     장바구니 (가중치 2.0)
+    for (Product p : cartItems) {
+      nameScore.merge(p.getName(), 2.0, Double::sum);
+      categoryScore.merge(p.getCategory().getDescription(), 2.0, Double::sum);
+      brandScore.merge(p.getSeller().getBusinessName(), 2.0, Double::sum);
+      salePrices.add(p.getSalePrice());
+    }
 
     // 관심상품 (가중치 1.5)
     for (ProductFavorite p : favoriteProducts) {

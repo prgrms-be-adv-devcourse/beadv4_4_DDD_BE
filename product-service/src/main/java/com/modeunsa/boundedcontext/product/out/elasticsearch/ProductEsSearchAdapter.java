@@ -167,14 +167,10 @@ public class ProductEsSearchAdapter
       list.add(v);
     }
 
-    BoolQuery.Builder bool = QueryBuilders.bool();
-    bool.should(
-        s -> s.knn(m -> m.field("embedding").queryVector(list).k(k * 3).numCandidates(k * 10)));
-
     NativeQuery query =
         NativeQuery.builder()
-            .withQuery(bool.build()._toQuery())
-            .withPageable(PageRequest.of(0, k))
+            .withKnnSearches(
+                knn -> knn.field("embedding").queryVector(list).k(k * 10).numCandidates(k * 10))
             .build();
 
     SearchHits<ProductSearch> hits = elasticsearchOperations.search(query, ProductSearch.class);
