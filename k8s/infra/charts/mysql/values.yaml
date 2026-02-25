@@ -11,11 +11,11 @@ storage:
   size: 5Gi
 resources:
   requests:
-    cpu: 100m
-    memory: 384Mi
+    cpu: 120m
+    memory: 512Mi
   limits:
-    cpu: 250m
-    memory: 768Mi
+    cpu: 300m
+    memory: 1Gi
 
 slowQuery:
   enabled: true

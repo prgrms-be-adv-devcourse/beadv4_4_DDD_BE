@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-@ConditionalOnProperty(name = "app.event-publisher.type", havingValue = "kafka")
+@ConditionalOnProperty(name = "app.event-consumer.type", havingValue = "kafka")
 @RequiredArgsConstructor
 public class ProductKafkaEventListener {
 
