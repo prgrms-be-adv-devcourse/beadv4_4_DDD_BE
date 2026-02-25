@@ -25,6 +25,8 @@ spec:
               value: "local"
             - name: KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS
               value: {{ .Values.kafka.bootstrapServers | quote }}
+            - name: SERVER_SERVLET_CONTEXT_PATH
+              value: {{ .Values.server.contextPath | quote }}
             - name: JAVA_OPTS
               value: {{ .Values.javaOpts | quote }}
           resources:

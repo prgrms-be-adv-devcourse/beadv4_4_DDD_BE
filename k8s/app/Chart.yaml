@@ -26,4 +26,9 @@ dependencies:
   - name: product-api
     version: "0.1.0"
     condition: product-api.enabled
-
+  - name: file-api
+    version: "0.1.0"
+    condition: file-api.enabled
+  - name: inventory-api
+    version: "0.1.0"
+    condition: inventory-api.enabled

@@ -6,8 +6,8 @@ image:
 replicas: 1
 service:
   type: NodePort
-  port: 8086  # 모듈별 포트 설정
-  nodePort: 30086
+  port: 8088
+  nodePort: 30088
 env:
   springProfile: "k3s-dev"
   dbHost: "modeunsa-infra-mysql"
