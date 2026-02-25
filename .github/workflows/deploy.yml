@@ -196,4 +196,9 @@ jobs:
             fi
             
             chmod +x ./k8s/*.sh
-            sudo ./k8s/app.sh up prod
+            
+            if [ "$BUILD_BACKEND" == "true" ]; then
+                          sudo ./k8s/app.sh rollout prod "$MODULE_PREFIX-api"
+                        elif [ "$BUILD_FRONTEND" == "true" ]; then
+                          sudo ./k8s/app.sh rollout prod "frontend"
+                        fi
