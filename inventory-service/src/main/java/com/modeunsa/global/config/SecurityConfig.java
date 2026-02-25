@@ -50,7 +50,7 @@ public class SecurityConfig {
                   .permitAll()
                   .requestMatchers(permitUrls)
                   .permitAll()
-                  .requestMatchers(HttpMethod.POST, "/api/v1/inventories/*")
+                  .requestMatchers(HttpMethod.POST, "/api/v2/inventories/*")
                   .hasRole("SELLER")
                   .anyRequest()
                   .authenticated());
