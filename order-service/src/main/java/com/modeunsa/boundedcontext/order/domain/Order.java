@@ -1,8 +1,10 @@
 package com.modeunsa.boundedcontext.order.domain;
 
+import com.modeunsa.global.jpa.converter.EncryptedStringConverter;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -58,18 +60,23 @@ public class Order extends GeneratedIdAndAuditedEntity {
   private BigDecimal totalAmount;
 
   // --- 배송 정보 ---
+  @Convert(converter = EncryptedStringConverter.class)
   @Column(name = "recipient_name", length = 500)
   private String recipientName;
 
+  @Convert(converter = EncryptedStringConverter.class)
   @Column(name = "recipient_phone", length = 500)
   private String recipientPhone;
 
+  @Convert(converter = EncryptedStringConverter.class)
   @Column(name = "zip_code", length = 500)
   private String zipCode;
 
+  @Convert(converter = EncryptedStringConverter.class)
   @Column(name = "address", length = 500)
   private String address;
 
+  @Convert(converter = EncryptedStringConverter.class)
   @Column(name = "address_detail", length = 500)
   private String addressDetail;
 
