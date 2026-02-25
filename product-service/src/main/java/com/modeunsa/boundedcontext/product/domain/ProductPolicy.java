@@ -15,6 +15,8 @@ public class ProductPolicy {
   public static final Set<ProductStatus> ORDERABLE_PRODUCT_STATUES =
       EnumSet.of(ProductStatus.COMPLETED);
 
+  public static final Set<ProductCategory> BEAUTY_CATEGORIES = EnumSet.of(ProductCategory.BEAUTY);
+
   private static final EnumSet<ProductUpdatableField> DRAFT_ALLOWED =
       EnumSet.allOf(ProductUpdatableField.class);
   private static final EnumSet<ProductUpdatableField> COMPLETED_ALLOWED =

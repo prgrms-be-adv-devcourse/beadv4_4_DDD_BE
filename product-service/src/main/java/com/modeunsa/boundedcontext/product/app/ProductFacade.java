@@ -62,7 +62,7 @@ public class ProductFacade {
     return productMapper.toDetailResponse(product, isFavorite);
   }
 
-  public Page<ProductResponse> getProducts(ProductCategory category, Pageable pageable) {
+  public Page<ProductResponse> getProducts(String category, Pageable pageable) {
     Page<Product> products = productSupport.getProducts(category, pageable);
     return products.map(product -> productMapper.toResponse(product));
   }

@@ -69,7 +69,7 @@ public class ProductController {
   @Operation(summary = "상품 리스트 조회", description = "상품 리스트를 조회합니다.")
   @GetMapping
   public ResponseEntity<ApiResponse> getProducts(
-      @RequestParam(name = "category") ProductCategory category,
+      @RequestParam(name = "category", required = false) String category,
       @RequestParam(name = "page") int page,
       @RequestParam(name = "size") int size) {
     Pageable pageable =

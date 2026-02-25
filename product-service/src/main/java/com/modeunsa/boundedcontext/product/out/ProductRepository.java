@@ -7,7 +7,6 @@ import com.modeunsa.boundedcontext.product.domain.ProductStatus;
 import com.modeunsa.boundedcontext.product.domain.SaleStatus;
 import io.lettuce.core.dynamic.annotation.Param;
 import jakarta.persistence.LockModeType;
-import java.util.Collection;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,12 +18,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long>, ProductRepositoryCustom {
-
-  Page<Product> findAllByCategoryAndSaleStatusInAndProductStatusIn(
-      ProductCategory category,
-      Collection<SaleStatus> saleStatus,
-      Collection<ProductStatus> productStatus,
-      Pageable pageable);
 
   // TODO: LIKE 검색 추후 개선 예정
   @Query(
