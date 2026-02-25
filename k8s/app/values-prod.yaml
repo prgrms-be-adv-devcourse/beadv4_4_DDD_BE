@@ -2,6 +2,9 @@
 backendCommonProd:
   springProfile: &backendCommonProdSpringProfile "k3s-prod"
 
+api:
+  enabled: false
+
 api-gateway-api:
   enabled: true
   image:
@@ -10,10 +13,6 @@ api-gateway-api:
     type: ClusterIP
   env:
     springProfile: *backendCommonProdSpringProfile
-  resources:
-    limits:
-      cpu: 1
-      memory: 1536Mi
 
 settlement-api:
   enabled: true
@@ -23,10 +22,6 @@ settlement-api:
     type: ClusterIP
   env:
     springProfile: *backendCommonProdSpringProfile
-  resources:
-    limits:
-      cpu: 1
-      memory: 1536Mi
 
 payment-api:
   enabled: true
@@ -36,10 +31,6 @@ payment-api:
     type: ClusterIP
   env:
     springProfile: *backendCommonProdSpringProfile
-  resources:
-    limits:
-      cpu: 1
-      memory: 1536Mi
 
 order-api:
   enabled: true
@@ -49,10 +40,6 @@ order-api:
     type: ClusterIP
   env:
     springProfile: *backendCommonProdSpringProfile
-  resources:
-    limits:
-      cpu: 1
-      memory: 1536Mi
 
 frontend:
   enabled: true
@@ -72,10 +59,6 @@ member-api:
     type: ClusterIP
   env:
     springProfile: *backendCommonProdSpringProfile
-  resources:
-    limits:
-      cpu: 1
-      memory: 1536Mi
 
 product-api:
   enabled: true
@@ -85,7 +68,21 @@ product-api:
     type: ClusterIP
   env:
     springProfile: *backendCommonProdSpringProfile
-  resources:
-    limits:
-      cpu: 1
-      memory: 1536Mi
+
+file-api:
+  enabled: true
+  image:
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+  env:
+    springProfile: *backendCommonProdSpringProfile
+
+inventory-api:
+  enabled: true
+  image:
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+  env:
+    springProfile: *backendCommonProdSpringProfile

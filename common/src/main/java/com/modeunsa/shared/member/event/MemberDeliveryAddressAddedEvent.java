@@ -1,5 +1,7 @@
 package com.modeunsa.shared.member.event;
 
+import com.modeunsa.global.event.TraceableEvent;
+
 public record MemberDeliveryAddressAddedEvent(
     Long memberId,
     Long deliveryAddressId,
@@ -9,4 +11,14 @@ public record MemberDeliveryAddressAddedEvent(
     String address,
     String addressDetail,
     String addressName,
-    boolean isDefault) {}
+    boolean isDefault,
+    String traceId)
+    implements TraceableEvent {
+
+  public static final String EVENT_NAME = "MemberDeliveryAddressAddedEvent";
+
+  @Override
+  public String eventName() {
+    return EVENT_NAME;
+  }
+}

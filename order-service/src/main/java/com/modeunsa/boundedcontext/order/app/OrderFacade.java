@@ -43,6 +43,7 @@ public class OrderFacade {
   private final OrderAddOrderDeliveryInfoUseCase orderAddOrderDeliveryInfoUseCase;
   private final OrderConfirmOrderCancellationUseCase orderConfirmOrderCancellationUseCase;
   private final OrderApproveOrderUseCase orderApproveOrderUseCase;
+  private final OrderRejectOrderUseCase orderRejectOrderUseCase;
 
   // 장바구니 아이템 생성
   @Transactional
@@ -122,8 +123,7 @@ public class OrderFacade {
 
   @Transactional
   public void rejectOrder(PaymentDto payment) {
-    Order order = orderSupport.findByOrderId(payment.orderId());
-    order.reject();
+    orderRejectOrderUseCase.rejectOrder(payment);
   }
 
   @Transactional
@@ -170,6 +170,7 @@ public class OrderFacade {
         memberId, orderId, orderDeliveryRequestDto);
   }
 
+  @Transactional
   public void confirmOrderCancellation(PaymentDto payment) {
     orderConfirmOrderCancellationUseCase.confirmOrderCancellation(payment.orderId());
   }

@@ -10,7 +10,7 @@ redis:
   service:
     type: ClusterIP
 elasticsearch:
-  enabled: false
+  enabled: true
   service:
     type: ClusterIP
 kafka:

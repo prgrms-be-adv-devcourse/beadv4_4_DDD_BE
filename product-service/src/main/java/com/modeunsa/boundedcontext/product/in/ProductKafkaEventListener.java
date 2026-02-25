@@ -33,19 +33,19 @@ public class ProductKafkaEventListener {
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void handleMemberEvent(DomainEventEnvelope eventEnvelope) {
     switch (eventEnvelope.eventType()) {
-      case "MemberSignupEvent" -> {
+      case MemberSignupEvent.EVENT_NAME -> {
         MemberSignupEvent event =
             jsonConverter.deserialize(eventEnvelope.payload(), MemberSignupEvent.class);
         productFacade.syncMember(
             event.memberId(), event.email(), event.realName(), event.phoneNumber());
       }
-      case "MemberBasicInfoUpdatedEvent" -> {
+      case MemberBasicInfoUpdatedEvent.EVENT_NAME -> {
         MemberBasicInfoUpdatedEvent event =
             jsonConverter.deserialize(eventEnvelope.payload(), MemberBasicInfoUpdatedEvent.class);
         productFacade.updateMember(
             event.memberId(), event.realName(), event.email(), event.phoneNumber());
       }
-      case "SellerRegisteredEvent" -> {
+      case SellerRegisteredEvent.EVENT_NAME -> {
         SellerRegisteredEvent event =
             jsonConverter.deserialize(eventEnvelope.payload(), SellerRegisteredEvent.class);
         productFacade.syncSeller(
@@ -62,18 +62,18 @@ public class ProductKafkaEventListener {
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void handleProductEvent(DomainEventEnvelope eventEnvelope) {
     switch (eventEnvelope.eventType()) {
-      case "ProductCreatedEvent" -> {
+      case ProductCreatedEvent.EVENT_NAME -> {
         ProductCreatedEvent event =
             jsonConverter.deserialize(eventEnvelope.payload(), ProductCreatedEvent.class);
         ProductSearchRequest request = productMapper.toProductSearchRequest(event.productDto());
         productSearchFacade.createProductSearch(request);
       }
-      case "ProductUpdatedEvent" -> {
+      case ProductUpdatedEvent.EVENT_NAME -> {
         ProductUpdatedEvent event =
             jsonConverter.deserialize(eventEnvelope.payload(), ProductUpdatedEvent.class);
         productSearchFacade.updateProductSearch(event.productDto().getId());
       }
-      case "ProductStatusChangedEvent" -> {
+      case ProductStatusChangedEvent.EVENT_NAME -> {
         ProductStatusChangedEvent event =
             jsonConverter.deserialize(eventEnvelope.payload(), ProductStatusChangedEvent.class);
         productSearchFacade.updateProductStatus(event.productStatusDto().productId());

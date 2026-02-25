@@ -24,3 +24,9 @@ member-api:
 
 product-api:
   enabled: false
+
+file-api:
+  enabled: false
+
+inventory-api:
+  enabled: false
