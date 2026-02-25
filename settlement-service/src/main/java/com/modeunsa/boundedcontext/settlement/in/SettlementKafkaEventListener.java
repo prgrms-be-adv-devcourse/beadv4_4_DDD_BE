@@ -27,7 +27,7 @@ public class SettlementKafkaEventListener {
   @Transactional(propagation = REQUIRES_NEW)
   public void handleMemberEvent(DomainEventEnvelope envelope, Acknowledgment ack) {
     switch (envelope.eventType()) {
-      case "MemberSignupEvent" -> {
+      case MemberSignupEvent.EVENT_NAME -> {
         MemberSignupEvent event =
             jsonConverter.deserialize(envelope.payload(), MemberSignupEvent.class);
         settlementFacade.syncMember(event.memberId(), event.role());
@@ -41,7 +41,7 @@ public class SettlementKafkaEventListener {
   @Transactional(propagation = REQUIRES_NEW)
   public void handleOrderEvent(DomainEventEnvelope envelope, Acknowledgment ack) {
     switch (envelope.eventType()) {
-      case "OrderPurchaseConfirmedEvent" -> {
+      case OrderPurchaseConfirmedEvent.EVENT_NAME -> {
         OrderPurchaseConfirmedEvent event =
             jsonConverter.deserialize(envelope.payload(), OrderPurchaseConfirmedEvent.class);
         settlementFacade.collectCandidateItems(event.orderDto().getOrderId());
