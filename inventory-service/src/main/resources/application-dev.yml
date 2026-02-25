@@ -52,10 +52,6 @@ custom:
       - /actuator/health
       - /actuator/prometheus
 
-      # ========== 재고 ===========
-      - /api/v2/inventories/{productId}
-
-
 springdoc:
   swagger-ui:
     persistAuthorization: true

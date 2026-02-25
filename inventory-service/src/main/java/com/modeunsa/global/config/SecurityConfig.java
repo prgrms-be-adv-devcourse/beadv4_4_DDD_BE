@@ -50,6 +50,8 @@ public class SecurityConfig {
                   .permitAll()
                   .requestMatchers(permitUrls)
                   .permitAll()
+                  .requestMatchers(HttpMethod.GET, "/api/v2/inventories/{productId:[0-9]+}")
+                  .permitAll()
                   .requestMatchers(HttpMethod.POST, "/api/v2/inventories/*")
                   .hasRole("SELLER")
                   .anyRequest()
