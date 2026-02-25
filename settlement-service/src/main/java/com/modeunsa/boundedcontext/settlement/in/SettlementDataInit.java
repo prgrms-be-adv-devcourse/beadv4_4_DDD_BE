@@ -23,12 +23,12 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.transaction.annotation.Transactional;
 
-@Profile("!test")
+@Profile({"!test", "!k3s-prod"})
 @ConditionalOnProperty(name = "app.data-init.enabled", havingValue = "true", matchIfMissing = true)
 @Configuration
 @Slf4j
 public class SettlementDataInit {
-  private static final Long SELLER_MEMBER_ID = 7L;
+  private static final Long SELLER_MEMBER_ID = 8L;
   private static final Long BUYER_MEMBER_ID = 4L;
 
   private final SettlementDataInit self;

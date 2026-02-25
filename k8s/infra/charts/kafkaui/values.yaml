@@ -6,6 +6,8 @@ service:
   nodePort: 30085
 kafka:
   bootstrapServers: "modeunsa-infra-kafka:9092"
+server:
+  contextPath: "/kafka-ui"
 javaOpts: "-Xmx256m"
 resources:
   requests:

@@ -15,5 +15,5 @@ USER appuser
 
 EXPOSE 8080
 
-ENV SPRING_PROFILES_ACTIVE=prod
+ENV SPRING_PROFILES_ACTIVE=k3s-prod
 ENTRYPOINT ["java", "-jar", "app.jar"]
