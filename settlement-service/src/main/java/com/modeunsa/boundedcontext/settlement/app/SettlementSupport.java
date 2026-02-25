@@ -3,6 +3,7 @@ package com.modeunsa.boundedcontext.settlement.app;
 import com.modeunsa.boundedcontext.settlement.domain.entity.Settlement;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementCandidateItem;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementItem;
+import com.modeunsa.boundedcontext.settlement.domain.types.SettlementEventType;
 import com.modeunsa.boundedcontext.settlement.out.SettlementCandidateItemRepository;
 import com.modeunsa.boundedcontext.settlement.out.SettlementRepository;
 import com.modeunsa.global.config.SettlementConfig;
@@ -30,14 +31,16 @@ public class SettlementSupport {
     // 1. 정산서를 불러온다.
     Settlement settlement =
         settlementRepository
-            .findBySellerMemberIdAndSettlementYearAndSettlementMonth(sellerMemberId, year, month)
+            .findBySellerMemberIdAndSettlementYearAndSettlementMonthAndType(
+                sellerMemberId, year, month, SettlementEventType.SETTLEMENT_PRODUCT_SALES_AMOUNT)
             .orElseThrow(() -> new GeneralException(ErrorStatus.SETTLEMENT_NOT_FOUND));
 
     Long systemMemberId = settlementConfig.getSystemMemberId();
 
     Settlement feeSettlement =
         settlementRepository
-            .findBySellerMemberIdAndSettlementYearAndSettlementMonth(systemMemberId, year, month)
+            .findBySellerMemberIdAndSettlementYearAndSettlementMonthAndType(
+                systemMemberId, year, month, SettlementEventType.SETTLEMENT_PRODUCT_SALES_FEE)
             .orElseThrow(() -> new GeneralException(ErrorStatus.SETTLEMENT_NOT_FOUND));
 
     // 수수료를 map으로 저장
