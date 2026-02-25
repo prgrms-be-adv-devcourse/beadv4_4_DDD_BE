@@ -46,6 +46,8 @@ public abstract class ProductMapper {
 
   public abstract ProductSearchResponse toProductSearchResponse(ProductSearch product);
 
+  public abstract ProductSearchResponse toProductSearchResponse(Product product);
+
   public abstract ProductSearchRequest toProductSearchRequest(ProductDto productDto);
 
   @Mapping(source = "member.id", target = "memberId")

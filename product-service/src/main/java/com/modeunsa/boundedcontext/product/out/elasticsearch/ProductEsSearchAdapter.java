@@ -156,6 +156,28 @@ public class ProductEsSearchAdapter
     return new SliceImpl<>(content, Pageable.unpaged(), hasNext);
   }
 
+  @Override
+  public List<ProductSearch> searchByVector(String text, int k) {
+
+    // embedding 생성
+    float[] vector = embeddingModel.embed(text);
+
+    List<Float> list = new ArrayList<>();
+    for (float v : vector) {
+      list.add(v);
+    }
+
+    NativeQuery query =
+        NativeQuery.builder()
+            .withKnnSearches(
+                knn -> knn.field("embedding").queryVector(list).k(k * 10).numCandidates(k * 10))
+            .build();
+
+    SearchHits<ProductSearch> hits = elasticsearchOperations.search(query, ProductSearch.class);
+
+    return hits.getSearchHits().stream().map(SearchHit::getContent).toList();
+  }
+
   private BoolQuery.Builder buildKeywordQuery(BoolQuery.Builder bool, String keyword) {
     // keyword 조건
     if (StringUtils.hasText(keyword)) {
