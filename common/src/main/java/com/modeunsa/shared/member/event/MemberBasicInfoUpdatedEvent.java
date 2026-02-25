@@ -10,9 +10,9 @@ public record MemberBasicInfoUpdatedEvent(
   public static final String EVENT_NAME = "MemberBasicInfoUpdatedEvent";
 
   public MemberBasicInfoUpdatedEvent(
-      Long memberId, String realName, String email, String phoneNumber) {
+      Long memberId, String realName, String phoneNumber, String email) {
 
-    this(memberId, realName, email, phoneNumber, EventUtils.extractTraceId());
+    this(memberId, realName, phoneNumber, email, EventUtils.extractTraceId());
   }
 
   @Override
