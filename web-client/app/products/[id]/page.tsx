@@ -129,8 +129,8 @@ export default function ProductDetailPage() {
       if (!product) return
 
       const quantity = await fetchInventory(product.id)
-      if (quantity !== null) {
-        setProduct(prev => prev ? {...prev, quantity} : prev)
+      if (typeof quantity === 'number' && Number.isFinite(quantity)) {
+        setProduct(prev => (prev ? { ...prev, quantity } : prev))
       }
     }
 
@@ -141,6 +141,13 @@ export default function ProductDetailPage() {
   const [isCreatingOrder, setIsCreatingOrder] = useState(false)
   const [isAddingToCart, setIsAddingToCart] = useState(false)
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false)
+
+  const getSafeStock = () => {
+    if (!product || typeof product.quantity !== 'number' || !Number.isFinite(product.quantity)) {
+      return 0
+    }
+    return product.quantity
+  }
 
 
   const getCategoryLabel = (category: string): string => {
@@ -483,8 +490,8 @@ export default function ProductDetailPage() {
                         <span className="quantity-value">{quantity}</span>
                         <button
                             className="quantity-btn plus"
-                            onClick={() => setQuantity(Math.min(product.quantity, quantity + 1))}
-                            disabled={quantity >= product.quantity}
+                            onClick={() => setQuantity(prev => Math.min(getSafeStock(), prev + 1))}
+                            disabled={getSafeStock() <= 0 || quantity >= getSafeStock()}
                         >
                           +
                         </button>
