@@ -136,7 +136,7 @@ app:
   simulation:
     enabled: true
   event-publisher:
-    type: ${EVENT_PUBLISHER_TYPE:spring}
+    type: ${EVENT_PUBLISHER_TYPE:kafka}
   event-consumer:
     type: ${EVENT_CONSUMER_TYPE:kafka}
   data-init:
