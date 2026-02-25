@@ -5,10 +5,9 @@ import com.modeunsa.boundedcontext.product.out.elasticsearch.ProductSearchReposi
 import com.modeunsa.shared.product.dto.search.ProductSearchRequest;
 import java.time.ZoneId;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
-@ConditionalOnProperty(name = "app.elasticsearch.enabled", havingValue = "true")
+// @ConditionalOnProperty(name = "app.elasticsearch.enabled", havingValue = "true")
 @Service
 @RequiredArgsConstructor
 public class ProductCreateProductSearchUseCase {
