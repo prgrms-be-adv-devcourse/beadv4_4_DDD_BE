@@ -2,7 +2,9 @@ name: CD Pipeline
 
 on:
   push:
-    branches: [main]
+    tags:
+      # [모듈명]-v[버전] 형식의 태그가 푸시될 때만 작동합니다.
+      - '*-v*.*.*'
 
 permissions:
   contents: read
@@ -12,64 +14,65 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  changes:
-    name: Detect Changes
-    runs-on: ubuntu-latest
-    outputs:
-      common: ${{ steps.filter.outputs.common }}
-      api_gateway: ${{ steps.filter.outputs.api_gateway }}
-      settlement: ${{ steps.filter.outputs.settlement }}
-      member: ${{ steps.filter.outputs.member }}
-      payment: ${{ steps.filter.outputs.payment }}
-      order: ${{ steps.filter.outputs.order }}
-      product: ${{ steps.filter.outputs.product }}
-      file: ${{ steps.filter.outputs.file }}
-      inventory: ${{ steps.filter.outputs.inventory }}
-      web_client: ${{ steps.filter.outputs.web_client }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            common:
-              - 'common/**'
-              - 'build.gradle'
-              - 'settings.gradle'
-              - 'gradle/**'
-            api_gateway:
-              - 'api-gateway-service/**'
-            settlement:
-              - 'settlement-service/**'
-            member:
-              - 'member-service/**'
-            payment:
-              - 'payment-service/**'
-            order:
-              - 'order-service/**'
-            product:
-              - 'product-service/**'
-            file:
-              - 'file-service/**'
-            inventory:
-              - 'inventory-service/**'
-            web_client:
-              - 'web-client/**'
-
   deploy:
     name: Build & Deploy
-    needs: changes
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Set Version
+      # 1. 태그가 main 브랜치에 있는지 검증
+      - name: Verify Tag is on main branch
         run: |
-          VERSION=$(date +'%Y%m%d')-${{ github.run_number }}
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "태그가 main 브랜치에 속해 있는지 검증합니다..."
+          git fetch origin main
+          
+          if ! git branch -r --contains ${{ github.sha }} | grep -q "origin/main"; then
+            echo "[배포 차단] 이 태그는 main 브랜치에 존재하지 않습니다!"
+            exit 1
+          fi
+          echo "태그가 main 브랜치에 포함된 것을 확인했습니다."
 
-      - name: Set up JDK 21
+      # 2. 태그 이름표를 분석하여 모듈명과 버전 추출
+      - name: Parse Tag and Determine Module
+        id: parse
+        run: |
+          # 예: refs/tags/member-v1.0.2 -> member-v1.0.2
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          
+          # '-v'를 기준으로 앞부분은 모듈명, 뒷부분은 버전(숫자)으로 분리
+          MODULE_PREFIX=${TAG_NAME%-v*}
+          VERSION=${TAG_NAME#*-v}
+          
+          echo "MODULE_PREFIX=$MODULE_PREFIX" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Target Module: $MODULE_PREFIX / Version: $VERSION"
+          
+          # 백엔드인지 프론트엔드인지 판별
+          VALID_BACKENDS=("api-gateway" "settlement" "member" "payment" "order" "product" "file" "inventory")
+          IS_BACKEND=false
+          for m in "${VALID_BACKENDS[@]}"; do
+            if [ "$m" == "$MODULE_PREFIX" ]; then
+              IS_BACKEND=true
+              break
+            fi
+          done
+          
+          if [ "$MODULE_PREFIX" == "web-client" ]; then
+            echo "BUILD_FRONTEND=true" >> $GITHUB_ENV
+          elif [ "$IS_BACKEND" == "true" ]; then
+            echo "BUILD_BACKEND=true" >> $GITHUB_ENV
+            echo "BACKEND_MODULE=${MODULE_PREFIX}-service" >> $GITHUB_ENV
+          else
+            echo "알 수 없는 모듈 태그입니다: $MODULE_PREFIX"
+            echo "사용 가능한 모듈명: web-client, api-gateway, member 등"
+            exit 1
+          fi
+
+      - name: Set up JDK 21 (백엔드인 경우)
+        if: env.BUILD_BACKEND == 'true'
         uses: actions/setup-java@v4
         with:
           java-version: '21'
@@ -82,67 +85,34 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Determine changed modules
-        id: set-modules
-        run: |
-          MODULES_TO_BUILD=()
-          
-          if [[ "${{ needs.changes.outputs.common }}" == 'true' ]]; then
-            echo "Common module changed. Building ALL backend modules."
-            MODULES_TO_BUILD=("api-gateway-service" "settlement-service" "member-service" "payment-service" "order-service" "product-service" "file-service" "inventory-service")
-          else
-            [[ "${{ needs.changes.outputs.api_gateway }}" == 'true' ]] && MODULES_TO_BUILD+=("api-gateway-service")
-            [[ "${{ needs.changes.outputs.settlement }}" == 'true' ]] && MODULES_TO_BUILD+=("settlement-service")
-            [[ "${{ needs.changes.outputs.member }}" == 'true' ]] && MODULES_TO_BUILD+=("member-service")
-            [[ "${{ needs.changes.outputs.payment }}" == 'true' ]] && MODULES_TO_BUILD+=("payment-service")
-            [[ "${{ needs.changes.outputs.order }}" == 'true' ]] && MODULES_TO_BUILD+=("order-service")
-            [[ "${{ needs.changes.outputs.product }}" == 'true' ]] && MODULES_TO_BUILD+=("product-service")
-            [[ "${{ needs.changes.outputs.file }}" == 'true' ]] && MODULES_TO_BUILD+=("file-service")
-            [[ "${{ needs.changes.outputs.inventory }}" == 'true' ]] && MODULES_TO_BUILD+=("inventory-service")
-          fi
-          
-          BUILT_MODULES="${MODULES_TO_BUILD[*]}"
-          echo "BUILT_MODULES=$BUILT_MODULES" >> $GITHUB_ENV
-          
-          if [[ "${{ needs.changes.outputs.web_client }}" == 'true' ]]; then
-            echo "BUILD_FRONTEND=true" >> $GITHUB_ENV
-          fi
-          
-          if [ -z "$BUILT_MODULES" ] && [ "${{ needs.changes.outputs.web_client }}" != 'true' ]; then
-            echo "No modules changed. Skipping build and deploy."
-            echo "SKIP_DEPLOY=true" >> $GITHUB_ENV
-          fi
-
-      - name: Build and push backend images
-        if: env.SKIP_DEPLOY != 'true' && env.BUILT_MODULES != ''
+      # 3. [백엔드] 지정된 단일 모듈만 빌드 및 푸시
+      - name: Build and push backend image
+        if: env.BUILD_BACKEND == 'true'
         run: |
           chmod +x gradlew
-          for MODULE in $BUILT_MODULES; do
-            echo "====================================="
-            echo "Building Backend: $MODULE"
-            echo "====================================="
+          echo "====================================="
+          echo "Building Backend: ${{ env.BACKEND_MODULE }}"
+          echo "====================================="
           
-            MODULE_SHORT=${MODULE%-service}
-            IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/modeunsa-$MODULE_SHORT"
+          IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/modeunsa-${{ env.MODULE_PREFIX }}"
           
-            ./gradlew :$MODULE:bootBuildImage --imageName=$IMAGE_NAME:${{ env.VERSION }}
-            docker push $IMAGE_NAME:${{ env.VERSION }}
-          done
+          ./gradlew :${{ env.BACKEND_MODULE }}:bootBuildImage --imageName=$IMAGE_NAME:${{ env.VERSION }}
+          docker push $IMAGE_NAME:${{ env.VERSION }}
 
+      # 4. [프론트엔드] 프론트엔드 빌드 및 푸시
       - name: Build and push frontend image
-        if: env.SKIP_DEPLOY != 'true' && env.BUILD_FRONTEND == 'true'
+        if: env.BUILD_FRONTEND == 'true'
         run: |
           echo "====================================="
           echo "Building Frontend (web-client)"
           echo "====================================="
           IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/modeunsa-web-client"
           
-          # 수정됨: web-client 폴더를 참조하여 도커 빌드
           docker build -t $IMAGE_NAME:${{ env.VERSION }} ./web-client
           docker push $IMAGE_NAME:${{ env.VERSION }}
 
+      # 5. k8s 디렉토리 복사
       - name: Copy k8s directory to EC2
-        if: env.SKIP_DEPLOY != 'true'
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -151,41 +121,37 @@ jobs:
           source: "k8s/"
           target: "/home/ec2-user/app"
 
+      # 6. EC2 접속 후 해당 모듈만 .env 파일 업데이트 및 배포
       - name: Update .env.k3s-prod and Deploy on EC2
-        if: env.SKIP_DEPLOY != 'true'
         uses: appleboy/ssh-action@v1.0.3
         env:
           VERSION: ${{ env.VERSION }}
-          BUILT_MODULES: ${{ env.BUILT_MODULES }}
+          MODULE_PREFIX: ${{ env.MODULE_PREFIX }}
+          BUILD_BACKEND: ${{ env.BUILD_BACKEND }}
           BUILD_FRONTEND: ${{ env.BUILD_FRONTEND }}
           DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.EC2_KEY }}
-          envs: VERSION,BUILT_MODULES,BUILD_FRONTEND,DOCKER_USER
+          envs: VERSION,MODULE_PREFIX,BUILD_BACKEND,BUILD_FRONTEND,DOCKER_USER
           script: |
             set -e
             cd /home/ec2-user/app
             
-            # 1. 백엔드 환경변수 업데이트
-            if [ -n "$BUILT_MODULES" ]; then
-              for MODULE in $BUILT_MODULES; do
-                MODULE_SHORT=${MODULE%-service}
-                ENV_KEY=$(echo "$MODULE_SHORT" | tr 'a-z-' 'A-Z_')_IMAGE
+            if [ "$BUILD_BACKEND" == "true" ]; then
+              # 모듈명을 환경변수 키로 변환 (예: api-gateway -> API_GATEWAY_IMAGE)
+              ENV_KEY=$(echo "$MODULE_PREFIX" | tr 'a-z-' 'A-Z_')_IMAGE
+              NEW_IMAGE="${DOCKER_USER}/modeunsa-${MODULE_PREFIX}:${VERSION}"
             
-                NEW_IMAGE="${DOCKER_USER}/modeunsa-${MODULE_SHORT}:${VERSION}"
-            
-                if grep -q "^${ENV_KEY}=" .env.k3s-prod; then
-                  sed -i "s|^${ENV_KEY}=.*|${ENV_KEY}=${NEW_IMAGE}|" .env.k3s-prod
-                else
-                  echo "${ENV_KEY}=${NEW_IMAGE}" >> .env.k3s-prod
-                fi
-                echo "Updated $ENV_KEY"
-              done
+              if grep -q "^${ENV_KEY}=" .env.k3s-prod; then
+                sed -i "s|^${ENV_KEY}=.*|${ENV_KEY}=${NEW_IMAGE}|" .env.k3s-prod
+              else
+                echo "${ENV_KEY}=${NEW_IMAGE}" >> .env.k3s-prod
+              fi
+              echo "Updated $ENV_KEY to $NEW_IMAGE"
             fi
             
-            # 2. 프론트엔드 환경변수 업데이트
             if [ "$BUILD_FRONTEND" == "true" ]; then
               NEW_FRONTEND_IMAGE="${DOCKER_USER}/modeunsa-web-client:${VERSION}"
               if grep -q "^FRONTEND_IMAGE=" .env.k3s-prod; then
@@ -193,9 +159,8 @@ jobs:
               else
                 echo "FRONTEND_IMAGE=${NEW_FRONTEND_IMAGE}" >> .env.k3s-prod
               fi
-              echo "Updated FRONTEND_IMAGE"
+              echo "Updated FRONTEND_IMAGE to $NEW_FRONTEND_IMAGE"
             fi
             
-            # 3. k3s 배포 스크립트 실행
             chmod +x ./k8s/*.sh
             sudo ./k8s/app.sh up prod
