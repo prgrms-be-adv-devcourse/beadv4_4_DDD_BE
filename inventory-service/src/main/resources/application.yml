@@ -1,0 +1,82 @@
+server:
+  port: 8090
+  forward-headers-strategy: framework
+
+spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  devtools:
+    restart:
+      enabled: false
+  application:
+    name: api
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ${REDIS_PASSWORD:}
+      username: default
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+
+custom:
+  global:
+    internalBackUrl: http://localhost:8080
+
+encryption:
+  enabled: false
+  master-key: ${ENCRYPTION_MASTER_KEY}
+
+app:
+  simulation:
+    enabled: true
+  event-publisher:
+    type: ${EVENT_PUBLISHER_TYPE:kafka}
+  event-consumer:
+    type: ${EVENT_CONSUMER_TYPE:kafka}
+  data-init:
+    enabled: ${DATA_INIT:true}
+
+internal:
+  api-key: ${INTERNAL_API_KEY}
+
+# 각 서비스의 API docs를 Gateway에서 통합
+springdoc:
+  swagger-ui:
+    urls:
+      - name: member
+        url: /v3/api-docs/member
+      - name: product
+        url: /v3/api-docs/product
+      - name: order-service
+        url: /v3/api-docs/order
+      - name: inventory-service
+        url: /v3/api-docs/inventory
+      - name: payment-service
+        url: /v3/api-docs/payment
+      - name: settlement-service
+        url: /v3/api-docs/settlement
+      - name: file
+        url: /v3/api-docs/file
+      - name: content-service
+        url: /v3/api-docs/content
+
+
+outbox:
+  enabled: true
+  timeoutMs: 10000            # 발행 타임아웃 (10초)
+  poller:
+    enabled: true             # 폴러 활성화
+    interval-ms: 5000         # 폴링 주기 (5초)
+    batch-size: 100           # 배치 크기
+    max-retry: 5              # 최대 재시도 횟수
+    retention-days: 7         # 보관 기간 (7일)
+  cleanup:
+    batch-size: 500           # 정리 배치 크기
+    cron: "0 0 3 * * *"    # 정리 스케줄 (매일 새벽 3시)

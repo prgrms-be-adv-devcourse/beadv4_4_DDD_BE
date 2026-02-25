@@ -1,0 +1,18 @@
+enabled: true
+image:
+  tag: "3.7.0"
+service:
+  type: NodePort
+  nodePort: 30092
+  externalPort: 29092
+  internalPort: 9092
+storage:
+  size: 5Gi
+heapOpts: "-Xmx256m -Xms256m"
+resources:
+  requests:
+    cpu: 120m
+    memory: 320Mi
+  limits:
+    cpu: 300m
+    memory: 512Mi

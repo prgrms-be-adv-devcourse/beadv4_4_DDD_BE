@@ -1,0 +1,83 @@
+{{- if .Values.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "apiGatewayApi.fullname" . }}
+  labels:
+    {{- include "apiGatewayApi.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      {{- include "apiGatewayApi.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "apiGatewayApi.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: api-gateway-api
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          env:
+            # Spring Profile
+            - name: SPRING_PROFILES_ACTIVE
+              value: {{ .Values.env.springProfile | quote }}
+            # Database
+            - name: DB_HOST
+              value: {{ .Values.env.dbHost | quote }}
+            - name: DB_PORT
+              value: {{ .Values.env.dbPort | quote }}
+            - name: DB_NAME
+              value: {{ .Values.env.dbName | quote }}
+            - name: MYSQL_DATABASE
+              value: {{ .Values.env.dbName | quote }}
+            # Redis
+            - name: REDIS_HOST
+              value: {{ .Values.env.redisHost | quote }}
+            - name: REDIS_PORT
+              value: {{ .Values.env.redisPort | quote }}
+            # Kafka
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: {{ .Values.env.kafkaBootstrapServers | quote }}
+            - name: EVENT_PUBLISHER_TYPE
+              value: {{ .Values.env.eventPublisherType | quote }}
+            - name: EVENT_CONSUMER_TYPE
+              value: {{ .Values.env.eventConsumerType | quote }}
+            # Elasticsearch
+            - name: ES_HOST
+              value: {{ .Values.env.esHost | quote }}
+            - name: ES_PORT
+              value: {{ .Values.env.esPort | quote }}
+            - name: SPRING_ELASTICSEARCH_URIS
+              value: "http://{{ .Values.env.esHost }}:{{ .Values.env.esPort }}"
+            {{- if .Values.javaOpts }}
+            - name: JAVA_TOOL_OPTIONS
+              value: {{ .Values.javaOpts | quote }}
+            {{- end }}
+          envFrom:
+            - secretRef:
+                name: {{ include "apiGatewayApi.fullname" . }}-secret
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: {{ .Values.service.port }}
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: {{ .Values.service.port }}
+            periodSeconds: 30
+{{- end }}

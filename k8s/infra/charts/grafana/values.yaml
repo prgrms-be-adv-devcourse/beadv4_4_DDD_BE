@@ -1,0 +1,21 @@
+enabled: true
+image:
+  tag: "latest"
+service:
+  type: NodePort
+  nodePort: 30300
+auth:
+  adminUser: ""
+  adminPassword: ""
+server:
+  rootUrl: "http://localhost:30300/grafana"
+  serveFromSubPath: true
+storage:
+  size: 2Gi
+resources:
+  requests:
+    cpu: 20m
+    memory: 96Mi
+  limits:
+    cpu: 100m
+    memory: 256Mi

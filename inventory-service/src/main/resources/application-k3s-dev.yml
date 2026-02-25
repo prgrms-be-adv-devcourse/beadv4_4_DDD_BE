@@ -1,0 +1,56 @@
+spring:
+  config:
+    import: optional:file:.env.k3s-dev[.properties]
+  datasource:
+    url: jdbc:mysql://${DB_HOST:modeunsa-infra-mysql}:${DB_PORT:3306}/${DB_NAME:modeunsa}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+custom:
+  swagger:
+    serverUrl: ${SWAGGER_SERVER_URL:http://localhost:8080}
+    description: "Local Server"
+  security:
+    permit-all: false
+    permit-urls:
+      # ========== 개발 도구 ==========
+      - /h2-console/**
+      - /swagger-ui/**
+      - /v3/api-docs/**
+      - /
+      - /favicon.ico
+      - /error
+
+      # ========== 헬스체크 ==========
+      - /actuator/health
+      - /actuator/prometheus
+
+
+springdoc:
+  swagger-ui:
+    persistAuthorization: true
+
+services:
+  member:
+    host: localhost
+  auth:
+    host: localhost
+  product:
+    host: localhost
+  order:
+    host: localhost
+  inventory:
+    host: localhost
+  payment:
+    host: localhost
+  settlement:
+    host: localhost
+  file:
+    host: localhost
+  content:
+    host: localhost

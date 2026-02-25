@@ -3,8 +3,21 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import MypageLayout from '../../components/MypageLayout'
+import api from "@/app/lib/axios";
 
 type ProductCategory = 'OUTER' | 'UPPER' | 'LOWER' | 'CAP' | 'SHOES' | 'BAG' | 'BEAUTY'
+
+type PresignedUrlResponse = {
+  presignedUrl: string
+  key: string
+}
+
+type PublicUrlResponse = {
+  imageUrl: string
+  key: string
+}
+
 
 interface ProductCreateRequest {
   name: string
@@ -16,19 +29,18 @@ interface ProductCreateRequest {
   images: string[]
 }
 
-interface ProductResponse {
-  id?: number
-  productId?: number
-  name: string
-  category: string
-  [key: string]: any
-}
-
-interface ApiResponse {
+interface PresignedUrlApiResponse {
   isSuccess: boolean
   code: string
   message: string
-  result: ProductResponse
+  result: PresignedUrlResponse
+}
+
+interface PublicUrlApiResponse {
+  isSuccess: boolean
+  code: string
+  message: string
+  result: PublicUrlResponse
 }
 
 const categoryOptions: { value: ProductCategory; label: string }[] = [
@@ -45,7 +57,7 @@ export default function ProductCreatePage() {
   const router = useRouter()
   const [formData, setFormData] = useState<ProductCreateRequest>({
     name: '',
-    category: 'UPPER',
+    category: 'OUTER',
     description: '',
     price: 0,
     salePrice: 0,
@@ -57,6 +69,8 @@ export default function ProductCreatePage() {
   const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>([]) // 업로드된 public URL들
   const [uploadingImageIndex, setUploadingImageIndex] = useState<Set<number>>(new Set()) // 업로드 중인 이미지 인덱스
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
+
 
   const handleInputChange = (field: keyof ProductCreateRequest, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -67,58 +81,47 @@ export default function ProductCreatePage() {
     if (!files) return
 
     const newFiles: File[] = []
-    const newPreviews: string[] = []
-    const startIndex = imageFiles.length
 
     // 파일 검증 및 미리보기 생성
     Array.from(files).forEach((file) => {
-      if (file.type.startsWith('image/')) {
-        if (imageFiles.length + newFiles.length < 10) {
-          newFiles.push(file)
-          const reader = new FileReader()
-          reader.onloadend = () => {
-            const result = reader.result as string
-            setImagePreviews(prev => [...prev, result])
-          }
-          reader.readAsDataURL(file)
-        } else {
-          alert('이미지는 최대 10개까지 추가할 수 있습니다.')
-        }
-      } else {
+      if (!file.type.startsWith('image/')) {
         alert(`${file.name}은(는) 이미지 파일이 아닙니다.`)
+        return
       }
+
+      if (imageFiles.length + newFiles.length >= 5) {
+        alert('이미지는 최대 5개까지 추가할 수 있습니다.')
+        return
+      }
+      newFiles.push(file)
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        const result = reader.result as string
+        setImagePreviews(prev => [...prev, result])
+      }
+      reader.readAsDataURL(file)
     })
+
+    if (newFiles.length === 0) return
 
     // 파일 추가
     setImageFiles(prev => [...prev, ...newFiles])
 
-    // 각 파일을 즉시 업로드
-    newFiles.forEach(async (file, relativeIndex) => {
-      const absoluteIndex = startIndex + relativeIndex
-      setUploadingImageIndex(prev => new Set(prev).add(absoluteIndex))
+    newFiles.forEach(async (file, i) => {
+      const uploadIndex = imageFiles.length + i
+      setUploadingImageIndex(prev => new Set(prev).add(uploadIndex))
 
       try {
-        console.log(`이미지 ${absoluteIndex + 1} 업로드 시작:`, file.name)
-        const publicUrl = await uploadImageToS3(file, 0)
-        
-        // 업로드된 public URL 저장
-        setUploadedImageUrls(prev => {
-          const newUrls = [...prev]
-          newUrls[absoluteIndex] = publicUrl
-          return newUrls
-        })
-        
-        console.log(`이미지 ${absoluteIndex + 1} 업로드 완료:`, publicUrl)
-      } catch (error) {
-        console.error(`이미지 ${absoluteIndex + 1} 업로드 실패:`, error)
-        alert(`이미지 "${file.name}" 업로드에 실패했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`)
-        // 업로드 실패 시 해당 이미지 제거
-        handleRemoveImage(absoluteIndex)
+        const downloadUrl = await uploadImageToS3(file)
+        setUploadedImageUrls(prev => [...prev, downloadUrl])
+      } catch (e) {
+        handleRemoveImage(uploadIndex)
+        alert(`이미지 업로드 실패: ${file.name}`)
       } finally {
         setUploadingImageIndex(prev => {
-          const newSet = new Set(prev)
-          newSet.delete(absoluteIndex)
-          return newSet
+          const s = new Set(prev)
+          s.delete(uploadIndex)
+          return s
         })
       }
     })
@@ -141,83 +144,69 @@ export default function ProductCreatePage() {
   }
 
   // Presigned URL 요청 및 S3 업로드
-  const uploadImageToS3 = async (file: File, domainId: number = 0): Promise<string> => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
-    const ext = getFileExtension(file.name)
-    const contentType = file.type || `image/${ext === 'jpg' ? 'jpeg' : ext}`
+  const uploadImageToS3 = async (file: File): Promise<string> => {
+    const fileApiUrl = process.env.NEXT_PUBLIC_API_URL!
 
-    // 1. Presigned URL 요청
-    const presignedUrlResponse = await fetch(`${apiUrl}/api/v1/file-uploads/presigned-url`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        domainId: domainId,
+    /** 1. presigned url 요청 */
+    const presignedRes = await api.post(`${fileApiUrl}/api/v1/files/presigned-url`,
+      JSON.stringify({
         domainType: 'PRODUCT',
-        ext: ext,
-        contentType: contentType,
-      }),
-    })
+        ext: 'png',
+        contentType: file.type,
+      }))
 
-    if (!presignedUrlResponse.ok) {
-      const errorText = await presignedUrlResponse.text()
-      console.error('Presigned URL 요청 실패:', presignedUrlResponse.status, errorText)
-      throw new Error('이미지 업로드 URL을 가져오는데 실패했습니다.')
+    if (!presignedRes.data.isSuccess) {
+      throw new Error('Presigned URL 발급 실패')
     }
 
-    const presignedUrlApiResponse = await presignedUrlResponse.json()
-    if (!presignedUrlApiResponse.isSuccess || !presignedUrlApiResponse.result) {
-      throw new Error(presignedUrlApiResponse.message || '이미지 업로드 URL을 가져오는데 실패했습니다.')
-    }
+    const data: PresignedUrlApiResponse = await presignedRes.data
 
-    const { presignedUrl, key: rawKey } = presignedUrlApiResponse.result
-
-    // 2. S3에 직접 업로드
-    const uploadResponse = await fetch(presignedUrl, {
+    /** 2. S3에 직접 PUT 업로드 */
+    const uploadRes = await fetch(data.result.presignedUrl, {
       method: 'PUT',
       headers: {
-        'Content-Type': contentType,
+        'Content-Type': file.type,
       },
       body: file,
     })
 
-    if (!uploadResponse.ok) {
-      console.error('S3 업로드 실패:', uploadResponse.status, uploadResponse.statusText)
-      throw new Error('이미지 업로드에 실패했습니다.')
+    if (!uploadRes.ok) {
+      throw new Error('S3 업로드 실패')
     }
 
-    // 3. Public URL 변환
-    const publicUrlResponse = await fetch(`${apiUrl}/api/v1/file-uploads/public-url`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        rawKey: rawKey,
-        domainType: 'PRODUCT',
-        domainId: domainId,
-        contentType: contentType,
-      }),
-    })
+    /** 3. public-read URL 반환 */
+    const publicUrlApi = `${fileApiUrl}/api/v1/files/public-url`;
+    const downloadRes = await api.post(publicUrlApi,
+      JSON.stringify({
+          rawKey: data.result.key,
+          domainType: 'PRODUCT',
+          contentType: file.type,
+        })
+    )
 
-    if (!publicUrlResponse.ok) {
-      const errorText = await publicUrlResponse.text()
-      console.error('Public URL 변환 실패:', publicUrlResponse.status, errorText)
-      throw new Error('이미지 URL 변환에 실패했습니다.')
+    if (!downloadRes.data.isSuccess) {
+      throw new Error('S3 다운로드 실패')
     }
 
-    const publicUrlApiResponse = await publicUrlResponse.json()
-    if (!publicUrlApiResponse.isSuccess || !publicUrlApiResponse.result) {
-      throw new Error(publicUrlApiResponse.message || '이미지 URL 변환에 실패했습니다.')
-    }
+    const downloadData: PublicUrlApiResponse = await downloadRes.data
 
-    // PublicUrlResponse의 필드명은 imageUrl입니다
-    return publicUrlApiResponse.result.imageUrl || publicUrlApiResponse.result.publicUrl
+    return downloadData.result.imageUrl
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (uploadingImageIndex.size > 0) {
+      alert('이미지 업로드가 완료될 때까지 기다려주세요.')
+      return
+    }
+
+    const images = uploadedImageUrls.filter(Boolean)
+
+    if (images.length !== imageFiles.length) {
+      alert('업로드되지 않은 이미지가 있습니다.')
+      return
+    }
 
     if (!formData.name.trim()) {
       alert('상품명을 입력해주세요.')
@@ -234,8 +223,8 @@ export default function ProductCreatePage() {
       return
     }
 
-    if (formData.salePrice > formData.price) {
-      alert('할인가는 정가보다 작거나 같아야 합니다.')
+    if (formData.salePrice < formData.price) {
+      alert('판매가는 정가보다 크거나 같아야 합니다.')
       return
     }
 
@@ -255,64 +244,38 @@ export default function ProductCreatePage() {
     setIsSubmitting(true)
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
-      
-      // 이미 업로드된 public URL들 사용
-      const imageUrls = uploadedImageUrls.filter(url => url)
-      console.log('상품 등록에 사용할 이미지 URLs:', imageUrls)
-      
-      const productRequest: ProductCreateRequest = {
-        name: formData.name.trim(),
-        category: formData.category,
-        description: formData.description.trim() || '',
-        price: formData.price,
-        salePrice: formData.salePrice,
-        stock: formData.stock,
-        images: imageUrls,
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+      if (!apiUrl) {
+        setErrorMessage('API URL이 설정되지 않았습니다. (NEXT_PUBLIC_API_URL)')
+        setIsSubmitting(false)
+        return
       }
 
-      console.log('상품 등록 요청:', productRequest)
+      const url = `${apiUrl}/api/v1/products`
+      const res = await api.post(url,
+        JSON.stringify({
+          name: formData.name,
+          category: formData.category,
+          description: formData.description,
+          price: formData.price,
+          salePrice: formData.salePrice,
+          stock: formData.stock,
+          images: uploadedImageUrls
+        })
+      )
 
-      const response = await fetch(`${apiUrl}/api/v1/products`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(productRequest),
-      })
-
-      if (!response.ok) {
-        const errorText = await response.text()
-        console.error('API 응답 에러:', response.status, errorText)
-        let errorMessage = `상품 등록 실패 (${response.status})`
-        try {
-          const errorResponse = JSON.parse(errorText)
-          if (errorResponse.message) {
-            errorMessage = errorResponse.message
-          }
-        } catch (e) {
-          // JSON 파싱 실패 시 기본 메시지 사용
-        }
-        throw new Error(errorMessage)
+      if (!res.data.isSuccess) {
+        const errData = await res.data.catch(() => ({}))
+        const errorMessage = errData.message
+        setErrorMessage(errorMessage)
+        setIsSubmitting(false)
+        return
       }
-
-      const apiResponse: ApiResponse = await response.json()
-      console.log('상품 등록 응답:', apiResponse)
-
-      if (apiResponse.isSuccess && apiResponse.result) {
-        alert('상품이 성공적으로 등록되었습니다.')
-        const productId = apiResponse.result.id || apiResponse.result.productId
-        if (productId) {
-          router.push(`/products/${productId}`)
-        } else {
-          router.push('/')
-        }
-      } else {
-        throw new Error(apiResponse.message || '상품 등록에 실패했습니다.')
-      }
+      alert('상품 등록이 완료되었습니다.')
+      router.push('/mypage/products')
     } catch (error) {
-      console.error('상품 등록 실패:', error)
-      const errorMessage = error instanceof Error ? error.message : '상품 등록 중 오류가 발생했습니다.'
+      console.error('상품 관리 실패:', error)
+      const errorMessage = error instanceof Error ? error.message : '상품 관리 중 오류가 발생했습니다.'
       alert(errorMessage)
     } finally {
       setIsSubmitting(false)
@@ -320,37 +283,14 @@ export default function ProductCreatePage() {
   }
 
   return (
-    <div className="home-page">
-      {/* Header */}
-      <header className="header">
-        <div className="header-container">
-          <div className="logo">
-            <Link href="/">뭐든사</Link>
-          </div>
-          <nav className="nav">
-            <Link href="/fashion">패션</Link>
-            <Link href="/beauty">뷰티</Link>
-            <Link href="/sale">세일</Link>
-            <Link href="/magazine">매거진</Link>
-          </nav>
-          <div className="header-actions">
-            <Link href="/search" className="search-btn">검색</Link>
-            <Link href="/cart" className="cart-btn">장바구니</Link>
-            <Link href="/login" className="user-btn">로그인</Link>
-          </div>
+    <MypageLayout>
+      <div className="product-create-container" style={{ maxWidth: '900px' }}>
+        <div className="create-header">
+          <h1 className="create-title">상품 등록</h1>
+          <Link href="/mypage/products" className="create-cancel-btn">
+            취소
+          </Link>
         </div>
-      </header>
-
-      {/* Product Create Section */}
-      <section className="product-create-section">
-        <div className="container">
-          <div className="product-create-container">
-            <div className="create-header">
-              <h1 className="create-title">상품 등록</h1>
-              <Link href="/" className="create-cancel-btn">
-                취소
-              </Link>
-            </div>
 
             <form className="create-form" onSubmit={handleSubmit}>
               {/* Product Name */}
@@ -406,7 +346,7 @@ export default function ProductCreatePage() {
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="price" className="form-label">
-                    정가 <span className="required">*</span>
+                    정가
                   </label>
                   <input
                     type="number"
@@ -417,13 +357,12 @@ export default function ProductCreatePage() {
                     onChange={(e) => handleInputChange('price', parseFloat(e.target.value) || 0)}
                     min="0"
                     step="1"
-                    required
                   />
                 </div>
 
                 <div className="form-group">
                   <label htmlFor="salePrice" className="form-label">
-                    할인가 <span className="required">*</span>
+                    판매가
                   </label>
                   <input
                     type="number"
@@ -434,7 +373,6 @@ export default function ProductCreatePage() {
                     onChange={(e) => handleInputChange('salePrice', parseFloat(e.target.value) || 0)}
                     min="0"
                     step="1"
-                    required
                   />
                 </div>
               </div>
@@ -442,7 +380,7 @@ export default function ProductCreatePage() {
               {/* Stock */}
               <div className="form-group">
                 <label htmlFor="stock" className="form-label">
-                  재고 <span className="required">*</span>
+                  재고
                 </label>
                 <input
                   type="number"
@@ -453,13 +391,12 @@ export default function ProductCreatePage() {
                   onChange={(e) => handleInputChange('stock', parseInt(e.target.value) || 0)}
                   min="0"
                   step="1"
-                  required
                 />
               </div>
 
               {/* Images */}
               <div className="form-group">
-                <label className="form-label">상품 이미지 (최대 10개)</label>
+                <label className="form-label">상품 이미지 (최대 5개)</label>
                 <div className="image-upload-wrapper">
                   <label htmlFor="image-upload" className="image-upload-label">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -530,41 +467,13 @@ export default function ProductCreatePage() {
                 <button
                   type="submit"
                   className="create-submit-btn"
-                  disabled={isSubmitting || uploadingImageIndex.size > 0 || !formData.name.trim() || formData.price <= 0 || formData.salePrice <= 0}
+                  disabled={isSubmitting || uploadingImageIndex.size > 0 || !formData.name.trim()}
                 >
-                  {uploadingImageIndex.size > 0 ? `이미지 업로드 중... (${uploadingImageIndex.size})` : isSubmitting ? '등록 중...' : '상품 등록'}
+                  {uploadingImageIndex.size > 0 ? `이미지 업로드 중... (${uploadingImageIndex.size})` : isSubmitting ? '등록 중...' : '임시 저장'}
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="footer">
-        <div className="container">
-          <div className="footer-content">
-            <div className="footer-section">
-              <h3>고객센터</h3>
-              <p>1588-0000</p>
-              <p>평일 09:00 - 18:00</p>
-            </div>
-            <div className="footer-section">
-              <h3>회사정보</h3>
-              <p>주소: 서울시 강남구</p>
-              <p>사업자등록번호: 000-00-00000</p>
-            </div>
-            <div className="footer-section">
-              <h3>이용안내</h3>
-              <Link href="/terms">이용약관</Link>
-              <Link href="/privacy">개인정보처리방침</Link>
-            </div>
-          </div>
-          <div className="footer-bottom">
-            <p>&copy; 2024 뭐든사. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
-    </div>
+      </div>
+    </MypageLayout>
   )
 }

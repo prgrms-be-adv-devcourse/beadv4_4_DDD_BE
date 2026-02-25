@@ -1,0 +1,46 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  tls:
+    - hosts:
+        - modeunsa.store
+      secretName: modeunsa-tls
+  rules:
+    - host: modeunsa.store
+      http:
+        paths:
+              {{- if .Values.grafana.enabled }}
+          - path: /grafana
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-grafana
+                port:
+                  number: 3000
+              {{- end }}
+              {{- if .Values.prometheus.enabled }}
+          - path: /prometheus
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-prometheus
+                port:
+                  number: 9090
+              {{- end }}
+              {{- if .Values.kafkaui.enabled }}
+          - path: /kafka-ui
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-kafkaui
+                port:
+                  number: 9080
+              {{- end }}
+{{- end }}

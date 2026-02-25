@@ -1,0 +1,47 @@
+{{- if .Values.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "mysql.fullname" . }}
+  labels:
+    {{- include "mysql.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "mysql.fullname" . }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "mysql.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "mysql.fullname" . }}
+    spec:
+      containers:
+        - name: mysql
+          image: "mysql:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: 3306
+          envFrom:
+            - secretRef:
+                name: {{ include "mysql.fullname" . }}-secret
+          resources:
+              {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql
+            {{- if and .Values.slowQuery .Values.slowQuery.enabled }}
+            - name: slow-query-config
+              mountPath: /etc/mysql/conf.d/slow-query.cnf
+              subPath: slow-query.cnf
+              readOnly: true
+            {{- end }}
+      volumes:
+        - name: mysql-data
+          persistentVolumeClaim:
+            claimName: {{ include "mysql.fullname" . }}-pvc
+        {{- if and .Values.slowQuery .Values.slowQuery.enabled }}
+        - name: slow-query-config
+          configMap:
+            name: {{ include "mysql.fullname" . }}-slow-query-config
+        {{- end }}
+{{- end }}

@@ -1,0 +1,5 @@
+apiVersion: v2
+name: redis
+description: Redis cache for Modeunsa
+type: application
+version: 0.1.0

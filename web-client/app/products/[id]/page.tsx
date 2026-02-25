@@ -2,11 +2,32 @@
 
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import {useCallback, useEffect, useState} from 'react'
+import Header from '../../components/Header'
+import api from '@/app/lib/axios'
+
+const FASHION_CATEGORIES = [
+  { label: '아우터', value: 'outer' },
+  { label: '상의', value: 'upper' },
+  { label: '하의', value: 'lower' },
+  { label: '모자', value: 'cap' },
+  { label: '가방', value: 'bag' },
+  { label: '신발', value: 'shoes' },
+  { label: '뷰티', value: 'beauty' },
+] as const
+
+
+interface ProductImageDto {
+  id: number
+  imageUrl: string
+  isPrimary: boolean
+  sortOrder: number
+}
 
 interface ProductDetailResponse {
   id: number
   sellerId: number
+  sellerBusinessName: string
   name: string
   category: string
   description: string
@@ -18,6 +39,7 @@ interface ProductDetailResponse {
   stock: number
   isFavorite: boolean
   favoriteCount: number
+  images: ProductImageDto[]
   createdAt: string
   updatedAt: string
   createdBy: number
@@ -35,52 +57,68 @@ export default function ProductDetailPage() {
   const params = useParams()
   const router = useRouter()
   const productId = params.id as string
-  
+
   const [product, setProduct] = useState<ProductDetailResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
-        const response = await fetch(`${apiUrl}/api/v1/products/${productId}`)
-        
-        if (!response.ok) {
-          const errorText = await response.text()
-          console.error('API 응답 에러:', response.status, errorText)
-          throw new Error(`상품 정보를 불러올 수 없습니다 (${response.status})`)
-        }
-        
-        const apiResponse: ApiResponse = await response.json()
-        
-        if (apiResponse.isSuccess && apiResponse.result) {
-          setProduct(apiResponse.result)
-          setError(null)
-        } else {
-          throw new Error(apiResponse.message || '상품 정보를 가져올 수 없습니다.')
-        }
-      } catch (error) {
-        console.error('상품 정보 조회 실패:', error)
-        const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.'
-        setError(errorMessage)
-      } finally {
-        setIsLoading(false)
-      }
+  const fetchProduct = useCallback(async () => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+    if (!apiUrl || !productId) {
+      setProduct(null)
+      return
     }
 
-    if (productId) {
-      fetchProduct()
+    try {
+      const url = `${apiUrl}/api/v1/products/${productId}`
+      const res = await api.get<ApiResponse>(url)
+
+      const data: ApiResponse = res.data
+
+      if (data.isSuccess && data.result) {
+        setProduct(data.result)
+      } else {
+        setError(data.message || '상품 정보를 불러오지 못했습니다.')
+        setProduct(null)
+      }
+    } catch (e: any) {
+      console.error(e)
+      setError('상품 정보를 불러오는 중 오류가 발생했습니다.')
+      setProduct(null)
+    } finally {
+      setIsLoading(false)
     }
   }, [productId])
+
+  useEffect(() => {
+    fetchProduct()
+  }, [fetchProduct])
+
+  useEffect(() => {
+    if (!selectedImageUrl && product?.images && product.images.length > 0) {
+      setSelectedImageUrl(product.images[0].imageUrl);
+    }
+  }, [product, selectedImageUrl])
 
   const [quantity, setQuantity] = useState(1)
   const [isCreatingOrder, setIsCreatingOrder] = useState(false)
   const [isAddingToCart, setIsAddingToCart] = useState(false)
+  const [isTogglingFavorite, setIsTogglingFavorite] = useState(false)
+
+
+  const getCategoryLabel = (category: string): string => {
+    const found = FASHION_CATEGORIES.find(
+        (item) => item.value.toUpperCase() === category
+    );
+
+    return found?.label ?? category;
+  };
 
   const handleOrder = async () => {
     if (!product) return
-    
+
+
     if (product.stock <= 0) {
       alert('품절된 상품입니다.')
       return
@@ -94,43 +132,44 @@ export default function ProductDetailPage() {
     setIsCreatingOrder(true)
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
-      
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+
       // 주문 생성 API 호출
-      const response = await fetch(`${apiUrl}/api/v1/orders`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          productId: product.id,
-          quantity: quantity,
-          recipientName: '홍길동', // TODO: 실제 사용자 정보로 변경
-          recipientPhone: '010-1234-5678', // TODO: 실제 사용자 정보로 변경
-          zipCode: '12345', // TODO: 실제 사용자 정보로 변경
-          address: '서울시 강남구', // TODO: 실제 사용자 정보로 변경
-          addressDetail: '테헤란로 123', // TODO: 실제 사용자 정보로 변경
-        }),
+      // 주의: 백엔드 API 주소와 Body 형식을 확인해주세요!
+      const res = await api.post(`${apiUrl}/api/v1/orders`, {
+        productId: product.id,
+        quantity: quantity,
       })
 
-      if (!response.ok) {
-        const errorText = await response.text()
-        console.error('주문 생성 API 에러:', response.status, errorText)
-        throw new Error(`주문 생성 실패 (${response.status})`)
+      const data = res.data
+
+      console.log('주문 생성 API 응답:', data)
+
+      if (res.status === 401 || data.code === 'AUTH_401_002') {
+        alert('로그인 시간이 만료되었습니다. 다시 로그인해주세요.')
+        router.replace('/login')
+        return
       }
 
-      const apiResponse = await response.json()
-
-      if (apiResponse.isSuccess && apiResponse.result) {
-        // 주문 성공 시 주문 페이지로 이동
-        router.push('/order')
+      if (data.isSuccess && data.result) {
+        // 성공 시 이동
+        const orderId = data.result.orderId
+        router.push(`/order?orderId=${orderId}`)
       } else {
-        throw new Error(apiResponse.message || '주문 생성에 실패했습니다.')
+        alert(data.message || '주문 생성 실패')
       }
-    } catch (error) {
-      console.error('주문 생성 실패:', error)
-      const errorMessage = error instanceof Error ? error.message : '주문 생성 중 오류가 발생했습니다.'
-      alert(errorMessage)
+
+    } catch (error: any) {
+      // 401, 400 에러
+      const status = error.response?.status
+      const errorMsg = error.response?.data?.message || '주문 중 오류가 발생했습니다.'
+
+      if (status === 401) {
+        alert('로그인이 필요하거나 세션이 만료되었습니다.')
+        router.push('/login')
+      } else {
+        alert(errorMsg)
+      }
     } finally {
       setIsCreatingOrder(false)
     }
@@ -139,6 +178,96 @@ export default function ProductDetailPage() {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('ko-KR').format(price)
   }
+
+  const formatCount = (count: number): string => {
+    const format = (value: number, unit: string) =>
+        `${Number(value.toFixed(1))}${unit}`;
+
+    if (count < 1000) return count.toString();
+    if (count < 10_000) return format(count / 1000, '천');
+    if (count < 100_000_000) return format(count / 10_000, '만');
+    return format(count / 100_000_000, '억');
+  };
+
+  const HeartIcon = ({ active }: { active: boolean }) => (
+      <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+            d="M12 21s-6.716-4.514-9.428-7.226C.78 11.98.78 8.993 2.69 7.083c1.91-1.91 4.897-1.91 6.807 0L12 9.586l2.503-2.503c1.91-1.91 4.897-1.91 6.807 0 1.91 1.91 1.91 4.897 0 6.807C18.716 16.486 12 21 12 21z"
+            fill={active ? '#e60023' : 'none'}
+            stroke={active ? 'none' : '#999'}
+            strokeWidth="1.6"
+            style={{
+              fillOpacity: active ? 1 : 0,
+            }}
+        />
+      </svg>
+  );
+
+  const handleToggleFavorite = async () => {
+    // API 호출 or optimistic update
+    if (!product || isTogglingFavorite) return
+    const res = await api.get('/api/v1/auths/me', {
+      withCredentials: true
+    })
+
+    if (!res.data.result.isAuthenticated) {
+        alert('로그인이 필요한 서비스입니다.')
+        router.push('/login')
+        return
+    }
+
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+    if (!apiUrl) return
+
+    const prevIsFavorite = product.isFavorite
+    const prevCount = product.favoriteCount
+
+    // ✅ optimistic update
+    setProduct({
+      ...product,
+      isFavorite: !prevIsFavorite,
+      favoriteCount: prevIsFavorite
+          ? prevCount - 1
+          : prevCount + 1,
+    })
+
+    setIsTogglingFavorite(true)
+
+    try {
+      let res;
+      if (prevIsFavorite) {
+        res = await api.delete(
+            `${apiUrl}/api/v1/products/favorites/${product.id}`
+        )
+      } else {
+        res = await api.post(
+            `${apiUrl}/api/v1/products/favorites/${product.id}`
+        );
+      }
+
+      if (!res.data?.isSuccess) {
+        throw new Error('관심상품 처리 실패')
+      }
+    } catch (e) {
+      // ❌ rollback
+      setProduct({
+        ...product,
+        isFavorite: prevIsFavorite,
+        favoriteCount: prevCount,
+      })
+
+      alert('관심상품 처리 중 오류가 발생했습니다.')
+    } finally {
+      setIsTogglingFavorite(false)
+    }
+
+    console.log('관심상품 토글');
+  };
 
   const handleAddToCart = async () => {
     if (!product) return
@@ -156,37 +285,9 @@ export default function ProductDetailPage() {
     setIsAddingToCart(true)
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
-      
-      // 장바구니 추가 API 호출
-      const response = await fetch(`${apiUrl}/api/v1/orders/cart/item`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          productId: product.id,
-          quantity: quantity,
-        }),
-      })
-
-      if (!response.ok) {
-        const errorText = await response.text()
-        console.error('장바구니 추가 API 에러:', response.status, errorText)
-        throw new Error(`장바구니 추가 실패 (${response.status})`)
-      }
-
-      const apiResponse = await response.json()
-
-      if (apiResponse.isSuccess) {
-        alert('장바구니에 상품이 추가되었습니다.')
-        // 장바구니 페이지로 이동할지 선택할 수 있도록
-        if (confirm('장바구니로 이동하시겠습니까?')) {
-          router.push('/cart')
-        }
-      } else {
-        throw new Error(apiResponse.message || '장바구니 추가에 실패했습니다.')
-      }
+      // Mock 데이터로 장바구니에 추가하고 페이지 이동
+      alert('장바구니에 상품이 추가되었습니다.')
+      router.push('/cart')
     } catch (error) {
       console.error('장바구니 추가 실패:', error)
       const errorMessage = error instanceof Error ? error.message : '장바구니 추가 중 오류가 발생했습니다.'
@@ -199,24 +300,7 @@ export default function ProductDetailPage() {
   if (isLoading) {
     return (
       <div className="home-page">
-        <header className="header">
-          <div className="header-container">
-            <div className="logo">
-              <Link href="/">뭐든사</Link>
-            </div>
-            <nav className="nav">
-              <Link href="/fashion">패션</Link>
-              <Link href="/beauty">뷰티</Link>
-              <Link href="/sale">세일</Link>
-              <Link href="/magazine">매거진</Link>
-            </nav>
-            <div className="header-actions">
-              <Link href="/search" className="search-btn">검색</Link>
-              <Link href="/cart" className="cart-btn">장바구니</Link>
-              <Link href="/login" className="user-btn">로그인</Link>
-            </div>
-          </div>
-        </header>
+        <Header />
         <div className="product-detail-container">
           <div className="container">
             <div style={{ textAlign: 'center', padding: '80px 20px' }}>
@@ -231,24 +315,7 @@ export default function ProductDetailPage() {
   if (error || !product) {
     return (
       <div className="home-page">
-        <header className="header">
-          <div className="header-container">
-            <div className="logo">
-              <Link href="/">뭐든사</Link>
-            </div>
-            <nav className="nav">
-              <Link href="/fashion">패션</Link>
-              <Link href="/beauty">뷰티</Link>
-              <Link href="/sale">세일</Link>
-              <Link href="/magazine">매거진</Link>
-            </nav>
-            <div className="header-actions">
-              <Link href="/search" className="search-btn">검색</Link>
-              <Link href="/cart" className="cart-btn">장바구니</Link>
-              <Link href="/login" className="user-btn">로그인</Link>
-            </div>
-          </div>
-        </header>
+        <Header />
         <div className="product-detail-container">
           <div className="container">
             <div style={{ textAlign: 'center', padding: '80px 20px' }}>
@@ -266,24 +333,7 @@ export default function ProductDetailPage() {
   return (
     <div className="home-page">
       {/* Header */}
-      <header className="header">
-        <div className="header-container">
-          <div className="logo">
-            <Link href="/">뭐든사</Link>
-          </div>
-          <nav className="nav">
-            <Link href="/fashion">패션</Link>
-            <Link href="/beauty">뷰티</Link>
-            <Link href="/sale">세일</Link>
-            <Link href="/magazine">매거진</Link>
-          </nav>
-          <div className="header-actions">
-            <Link href="/search" className="search-btn">검색</Link>
-            <Link href="/cart" className="cart-btn">장바구니</Link>
-            <Link href="/login" className="user-btn">로그인</Link>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Product Detail Section */}
       <div className="product-detail-container">
@@ -291,21 +341,50 @@ export default function ProductDetailPage() {
           <div className="product-detail-content">
             {/* Product Images */}
             <div className="product-images">
+              {/* Main Image */}
               <div className="main-image">
-                <div className="image-placeholder-large">상품 이미지</div>
+                {selectedImageUrl ? (
+                    <img
+                        src={selectedImageUrl ?? product.images[0]?.imageUrl}
+                        alt="상품 이미지"
+                        className="image-placeholder-large"
+                    />
+                ) : (
+                    <div className="image-placeholder-large">상품 이미지</div>
+                )}
               </div>
+
+              {/* Thumbnail Images */}
               <div className="thumbnail-images">
-                {[1, 2, 3, 4].map((item) => (
-                  <div key={item} className="thumbnail">
-                    <div className="image-placeholder-small">이미지 {item}</div>
-                  </div>
+                {product.images.map((image) => (
+                    <div
+                        key={image.id}
+                        className="thumbnail"
+                        onClick={() => setSelectedImageUrl(image.imageUrl)}
+                    >
+                      <img
+                          src={image.imageUrl}
+                          alt=""
+                          className="image-placeholder-small"
+                      />
+                    </div>
                 ))}
               </div>
             </div>
 
             {/* Product Info */}
             <div className="product-info-section">
-              <div className="product-brand-name">{product.category}</div>
+
+            {/* Brand + Favorite */}
+            <div className="product-header">
+              <div className="product-brand-name">{product.sellerBusinessName}</div>
+              {/*<div className="product-favorite">*/}
+              {/*  ♡ <span>{formatCount(product.favoriteCount)}</span>*/}
+              {/*</div>*/}
+            </div>
+
+              {/* Category */}
+              <div className="product-category">{getCategoryLabel(product.category)}</div>
               <h1 className="product-title">{product.name}</h1>
               <div className="product-price-section">
                 {product.salePrice < product.price ? (
@@ -316,41 +395,6 @@ export default function ProductDetailPage() {
                 ) : (
                   <span className="product-price">₩{formatPrice(product.salePrice)}</span>
                 )}
-              </div>
-              {product.stock > 0 ? (
-                <div style={{ fontSize: '14px', color: '#666', marginTop: '8px' }}>
-                  재고: {product.stock}개
-                </div>
-              ) : (
-                <div style={{ fontSize: '14px', color: '#f44336', marginTop: '8px' }}>
-                  품절
-                </div>
-              )}
-              
-              <div className="product-divider"></div>
-
-              {/* Product Options */}
-              <div className="product-options">
-                <div className="option-group">
-                  <label className="option-label">수량</label>
-                  <div className="quantity-selector">
-                    <button 
-                      className="quantity-btn minus"
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      disabled={quantity <= 1}
-                    >
-                      -
-                    </button>
-                    <span className="quantity-value">{quantity}</span>
-                    <button 
-                      className="quantity-btn plus"
-                      onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                      disabled={quantity >= product.stock}
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
               </div>
 
               <div className="product-divider"></div>
@@ -369,8 +413,57 @@ export default function ProductDetailPage() {
 
               <div className="product-divider"></div>
 
+              {/* 상품명 왼쪽 위, 수량·구매금액 같은 row (구매하기 버튼 위) */}
+              <div className="product-options">
+                <div className="option-group quantity-with-amount">
+                  <span className="option-label product-name-row">{product.name}</span>
+                  <div className="quantity-amount-row">
+                    <div className="quantity-selector">
+                      <button 
+                        className="quantity-btn minus"
+                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                        disabled={quantity <= 1}
+                      >
+                        -
+                      </button>
+                      <span className="quantity-value">{quantity}</span>
+                      <button 
+                        className="quantity-btn plus"
+                        onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                        disabled={quantity >= product.stock}
+                      >
+                        +
+                      </button>
+                    </div>
+                    <span className="quantity-amount">₩{formatPrice(product.salePrice * quantity)}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="product-divider"></div>
+
               {/* Action Buttons */}
               <div className="action-buttons">
+                <button
+                    className={`favorite-button ${product.isFavorite ? 'active' : ''}`}
+                    aria-label="관심상품"
+                >
+                  {/* 클릭 영역 */}
+                  <span
+                      className="favorite-icon"
+                      onClick={(e) => {
+                        e.stopPropagation(); // 버튼 이벤트 차단
+                        handleToggleFavorite();
+                      }}
+                  >
+    <HeartIcon active={product.isFavorite} />
+  </span>
+
+                  {/* 숫자는 클릭 안 됨 */}
+                  <span className="favorite-count">
+    {formatCount(product.favoriteCount)}
+  </span>
+                </button>
                 <button 
                   className="cart-button" 
                   onClick={handleAddToCart}
@@ -383,7 +476,7 @@ export default function ProductDetailPage() {
                   onClick={handleOrder}
                   disabled={isCreatingOrder || product.stock <= 0}
                 >
-                  {isCreatingOrder ? '주문 처리 중...' : product.stock <= 0 ? '품절' : '구매하기'}
+                  {isCreatingOrder ? '주문 처리 중...' : product.stock <= 0 ? '재입고 요청' : '구매하기'}
                 </button>
               </div>
             </div>

@@ -1,0 +1,6 @@
+enabled: true
+# Let's Encrypt 설정
+email: "ghghfkd52@gmail.com"
+server: "https://acme-v02.api.letsencrypt.org/directory"
+# Ingress Controller 클래스
+ingressClass: traefik

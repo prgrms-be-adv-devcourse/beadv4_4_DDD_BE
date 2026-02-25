@@ -1,0 +1,87 @@
+spring:
+  config:
+    import: optional:file:.env.prod[.properties]
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:your_db_name}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: update # 추후 validate로 변경 검토
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_CLIENT_SECRET}
+            redirect-uri: ${KAKAO_REDIRECT_URI}
+            authorization-grant-type: authorization_code
+            client-authentication-method: client_secret_post
+            client-name: KAKAO
+          naver:
+            client-id: ${NAVER_CLIENT_ID}
+            client-secret: ${NAVER_CLIENT_SECRET}
+            redirect-uri: ${NAVER_REDIRECT_URI}
+            authorization-grant-type: authorization_code
+            client-name: NAVER
+            scope:
+              - name
+              - email
+              - mobile
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: never
+
+  elasticsearch:
+    uris:
+      - http://${ES_HOST:elasticsearch}:${ES_PORT:9200}
+
+custom:
+  swagger:
+    serverUrl: https://modeunsa.store
+    description: "Production Server"
+  security:
+    permit-all: false
+    permit-urls:
+      # Swagger (운영에서 제거 고려)
+      - /swagger-ui/**
+      - /v3/api-docs/**
+      - /
+      - /favicon.ico
+      - /error
+
+      # 헬스체크
+      - /actuator/health
+      - /actuator/prometheus
+
+management:
+  health:
+    elasticsearch:
+      enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: never
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true

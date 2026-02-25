@@ -1,0 +1,23 @@
+enabled: true
+image:
+  tag: "8.0"
+auth:
+  rootPassword: ""
+  database: ""
+service:
+  type: NodePort
+  nodePort: 30306
+storage:
+  size: 5Gi
+resources:
+  requests:
+    cpu: 120m
+    memory: 512Mi
+  limits:
+    cpu: 300m
+    memory: 1Gi
+
+slowQuery:
+  enabled: true
+  longQueryTime: 1
+  logFile: /var/lib/mysql/slow.log

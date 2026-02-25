@@ -1,0 +1,34 @@
+{{- if .Values.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kafkaui.fullname" . }}
+  labels:
+    {{- include "kafkaui.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "kafkaui.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "kafkaui.fullname" . }}
+    spec:
+      containers:
+        - name: kafkaui
+          image: "provectuslabs/kafka-ui:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: 8080
+          env:
+            - name: KAFKA_CLUSTERS_0_NAME
+              value: "local"
+            - name: KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS
+              value: {{ .Values.kafka.bootstrapServers | quote }}
+            - name: SERVER_SERVLET_CONTEXT_PATH
+              value: {{ .Values.server.contextPath | quote }}
+            - name: JAVA_OPTS
+              value: {{ .Values.javaOpts | quote }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+{{- end }}

@@ -1,0 +1,36 @@
+mysql:
+  enabled: true
+  service:
+    type: NodePort
+    nodePort: 30306
+  storage:
+    size: 10Gi
+redis:
+  enabled: true
+  service:
+    type: ClusterIP
+elasticsearch:
+  enabled: true
+  service:
+    type: ClusterIP
+kafka:
+  enabled: true
+  service:
+    type: ClusterIP
+kafkaui:
+  enabled: true
+  service:
+    type: ClusterIP
+prometheus:
+  enabled: true
+  service:
+    type: ClusterIP
+grafana:
+  enabled: true
+  service:
+    type: ClusterIP
+ingress:
+  enabled: true
+cert-manager:
+  enabled: true
+  email: "ghghfkd52@gmail.com"

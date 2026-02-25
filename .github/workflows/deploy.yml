@@ -2,42 +2,95 @@ name: CD Pipeline
 
 on:
   push:
-    branches: [main]
+    tags:
+      # 명시된 모듈명과 완벽한 dSemVer 형식(-v숫자.숫자.숫자)일 때만 동작합니다.
+      - 'api-gateway-v[0-9]*.[0-9]*.[0-9]*'
+      - 'settlement-v[0-9]*.[0-9]*.[0-9]*'
+      - 'member-v[0-9]*.[0-9]*.[0-9]*'
+      - 'payment-v[0-9]*.[0-9]*.[0-9]*'
+      - 'order-v[0-9]*.[0-9]*.[0-9]*'
+      - 'product-v[0-9]*.[0-9]*.[0-9]*'
+      - 'file-v[0-9]*.[0-9]*.[0-9]*'
+      - 'inventory-v[0-9]*.[0-9]*.[0-9]*'
+      - 'web-client-v[0-9]*.[0-9]*.[0-9]*'
 
 permissions:
   contents: read
 
 concurrency:
-  group: deploy-${{ github.ref }}
+  group: production-deploy-queue
   cancel-in-progress: false
 
 jobs:
   deploy:
     name: Build & Deploy
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Generate version
-        id: version
+      # 1. 태그가 main 브랜치에 있는지 검증
+      - name: Verify Tag is on main branch
         run: |
-          VERSION=$(date +'%Y%m%d')-${{ github.run_number }}
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "태그가 main 브랜치에 속해 있는지 검증합니다..."
+          git fetch origin main
+          
+          # 정규식을 사용하여 정확히 'origin/main'과 일치하는지 검사
+          if ! git branch -r --contains ${{ github.sha }} | grep -E -q "^\s*origin/main$"; then
+            echo "[배포 차단] 이 태그는 main 브랜치에 존재하지 않습니다!"
+            exit 1
+          fi
+          echo "태그가 main 브랜치에 포함된 것을 확인했습니다."
+
+      # 2. 태그 이름표를 분석하여 모듈명과 버전 추출
+      - name: Parse Tag and Determine Module
+        id: parse
+        run: |
+          # Boolean 환경변수의 기본값을 명시적으로 false로 설정
+          echo "BUILD_FRONTEND=false" >> $GITHUB_ENV
+          echo "BUILD_BACKEND=false" >> $GITHUB_ENV
+          
+          # 예: refs/tags/member-v1.0.2 -> member-v1.0.2
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          
+          # '-v'를 기준으로 앞부분은 모듈명, 뒷부분은 버전(숫자)으로 분리
+          MODULE_PREFIX=${TAG_NAME%-v*}
+          VERSION=${TAG_NAME#*-v}
+          
+          echo "MODULE_PREFIX=$MODULE_PREFIX" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Target Module: $MODULE_PREFIX / Version: $VERSION"
+          
+          # 백엔드인지 프론트엔드인지 판별
+          VALID_BACKENDS=("api-gateway" "settlement" "member" "payment" "order" "product" "file" "inventory")
+          IS_BACKEND=false
+          for m in "${VALID_BACKENDS[@]}"; do
+            if [ "$m" == "$MODULE_PREFIX" ]; then
+              IS_BACKEND=true
+              break
+            fi
+          done
+          
+          if [ "$MODULE_PREFIX" == "web-client" ]; then
+            echo "BUILD_FRONTEND=true" >> $GITHUB_ENV
+          elif [ "$IS_BACKEND" == "true" ]; then
+            echo "BUILD_BACKEND=true" >> $GITHUB_ENV
+            echo "BACKEND_MODULE=${MODULE_PREFIX}-service" >> $GITHUB_ENV
+          else
+            echo "알 수 없는 모듈 태그입니다: $MODULE_PREFIX"
+            echo "사용 가능한 모듈명: web-client, api-gateway, member 등"
+            exit 1
+          fi
 
       - name: Set up JDK 21
+        if: env.BUILD_BACKEND == 'true'
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
           cache: 'gradle'
-
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-
-      - name: Build with Gradle
-        run: ./gradlew build -x test
 
       - name: Docker login
         uses: docker/login-action@v3
@@ -45,35 +98,102 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push Docker image
+      # 3. [백엔드] 지정된 단일 모듈만 빌드 및 푸시
+      - name: Build and push backend image
+        if: env.BUILD_BACKEND == 'true'
         run: |
-          docker build \
-            -t ${{ secrets.DOCKER_USERNAME }}/modeunsa:${{ steps.version.outputs.VERSION }} \
-            -t ${{ secrets.DOCKER_USERNAME }}/modeunsa:latest .
+          chmod +x gradlew
+          echo "====================================="
+          echo "Building Backend: ${{ env.BACKEND_MODULE }}"
+          echo "====================================="
+          
+          IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/modeunsa-${{ env.MODULE_PREFIX }}"
+          
+          ./gradlew :${{ env.BACKEND_MODULE }}:bootBuildImage --imageName=$IMAGE_NAME:${{ env.VERSION }}
+          docker push $IMAGE_NAME:${{ env.VERSION }}
 
-          docker push ${{ secrets.DOCKER_USERNAME }}/modeunsa:${{ steps.version.outputs.VERSION }}
-          docker push ${{ secrets.DOCKER_USERNAME }}/modeunsa:latest
+      # 4. [프론트엔드] 프론트엔드 빌드 및 푸시
+      - name: Build and push frontend image
+        if: env.BUILD_FRONTEND == 'true'
+        run: |
+          echo "====================================="
+          echo "Building Frontend (web-client)"
+          echo "====================================="
+          IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/modeunsa-web-client"
+          
+          docker build -t $IMAGE_NAME:${{ env.VERSION }} ./web-client
+          docker push $IMAGE_NAME:${{ env.VERSION }}
 
-      - name: Copy files to EC2
+      # 5. k8s 디렉토리 복사
+      - name: Copy k8s directory to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.EC2_KEY }}
-          source: "docker-compose.yml,nginx.conf,docker/"
+          source: "k8s/"
           target: "/home/ec2-user/app"
 
-      - name: Deploy to EC2
+      # 6. EC2 접속 후 해당 모듈만 .env 파일 업데이트 및 배포
+      - name: Update .env.k3s-prod, Create DB and Deploy on EC2
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          VERSION: ${{ env.VERSION }}
+          MODULE_PREFIX: ${{ env.MODULE_PREFIX }}
+          BUILD_BACKEND: ${{ env.BUILD_BACKEND }}
+          BUILD_FRONTEND: ${{ env.BUILD_FRONTEND }}
+          DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.EC2_KEY }}
+          envs: VERSION,MODULE_PREFIX,BUILD_BACKEND,BUILD_FRONTEND,DOCKER_USER
           script: |
             set -e
             cd /home/ec2-user/app
-            docker-compose pull app
-            docker rm -f redis || true
-            docker-compose --env-file ./.env up -d --build --remove-orphans
-            docker image prune -f
-          script_stop: true
+            
+            if [ "$BUILD_BACKEND" == "true" ]; then
+              # 모듈명을 환경변수 키로 변환 (예: api-gateway -> API_GATEWAY_IMAGE)
+              ENV_KEY=$(echo "$MODULE_PREFIX" | tr 'a-z-' 'A-Z_')_IMAGE
+              NEW_IMAGE="${DOCKER_USER}/modeunsa-${MODULE_PREFIX}:${VERSION}"
+            
+              if grep -q "^${ENV_KEY}=" .env.k3s-prod; then
+                sed -i "s@^${ENV_KEY}=.*@${ENV_KEY}=${NEW_IMAGE}@" .env.k3s-prod
+              else
+                echo "${ENV_KEY}=${NEW_IMAGE}" >> .env.k3s-prod
+              fi
+              echo "Updated $ENV_KEY to $NEW_IMAGE"
+            
+              # MySQL 데이터베이스 자동 생성 로직
+              DB_NAME="modeunsa_$(echo "$MODULE_PREFIX" | tr '-' '_')"
+              MYSQL_PWD=$(grep '^MYSQL_ROOT_PASSWORD=' .env.k3s-prod | cut -d '=' -f2)
+              MYSQL_POD=$(sudo kubectl get pod -n modeunsa -l app=modeunsa-infra-mysql -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || true)
+            
+              if [ -n "$MYSQL_POD" ]; then
+                echo "Checking and Creating MySQL DB: $DB_NAME"
+                sudo kubectl exec -n modeunsa $MYSQL_POD -- mysql -uroot -p"${MYSQL_PWD}" -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+                echo "Database [$DB_NAME] is ready."
+              else
+                echo "Could not find MySQL Pod. Skipping DB creation."
+              fi
+            fi
+            
+            if [ "$BUILD_FRONTEND" == "true" ]; then
+              NEW_FRONTEND_IMAGE="${DOCKER_USER}/modeunsa-web-client:${VERSION}"
+            
+              if grep -q "^FRONTEND_IMAGE=" .env.k3s-prod; then
+                sed -i "s@^FRONTEND_IMAGE=.*@FRONTEND_IMAGE=${NEW_FRONTEND_IMAGE}@" .env.k3s-prod
+              else
+                echo "FRONTEND_IMAGE=${NEW_FRONTEND_IMAGE}" >> .env.k3s-prod
+              fi
+              echo "Updated FRONTEND_IMAGE to $NEW_FRONTEND_IMAGE"
+            fi
+            
+            # k8s 폴더가 정상 복사되었는지 사전 검증
+            if [ ! -d "./k8s" ]; then
+              echo "Error: k8s scripts not found. Directory copy may have failed."
+              exit 1
+            fi
+            
+            chmod +x ./k8s/*.sh
+            sudo ./app/k8s/app.sh up prod

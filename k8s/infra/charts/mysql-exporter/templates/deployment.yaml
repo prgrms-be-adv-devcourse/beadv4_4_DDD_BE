@@ -1,0 +1,30 @@
+{{- if .Values.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mysql-exporter.fullname" . }}
+  labels:
+    {{- include "mysql-exporter.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "mysql-exporter.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "mysql-exporter.fullname" . }}
+        {{- include "mysql-exporter.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: mysqld-exporter
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - name: metrics
+              containerPort: 9104
+          envFrom:
+            - secretRef:
+                name: {{ include "mysql-exporter.fullname" . }}-secret
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+{{- end }}
