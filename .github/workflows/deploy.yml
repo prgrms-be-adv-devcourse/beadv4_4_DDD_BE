@@ -196,4 +196,4 @@ jobs:
             fi
             
             chmod +x ./k8s/*.sh
-            sudo ./app/k8s/app.sh up prod
+            sudo ./k8s/app.sh up prod
