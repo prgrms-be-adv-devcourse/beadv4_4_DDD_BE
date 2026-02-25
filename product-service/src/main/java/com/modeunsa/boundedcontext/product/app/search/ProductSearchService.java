@@ -38,4 +38,8 @@ public class ProductSearchService {
       String keyword, VectorCursorDto dto, int size) {
     return productVectorSearchPort.hybridSearch(keyword, dto, size);
   }
+
+  public List<ProductSearch> searchByVector(String text, int k) {
+    return productVectorSearchPort.searchByVector(text, k);
+  }
 }

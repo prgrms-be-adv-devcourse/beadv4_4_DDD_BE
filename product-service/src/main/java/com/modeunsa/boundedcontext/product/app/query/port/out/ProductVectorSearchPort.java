@@ -10,4 +10,6 @@ public interface ProductVectorSearchPort {
   List<ProductSearch> knnSearch(String keyword, int k);
 
   Slice<SearchHit<ProductSearch>> hybridSearch(String keyword, VectorCursorDto dto, int size);
+
+  List<ProductSearch> searchByVector(String text, int k);
 }

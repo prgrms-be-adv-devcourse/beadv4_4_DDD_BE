@@ -93,6 +93,9 @@ public class SecurityConfig {
                   .hasRole("MEMBER")
                   .requestMatchers(HttpMethod.DELETE, "/api/v1/products/favorite/**")
                   .hasRole("MEMBER")
+                  // AI 상품 추천
+                  .requestMatchers(HttpMethod.GET, "/api/v2/products/recommendations")
+                  .hasRole("MEMBER")
 
                   // 나머지는 인증 필요
                   .anyRequest()
