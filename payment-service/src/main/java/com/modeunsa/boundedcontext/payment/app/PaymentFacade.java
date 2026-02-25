@@ -37,7 +37,6 @@ import com.modeunsa.boundedcontext.payment.domain.types.RefundEventType;
 import com.modeunsa.boundedcontext.payment.domain.validator.TossWebhookValidator;
 import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.shared.payment.event.PaymentFailedEvent;
-import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -70,7 +69,7 @@ public class PaymentFacade {
   private final TossWebhookValidator tossWebhookValidator;
   private final PaymentAccountSupport paymentAccountSupport;
 
-  public void createPaymentMember(@Valid PaymentMemberSyncRequest paymentMemberSyncRequest) {
+  public void createPaymentMember(PaymentMemberSyncRequest paymentMemberSyncRequest) {
     paymentSyncMemberUseCase.execute(paymentMemberSyncRequest);
   }
 
@@ -176,7 +175,7 @@ public class PaymentFacade {
       String transmissionId,
       OffsetDateTime transmissionTime,
       int retryCount,
-      @Valid TossWebhookRequest request) {
+      TossWebhookRequest request) {
 
     // 1. 웹훅 유효성 검사
     if (!tossWebhookValidator.validate(

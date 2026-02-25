@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ActiveProfiles;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,23 +33,20 @@ class SettlementSupportTest {
 
   @Mock private SettlementCandidateItemRepository settlementCandidateItemRepository;
 
-  @Value("${settlement.member.system-member-id}")
-  private Long systemMemberId;
-
-  private SettlementSupport settlementSupport;
-
-  private static final Long SELLER_ID = 7L;
+  private static final Long SYSTEM_MEMBER_ID = 1L;
+  private static final Long SELLER_ID = 8L;
   private static final Long BUYER_ID = 4L;
   private static final int YEAR = 2025;
   private static final int MONTH = 12;
 
+  private SettlementSupport settlementSupport;
   private Settlement sellerSettlement;
   private Settlement feeSettlement;
 
   @BeforeEach
   void setUp() {
     SettlementConfig settlementConfig = new SettlementConfig();
-    settlementConfig.setSystemMemberId(systemMemberId);
+    settlementConfig.setSystemMemberId(SYSTEM_MEMBER_ID);
 
     settlementSupport =
         new SettlementSupport(
@@ -63,7 +59,7 @@ class SettlementSupportTest {
             SELLER_ID, YEAR, MONTH, SettlementEventType.SETTLEMENT_PRODUCT_SALES_AMOUNT);
     feeSettlement =
         Settlement.create(
-            systemMemberId, YEAR, MONTH, SettlementEventType.SETTLEMENT_PRODUCT_SALES_FEE);
+            SYSTEM_MEMBER_ID, YEAR, MONTH, SettlementEventType.SETTLEMENT_PRODUCT_SALES_FEE);
 
     // 판매자 정산 아이템 추가 (판매대금)
     sellerSettlement.addItem(
@@ -85,14 +81,14 @@ class SettlementSupportTest {
     feeSettlement.addItem(
         1001L,
         BUYER_ID,
-        systemMemberId,
+        SYSTEM_MEMBER_ID,
         new BigDecimal("1000"),
         SettlementEventType.SETTLEMENT_PRODUCT_SALES_FEE,
         LocalDateTime.now());
     feeSettlement.addItem(
         1002L,
         BUYER_ID,
-        systemMemberId,
+        SYSTEM_MEMBER_ID,
         new BigDecimal("2500"),
         SettlementEventType.SETTLEMENT_PRODUCT_SALES_FEE,
         LocalDateTime.now());
@@ -102,12 +98,12 @@ class SettlementSupportTest {
   @DisplayName("정산 조회 시 판매대금과 수수료가 합산된 DTO 반환")
   void getSettlement_returns_combinedDto() {
     // given
-    when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonth(
-            SELLER_ID, YEAR, MONTH))
+    when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonthAndType(
+            SELLER_ID, YEAR, MONTH, SettlementEventType.SETTLEMENT_PRODUCT_SALES_AMOUNT))
         .thenReturn(Optional.of(sellerSettlement));
 
-    when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonth(
-            systemMemberId, YEAR, MONTH))
+    when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonthAndType(
+            SYSTEM_MEMBER_ID, YEAR, MONTH, SettlementEventType.SETTLEMENT_PRODUCT_SALES_FEE))
         .thenReturn(Optional.of(feeSettlement));
 
     // when
@@ -125,12 +121,12 @@ class SettlementSupportTest {
   @DisplayName("정산 아이템별로 판매대금, 수수료, 총액이 정확히 계산됨")
   void getSettlement_calculatesItemAmounts_correctly() {
     // given
-    when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonth(
-            SELLER_ID, YEAR, MONTH))
+    when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonthAndType(
+            SELLER_ID, YEAR, MONTH, SettlementEventType.SETTLEMENT_PRODUCT_SALES_AMOUNT))
         .thenReturn(Optional.of(sellerSettlement));
 
-    when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonth(
-            systemMemberId, YEAR, MONTH))
+    when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonthAndType(
+            SYSTEM_MEMBER_ID, YEAR, MONTH, SettlementEventType.SETTLEMENT_PRODUCT_SALES_FEE))
         .thenReturn(Optional.of(feeSettlement));
 
     // when
@@ -162,8 +158,8 @@ class SettlementSupportTest {
   @DisplayName("판매자 정산이 없으면 예외 발생")
   void getSettlement_throws_whenSellerSettlementNotFound() {
     // given
-    when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonth(
-            SELLER_ID, YEAR, MONTH))
+    when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonthAndType(
+            SELLER_ID, YEAR, MONTH, SettlementEventType.SETTLEMENT_PRODUCT_SALES_AMOUNT))
         .thenReturn(Optional.empty());
 
     // when & then
@@ -175,12 +171,12 @@ class SettlementSupportTest {
   @DisplayName("수수료 정산이 없으면 예외 발생")
   void getSettlement_throws_whenFeeSettlementNotFound() {
     // given
-    when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonth(
-            SELLER_ID, YEAR, MONTH))
+    when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonthAndType(
+            SELLER_ID, YEAR, MONTH, SettlementEventType.SETTLEMENT_PRODUCT_SALES_AMOUNT))
         .thenReturn(Optional.of(sellerSettlement));
 
-    when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonth(
-            systemMemberId, YEAR, MONTH))
+    when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonthAndType(
+            SYSTEM_MEMBER_ID, YEAR, MONTH, SettlementEventType.SETTLEMENT_PRODUCT_SALES_FEE))
         .thenReturn(Optional.empty());
 
     // when & then
