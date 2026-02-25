@@ -55,9 +55,3 @@ management:
     export:
       prometheus:
         enabled: true
-
-app:
-  cookie:
-    secure: true
-    http-only: true
-    same-site: Lax

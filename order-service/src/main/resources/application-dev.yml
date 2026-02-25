@@ -28,12 +28,6 @@ spring:
       port: 6379
       password: ${REDIS_PASSWORD:}
 
-  batch:
-    job:
-      enabled: false
-    jdbc:
-      initialize-schema: never
-
 management:
   health:
     elasticsearch:
@@ -65,11 +59,3 @@ custom:
 springdoc:
   swagger-ui:
     persistAuthorization: true
-
-app:
-  elasticsearch:
-    enabled: true
-  cookie:
-    secure: false
-    http-only: true
-    same-site: Lax

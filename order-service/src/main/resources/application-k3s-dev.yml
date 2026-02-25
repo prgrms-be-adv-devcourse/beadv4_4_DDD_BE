@@ -41,9 +41,9 @@ management:
       show-details: never
     prometheus:
       enabled: true
-  metrics:
-    export:
-      prometheus:
+  prometheus:
+    metrics:
+      export:
         enabled: true
 
 custom:
@@ -68,9 +68,3 @@ custom:
 springdoc:
   swagger-ui:
     persistAuthorization: true
-
-app:
-  cookie:
-    secure: false
-    http-only: true
-    same-site: Lax

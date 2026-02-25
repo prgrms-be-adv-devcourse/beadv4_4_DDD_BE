@@ -1,3 +1,5 @@
+// web-client/app/mypage/social/status/route.ts
+
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 

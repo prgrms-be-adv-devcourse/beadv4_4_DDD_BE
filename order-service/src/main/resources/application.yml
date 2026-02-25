@@ -1,5 +1,6 @@
 server:
   port: 8082
+  forward-headers-strategy: framework
 
 spring:
   profiles:
@@ -57,18 +58,17 @@ cloud:
 
 custom:
   global:
-    internalBackUrl: http://localhost:${server.port:8083}
-    productInternalBackUrl: http://localhost:8081
+    internalBackUrl: http://localhost:8080
 
 encryption:
-  enabled: false
+  enabled: true
   master-key: ${ENCRYPTION_MASTER_KEY}
 
 app:
   simulation:
     enabled: true
   event-publisher:
-    type: ${EVENT_PUBLISHER_TYPE:spring}
+    type: ${EVENT_PUBLISHER_TYPE:kafka}
   event-consumer:
     type: ${EVENT_CONSUMER_TYPE:kafka}
   data-init:

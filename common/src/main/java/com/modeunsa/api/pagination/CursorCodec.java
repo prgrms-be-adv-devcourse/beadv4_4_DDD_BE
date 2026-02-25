@@ -2,6 +2,7 @@ package com.modeunsa.api.pagination;
 
 import com.modeunsa.global.encryption.Crypto;
 import com.modeunsa.global.json.JsonConverter;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -18,17 +19,17 @@ public class CursorCodec {
     return Base64.getEncoder().encodeToString(encryptedCursor.getBytes());
   }
 
-  public CursorDto decodeIfPresent(String cursor) {
+  public <T extends CursorDto> T decodeIfPresent(String cursor, Class<T> type) {
     if (cursor == null) {
       // 첫 조회는 Null 허용
       return null;
     }
-    return this.decode(cursor);
+    return this.decode(cursor, type);
   }
 
-  private CursorDto decode(String cursor) {
-    String decoded = new String(Base64.getDecoder().decode(cursor));
+  private <T extends CursorDto> T decode(String cursor, Class<T> type) {
+    String decoded = new String(Base64.getDecoder().decode(cursor), StandardCharsets.UTF_8);
     String decryptCursor = crypto.decrypt(decoded);
-    return jsonConverter.deserialize(decryptCursor, CursorDto.class);
+    return jsonConverter.deserialize(decryptCursor, type);
   }
 }

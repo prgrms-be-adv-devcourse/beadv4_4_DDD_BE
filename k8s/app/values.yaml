@@ -1,10 +1,16 @@
 # 부모 values.yaml — 서브차트에 전달할 값
 # 자식 차트의 기본값을 사용하고, 여기서는 활성화 여부/환경 오버라이드만 관리
 
-api:
+api-gateway-api:
   enabled: false
 
 settlement-api:
+  enabled: false
+
+payment-api:
+  enabled: false
+
+order-api:
   enabled: false
 
 frontend:
@@ -12,3 +18,9 @@ frontend:
 
 ingress:
   enabled: false        # dev에서는 NodePort 사용, prod에서 true로 덮어씀
+
+member-api:
+  enabled: false
+
+product-api:
+  enabled: false

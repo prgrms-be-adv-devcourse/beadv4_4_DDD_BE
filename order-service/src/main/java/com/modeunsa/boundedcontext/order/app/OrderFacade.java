@@ -169,6 +169,7 @@ public class OrderFacade {
         memberId, orderId, orderDeliveryRequestDto);
   }
 
+  @Transactional
   public void confirmOrderCancellation(PaymentDto payment) {
     orderConfirmOrderCancellationUseCase.confirmOrderCancellation(payment.orderId());
   }

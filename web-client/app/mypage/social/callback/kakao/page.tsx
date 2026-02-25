@@ -39,7 +39,7 @@ function KakaoCallbackContent() {
 
       const data = await response.json();
 
-      if (data.status === 'SOCIAL_ACCOUNT_LINK_SUCCESS') {
+      if (data.isSuccess) {
         alert('성공적으로 연동되었습니다.');
       } else {
         alert(data.message || '연동에 실패했습니다.');

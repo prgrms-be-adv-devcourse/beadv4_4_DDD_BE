@@ -25,5 +25,6 @@ public class OrderResponseDto {
   private String address;
   private String addressDetail;
 
+  private LocalDateTime paymentDeadlineAt;
   private LocalDateTime createdAt;
 }

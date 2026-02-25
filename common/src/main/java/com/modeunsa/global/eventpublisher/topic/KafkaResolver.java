@@ -1,5 +1,6 @@
 package com.modeunsa.global.eventpublisher.topic;
 
+import com.modeunsa.shared.inventory.event.InventoryStockRecoverEvent;
 import com.modeunsa.shared.member.event.MemberBasicInfoUpdatedEvent;
 import com.modeunsa.shared.member.event.MemberDeliveryAddressAddedEvent;
 import com.modeunsa.shared.member.event.MemberDeliveryAddressDeletedEvent;
@@ -10,6 +11,7 @@ import com.modeunsa.shared.member.event.MemberProfileUpdatedEvent;
 import com.modeunsa.shared.member.event.MemberSignupEvent;
 import com.modeunsa.shared.member.event.SellerRegisteredEvent;
 import com.modeunsa.shared.order.event.OrderCancelRequestEvent;
+import com.modeunsa.shared.order.event.OrderCancellationConfirmedEvent;
 import com.modeunsa.shared.order.event.OrderPurchaseConfirmedEvent;
 import com.modeunsa.shared.order.event.RefundRequestedEvent;
 import com.modeunsa.shared.payment.event.PaymentFailedEvent;
@@ -19,6 +21,7 @@ import com.modeunsa.shared.payment.event.PaymentRefundSuccessEvent;
 import com.modeunsa.shared.payment.event.PaymentSuccessEvent;
 import com.modeunsa.shared.product.event.ProductCreatedEvent;
 import com.modeunsa.shared.product.event.ProductOrderAvailabilityChangedEvent;
+import com.modeunsa.shared.product.event.ProductStatusChangedEvent;
 import com.modeunsa.shared.product.event.ProductUpdatedEvent;
 import com.modeunsa.shared.settlement.event.SettlementCompletedPayoutEvent;
 import java.util.UUID;
@@ -35,6 +38,7 @@ public class KafkaResolver {
   private static final String ORDER_EVENTS_TOPIC = "order-events";
   private static final String SETTLEMENT_EVENTS_TOPIC = "settlement-events";
   private static final String PRODUCT_EVENTS_TOPIC = "product-events";
+  private static final String INVENTORY_EVENTS_TOPIC = "inventory-events";
 
   // TODO: topic Resolver 를 각 모듈로 변경할지, kafka 에서 관리할지 고민
   public KafkaPublishTarget resolve(Object event) {
@@ -66,20 +70,33 @@ public class KafkaResolver {
       case ProductUpdatedEvent e -> resolveProduct(e.productDto().getId());
       case ProductOrderAvailabilityChangedEvent e ->
           resolveProduct(e.productOrderAvailableDto().productId());
+      case ProductStatusChangedEvent e -> resolveProduct(e.productStatusDto().productId());
 
       // order
       case OrderPurchaseConfirmedEvent e -> resolveOrder(e.orderDto().getOrderId());
       case OrderCancelRequestEvent e -> resolveOrder(e.orderDto().getOrderId());
       case RefundRequestedEvent e -> resolveOrder(e.orderDto().getOrderId());
+      case OrderCancellationConfirmedEvent e -> resolveOrder(e.orderId());
 
       // settlement
       case SettlementCompletedPayoutEvent e -> resolveSettlement(e.batchId());
+
+      // Inventory
+      case InventoryStockRecoverEvent e -> resolveInventory(e.orderItems().get(0).getProductId());
 
       // default
       default ->
           KafkaPublishTarget.of(
               UUID.randomUUID().toString(), "unexpected-events-topic", "Unknown", "unexpected-key");
     };
+  }
+
+  private KafkaPublishTarget resolveInventory(Long productId) {
+    return KafkaPublishTarget.of(
+        UUID.randomUUID().toString(),
+        INVENTORY_EVENTS_TOPIC,
+        "Inventory",
+        "productId-%d".formatted(productId));
   }
 
   private KafkaPublishTarget resolveMemberEvent(Long memberId) {

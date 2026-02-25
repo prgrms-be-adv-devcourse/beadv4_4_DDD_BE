@@ -20,8 +20,6 @@ import org.springframework.batch.infrastructure.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
@@ -49,29 +47,24 @@ public class SettlementMonthSettlementStepConfig {
   @Bean
   public ItemReader<Settlement> monthSettlementReader() {
     return new ItemReader<>() {
-      private int page = 0;
-      private List<Settlement> currentPage;
+      private List<Settlement> settlements;
       private int index = 0;
 
       @Override
       public Settlement read() {
-        if (currentPage == null || index >= currentPage.size()) {
+        if (settlements == null) {
           LocalDate lastMonth = LocalDate.now().minusMonths(1);
           int year = lastMonth.getYear();
           int month = lastMonth.getMonthValue();
 
-          Page<Settlement> settlements =
-              settlementRepository.findByPayoutAtIsNullAndSettlementYearAndSettlementMonth(
-                  year, month, PageRequest.of(page++, CHUNK_SIZE));
-
-          currentPage = settlements.getContent();
-          index = 0;
-
-          if (currentPage.isEmpty()) {
-            return null;
-          }
+          settlements =
+              settlementRepository
+                  .findByPayoutAtIsNullAndSettlementYearAndSettlementMonthOrderByIdAsc(year, month);
         }
-        return currentPage.get(index++);
+        if (index >= settlements.size()) {
+          return null;
+        }
+        return settlements.get(index++);
       }
     };
   }
