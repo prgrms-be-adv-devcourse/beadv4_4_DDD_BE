@@ -1,4 +1,4 @@
-package com.modeunsa.shared.member.dto.response;
+package com.modeunsa.boundedcontext.member.domain.dto.response;
 
 import com.modeunsa.boundedcontext.member.domain.entity.MemberProfile;
 import lombok.Builder;
