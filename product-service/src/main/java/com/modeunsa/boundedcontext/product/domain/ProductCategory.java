@@ -27,4 +27,11 @@ public enum ProductCategory {
         .filter(category -> category.description.contains(keyword))
         .toList();
   }
+
+  public static ProductCategory from(String value) {
+    if (value == null || value.isBlank()) {
+      return null;
+    }
+    return ProductCategory.valueOf(value.toUpperCase());
+  }
 }

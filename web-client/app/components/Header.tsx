@@ -110,6 +110,7 @@ export default function Header() {
           </div>
           <nav className="nav">
             <Link href="/fashion">패션</Link>
+            <Link href="/beauty">뷰티</Link>
           </nav>
           <div className="header-actions">
             <Link href="/cart" className="cart-btn">장바구니</Link>

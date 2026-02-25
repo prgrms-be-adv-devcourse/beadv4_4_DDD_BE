@@ -6,7 +6,6 @@ import com.modeunsa.boundedcontext.product.domain.ProductCategory;
 import com.modeunsa.boundedcontext.product.domain.ProductFavorite;
 import com.modeunsa.boundedcontext.product.domain.ProductMember;
 import com.modeunsa.boundedcontext.product.domain.ProductMemberSeller;
-import com.modeunsa.boundedcontext.product.domain.ProductPolicy;
 import com.modeunsa.boundedcontext.product.domain.ProductStatus;
 import com.modeunsa.boundedcontext.product.domain.SaleStatus;
 import com.modeunsa.boundedcontext.product.out.ProductFavoriteRepository;
@@ -54,12 +53,9 @@ public class ProductSupport {
         .orElseThrow(() -> new GeneralException(ErrorStatus.PRODUCT_SELLER_INCORRECT));
   }
 
-  public Page<Product> getProducts(ProductCategory category, Pageable pageable) {
-    return productRepository.findAllByCategoryAndSaleStatusInAndProductStatusIn(
-        category,
-        ProductPolicy.ORDERABLE_SALE_STATUES,
-        ProductPolicy.ORDERABLE_PRODUCT_STATUES,
-        pageable);
+  public Page<Product> getProducts(String category, Pageable pageable) {
+    ProductCategory categoryEnum = ProductCategory.from(category);
+    return productRepository.searchByConditions(categoryEnum, pageable);
   }
 
   public Slice<Product> getProducts(String keyword, KeywordCursorDto cursor, int size) {
