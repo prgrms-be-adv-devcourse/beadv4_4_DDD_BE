@@ -59,6 +59,14 @@ interface MergedCartItem {
   salePrice: number
   primaryImageUrl: string
   saleStatus: string
+  soldOut: boolean
+}
+
+interface InventoryDto {
+  productId: number;
+  sellerId: number;
+  quantity: number;
+  initialized: boolean;
 }
 
 export default function CartPage() {
@@ -68,7 +76,6 @@ export default function CartPage() {
   // 장바구니 기본 정보 (totalQuantity, totalAmount 등)
   const [cartMeta, setCartMeta] = useState<Omit<CartResponseResult, 'cartItems'> | null>(null)
 
-  // 🎯 화면에 그릴 병합된 아이템 목록
   const [mergedItems, setMergedItems] = useState<MergedCartItem[]>([])
 
   const [isLoading, setIsLoading] = useState(true)
@@ -92,7 +99,16 @@ export default function CartPage() {
 
         // 상품 API 병합
         const itemsWithProductInfo = await Promise.all(
-            cartResult.cartItems.map(async (cartItem): Promise<MergedCartItem> => {
+            cartResult.cartItems.map(async (cartItem): Promise<{
+              quantity: number;
+              primaryImageUrl: string;
+              productId: number;
+              salePrice: number;
+              name: string;
+              id: number;
+              saleStatus: string
+              soldOut: boolean
+            }> => {
               try {
                 // 상품 상세 조회 API
                 const productRes = await api.get(`/api/v1/products/${cartItem.productId}`)
@@ -100,6 +116,10 @@ export default function CartPage() {
                 if (productRes.data.isSuccess) {
                   const product: ProductDto = productRes.data.result
                   const primaryImg = product.images.find(img => img.isPrimary)
+
+                  const inventoryRes = await api.get<InventoryDto>(`/api/v2/inventories/${cartItem.productId}`)
+
+                  const availableQuantity = inventoryRes.data.quantity
 
                   // DTO 조합 후 반환
                   return {
@@ -110,7 +130,8 @@ export default function CartPage() {
                     name: product.name,
                     salePrice: product.salePrice,
                     primaryImageUrl: primaryImg ? primaryImg.imageUrl : '',
-                    saleStatus: product.saleStatus
+                    saleStatus: product.saleStatus,
+                    soldOut : cartItem.quantity > availableQuantity
                   }
                 }
               } catch (err) {
@@ -125,7 +146,8 @@ export default function CartPage() {
                 name: cartItem.name,             // 장바구니 DB에 있던 과거 이름
                 salePrice: cartItem.salePrice,   // 장바구니 DB에 있던 과거 가격
                 primaryImageUrl: '',
-                saleStatus: 'ERROR'              // 구매 불가 처리
+                saleStatus: 'ERROR',              // 구매 불가 처리
+                soldOut : false
               }
             })
         )
@@ -156,13 +178,27 @@ export default function CartPage() {
   // --- 이벤트 핸들러 ---
   const updateQuantity = async (productId: number, currentQty: number, delta: number) => {
     const newQty = currentQty + delta
+
+    // 최소 수량 방어
     if (newQty < 1) return
 
     try {
+      const inventoryRes = await api.get<InventoryDto>(`/api/v2/inventories/${productId}`)
+
+      const availableQuantity = inventoryRes.data.quantity
+
+      // 재고 수량 비교 로직
+      if (newQty > availableQuantity) {
+        alert(`재고가 부족합니다. (현재 남은 수량: ${availableQuantity}개)`)
+        return
+      }
+
+      // 기존 장바구니 수량 변경 API 호출
       await api.post(`/api/v1/orders/cart/item`, { productId: productId, quantity: newQty })
       await fetchCart()
+
     } catch (error) {
-      console.error('수량 변경 실패:', error)
+      console.error('수량 변경 또는 재고 조회 실패:', error)
       alert('수량을 변경하지 못했습니다.')
     }
   }
@@ -245,9 +281,10 @@ export default function CartPage() {
       } else {
         alert(res.data.message || '주문 생성에 실패했습니다.')
       }
-    } catch (error) {
-      console.error('주문 생성 실패:', error)
-      alert('주문 처리 중 오류가 발생했습니다.')
+    } catch (error:any) {
+      const errorMessage = error.response?.data?.message || '주문 처리 중 오류가 발생했습니다.'
+
+      alert(errorMessage)
     }
   }
 
@@ -302,67 +339,106 @@ export default function CartPage() {
                     </div>
 
                     <div className="cart-items-list">
-                      {mergedItems.map((item) => (
-                          <div key={item.id} className="cart-item">
-                            <div className="cart-item-checkbox">
-                              {/* 선택 제어 (삭제 용도) */}
-                              <input
-                                  type="checkbox"
-                                  id={`item-${item.id}`}
-                                  checked={selectedItems.has(item.id)}
-                                  onChange={(e) => handleSelectItem(item.id, e.target.checked)}
-                              />
-                            </div>
+                      {mergedItems.map((item) => {
+                        const isDisabled = item.saleStatus !== 'SALE' || item.soldOut;
 
-                            {/* 대표 이미지 렌더링 */}
-                            <div className="cart-item-image" style={{ width: '80px', height: '80px', flexShrink: 0 }}>
-                              {item.primaryImageUrl ? (
-                                  <img
-                                      src={item.primaryImageUrl}
-                                      alt={item.name}
-                                      style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }}
-                                  />
-                              ) : (
-                                  <div style={{ width: '100%', height: '100%', background: '#eee', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: '#999' }}>
-                                    이미지 없음
-                                  </div>
-                              )}
-                            </div>
+                        return (
+                            <div
+                                key={item.id}
+                                className="cart-item"
+                                style={{
+                                  opacity: isDisabled ? 0.5 : 1
+                                }}
+                            >
+                              <div className="cart-item-checkbox">
+                                <input
+                                    type="checkbox"
+                                    id={`item-${item.id}`}
+                                    checked={selectedItems.has(item.id)}
+                                    onChange={(e) => handleSelectItem(item.id, e.target.checked)}
+                                />
+                              </div>
 
-                            <div className="cart-item-info">
-                              <div className="cart-item-name">{item.name}</div>
-                              <div className="cart-item-price">₩{formatPrice(item.salePrice)}</div>
-                              {/* SALE 상태가 아니면 구매 불가 문구 표시 */}
-                              {item.saleStatus !== 'SALE' && (
-                                  <div style={{ fontSize: '13px', color: '#f44336', marginTop: '4px', fontWeight: 'bold' }}>
-                                    구매 불가 (판매 종료)
-                                  </div>
-                              )}
-                            </div>
-                            <div className="cart-item-actions">
-                              <div className="quantity-control">
-                                <button
-                                    className="quantity-btn"
-                                    onClick={() => updateQuantity(item.productId, item.quantity, -1)}
-                                    disabled={item.quantity <= 1 || item.saleStatus !== 'SALE'} // 판매 중지 시 비활성화
-                                >
-                                  -
-                                </button>
-                                <span className="quantity-value">{item.quantity}</span>
-                                <button
-                                    className="quantity-btn"
-                                    onClick={() => updateQuantity(item.productId, item.quantity, 1)}
-                                    disabled={item.saleStatus !== 'SALE'} // 판매 중지 시 비활성화
-                                >
-                                  +
-                                </button>
+                              <div
+                                  className="cart-item-image"
+                                  style={{ width: '80px', height: '80px', flexShrink: 0 }}
+                              >
+                                {item.primaryImageUrl ? (
+                                    <img
+                                        src={item.primaryImageUrl}
+                                        alt={item.name}
+                                        style={{
+                                          width: '100%',
+                                          height: '100%',
+                                          objectFit: 'cover',
+                                          borderRadius: '8px',
+                                          filter: isDisabled ? 'grayscale(100%)' : 'none'
+                                        }}
+                                    />
+                                ) : (
+                                    <div
+                                        style={{
+                                          width: '100%',
+                                          height: '100%',
+                                          background: '#eee',
+                                          borderRadius: '8px',
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                          fontSize: '12px',
+                                          color: '#999'
+                                        }}
+                                    >
+                                      이미지 없음
+                                    </div>
+                                )}
                               </div>
-                              <div className="cart-item-total">
-                                ₩{formatPrice(item.salePrice * item.quantity)}
+
+                              <div className="cart-item-info">
+                                <div className="cart-item-name">{item.name}</div>
+                                <div className="cart-item-price">₩{formatPrice(item.salePrice)}</div>
+
+                                {item.saleStatus !== 'SALE' && (
+                                    <div style={{ fontSize: '13px', color: '#f44336', marginTop: '4px', fontWeight: 'bold' }}>
+                                      구매 불가 (판매 종료)
+                                    </div>
+                                )}
+
+                                {item.saleStatus === 'SALE' && item.soldOut && (
+                                    <div style={{ fontSize: '13px', color: '#ff9800', marginTop: '4px', fontWeight: 'bold' }}>
+                                      품절 (재고 부족)
+                                    </div>
+                                )}
+                              </div>
+
+                              <div className="cart-item-actions">
+                                <div className="quantity-control">
+                                  <button
+                                      className="quantity-btn"
+                                      onClick={() => updateQuantity(item.productId, item.quantity, -1)}
+                                      disabled={item.quantity <= 1 || isDisabled}
+                                  >
+                                    -
+                                  </button>
+
+                                  <span className="quantity-value">{item.quantity}</span>
+
+                                  <button
+                                      className="quantity-btn"
+                                      onClick={() => updateQuantity(item.productId, item.quantity, 1)}
+                                      disabled={isDisabled}
+                                  >
+                                    +
+                                  </button>
+                                </div>
+
+                                <div className="cart-item-total">
+                                  ₩{formatPrice(item.salePrice * item.quantity)}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
 

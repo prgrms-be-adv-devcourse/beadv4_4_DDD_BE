@@ -45,7 +45,7 @@ public class InventoryController {
    */
 
   @Operation(summary = "실재고 조회", description = "내부모듈에서 사용하는 상품별 실재고 조회 기능입니다.")
-  @GetMapping("/internal/{productId}")
+  @GetMapping("/{productId}")
   public InventoryDto getInternalInventory(@PathVariable Long productId) {
     return inventoryFacade.getInventory(productId);
   }

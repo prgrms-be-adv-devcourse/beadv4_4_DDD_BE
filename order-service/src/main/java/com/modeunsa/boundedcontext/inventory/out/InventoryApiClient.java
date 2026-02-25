@@ -22,11 +22,7 @@ public class InventoryApiClient {
   }
 
   public InventoryDto getInventory(Long productId) {
-    return restClient
-        .get()
-        .uri("/internal/{productId}", productId)
-        .retrieve()
-        .body(InventoryDto.class);
+    return restClient.get().uri("/{productId}", productId).retrieve().body(InventoryDto.class);
   }
 
   public void reserveInventory(InventoryReserveRequest inventoryReserveRequest) {
