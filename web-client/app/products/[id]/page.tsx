@@ -36,7 +36,7 @@ interface ProductDetailResponse {
   currency: string
   productStatus: string
   saleStatus: string
-  stock: number
+  quantity: number
   isFavorite: boolean
   favoriteCount: number
   images: ProductImageDto[]
@@ -121,9 +121,9 @@ export default function ProductDetailPage() {
     const syncInventory = async () => {
       if (!product) return
 
-      const stock = await fetchInventory(product.id)
-      if (stock !== null) {
-        setProduct(prev => prev ? { ...prev, stock } : prev)
+      const quantity = await fetchInventory(product.id)
+      if (quantity !== null) {
+        setProduct(prev => prev ? { ...prev, quantity } : prev)
       }
     }
 
@@ -151,20 +151,20 @@ export default function ProductDetailPage() {
 
     try {
       // 1. 재고 조회 API 호출
-      const currentStock = await fetchInventory(product.id)
+      const currentQuantity = await fetchInventory(product.id)
 
-      if (currentStock === null) {
+      if (currentQuantity === null) {
         alert('재고 조회 중 오류가 발생했습니다.')
         return
       }
 
-      if (currentStock <= 0) {
+      if (currentQuantity <= 0) {
         alert('품절된 상품입니다.')
         return
       }
 
-      if (quantity > currentStock) {
-        alert(`재고가 부족합니다. (현재 재고: ${currentStock}개)`)
+      if (quantity > currentQuantity) {
+        alert(`재고가 부족합니다. (현재 재고: ${currentQuantity}개)`)
         return
       }
 
@@ -311,20 +311,20 @@ export default function ProductDetailPage() {
 
     try {
       // 1. 재고 조회
-      const currentStock = await fetchInventory(product.id)
+      const currentQuantity = await fetchInventory(product.id)
 
-      if (currentStock === null) {
+      if (currentQuantity === null) {
         alert('재고 조회 중 오류가 발생했습니다.')
         return
       }
 
-      if (currentStock <= 0) {
+      if (currentQuantity <= 0) {
         alert('품절된 상품입니다.')
         return
       }
 
-      if (quantity > currentStock) {
-        alert(`재고가 부족합니다. (현재 재고: ${currentStock}개)`)
+      if (quantity > currentQuantity) {
+        alert(`재고가 부족합니다. (현재 재고: ${currentQuantity}개)`)
         return
       }
 
@@ -472,8 +472,8 @@ export default function ProductDetailPage() {
                       <span className="quantity-value">{quantity}</span>
                       <button 
                         className="quantity-btn plus"
-                        onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                        disabled={quantity >= product.stock}
+                        onClick={() => setQuantity(Math.min(product.quantity, quantity + 1))}
+                        disabled={quantity >= product.quantity}
                       >
                         +
                       </button>
@@ -510,16 +510,16 @@ export default function ProductDetailPage() {
                 <button 
                   className="cart-button" 
                   onClick={handleAddToCart}
-                  disabled={isAddingToCart || product.stock <= 0}
+                  disabled={isAddingToCart || product.quantity <= 0}
                 >
-                  {isAddingToCart ? '추가 중...' : product.stock <= 0 ? '품절' : '장바구니'}
+                  {isAddingToCart ? '추가 중...' : product.quantity <= 0 ? '품절' : '장바구니'}
                 </button>
                 <button 
                   className="buy-button" 
                   onClick={handleOrder}
-                  disabled={isCreatingOrder || product.stock <= 0}
+                  disabled={isCreatingOrder || product.quantity <= 0}
                 >
-                  {isCreatingOrder ? '주문 처리 중...' : product.stock <= 0 ? '재입고 요청' : '구매하기'}
+                  {isCreatingOrder ? '주문 처리 중...' : product.quantity <= 0 ? '재입고 요청' : '구매하기'}
                 </button>
               </div>
             </div>
