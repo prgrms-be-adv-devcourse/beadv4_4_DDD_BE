@@ -1,10 +1,10 @@
 package com.modeunsa.boundedcontext.member.app.usecase;
 
+import com.modeunsa.boundedcontext.member.domain.dto.response.SellerInfoResponse;
 import com.modeunsa.boundedcontext.member.domain.entity.MemberSeller;
 import com.modeunsa.boundedcontext.member.out.repository.MemberSellerRepository;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
-import com.modeunsa.shared.member.dto.response.SellerInfoResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
