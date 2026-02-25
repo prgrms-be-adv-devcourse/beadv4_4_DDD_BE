@@ -22,11 +22,11 @@ spring:
         format_sql: true
         highlight_sql: true
         use_sql_comments: true
-    data:
-      redis:
-        host: localhost
-        port: 6379
-        password: ${REDIS_PASSWORD:}
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password:
 
 management:
   health:
