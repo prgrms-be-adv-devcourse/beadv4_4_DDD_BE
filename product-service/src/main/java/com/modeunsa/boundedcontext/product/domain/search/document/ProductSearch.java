@@ -11,9 +11,13 @@ import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.Mapping;
+import org.springframework.data.elasticsearch.annotations.Setting;
 
 @Getter
 @Document(indexName = "product_search")
+@Setting(settingPath = "/es/product-search-settings.json")
+@Mapping(mappingPath = "/es/product-search-mapping.json")
 public class ProductSearch {
 
   @Id
