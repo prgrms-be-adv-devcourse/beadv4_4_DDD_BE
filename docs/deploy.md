@@ -1,93 +1,95 @@
-# 🚀 modeunsa 배포 가이드 (Deployment Guide)
+# 🚀 Modeunsa 자동 배포 (CI/CD) 가이드
 
-이 문서는 **modeunsa** 프로젝트의 지속적 통합(CI) 및 지속적 배포(CD) 구조와 서버 운영 방법을 설명합니다.
+Modeunsa 프로젝트는 Github Actions와 K3s(Kubernetes)를 활용하여 **모듈별 독립 자동 배포**를 수행합니다. 특정 모듈의 코드를 수정한 뒤 전체 서버를 내릴 필요 없이, 수정한 모듈만 쏙 골라서 안전하게 무중단 배포할 수 있습니다.
 
-## 🏗 CI/CD 아키텍처
-
-우리 프로젝트는 **GitHub Actions**를 사용하여 개발부터 배포까지의 전 과정을 자동화합니다.
-
-1. **CI (Continuous Integration)**: 모든 Pull Request에 대해 코드 품질과 안정성을 검증합니다.
-2. **CD (Continuous Deployment)**: `main` 브랜치에 코드가 반영되면 AWS EC2 서버에 자동으로 배포합니다.
+## 📌 배포 기본 원칙
+1. **운영 배포는 오직 `main` 브랜치에서만 가능합니다.** 다른 브랜치(예: `develop`)에서 배포를 시도하면 파이프라인이 자동으로 차단합니다.
+2. 코드를 병합(Merge)한다고 해서 바로 배포되지 않습니다. 개발자가 **명시적으로 릴리즈 태그(Tag)를 생성하여 푸시할 때만** 배포가 시작됩니다.
 
 ---
 
-## 🔐 사전 설정 (Prerequisites)
+## 🏷️ 태그 네이밍 규칙
+배포를 트리거하는 태그는 반드시 다음 형식을 지켜야 합니다.
 
-배포를 시작하기 전, GitHub 리포지토리의 **Settings > Secrets and variables > Actions**에 아래 항목들이 등록되어 있어야 합니다.
+* **형식:** `[모듈명]-v[버전]`
+* **사용 가능한 모듈명 목록**:
+  * **프론트엔드:** `web-client`
+  * **백엔드:** `api-gateway`, `settlement`, `member`, `payment`, `order`, `product`, `file`, `inventory`
 
-| 구분 | Key | 설명 |
-| --- | --- | --- |
-| **인프라** | `EC2_HOST`, `EC2_KEY` | AWS EC2 접속 정보 (SSH용) |
-| **Docker** | `DOCKER_USERNAME`, `DOCKER_PASSWORD` | Docker Hub 계정 정보 |
-| **보안/인증** | `JWT_SECRET`, `ENCRYPTION_MASTER_KEY` | 토큰 및 데이터 암호화 키 |
-| **DB/Redis** | `DB_PASSWORD`, `REDIS_PASSWORD` | 데이터베이스 및 캐시 접속 비밀번호 |
-| **OAuth** | `KAKAO_...`, `NAVER_...` | 소셜 로그인 API 키 |
+*(예시: 멤버 모듈 1.0.2 버전 배포 시 -> `member-v1.0.2`)*
 
 ---
 
-## 🔄 파이프라인 상세
+## 🛠️ 실전 배포 3단계 (How to Deploy)
 
-### 1. CI: Pull Request 검증 (`pr-check.yml`)
+새로운 기능을 개발하고 운영 서버에 반영하고 싶다면 아래 순서를 따라주세요.
 
-* **Trigger**: `main`, `develop` 브랜치로의 PR 생성 및 업데이트
-* **주요 작업**:
-* **Code Style**: Spotless 및 Checkstyle을 통해 코드 컨벤션을 준수하는지 확인합니다.
-* **Test**: Java 21 환경에서 Redis 컨테이너를 구동하여 통합 테스트를 수행합니다.
-* **Build**: 테스트 제외 빌드를 통해 JAR 파일 생성 가능 여부를 체크합니다.
+### Step 1. 코드를 main 브랜치로 병합
+모든 개발과 테스트(PR 리뷰 등)를 마치고 코드를 `main` 브랜치에 Merge 합니다.
 
-
-
-### 2. CD: 자동 배포 (`deploy.yml`)
-
-* **Trigger**: `main` 브랜치에 코드 Push 또는 Merge
-* **주요 작업**:
-* **Multi-Tagging**: 빌드된 이미지는 `YYYYMMDD-번호` 태그와 `latest` 태그를 동시에 부여받습니다.
-* **File Sync**: `docker-compose.yml`, `nginx.conf`, 그리고 **`docker/` 폴더(Elasticsearch용)**를 EC2로 전송합니다.
-* **Local Build**: EC2 서버에서 직접 `analysis-nori` 플러그인이 포함된 Elasticsearch 이미지를 빌드합니다.
-* **Cleanup**: 배포 완료 후 사용하지 않는 이전 Docker 이미지들을 삭제하여 용량을 확보합니다.
-
-
-
----
-
-## 🌐 서버 구성 (EC2 내부)
-
-### 1. Nginx 설정 (`nginx.conf`)
-
-* **HTTPS**: Let's Encrypt SSL 인증서를 사용하여 443 포트로 보안 통신을 제공합니다.
-* **Reverse Proxy**: 모든 외부 요청을 내부망의 `app:8080`으로 전달합니다.
-
-### 2. Docker Compose 서비스
-
-* **app**: Spring Boot 백엔드 애플리케이션 (Java 21)
-* **mysql**: 데이터 저장소 (8.0 버전)
-* **redis**: 세션 및 캐시 관리 (7-alpine 버전)
-* **elasticsearch**: 한글 검색 엔진 (nori 플러그인 탑재)
-
----
-
-## 🛠 유지보수 명령어 (Useful Commands)
-
-EC2 서버(`~/app` 경로)에서 자주 사용하는 명령어입니다.
+### Step 2. 로컬에서 최신 main 브랜치 태그 생성
+로컬 환경의 터미널에서 `main` 브랜치를 최신 상태로 당겨온(pull) 뒤, 배포할 모듈의 태그를 생성합니다.
 
 ```bash
-# 전체 서비스 상태 확인
-docker-compose ps
+# 예시 1) 프론트엔드 배포
+git tag web-client-v1.1.0
 
-# 특정 서비스 로그 확인 (예: Elasticsearch)
-docker-compose logs -f elasticsearch
-
-# 환경변수(.env) 수정 후 강제 재시작 및 빌드
-docker-compose --env-file ./.env up -d --build --remove-orphans
-
-# 사용하지 않는 Docker 리소스 일괄 정리
-docker system prune -a
+# 예시 2) 백엔드 결제(payment) 모듈 배포
+git tag payment-v2.0.1
 
 ```
 
+### Step 3. 깃허브로 태그 푸시 (배포 시작!)
+
+생성한 태그를 깃허브 서버로 푸시합니다.
+
+```bash
+# 예시) 결제 모듈 태그 푸시
+git push origin payment-v2.0.1
+
+```
+
+🎉 **끝입니다!** 이제 Github의 `Actions` 탭에 들어가 보시면, 파이프라인이 지정된 모듈만 도커 이미지로 빌드하고 EC2 서버에 안전하게 롤링 업데이트하는 과정을 확인하실 수 있습니다.
+
 ---
 
-## ⚠️ 주의 사항
+## ⚙️ `deploy.yml` 파이프라인 작동 원리 (내부 구조)
 
-* **환경 변수**: `.env` 파일은 보안상 GitHub에 올리지 않으며, 서버에 직접 생성하거나 관리해야 합니다.
-* **인증서 갱신**: SSL 인증서 만료 전 `certbot`을 통한 갱신이 필요할 수 있습니다 (현재 Nginx 볼륨 마운트 방식).
+Github Actions에 등록된 `deploy.yml`은 태그 푸시를 감지하면 다음과 같은 6단계의 자동화 프로세스를 거칩니다.
+
+### 1. 배포 안전장치 검증 (`Verify Tag is on main branch`)
+
+* 푸시된 태그가 `main` 브랜치의 커밋 히스토리에 포함되어 있는지 `git` 명령어로 검사합니다.
+* 만약 테스트가 덜 끝난 `develop` 브랜치에서 태그가 푸시되었다면, 운영 서버 보호를 위해 파이프라인을 즉시 강제 종료(Fail)합니다.
+
+### 2. 태그 분석 및 대상 모듈 지정 (`Parse Tag and Determine Module`)
+
+* `payment-v2.0.1` 이라는 태그를 분석하여, 대상 모듈(`payment`)과 새 버전(`2.0.1`)을 추출합니다.
+* 해당 모듈이 백엔드(Spring Boot)인지 프론트엔드(Next.js)인지 판별하여 다음 빌드 단계를 결정합니다.
+
+### 3. 스마트 빌드 및 도커 푸시 (`Build and push image`)
+
+* **백엔드인 경우:** 대상 모듈 하나만 `bootBuildImage` 기능을 사용하여 도커 이미지로 빌드하고 Docker Hub에 Push 합니다.
+* **프론트엔드인 경우:** `web-client` 폴더의 Dockerfile을 사용하여 이미지를 빌드하고 Docker Hub에 Push 합니다.
+
+### 4. K8s 매니페스트 파일 전송 (`Copy k8s directory to EC2`)
+
+* 최신 인프라 설정이 담긴 레포지토리의 `k8s/` 폴더를 EC2 서버(`/home/ec2-user/app`)로 안전하게 덮어쓰기 복사합니다.
+
+### 5. 무중단 환경 변수 업데이트 (`Update .env.k3s-prod`)
+
+* EC2에 접속한 뒤, 서버에 존재하는 `.env.k3s-prod` 파일을 직접 수정합니다.
+* 전체 파일을 덮어쓰지 않고 `sed` 명령어를 활용해 **이번에 빌드된 모듈의 이미지 변수(`PAYMENT_IMAGE` 등) 한 줄만 최신 버전으로 안전하게 교체**합니다.
+* 이를 통해 `JWT_SECRET` 등 중요한 보안 키들이 깃허브 노출 없이 안전하게 유지됩니다.
+
+### 6. k3s (Kubernetes) 롤링 업데이트 배포 (`Deploy on EC2`)
+
+* 마지막으로 `sudo ./k8s/app.sh up prod` 명령어를 실행합니다.
+* k3s가 갱신된 환경변수를 읽고, 변경된 모듈의 파드(Pod)만 새 도커 이미지로 교체하며 무중단 배포를 완료합니다.
+
+---
+
+## 🚨 주의사항 (Common 모듈 수정 시)
+
+백엔드의 `common` 모듈 내용이나 루트 프로젝트의 `build.gradle` 등을 수정한 경우, 해당 변경 사항의 영향을 받는 **모든 백엔드 모듈의 버전을 각각 올려주어야 합니다.**
+파이프라인은 태그에 적힌 단 하나의 모듈만 배포하므로, 영향받는 모듈별로 태그를 각각 생성하여 푸시해 주세요.
