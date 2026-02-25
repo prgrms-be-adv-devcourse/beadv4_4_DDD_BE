@@ -53,6 +53,13 @@ interface ApiResponse {
   result: ProductDetailResponse
 }
 
+interface InventoryDto {
+  productId: number;
+  sellerId: number;
+  quantity: number;
+  initialized: boolean;
+}
+
 export default function ProductDetailPage() {
   const params = useParams()
   const router = useRouter()
@@ -117,17 +124,6 @@ export default function ProductDetailPage() {
 
   const handleOrder = async () => {
     if (!product) return
-
-
-    if (product.stock <= 0) {
-      alert('품절된 상품입니다.')
-      return
-    }
-
-    if (quantity > product.stock) {
-      alert(`재고가 부족합니다. (재고: ${product.stock}개)`)
-      return
-    }
 
     setIsCreatingOrder(true)
 
@@ -271,14 +267,18 @@ export default function ProductDetailPage() {
 
   const handleAddToCart = async () => {
     if (!product) return
-    
-    if (product.stock <= 0) {
+
+    const inventoryRes = await api.get<InventoryDto>(`/api/v2/inventories/${product.id}`)
+
+    const availableQuantity = inventoryRes.data.quantity
+
+    if (availableQuantity <= 0) {
       alert('품절된 상품입니다.')
       return
     }
 
-    if (quantity > product.stock) {
-      alert(`재고가 부족합니다. (재고: ${product.stock}개)`)
+    if (quantity > availableQuantity) {
+      alert(`재고가 부족합니다. (재고: ${availableQuantity}개)`)
       return
     }
 
