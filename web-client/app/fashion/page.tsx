@@ -13,11 +13,10 @@ const FASHION_CATEGORIES = [
   { label: '모자', href: '/fashion?category=cap', value: 'cap' },
   { label: '가방', href: '/fashion?category=bag', value: 'bag' },
   { label: '신발', href: '/fashion?category=shoes', value: 'shoes' },
-  { label: '뷰티', href: '/fashion?category=beauty', value: 'beauty' },
 ] as const
 
-function toApiCategory(value: string | null): string {
-  if (!value) return 'UPPER'
+function toApiCategory(value: string | null): string | null {
+  if (!value) return null
   const map: Record<string, string> = {
     outer: 'OUTER',
     upper: 'UPPER',
@@ -25,7 +24,6 @@ function toApiCategory(value: string | null): string {
     cap: 'CAP',
     bag: 'BAG',
     shoes: 'SHOES',
-    beauty: 'BEAUTY',
   }
   return map[value] ?? 'OUTER'
 }
@@ -115,9 +113,19 @@ function FashionContent() {
     }
     setIsLoading(true)
     setError(null)
+
     try {
       const category = toApiCategory(currentCategory)
-      const url = `${apiUrl}/api/v1/products?category=${encodeURIComponent(category)}&page=${currentPage}&size=${PAGE_SIZE}`
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        size: PAGE_SIZE.toString(),
+      });
+
+      if (category != null && category !== '') {
+        params.append('category', category);
+      }
+
+      const url = `${apiUrl}/api/v1/products?${params.toString()}`;
       const res = await fetch(url, {
         credentials: 'include' // 브라우저에 저장된 쿠키(accessToken)를 함께 전송
       })
