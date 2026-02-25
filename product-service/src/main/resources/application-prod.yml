@@ -29,9 +29,7 @@ custom:
   security:
     permit-all: false
     permit-urls:
-      # ========== 개발 도구 ==========
-      - /h2-console/**
-      - /swagger-ui/**
+      # Swagger (운영에서 제거 고려)      - /swagger-ui/**
       - /v3/api-docs/**
       - /
       - /favicon.ico
