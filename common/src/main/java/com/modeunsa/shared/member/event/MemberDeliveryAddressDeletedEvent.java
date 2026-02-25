@@ -5,7 +5,7 @@ import com.modeunsa.global.event.TraceableEvent;
 public record MemberDeliveryAddressDeletedEvent(
     Long memberId, Long deliveryAddressId, String traceId) implements TraceableEvent {
 
-  private static final String EVENT_NAME = "MemberDeliveryAddressDeletedEvent";
+  public static final String EVENT_NAME = "MemberDeliveryAddressDeletedEvent";
 
   @Override
   public String eventName() {

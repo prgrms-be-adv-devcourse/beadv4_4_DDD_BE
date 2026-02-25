@@ -13,7 +13,7 @@ public record MemberSignupEvent(
     String traceId)
     implements TraceableEvent {
 
-  private static final String EVENT_NAME = "MemberSignupEvent";
+  public static final String EVENT_NAME = "MemberSignupEvent";
 
   public MemberSignupEvent(
       Long memberId,

@@ -15,7 +15,7 @@ public record MemberDeliveryAddressSetAsDefaultEvent(
     String traceId)
     implements TraceableEvent {
 
-  private static final String EVENT_NAME = "MemberDeliveryAddressSetAsDefaultEvent";
+  public static final String EVENT_NAME = "MemberDeliveryAddressSetAsDefaultEvent";
 
   @Override
   public String eventName() {

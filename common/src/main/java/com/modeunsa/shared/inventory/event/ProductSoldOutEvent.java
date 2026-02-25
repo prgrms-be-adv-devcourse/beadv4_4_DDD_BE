@@ -5,7 +5,7 @@ import com.modeunsa.global.event.TraceableEvent;
 
 public record ProductSoldOutEvent(Long productId, String traceId) implements TraceableEvent {
 
-  private static final String EVENT_NAME = "ProductSoldOutEvent";
+  public static final String EVENT_NAME = "ProductSoldOutEvent";
 
   public ProductSoldOutEvent(Long productId) {
     this(productId, EventUtils.extractTraceId());

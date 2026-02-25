@@ -13,7 +13,7 @@ public record MemberProfileUpdatedEvent(
     String traceId)
     implements TraceableEvent {
 
-  private static final String EVENT_NAME = "MemberProfileUpdatedEvent";
+  public static final String EVENT_NAME = "MemberProfileUpdatedEvent";
 
   @Override
   public String eventName() {

@@ -15,7 +15,7 @@ public record MemberDeliveryAddressAddedEvent(
     String traceId)
     implements TraceableEvent {
 
-  private static final String EVENT_NAME = "MemberDeliveryAddressAddedEvent";
+  public static final String EVENT_NAME = "MemberDeliveryAddressAddedEvent";
 
   @Override
   public String eventName() {

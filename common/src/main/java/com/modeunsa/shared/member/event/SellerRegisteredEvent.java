@@ -13,7 +13,7 @@ public record SellerRegisteredEvent(
     String traceId)
     implements TraceableEvent {
 
-  private static final String EVENT_NAME = "SellerRegisteredEvent";
+  public static final String EVENT_NAME = "SellerRegisteredEvent";
 
   @Override
   public String eventName() {

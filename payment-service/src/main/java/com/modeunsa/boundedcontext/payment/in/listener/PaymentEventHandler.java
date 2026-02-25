@@ -33,7 +33,7 @@ public class PaymentEventHandler {
         envelope.eventId(), envelope.topic(), envelope.payload(), envelope.traceId());
 
     switch (envelope.eventType()) {
-      case "MemberSignupEvent" -> {
+      case MemberSignupEvent.EVENT_NAME -> {
         MemberSignupEvent event =
             jsonConverter.deserialize(envelope.payload(), MemberSignupEvent.class);
         PaymentMemberSyncRequest member = paymentMapper.toPaymentMemberSyncRequest(event);
@@ -52,14 +52,14 @@ public class PaymentEventHandler {
         paymentFacade.handlePaymentFailed(event);
       }
 
-      case "RefundRequestedEvent" -> {
+      case RefundRequestedEvent.EVENT_NAME -> {
         RefundRequestedEvent event =
             jsonConverter.deserialize(envelope.payload(), RefundRequestedEvent.class);
         PaymentOrderInfo orderInfo = paymentMapper.toPaymentOrderInfo(event.orderDto());
         paymentFacade.refund(orderInfo, RefundEventType.ORDER_CANCELLED);
       }
 
-      case "SettlementCompletedPayoutEvent" -> {
+      case SettlementCompletedPayoutEvent.EVENT_NAME -> {
         SettlementCompletedPayoutEvent event =
             jsonConverter.deserialize(envelope.payload(), SettlementCompletedPayoutEvent.class);
         List<PaymentPayoutInfo> payouts = paymentMapper.toPaymentPayoutInfoList(event.payouts());
