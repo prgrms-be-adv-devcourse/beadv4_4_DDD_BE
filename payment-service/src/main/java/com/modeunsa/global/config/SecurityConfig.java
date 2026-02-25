@@ -55,16 +55,16 @@ public class SecurityConfig {
                   .requestMatchers(permitUrls)
                   .permitAll()
                   .requestMatchers(HttpMethod.POST, "/api/v1/payments")
-                  .hasAnyRole("MEMBER", "ADMIN")
+                  .hasAnyRole("MEMBER", "SELLER", "ADMIN")
                   .requestMatchers(
                       HttpMethod.POST, "/api/v1/payments/*/payment/confirm/by/tossPayments")
-                  .hasAnyRole("MEMBER", "SELLER")
+                  .hasAnyRole("MEMBER", "SELLER", "ADMIN")
                   .requestMatchers("/api/v1/payments/accounts/**")
-                  .hasAnyRole("MEMBER", "SELLER")
+                  .hasAnyRole("MEMBER", "SELLER", "ADMIN")
                   .requestMatchers("/api/v1/payments/members/**")
-                  .hasAnyRole("MEMBER", "SELLER")
+                  .hasAnyRole("MEMBER", "SELLER", "ADMIN")
                   .requestMatchers(HttpMethod.GET, "/api/v2/payments")
-                  .hasAnyRole("MEMBER", "SELLER")
+                  .hasAnyRole("MEMBER", "SELLER", "ADMIN")
                   .anyRequest()
                   .authenticated());
     }
