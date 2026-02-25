@@ -1,10 +1,10 @@
 package com.modeunsa.boundedcontext.member.in.api.v2;
 
 import com.modeunsa.boundedcontext.member.app.facade.MemberSellerFacade;
+import com.modeunsa.boundedcontext.member.domain.dto.response.SellerInfoResponse;
 import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.global.status.SuccessStatus;
-import com.modeunsa.shared.member.dto.response.SellerInfoResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

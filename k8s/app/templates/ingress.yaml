@@ -20,28 +20,28 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ .Release.Name }}-api
+                name: {{ .Release.Name }}-api-gateway-api
                 port:
                   number: 8080
           - path: /swagger-ui
             pathType: Prefix
             backend:
               service:
-                name: {{ .Release.Name }}-api
+                name: {{ .Release.Name }}-api-gateway-api
                 port:
                   number: 8080
           - path: /v3/api-docs
             pathType: Prefix
             backend:
               service:
-                name: {{ .Release.Name }}-api
+                name: {{ .Release.Name }}-api-gateway-api
                 port:
                   number: 8080
           - path: /actuator
             pathType: Prefix
             backend:
               service:
-                name: {{ .Release.Name }}-api
+                name: {{ .Release.Name }}-api-gateway-api
                 port:
                   number: 8080
           - path: /

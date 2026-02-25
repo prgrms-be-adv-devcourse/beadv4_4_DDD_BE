@@ -188,6 +188,21 @@ release-frontend-core:
 			fi; \
 		fi; \
 	}; \
+	if [ "$(VERSION_MODE)" = "latest" ]; then \
+		NEXT_ENV_FILE="web-client/.env.development"; \
+	else \
+		NEXT_ENV_FILE="web-client/.env.production"; \
+	fi; \
+	if [ ! -f "$$NEXT_ENV_FILE" ]; then \
+		echo "Next.js 환경 파일이 없습니다: $$NEXT_ENV_FILE"; \
+		exit 1; \
+	fi; \
+	NEXT_PUBLIC_API_URL=$$(grep '^NEXT_PUBLIC_API_URL=' "$$NEXT_ENV_FILE" | head -1 | cut -d= -f2- || true); \
+	NEXT_PUBLIC_TOSS_CLIENT_KEY=$$(grep '^NEXT_PUBLIC_TOSS_CLIENT_KEY=' "$$NEXT_ENV_FILE" | head -1 | cut -d= -f2- || true); \
+	if [ -z "$$NEXT_PUBLIC_API_URL" ]; then \
+		echo "NEXT_PUBLIC_API_URL이 비어 있습니다: $$NEXT_ENV_FILE"; \
+		exit 1; \
+	fi; \
 	CURRENT_IMG=$$(grep '^FRONTEND_IMAGE=' "$(ENV_FILE)" | head -1 | cut -d= -f2- || true); \
 	if [ -n "$$CURRENT_IMG" ] && echo "$$CURRENT_IMG" | grep -q ':'; then REPO=$${CURRENT_IMG%:*}; else REPO="$$CURRENT_IMG"; fi; \
 	if [ -z "$$REPO" ]; then \
@@ -205,10 +220,15 @@ release-frontend-core:
 	fi; \
 	echo ""; \
 	echo "=== $(MODE_LABEL) ==="; \
+	echo "Next env file: $$NEXT_ENV_FILE"; \
+	echo "NEXT_PUBLIC_API_URL=$$NEXT_PUBLIC_API_URL"; \
 	echo "[1/2] Frontend build..."; \
-	cd web-client && npm run build && cd .. && \
+	cd web-client && NEXT_PUBLIC_API_URL="$$NEXT_PUBLIC_API_URL" NEXT_PUBLIC_TOSS_CLIENT_KEY="$$NEXT_PUBLIC_TOSS_CLIENT_KEY" npm run build && cd .. && \
 	echo "[2/2] Docker build & push: $$REPO:$$VERSION" && \
-	docker buildx build --platform linux/amd64,linux/arm64 -t $$REPO:$$VERSION --push web-client/ && \
+	docker buildx build --platform linux/amd64,linux/arm64 \
+	  --build-arg NEXT_PUBLIC_API_URL="$$NEXT_PUBLIC_API_URL" \
+	  --build-arg NEXT_PUBLIC_TOSS_CLIENT_KEY="$$NEXT_PUBLIC_TOSS_CLIENT_KEY" \
+	  -t $$REPO:$$VERSION --push web-client/ && \
 	upsert_image_key "FRONTEND_IMAGE" "$$REPO:$$VERSION" "$(ENV_FILE)" && \
 	echo "" && \
 	echo "Frontend release 완료: $$REPO:$$VERSION" && \

@@ -16,7 +16,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("SettlementKafkaEventListener 테스트")
@@ -42,14 +46,30 @@ class SettlementKafkaEventListenerTest {
 
     MemberSignupEvent event =
         new MemberSignupEvent(memberId, "홍길동", "test@test.com", "010-0000-0000", role, "ACTIVE");
+    Acknowledgment ack = mock(Acknowledgment.class);
 
     when(jsonConverter.deserialize(payload, MemberSignupEvent.class)).thenReturn(event);
 
     // when
-    listener.handleMemberEvent(envelope);
+    try (MockedStatic<TransactionSynchronizationManager> tx =
+        org.mockito.Mockito.mockStatic(TransactionSynchronizationManager.class)) {
+      tx.when(
+              () ->
+                  TransactionSynchronizationManager.registerSynchronization(
+                      org.mockito.ArgumentMatchers.any(TransactionSynchronization.class)))
+          .thenAnswer(
+              invocation -> {
+                TransactionSynchronization sync = invocation.getArgument(0);
+                sync.afterCommit();
+                return null;
+              });
+
+      listener.handleMemberEvent(envelope, ack);
+    }
 
     // then
     verify(settlementFacade).syncMember(memberId, role);
+    verify(ack).acknowledge();
   }
 
   @Test
@@ -65,13 +85,29 @@ class SettlementKafkaEventListenerTest {
 
     OrderDto orderDto = OrderDto.builder().orderId(orderId).build();
     OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(orderDto, "trace-id");
+    Acknowledgment ack = mock(Acknowledgment.class);
 
     when(jsonConverter.deserialize(payload, OrderPurchaseConfirmedEvent.class)).thenReturn(event);
 
     // when
-    listener.handleOrderEvent(envelope);
+    try (MockedStatic<TransactionSynchronizationManager> tx =
+        org.mockito.Mockito.mockStatic(TransactionSynchronizationManager.class)) {
+      tx.when(
+              () ->
+                  TransactionSynchronizationManager.registerSynchronization(
+                      org.mockito.ArgumentMatchers.any(TransactionSynchronization.class)))
+          .thenAnswer(
+              invocation -> {
+                TransactionSynchronization sync = invocation.getArgument(0);
+                sync.afterCommit();
+                return null;
+              });
+
+      listener.handleOrderEvent(envelope, ack);
+    }
 
     // then
     verify(settlementFacade).collectCandidateItems(orderId);
+    verify(ack).acknowledge();
   }
 }

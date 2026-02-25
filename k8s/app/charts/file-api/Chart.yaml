@@ -1,0 +1,5 @@
+apiVersion: v2
+name: file-api
+description: Modeunsa File API Server
+type: application
+version: 0.1.0

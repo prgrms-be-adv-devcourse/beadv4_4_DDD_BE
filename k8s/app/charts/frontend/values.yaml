@@ -21,8 +21,8 @@ secrets:
 
 resources:
   requests:
-    cpu: 50m
-    memory: 128Mi
+    cpu: 20m
+    memory: 96Mi
   limits:
-    cpu: 200m
+    cpu: 120m
     memory: 256Mi

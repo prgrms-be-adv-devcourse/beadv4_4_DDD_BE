@@ -10,14 +10,13 @@ import com.modeunsa.shared.product.dto.search.ProductSearchRequest;
 import com.modeunsa.shared.product.dto.search.ProductSearchResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@ConditionalOnProperty(name = "app.elasticsearch.enabled", havingValue = "true")
+// @ConditionalOnProperty(name = "app.elasticsearch.enabled", havingValue = "true")
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)

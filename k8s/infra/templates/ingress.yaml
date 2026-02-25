@@ -34,4 +34,13 @@ spec:
                 port:
                   number: 9090
               {{- end }}
+              {{- if .Values.kafkaui.enabled }}
+          - path: /kafka-ui
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-kafkaui
+                port:
+                  number: 9080
+              {{- end }}
 {{- end }}
