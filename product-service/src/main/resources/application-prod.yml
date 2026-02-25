@@ -36,18 +36,18 @@ custom:
       - /favicon.ico
       - /error
 
-      # 내부 통신용 API
-      - /api/v1/orders/internal/**
-      - /api/v1/products/validate-order
-      - /api/v1/products/stock
-
-      # 헬스체크
+      # ========== 헬스체크 ==========
       - /actuator/health
       - /actuator/prometheus
 
-      # 상품
+      # ========== 상품 ===========
+      - /api/v1/products
+      - /api/v1/products/{id}
       - /api/v1/products/search
-      - /api/v2/products/search # todo: 삭제 예정
+      - /api/v2/products/search
+      - /api/v2/products/search/auto-complete
+      - /api/v2/products/search/knn
+      - /api/v2/products/search/hybrid
 
 management:
   health:
@@ -67,3 +67,11 @@ management:
     export:
       prometheus:
         enabled: true
+
+app:
+  elasticsearch:
+    enabled: true
+  event-publisher:
+    type: kafka
+  event-consumer:
+    type: kafka
