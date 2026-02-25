@@ -43,6 +43,10 @@ spec:
             # Kafka
             - name: KAFKA_BOOTSTRAP_SERVERS
               value: {{ .Values.env.kafkaBootstrapServers | quote }}
+            - name: EVENT_PUBLISHER_TYPE
+              value: {{ .Values.env.eventPublisherType | quote }}
+            - name: EVENT_CONSUMER_TYPE
+              value: {{ .Values.env.eventConsumerType | quote }}
             # Elasticsearch
             - name: ES_HOST
               value: {{ .Values.env.esHost | quote }}

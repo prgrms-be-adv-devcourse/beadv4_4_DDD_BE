@@ -93,6 +93,8 @@ add_backend_helm_args() {
     --set "$prefix.secrets.tossPaymentsSecretKey=$TOSS_PAYMENTS_SECRET_KEY"
     --set "$prefix.secrets.internalApiKey=$INTERNAL_API_KEY"
     --set "$prefix.secrets.openaiApiKey=$OPENAI_API_KEY"
+    --set "$prefix.env.eventPublisherType=$EVENT_PUBLISHER_TYPE"
+    --set "$prefix.env.eventConsumerType=$EVENT_CONSUMER_TYPE"
   )
 }
 
