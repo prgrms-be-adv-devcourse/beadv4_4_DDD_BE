@@ -35,8 +35,9 @@ secrets:
 javaOpts: "-Xmx256m"
 resources:
   requests:
-    cpu: 70m
-    memory: 160Mi
+    cpu: 100m
+    memory: 256Mi
   limits:
-    cpu: 220m
-    memory: 384Mi
+    cpu: 300m
+    memory: 512Mi
+

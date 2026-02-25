@@ -32,11 +32,12 @@ secrets:
   encryptionMasterKey: ""
   tossPaymentsSecretKey: ""
   internalApiKey: ""
-javaOpts: "-Xmx256m"
+javaOpts: "-Xmx320m"
 resources:
   requests:
-    cpu: 70m
-    memory: 160Mi
+    cpu: 100m
+    memory: 256Mi
   limits:
-    cpu: 220m
-    memory: 384Mi
+    cpu: 320m
+    memory: 512Mi
+
