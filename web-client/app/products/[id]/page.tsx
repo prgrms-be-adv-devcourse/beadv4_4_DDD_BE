@@ -285,7 +285,12 @@ export default function ProductDetailPage() {
     setIsAddingToCart(true)
 
     try {
-      // Mock 데이터로 장바구니에 추가하고 페이지 이동
+      setIsAddingToCart(true)
+
+      const res = await api.post('/api/v1/orders/cart/item', {
+        productId: product.id, // 현재 페이지의 상품 ID
+        quantity: quantity // 사용자가 선택한 수량
+      })
       alert('장바구니에 상품이 추가되었습니다.')
       router.push('/cart')
     } catch (error) {
