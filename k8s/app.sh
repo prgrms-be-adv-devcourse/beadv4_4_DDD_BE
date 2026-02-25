@@ -104,6 +104,52 @@ get_module_image() {
 }
 
 case "$1" in
+  rollout)
+      ENV="${2:-prod}"
+      TARGET_MODULE="$3" # deploy.yml에서 넘겨준 모듈명 (예: member-api, frontend)
+
+      if [ -z "$TARGET_MODULE" ]; then
+        echo "업데이트할 대상 모듈을 지정해야 합니다. (예: $0 rollout prod member-api)"
+        exit 1
+      fi
+
+      ENV_FILE=$(get_env_file "$ENV")
+      if [ -f "$ENV_FILE" ]; then
+        source "$ENV_FILE"
+      else
+        echo ".env 파일을 찾을 수 없습니다: $ENV_FILE"
+        exit 1
+      fi
+
+      echo "=== [$TARGET_MODULE] 모듈의 롤링 업데이트를 시작합니다 ($ENV 환경) ==="
+
+      # 1. 새 이미지 주소 추출
+      if [ "$TARGET_MODULE" == "frontend" ]; then
+         NEW_IMAGE="$FRONTEND_IMAGE"
+      else
+         # 'member-api' -> 'MEMBER_IMAGE' 환경변수명으로 변환
+         PREFIX=$(echo "$TARGET_MODULE" | sed 's/-api//' | tr 'a-z-' 'A-Z_')
+         ENV_VAR_NAME="${PREFIX}_IMAGE"
+         NEW_IMAGE="${!ENV_VAR_NAME}"
+      fi
+
+      if [ -z "$NEW_IMAGE" ]; then
+         echo "에러: $TARGET_MODULE 에 대한 이미지 주소를 .env 파일에서 찾을 수 없습니다."
+         exit 1
+      fi
+
+      echo "새 이미지: $NEW_IMAGE"
+
+      # 2. 쿠버네티스 Deployment 이미지 교체 (이 명령어 하나로 무중단 롤링 업데이트가 발생합니다)
+      kubectl set image deployment/$RELEASE-$TARGET_MODULE \
+        $TARGET_MODULE=$NEW_IMAGE -n $NAMESPACE
+
+      # 3. 롤링 업데이트 완료 대기 (이전 파드가 완전히 죽고 새 파드가 뜰 때까지 대기)
+      echo "[$TARGET_MODULE] 새 파드가 준비될 때까지 대기합니다..."
+      kubectl rollout status deployment/$RELEASE-$TARGET_MODULE -n $NAMESPACE --timeout=$POD_READY_TIMEOUT
+
+      echo "=== [$TARGET_MODULE] 배포 완료! ==="
+      ;;
   up)
     ENV="${2:-dev}"  # 기본값 dev
     ENV_FILE=$(get_env_file "$ENV")
