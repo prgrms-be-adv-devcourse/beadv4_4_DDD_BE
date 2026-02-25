@@ -76,3 +76,7 @@ custom:
 springdoc:
   swagger-ui:
     persistAuthorization: true
+
+app:
+  elasticsearch:
+    enabled: true
