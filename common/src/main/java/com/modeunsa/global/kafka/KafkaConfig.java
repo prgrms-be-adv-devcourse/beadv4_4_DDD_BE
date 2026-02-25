@@ -1,14 +1,12 @@
 package com.modeunsa.global.kafka;
 
-import java.net.ConnectException;
-import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.common.errors.RetriableException;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,7 +27,6 @@ import org.springframework.kafka.support.serializer.DeserializationException;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
 import org.springframework.kafka.support.serializer.JacksonJsonSerializer;
-import org.springframework.web.client.ResourceAccessException;
 
 @Slf4j
 @Configuration
@@ -129,20 +126,16 @@ public class KafkaConfig {
     var backoff = new ExponentialBackOffWithMaxRetries(5);
     backoff.setInitialInterval(1_000L);
     backoff.setMultiplier(2.0);
-    backoff.setMaxInterval(30_000L);
+    backoff.setMaxInterval(60_000L);
 
     var errorHandler = new DefaultErrorHandler(recoverer, backoff);
 
     // 역직렬화 예외의 경우에는 재시도 하지 않음
     // 비즈니스 로직에 대한 예외를 wrapping 할 수 있는 예외를 생성할 시 아래에 추가
     errorHandler.addNotRetryableExceptions(
-        DeserializationException.class, IllegalArgumentException.class);
+        DeserializationException.class, ClassCastException.class, IllegalArgumentException.class);
 
-    errorHandler.addRetryableExceptions(
-        SocketTimeoutException.class,
-        ConnectException.class,
-        ResourceAccessException.class,
-        KafkaException.class);
+    errorHandler.addRetryableExceptions(RetriableException.class);
 
     factory.setCommonErrorHandler(errorHandler);
     return factory;
