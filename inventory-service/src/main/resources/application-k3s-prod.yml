@@ -26,17 +26,6 @@ spring:
     console:
       enabled: false
 
-<<<<<<< Updated upstream
-app:
-  event-publisher:
-    type: ${EVENT_PUBLISHER_TYPE:kafka}
-  event-consumer:
-    type: ${EVENT_CONSUMER_TYPE:kafka}
-=======
-  kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:modeunsa-infra-kafka:9092}
->>>>>>> Stashed changes
-
 management:
   health:
     elasticsearch:
@@ -79,8 +68,6 @@ springdoc:
     persistAuthorization: true
 
 app:
-  elasticsearch:
-    enabled: true
   event-publisher:
     type: kafka
   event-consumer:
