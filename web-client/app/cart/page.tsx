@@ -87,6 +87,11 @@ export default function CartPage() {
 
       if (res.data.isSuccess) {
         const cartResult = res.data.result
+        if (!cartResult?.cartItems) {
+          setMergedItems([])
+          setIsLoading(false)
+          return
+        }
 
         if (!cartResult?.cartItems) {
           setMergedItems([])
