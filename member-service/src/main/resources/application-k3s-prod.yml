@@ -75,6 +75,8 @@ custom:
   swagger:
     serverUrl: https://modeunsa.store
     description: "Production Server"
+  global:
+    internalBackUrl: http://modeunsa-app-api-gateway-api:8080
   security:
     permit-all: false
     permit-urls:
