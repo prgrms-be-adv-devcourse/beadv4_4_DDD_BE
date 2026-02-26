@@ -200,15 +200,15 @@ function FashionContent() {
           <div className="container">
             <div className="products-header">
               <h2 className="section-title">전체 상품</h2>
-              <div className="filter-options">
-                <select className="filter-select">
-                  <option>정렬순</option>
-                  <option>인기순</option>
-                  <option>최신순</option>
-                  <option>가격 낮은순</option>
-                  <option>가격 높은순</option>
-                </select>
-              </div>
+              {/*<div className="filter-options">*/}
+              {/*  <select className="filter-select">*/}
+              {/*    <option>정렬순</option>*/}
+              {/*    <option>인기순</option>*/}
+              {/*    <option>최신순</option>*/}
+              {/*    <option>가격 낮은순</option>*/}
+              {/*    <option>가격 높은순</option>*/}
+              {/*  </select>*/}
+              {/*</div>*/}
             </div>
 
             {isLoading ? (

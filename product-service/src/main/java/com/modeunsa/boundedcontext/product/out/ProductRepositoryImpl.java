@@ -58,6 +58,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             .where(categoryEq(category), saleStatusIn(), productStatusIn())
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())
+            .orderBy(product.createdAt.desc(), product.id.desc())
             .fetch();
 
     Long total =
