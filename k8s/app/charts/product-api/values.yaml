@@ -33,7 +33,7 @@ secrets:
   tossPaymentsSecretKey: ""
   internalApiKey: ""
   openaiApiKey: ""
-javaOpts: "-Xmx512m"
+javaOpts: "-Xmx160m -XX:MaxMetaspaceSize=160m -XX:ReservedCodeCacheSize=32m -Xss512k"
 resources:
   requests:
     cpu: 90m
