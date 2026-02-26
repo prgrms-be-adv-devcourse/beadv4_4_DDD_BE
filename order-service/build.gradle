@@ -88,13 +88,6 @@ dependencies {
 	// MySQL Connector
 	runtimeOnly 'com.mysql:mysql-connector-j'
 
-	// ElasticSearch
-	implementation'org.springframework.boot:spring-boot-starter-data-elasticsearch'
-
-	testImplementation'org.springframework.boot:spring-boot-starter-data-elasticsearch-test'
-
-	implementation 'io.hypersistence:hypersistence-tsid:2.1.1'
-
 	// prometheus
 	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 
@@ -108,7 +101,6 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
-	testImplementation 'org.springframework.batch:spring-batch-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testCompileOnly 'org.projectlombok:lombok'
 	testAnnotationProcessor 'org.projectlombok:lombok'
