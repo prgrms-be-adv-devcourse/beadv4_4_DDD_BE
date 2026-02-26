@@ -43,6 +43,10 @@ spec:
             # Kafka
             - name: KAFKA_BOOTSTRAP_SERVERS
               value: {{ .Values.env.kafkaBootstrapServers | quote }}
+            - name: BPL_JVM_THREAD_COUNT
+              value: {{ .Values.env.jvmThreadCount | quote }}
+            - name: CUSTOM_GLOBAL_INTERNAL_BACK_URL
+              value: {{ .Values.env.internalBackUrl | quote }}
             - name: EVENT_PUBLISHER_TYPE
               value: {{ .Values.env.eventPublisherType | quote }}
             - name: EVENT_CONSUMER_TYPE
