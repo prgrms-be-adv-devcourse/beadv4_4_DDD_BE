@@ -5,8 +5,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import Header from '../components/Header'
 import api from '@/app/lib/axios'
-import {Simulate} from "react-dom/test-utils";
-import error = Simulate.error;
 
 interface CartItemDto {
   id: number         // 장바구니 아이템 고유 ID
@@ -89,6 +87,11 @@ export default function CartPage() {
 
       if (res.data.isSuccess) {
         const cartResult = res.data.result
+        if (!cartResult?.cartItems) {
+          setMergedItems([])
+          setIsLoading(false)
+          return
+        }
 
         // 메타데이터 저장
         setCartMeta({
