@@ -106,12 +106,22 @@ get_module_image() {
 case "$1" in
   rollout)
       ENV="${2:-prod}"
-      TARGET_MODULE="$3" # deploy.yml에서 넘겨준 모듈명 (예: member-api, frontend)
+      TARGET_MODULE="$3" # deploy.yml에서 넘겨준 모듈명 (예: member-api)
 
       if [ -z "$TARGET_MODULE" ]; then
         echo "업데이트할 대상 모듈을 지정해야 합니다. (예: $0 rollout prod member-api)"
         exit 1
       fi
+
+      # 서버에 파드가 아예 없는지(초기 상태인지) 검사
+      if ! kubectl get deployment "$RELEASE-$TARGET_MODULE" -n "$NAMESPACE" &> /dev/null; then
+        echo "[$TARGET_MODULE] 배포된 파드(Deployment)가 서버에 존재하지 않습니다!"
+        echo "롤링 업데이트 대신, 초기 배포(up) 로직으로 자동 전환합니다."
+
+        # 현재 쉘의 실행 흐름을 'up' 명령어로 완전히 넘깁니다.
+        exec "$0" up "$ENV"
+      fi
+      # ====================================================================
 
       ENV_FILE=$(get_env_file "$ENV")
       if [ -f "$ENV_FILE" ]; then
