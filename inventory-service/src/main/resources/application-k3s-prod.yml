@@ -9,9 +9,19 @@ spring:
       host: ${REDIS_HOST:modeunsa-infra-redis}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:modeunsa-infra-kafka:9092}
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP_ID:inventory-service}
   h2:
     console:
       enabled: false
+
+app:
+  event-publisher:
+    type: ${EVENT_PUBLISHER_TYPE:kafka}
+  event-consumer:
+    type: ${EVENT_CONSUMER_TYPE:kafka}
 
 management:
   health:

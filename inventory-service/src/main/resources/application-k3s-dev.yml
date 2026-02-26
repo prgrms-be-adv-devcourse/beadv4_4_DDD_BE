@@ -6,10 +6,20 @@ spring:
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:modeunsa-infra-kafka:9092}
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP_ID:inventory-service}
   h2:
     console:
       enabled: true
       path: /h2-console
+
+app:
+  event-publisher:
+    type: ${EVENT_PUBLISHER_TYPE:kafka}
+  event-consumer:
+    type: ${EVENT_CONSUMER_TYPE:kafka}
 
 custom:
   swagger:

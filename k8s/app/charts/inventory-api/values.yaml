@@ -34,7 +34,7 @@ secrets:
   encryptionMasterKey: ""
   tossPaymentsSecretKey: ""
   internalApiKey: ""
-javaOpts: "-Xmx256m"
+javaOpts: "-Xmx96m -XX:MaxMetaspaceSize=160m -XX:ReservedCodeCacheSize=16m -Xss512k"
 resources:
   requests:
     cpu: 70m

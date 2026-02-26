@@ -75,6 +75,11 @@ public class PaymentQueryRepository {
     return new PageImpl<>(content, pageable, totalCount);
   }
 
+  public Optional<Payment> findByPgOrderId(String orderId) {
+    return Optional.ofNullable(
+        this.queryFactory.selectFrom(payment).where(payment.pgOrderId.eq(orderId)).fetchOne());
+  }
+
   private BooleanExpression eqPaymentId(PaymentId paymentId) {
     return paymentId != null ? payment.id.eq(paymentId) : null;
   }
