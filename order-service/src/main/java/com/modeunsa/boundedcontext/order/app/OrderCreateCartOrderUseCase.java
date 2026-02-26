@@ -1,5 +1,7 @@
 package com.modeunsa.boundedcontext.order.app;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.modeunsa.boundedcontext.inventory.out.InventoryApiClient;
 import com.modeunsa.boundedcontext.order.domain.CartItem;
 import com.modeunsa.boundedcontext.order.domain.Order;
@@ -12,7 +14,6 @@ import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.global.exception.GeneralException;
 import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.inventory.dto.InventoryReserveRequest;
-import com.modeunsa.shared.order.dto.CreateCartOrderRequestDto;
 import com.modeunsa.shared.order.dto.OrderResponseDto;
 import com.modeunsa.shared.product.dto.ProductOrderResponse;
 import com.modeunsa.shared.product.dto.ProductOrderValidateRequest;
@@ -22,6 +23,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +35,7 @@ public class OrderCreateCartOrderUseCase {
   private final ProductApiClient productApiClient;
   private final InventoryApiClient inventoryApiClient;
 
-  public OrderResponseDto createCartOrder(Long memberId, CreateCartOrderRequestDto requestDto) {
+  public OrderResponseDto createCartOrder(Long memberId) {
     // 회원 및 장바구니 목록 조회
     OrderMember member = orderSupport.findByMemberId(memberId);
     List<CartItem> cartItems = orderSupport.getCartItemsByMemberId(memberId);
@@ -46,7 +48,7 @@ public class OrderCreateCartOrderUseCase {
     Map<Long, ProductOrderResponse> productMap = getValidatedProductsMap(cartItems);
 
     // 주문 생성 및 저장
-    Order order = createAndSaveOrder(member, cartItems, productMap, requestDto);
+    Order order = createAndSaveOrder(member, cartItems, productMap);
 
     // 재고 일괄 차감 요청
     requestReserveInventory(order);
@@ -91,10 +93,7 @@ public class OrderCreateCartOrderUseCase {
 
   // 주문 생성 및 저장
   private Order createAndSaveOrder(
-      OrderMember member,
-      List<CartItem> cartItems,
-      Map<Long, ProductOrderResponse> productMap,
-      CreateCartOrderRequestDto request) {
+      OrderMember member, List<CartItem> cartItems, Map<Long, ProductOrderResponse> productMap) {
 
     List<OrderItem> orderItems = new ArrayList<>();
 
@@ -120,6 +119,28 @@ public class OrderCreateCartOrderUseCase {
             .toList();
 
     // API 호출
-    inventoryApiClient.reserveInventory(new InventoryReserveRequest(items));
+    try {
+      // 재고 차감 API 호출
+      inventoryApiClient.reserveInventory(new InventoryReserveRequest(items));
+
+    } catch (HttpClientErrorException e) {
+
+      if (e.getStatusCode().value() == 400) {
+        String errorBody = e.getResponseBodyAsString();
+        String errorCode = "";
+
+        try {
+          ObjectMapper objectMapper = new ObjectMapper();
+          JsonNode jsonNode = objectMapper.readTree(errorBody);
+          errorCode = jsonNode.path("code").asText("");
+        } catch (Exception parseException) {
+          throw new GeneralException(ErrorStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        if ("INVENTORY_400_002".equals(errorCode)) {
+          throw new GeneralException(ErrorStatus.INSUFFICIENT_STOCK);
+        }
+      }
+    }
   }
 }

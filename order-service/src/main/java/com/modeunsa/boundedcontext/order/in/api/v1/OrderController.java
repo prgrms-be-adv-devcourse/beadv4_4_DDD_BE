@@ -5,7 +5,6 @@ import com.modeunsa.global.response.ApiResponse;
 import com.modeunsa.global.security.CustomUserDetails;
 import com.modeunsa.global.status.SuccessStatus;
 import com.modeunsa.shared.order.dto.CartItemsResponseDto;
-import com.modeunsa.shared.order.dto.CreateCartOrderRequestDto;
 import com.modeunsa.shared.order.dto.CreateOrderRequestDto;
 import com.modeunsa.shared.order.dto.OrderDto;
 import com.modeunsa.shared.order.dto.OrderListResponseDto;
@@ -38,7 +37,7 @@ public class OrderController {
 
   private final OrderFacade orderFacade;
 
-  @Operation(summary = "장바구니에 상품 추가 기능", description = "장바구니에 상품을 추가하는 기능입니다.")
+  @Operation(summary = "장바구니에 상품 생성/수정 기능", description = "장바구니에 상품을 생성하거나 수정하는 기능입니다.")
   @PostMapping("/cart/item")
   public ResponseEntity<ApiResponse> syncCartItem(
       @AuthenticationPrincipal CustomUserDetails user,
@@ -65,11 +64,10 @@ public class OrderController {
   @Operation(summary = "장바구니 주문 생성 기능", description = "장바구니에 있는 모든 상품을 주문하는 기능입니다.")
   @PostMapping("/cart-order")
   public ResponseEntity<ApiResponse> createCartOrder(
-      @AuthenticationPrincipal CustomUserDetails user,
-      @RequestBody @Valid CreateCartOrderRequestDto requestDto) {
+      @AuthenticationPrincipal CustomUserDetails user) {
 
     Long memberId = user.getMemberId();
-    OrderResponseDto dto = orderFacade.createCartOrder(memberId, requestDto);
+    OrderResponseDto dto = orderFacade.createCartOrder(memberId);
 
     return ApiResponse.onSuccess(SuccessStatus.OK, dto);
   }

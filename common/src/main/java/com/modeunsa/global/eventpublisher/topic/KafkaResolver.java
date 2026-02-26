@@ -12,6 +12,7 @@ import com.modeunsa.shared.member.event.MemberSignupEvent;
 import com.modeunsa.shared.member.event.SellerRegisteredEvent;
 import com.modeunsa.shared.order.event.OrderCancelRequestEvent;
 import com.modeunsa.shared.order.event.OrderCancellationConfirmedEvent;
+import com.modeunsa.shared.order.event.OrderPaidEvent;
 import com.modeunsa.shared.order.event.OrderPurchaseConfirmedEvent;
 import com.modeunsa.shared.order.event.RefundRequestedEvent;
 import com.modeunsa.shared.payment.event.PaymentFailedEvent;
@@ -75,6 +76,7 @@ public class KafkaResolver {
           resolveProduct(e.traceId(), e.productStatusDto().productId());
 
       // order
+      case OrderPaidEvent e -> resolveOrder(e.traceId(), e.orderDto().getOrderId());
       case OrderPurchaseConfirmedEvent e -> resolveOrder(e.traceId(), e.orderDto().getOrderId());
       case OrderCancelRequestEvent e -> resolveOrder(e.traceId(), e.orderDto().getOrderId());
       case RefundRequestedEvent e -> resolveOrder(e.traceId(), e.orderDto().getOrderId());
