@@ -4,8 +4,6 @@ import com.modeunsa.boundedcontext.order.domain.CartItem;
 import com.modeunsa.boundedcontext.order.domain.OrderMapper;
 import com.modeunsa.boundedcontext.order.out.OrderCartItemRepository;
 import com.modeunsa.boundedcontext.product.out.ProductApiClient;
-import com.modeunsa.global.exception.GeneralException;
-import com.modeunsa.global.status.ErrorStatus;
 import com.modeunsa.shared.order.dto.CartItemDto;
 import com.modeunsa.shared.order.dto.CartItemsResponseDto;
 import com.modeunsa.shared.product.dto.ProductOrderResponse;
@@ -79,7 +77,7 @@ public class OrderGetCartItemsUseCase {
     }
     // 상품 상태 체크
     if (!product.isAvailable()) {
-      throw new GeneralException(ErrorStatus.PRODUCT_NOT_ON_SALE);
+      return false;
     }
 
     return true;
