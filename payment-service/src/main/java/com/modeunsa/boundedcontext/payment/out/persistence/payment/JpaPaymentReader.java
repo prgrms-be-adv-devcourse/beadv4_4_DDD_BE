@@ -22,13 +22,13 @@ public class JpaPaymentReader implements PaymentReader {
   }
 
   @Override
-  public Optional<Payment> findByOrderNo(String orderNo) {
-    return queryRepository.findByOrderNo(orderNo);
-  }
-
-  @Override
   public Page<PaymentListItemResponse> findPageByMemberIdWithSearch(
       Long memberId, PaymentSearchRequest request) {
     return queryRepository.findPageByMemberIdWithSearch(memberId, request);
+  }
+
+  @Override
+  public Optional<Payment> findByPgOrderId(String orderId) {
+    return queryRepository.findByPgOrderId(orderId);
   }
 }

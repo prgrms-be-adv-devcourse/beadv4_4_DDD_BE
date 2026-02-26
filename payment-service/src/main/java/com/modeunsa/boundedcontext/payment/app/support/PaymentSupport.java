@@ -25,9 +25,9 @@ public class PaymentSupport {
     return paymentReader.findById(paymentId);
   }
 
-  public Payment getPaymentByOrderNo(String orderNo) {
+  public Payment getPaymentByPgOrderId(String orderId) {
     return paymentReader
-        .findByOrderNo(orderNo)
+        .findByPgOrderId(orderId)
         .orElseThrow(() -> new GeneralException(ErrorStatus.PAYMENT_NOT_FOUND));
   }
 }
