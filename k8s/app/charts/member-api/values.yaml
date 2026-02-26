@@ -16,6 +16,7 @@ env:
   redisHost: "modeunsa-infra-redis"
   redisPort: "6379"
   kafkaBootstrapServers: "modeunsa-infra-kafka:9092"
+  jvmThreadCount: "120"
   eventPublisherType: ""
   eventConsumerType: ""
   esHost: "modeunsa-infra-elasticsearch"
@@ -34,7 +35,7 @@ secrets:
   encryptionMasterKey: ""
   tossPaymentsSecretKey: ""
   internalApiKey: ""
-javaOpts: "-Xmx192m -XX:MaxMetaspaceSize=128m -XX:ReservedCodeCacheSize=48m -Xss512k"
+javaOpts: "-Xmx128m -XX:MaxMetaspaceSize=192m -XX:ReservedCodeCacheSize=24m -Xss512k"
 resources:
   requests:
     cpu: 90m
