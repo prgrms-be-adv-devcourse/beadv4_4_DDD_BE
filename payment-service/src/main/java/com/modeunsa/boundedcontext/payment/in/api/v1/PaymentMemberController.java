@@ -27,9 +27,10 @@ public class PaymentMemberController {
 
   @Operation(summary = "결제 회원 정보 조회 기능", description = "결제 회원 정보를 조회하는 기능입니다.")
   @GetMapping
-  public ResponseEntity<ApiResponse> getMember(@AuthenticationPrincipal CustomUserDetails user) {
+  public ResponseEntity<ApiResponse<PaymentMemberResponse>> getMember(
+      @AuthenticationPrincipal CustomUserDetails user) {
     PaymentMemberDto data = paymentFacade.getMember(user.getMemberId());
     PaymentMemberResponse response = paymentMapper.toPaymentMemberResponse(data);
-    return ApiResponse.onSuccess(SuccessStatus.OK, response);
+    return ApiResponse.onSuccessTyped(SuccessStatus.OK, response);
   }
 }

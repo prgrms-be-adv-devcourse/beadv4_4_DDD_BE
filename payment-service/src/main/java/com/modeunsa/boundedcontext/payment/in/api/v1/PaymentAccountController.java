@@ -27,11 +27,11 @@ public class PaymentAccountController {
 
   @Operation(summary = "계좌 입금 기능", description = "계좌에 입금하는 기능입니다.")
   @PostMapping("/deposit")
-  public ResponseEntity<ApiResponse> depositAccount(
+  public ResponseEntity<ApiResponse<PaymentAccountDepositResponse>> depositAccount(
       @AuthenticationPrincipal CustomUserDetails user,
       @Valid @RequestBody PaymentAccountDepositRequest request) {
     PaymentAccountDepositResponse response =
         paymentFacade.creditAccount(user.getMemberId(), request);
-    return ApiResponse.onSuccess(SuccessStatus.OK, response);
+    return ApiResponse.onSuccessTyped(SuccessStatus.OK, response);
   }
 }

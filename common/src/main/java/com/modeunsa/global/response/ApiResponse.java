@@ -28,14 +28,14 @@ public class ApiResponse<T> {
   // 성공 - 기본 응답
   public static ResponseEntity<ApiResponse> onSuccess(SuccessStatus status) {
     return new ResponseEntity<>(
-        new ApiResponse(true, status.getCode(), status.getMessage(), null, null),
+        new ApiResponse<>(true, status.getCode(), status.getMessage(), null, null),
         status.getHttpStatus());
   }
 
   // 성공 - 데이터 포함
   public static <T> ResponseEntity<ApiResponse> onSuccess(SuccessStatus status, T result) {
     return new ResponseEntity<>(
-        new ApiResponse(true, status.getCode(), status.getMessage(), null, result),
+        new ApiResponse<>(true, status.getCode(), status.getMessage(), null, result),
         status.getHttpStatus());
   }
 
@@ -49,7 +49,7 @@ public class ApiResponse<T> {
             page.getTotalElements(),
             page.getTotalPages());
     return new ResponseEntity<>(
-        new ApiResponse(true, status.getCode(), status.getMessage(), pageInfo, page.getContent()),
+        new ApiResponse<>(true, status.getCode(), status.getMessage(), pageInfo, page.getContent()),
         status.getHttpStatus());
   }
 
@@ -57,27 +57,39 @@ public class ApiResponse<T> {
       SuccessStatus status, Slice<T> slice, String nextCursor) {
     CursorInfo cursorInfo = new CursorInfo(slice.hasNext(), nextCursor);
     return new ResponseEntity<>(
-        new ApiResponse(
+        new ApiResponse<>(
             true, status.getCode(), status.getMessage(), cursorInfo, slice.getContent()),
+        status.getHttpStatus());
+  }
+
+  public static ResponseEntity<ApiResponse<Void>> onSuccessTyped(SuccessStatus status) {
+    return new ResponseEntity<>(
+        new ApiResponse<>(true, status.getCode(), status.getMessage(), null, null),
+        status.getHttpStatus());
+  }
+
+  public static <T> ResponseEntity<ApiResponse<T>> onSuccessTyped(SuccessStatus status, T result) {
+    return new ResponseEntity<>(
+        new ApiResponse<>(true, status.getCode(), status.getMessage(), null, result),
         status.getHttpStatus());
   }
 
   // 실패한 경우 응답 생성
   public static ResponseEntity<ApiResponse> onFailure(ErrorStatus error) {
     return new ResponseEntity<>(
-        new ApiResponse(false, error.getCode(), error.getMessage(), null, null),
+        new ApiResponse<>(false, error.getCode(), error.getMessage(), null, null),
         error.getHttpStatus());
   }
 
   public static ResponseEntity<ApiResponse> onFailure(ErrorStatus error, String message) {
     return new ResponseEntity<>(
-        new ApiResponse(false, error.getCode(), error.getMessage(message), null, null),
+        new ApiResponse<>(false, error.getCode(), error.getMessage(message), null, null),
         error.getHttpStatus());
   }
 
   public static ResponseEntity<ApiResponse> onFailure(ErrorStatus error, Object data) {
     return new ResponseEntity<>(
-        new ApiResponse(false, error.getCode(), error.getMessage(), null, data),
+        new ApiResponse<>(false, error.getCode(), error.getMessage(), null, data),
         error.getHttpStatus());
   }
 }

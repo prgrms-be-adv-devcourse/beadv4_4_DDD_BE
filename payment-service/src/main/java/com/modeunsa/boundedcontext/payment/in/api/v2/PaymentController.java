@@ -37,17 +37,17 @@ public class PaymentController {
 
   @Operation(summary = "결제 목록 조회", description = "조회 기간, 결제 상태, 주문 번호로 결제 내역을 검색합니다.")
   @GetMapping
-  public ResponseEntity<ApiResponse> getPaymentList(
+  public ResponseEntity<ApiResponse<Page<PaymentListItemResponse>>> getPaymentList(
       @AuthenticationPrincipal CustomUserDetails user,
       @Valid PaymentSearchRequest paymentSearchRequest) {
     Page<PaymentListItemResponse> page =
         paymentFacade.getPaymentListPage(user.getMemberId(), paymentSearchRequest);
-    return ApiResponse.onSuccess(SuccessStatus.OK, page);
+    return ApiResponse.onSuccessTyped(SuccessStatus.OK, page);
   }
 
   @Operation(summary = "토스 웹훅", description = "토스 웹훅을 처리하는 API 입니다.")
   @PostMapping("/webhooks/toss")
-  public ResponseEntity<ApiResponse> receiveTossWebHook(
+  public ResponseEntity<ApiResponse<Void>> receiveTossWebHook(
       @RequestHeader(TossWebhookHeaders.TOSS_TRANSMISSION_ID) String transmissionId,
       @RequestHeader(TossWebhookHeaders.TOSS_TRANSMISSION_TIME) OffsetDateTime transmissionTime,
       @RequestHeader(TossWebhookHeaders.TOSS_RETRY_COUNT) int retryCount,
@@ -63,6 +63,6 @@ public class PaymentController {
     paymentFacade.handleTossWebhookEvent(
         transmissionId, transmissionTime, retryCount, tossWebhookRequest);
 
-    return ApiResponse.onSuccess(SuccessStatus.OK);
+    return ApiResponse.onSuccessTyped(SuccessStatus.OK);
   }
 }

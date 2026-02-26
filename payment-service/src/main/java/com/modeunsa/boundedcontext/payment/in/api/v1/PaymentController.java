@@ -30,21 +30,21 @@ public class PaymentController {
 
   @Operation(summary = "결제 요청 기능", description = "결제를 요청하는 기능입니다.")
   @PostMapping
-  public ResponseEntity<ApiResponse> requestPayment(
+  public ResponseEntity<ApiResponse<PaymentResponse>> requestPayment(
       @AuthenticationPrincipal CustomUserDetails user,
       @Valid @RequestBody PaymentRequest paymentRequest) {
     PaymentResponse response = paymentFacade.requestPayment(user, paymentRequest);
-    return ApiResponse.onSuccess(SuccessStatus.OK, response);
+    return ApiResponse.onSuccessTyped(SuccessStatus.OK, response);
   }
 
   @Operation(summary = "결제 승인 요청", description = "토스페이먼츠로부터 결제 승인을 요청하는 기능입니다.")
   @PostMapping("/{orderNo}/payment/confirm/by/tossPayments")
-  public ResponseEntity<ApiResponse> confirmPaymentByTossPayments(
+  public ResponseEntity<ApiResponse<ConfirmPaymentResponse>> confirmPaymentByTossPayments(
       @AuthenticationPrincipal CustomUserDetails user,
       @PathVariable String orderNo,
       @Valid @RequestBody ConfirmPaymentRequest confirmPaymentRequest) {
     ConfirmPaymentResponse response =
         paymentFacade.confirmTossPayment(user, orderNo, confirmPaymentRequest);
-    return ApiResponse.onSuccess(SuccessStatus.OK, response);
+    return ApiResponse.onSuccessTyped(SuccessStatus.OK, response);
   }
 }

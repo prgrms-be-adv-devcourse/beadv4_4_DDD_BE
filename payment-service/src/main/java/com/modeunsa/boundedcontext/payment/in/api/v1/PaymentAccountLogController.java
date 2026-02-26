@@ -28,7 +28,7 @@ public class PaymentAccountLogController {
 
   @Operation(summary = "결제 계좌 입출금 내역 조회 기능", description = "결제 계좌 입출금 내역 정보를 조회하는 기능입니다.")
   @GetMapping
-  public ResponseEntity<ApiResponse> getAccountLedgePage(
+  public ResponseEntity<ApiResponse<Page<PaymentAccountLedgerPageResponse>>> getAccountLedgePage(
       @AuthenticationPrincipal CustomUserDetails user,
       @Valid PaymentAccountSearchRequest paymentAccountSearchRequest) {
     Page<PaymentAccountLogDto> page =
@@ -36,6 +36,6 @@ public class PaymentAccountLogController {
             user.getMemberId(), paymentAccountSearchRequest);
     Page<PaymentAccountLedgerPageResponse> response =
         page.map(PaymentAccountLedgerPageResponse::from);
-    return ApiResponse.onSuccess(SuccessStatus.OK, response);
+    return ApiResponse.onSuccessTyped(SuccessStatus.OK, response);
   }
 }
