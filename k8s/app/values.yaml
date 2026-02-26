@@ -23,7 +23,7 @@ member-api:
   enabled: false
 
 product-api:
-  enabled: false
+  enabled: true
 
 file-api:
   enabled: false
