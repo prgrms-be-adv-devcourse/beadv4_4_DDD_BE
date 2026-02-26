@@ -53,11 +53,23 @@ public class PaymentController {
       @RequestHeader(TossWebhookHeaders.TOSS_RETRY_COUNT) int retryCount,
       @RequestBody String rawBody) {
 
-    TossWebhookRequest tossWebhookRequest =
-        jsonConverter.deserialize(rawBody, TossWebhookRequest.class);
+    try {
+      TossWebhookRequest tossWebhookRequest =
+          jsonConverter.deserialize(rawBody, TossWebhookRequest.class);
 
-    paymentFacade.handleTossWebhookEvent(
-        transmissionId, transmissionTime, retryCount, tossWebhookRequest, rawBody);
+      paymentFacade.handleTossWebhookEvent(
+          transmissionId, transmissionTime, retryCount, tossWebhookRequest, rawBody);
+    } catch (RuntimeException e) {
+      log.error(
+          "Failed to process Toss webhook. transmissionId={}, transmissionTime={}, retryCount={}, "
+              + "rawBody={}, error={}",
+          transmissionId,
+          transmissionTime,
+          retryCount,
+          rawBody,
+          e.getMessage(),
+          e);
+    }
 
     return ApiResponse.onSuccess(SuccessStatus.OK);
   }
