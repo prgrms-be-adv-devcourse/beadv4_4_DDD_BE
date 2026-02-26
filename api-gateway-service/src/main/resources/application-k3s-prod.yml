@@ -43,6 +43,8 @@ custom:
   swagger:
     serverUrl: https://modeunsa.store
     description: "Production Server"
+  global:
+    internalBackUrl: https://modeunsa.store
   security:
     permit-all: false
     permit-urls:
