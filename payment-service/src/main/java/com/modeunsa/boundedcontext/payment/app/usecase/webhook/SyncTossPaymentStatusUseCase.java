@@ -22,7 +22,7 @@ public class SyncTossPaymentStatusUseCase {
 
   public void execute(TossWebhookData data) {
 
-    Payment payment = paymentSupport.getPaymentByOrderNo(data.orderId());
+    Payment payment = paymentSupport.getPaymentByPgOrderId(data.orderId());
 
     switch (data.status()) {
       case READY, WAITING_FOR_DEPOSIT -> {}

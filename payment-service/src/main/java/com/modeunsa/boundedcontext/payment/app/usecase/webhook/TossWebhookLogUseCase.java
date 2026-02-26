@@ -25,7 +25,8 @@ public class TossWebhookLogUseCase {
       String transmissionId,
       OffsetDateTime transmissionTime,
       int retryCount,
-      @Valid TossWebhookRequest request) {
+      @Valid TossWebhookRequest request,
+      String rawBody) {
 
     String payload = jsonConverter.serialize(request);
 
@@ -39,7 +40,13 @@ public class TossWebhookLogUseCase {
 
     PaymentTossWebhookLog webhookLog =
         PaymentTossWebhookLog.create(
-            transmissionId, transmissionTime, retryCount, request.eventType(), payload);
+            transmissionId,
+            transmissionTime,
+            retryCount,
+            request.eventType(),
+            request.data().orderId(),
+            payload,
+            rawBody);
 
     return tossWebhookStore.store(webhookLog).getId();
   }
