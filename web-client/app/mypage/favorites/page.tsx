@@ -268,9 +268,9 @@ function ProductFavorites() {
                     <Link
                         key={item.id}
                         href={`/products/${item.id}`}
-                        className="ai-product-card"
+                        className="product-card"
                     >
-                      <div className="ai-product-image">
+                      <div className="product-image">
                         {item.primaryImageUrl ? (
                             <img src={item.primaryImageUrl} alt={item.name} />
                         ) : (
@@ -278,14 +278,14 @@ function ProductFavorites() {
                         )}
                       </div>
 
-                      <div className="ai-product-info">
-                        <div className="ai-product-brand">
+                      <div className="product-info">
+                        <div className="product-brand">
                           {item.sellerBusinessName}
                         </div>
-                        <div className="ai-product-name">
+                        <div className="product-name">
                           {item.name}
                         </div>
-                        <div className="ai-product-price">
+                        <div className="product-price">
                           ₩{item.salePrice.toLocaleString()}
                         </div>
                       </div>
