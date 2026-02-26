@@ -175,7 +175,8 @@ public class PaymentFacade {
       String transmissionId,
       OffsetDateTime transmissionTime,
       int retryCount,
-      TossWebhookRequest request) {
+      TossWebhookRequest request,
+      String rawBody) {
 
     // 1. 웹훅 유효성 검사
     if (!tossWebhookValidator.validate(
@@ -185,7 +186,7 @@ public class PaymentFacade {
 
     // 2. 로그 생성
     Long webhookLogId =
-        tossWebhookLogUseCase.save(transmissionId, transmissionTime, retryCount, request);
+        tossWebhookLogUseCase.save(transmissionId, transmissionTime, retryCount, request, rawBody);
 
     // 3. 결제 상태 동기화 처리
     try {

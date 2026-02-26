@@ -41,10 +41,14 @@ public class PaymentTossWebhookLog extends AuditedEntity {
 
   private String eventType;
 
+  private String orderId;
+
   @Builder.Default
   @Column(nullable = false, length = 20)
   @Enumerated(EnumType.STRING)
   private TossWebhookStatus status = TossWebhookStatus.PENDING;
+
+  @Lob private String requestRawData;
 
   @Lob private String payload;
 
@@ -59,13 +63,17 @@ public class PaymentTossWebhookLog extends AuditedEntity {
       OffsetDateTime transmissionTime,
       int retryCount,
       String eventType,
-      String payload) {
+      String orderId,
+      String payload,
+      String requestRawData) {
     return PaymentTossWebhookLog.builder()
         .transmissionId(transmissionId)
         .transmissionTime(transmissionTime)
         .retryCount(retryCount)
         .eventType(eventType)
         .payload(payload)
+        .orderId(orderId)
+        .requestRawData(requestRawData)
         .build();
   }
 

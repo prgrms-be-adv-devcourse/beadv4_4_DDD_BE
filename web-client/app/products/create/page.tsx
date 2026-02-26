@@ -25,7 +25,6 @@ interface ProductCreateRequest {
   description: string
   price: number
   salePrice: number
-  stock: number
   images: string[]
 }
 
@@ -61,7 +60,6 @@ export default function ProductCreatePage() {
     description: '',
     price: 0,
     salePrice: 0,
-    stock: 0,
     images: [],
   })
   const [imageFiles, setImageFiles] = useState<File[]>([])
@@ -218,11 +216,6 @@ export default function ProductCreatePage() {
       return
     }
 
-    if (formData.stock < 0) {
-      alert('재고는 0 이상이어야 합니다.')
-      return
-    }
-
     if (formData.salePrice < formData.price) {
       alert('판매가는 정가보다 크거나 같아야 합니다.')
       return
@@ -259,7 +252,6 @@ export default function ProductCreatePage() {
           description: formData.description,
           price: formData.price,
           salePrice: formData.salePrice,
-          stock: formData.stock,
           images: uploadedImageUrls
         })
       )
@@ -375,23 +367,6 @@ export default function ProductCreatePage() {
                     step="1"
                   />
                 </div>
-              </div>
-
-              {/* Stock */}
-              <div className="form-group">
-                <label htmlFor="stock" className="form-label">
-                  재고
-                </label>
-                <input
-                  type="number"
-                  id="stock"
-                  className="form-input"
-                  placeholder="0"
-                  value={formData.stock || ''}
-                  onChange={(e) => handleInputChange('stock', parseInt(e.target.value) || 0)}
-                  min="0"
-                  step="1"
-                />
               </div>
 
               {/* Images */}
