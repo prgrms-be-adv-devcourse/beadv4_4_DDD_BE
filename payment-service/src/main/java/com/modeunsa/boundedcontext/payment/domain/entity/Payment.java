@@ -235,7 +235,7 @@ public class Payment extends AuditedEntity {
 
   // TOSS 웹훅으로 인한 결제 상태 변경
   public void syncToApproved() {
-    if (FINAL_TERMINAL_STATUSES.contains(this.status)) {
+    if (this.status == PaymentStatus.SUCCESS) {
       return;
     }
     if (this.status == PaymentStatus.IN_PROGRESS || this.status == PaymentStatus.PENDING) {
