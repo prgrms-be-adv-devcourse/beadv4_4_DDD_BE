@@ -270,7 +270,7 @@ export default function Home() {
               {searchResults.map((item) => (
                 <Link key={item.id} href={`/products/${item.id}`} className="product-card">
                   <div className="product-image">
-                    <div className="image-placeholder">이미지</div>
+                    <div className="image-placeholder">{item.primaryImageUrl}</div>
                   </div>
                   <div className="product-info">
                     <div className="product-brand">{item.sellerBusinessName}</div>
