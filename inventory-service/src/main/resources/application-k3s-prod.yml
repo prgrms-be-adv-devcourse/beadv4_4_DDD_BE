@@ -4,6 +4,15 @@ spring:
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    open-in-view: false
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: false
   data:
     redis:
       host: ${REDIS_HOST:modeunsa-infra-redis}
@@ -16,12 +25,6 @@ spring:
   h2:
     console:
       enabled: false
-
-app:
-  event-publisher:
-    type: ${EVENT_PUBLISHER_TYPE:kafka}
-  event-consumer:
-    type: ${EVENT_CONSUMER_TYPE:kafka}
 
 management:
   health:
@@ -37,9 +40,9 @@ management:
       show-details: never
     prometheus:
       enabled: true
-  metrics:
-    export:
-      prometheus:
+  prometheus:
+    metrics:
+      export:
         enabled: true
 
 custom:
@@ -64,22 +67,8 @@ springdoc:
   swagger-ui:
     persistAuthorization: true
 
-services:
-  member:
-    host: modeunsa-app-member-api
-  auth:
-    host: auth
-  product:
-    host: modeunsa-app-product-api
-  order:
-    host: modeunsa-app-order-api
-  inventory:
-    host: modeunsa-app-inventory-api
-  payment:
-    host: modeunsa-app-payment-api
-  settlement:
-    host: modeunsa-app-settlement-api
-  file:
-    host: modeunsa-app-file-api
-  content:
-    host: content
+app:
+  event-publisher:
+    type: kafka
+  event-consumer:
+    type: kafka
