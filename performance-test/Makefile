@@ -10,10 +10,10 @@ ORDER_NOT_RETRY_SCRIPT=scripts/order/not_retry_optimistic_product_detail_and_ord
 
 # .env 파일에서 TARGET_URL 읽기 (없으면 기본값)
 -include .env
-TARGET_URL?=http://host.docker.internal:8080
+TARGET_URL?=https://modeunsa.store
 
 # arrival 모드 기본 값 (원하면 make 호출 시 ARRIVAL_RATE=... 로 override)
-ARRIVAL_RATE?=100
+ARRIVAL_RATE?=10
 ARRIVAL_DURATION?=5m
 # step 모드에서 목표 RPS (대략)
 TARGET_RPS?=200
