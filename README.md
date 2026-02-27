@@ -48,7 +48,7 @@
 ![system_architecture_diagram](./docs/image/system_architecture_diagram.png)
 
 ## 6. Infrastructure Architecture Diagram
-![infrastucture_architecture_diagram](./docs/image/infrastucture_architecture_diagram.png)
+![infrastructure_architecture_diagram](docs/image/infrastructure_architecture_diagram.png)
 
 ## 7. CICD Diagram
 ![cicd_diagram](./docs/image/cicd_diagram.png)
