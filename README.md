@@ -20,14 +20,17 @@
 이벤트 기반 도메인 분리 구조를 채택하였다.
 
 ## 3. Core Features
+- API Gateway
+  - API 라우팅 및 인증·인가 처리
 - Auth
-  - OAuth2 기반 소셜 회원가입 및 로그인, 로그아웃
+  - OAuth2 기반 소셜 회원가입, 로그인, 로그아웃
   - 소셜 계정 연동 (하나의 회원에 다수 소셜 계정 연결 가능)
   - 회원, 판매자, 관리자 등 권한 관리 및 권한별 API 접근 제어
 - 회원
   - 회원 기본 정보 관리(조회, 수정)
   - 회원 프로필 관리(생성, 조회, 수정)
   - 회원 배송지 주소 관리(생성, 조회, 수정, 삭제)
+  - 판매자 등록 신청
 - 상품
   - 카테고리 기반 상품 조회 및 관심상품 관리
 - 컨텐츠
@@ -59,7 +62,7 @@
 - Domain Isolation: 각 도메인은 독립적으로 진화
 - Domain Driven Design: 도메인 간 직접 참조 제거
 - Idempotent Event Handling: 중복 이벤트에도 안전
-- Clear Role Separation: Member / Seller / System / System / Holder
+- Clear Role Separation: Member / Seller / Admin / System / Holder
 
 ## 9. Tech Stack
 <!-- (선택 이유 중심) -->
@@ -108,11 +111,11 @@
 ### Docker 및 Docker Compose 가이드
 * [Docker 및 Docker Compose 가이드](./docs/docker.md)
 
-### PR 검증 및 CI 가이드
-- [PR 검증 및 CI 가이드](docs/ci.md)
+### CI 가이드
+- [CI 가이드](docs/ci.md)
 
-### 배포(CD) 가이드
-- [배포 가이드](docs/deploy.md)
+### CD 가이드
+- [CD 가이드](docs/deploy.md)
 
 ### AWS 인프라 아키텍처
 * [AWS 인프라 아키텍처](./docs/aws_architecture.md)
@@ -125,3 +128,6 @@
 
 ### OAuth2 소셜 로그인 및 계정 연동
 * [OAuth2 소셜 로그인 및 계정 연동](./docs/oauth2.md)
+
+### API Gateway 라우팅 및 인증/인가 전략
+* [API Gateway 라우팅 및 인증/인가 전략](./docs/api_gateway.md)
