@@ -131,3 +131,7 @@
 
 ### API Gateway 라우팅 및 인증/인가 전략
 * [API Gateway 라우팅 및 인증/인가 전략](./docs/api_gateway.md)
+
+### K3s 설정 방법, 새로운 모듈 세팅 방법
+* [K3s 설정 방법](./docs/k8s.md)
+* [K3s 새로운 모듈 세팅](./docs/k8s_module.md)
