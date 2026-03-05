@@ -77,21 +77,18 @@ Colima는 macOS/Linux 전용이므로 Windows에서는 Rancher Desktop을 사용
 ### 1. 환경 파일 설정
 
 ```bash
-# 템플릿 복사
-cp .env.example .env.k3s.dev     # 개발 환경
-cp .env.example .env.k3s-prod    # 운영 환경
-
-# K3s용 호스트 설정으로 변경
+# K3s 설정
 vi .env.k3s.dev
+vi .env.k3s.prod
 ```
 
 ### 2. 실행
 
-| 스크립트 | 역할 |
-|---------|------|
-| `./k8s/infra.sh` | 인프라만 관리 (MySQL, Redis, ES 등) |
-| `./k8s/app.sh` | 애플리케이션만 관리 (API 서버) |
-| `./k8s/deploy.sh` | 인프라 + 앱 통합 관리 |
+| 스크립트 | 역할                               |
+|---------|----------------------------------|
+| `./k8s/infra.sh` | 인프라만 관리 (MySQL, Redis, ES 등)     |
+| `./k8s/app.sh` | 애플리케이션만 관리 (모듈별 API 서버 및 프론트 서버) |
+| `./k8s/deploy.sh` | 인프라 + 앱 통합 관리                    |
 
 ```bash
 # 인프라만
@@ -184,16 +181,12 @@ kubectl wait --for=condition=Available deployment --all -n cert-manager --timeou
 ### 환경 파일 생성
 
 ```bash
-# 템플릿에서 환경 파일 생성
-cp .env.example .env.k3s.dev     # 개발 환경
-cp .env.example .env.k3s-prod    # 운영 환경
-
-# 환경 파일 편집 (호스트 설정 변경 필요)
+# 환경 파일 편집
 vi .env.k3s.dev
+vi .env.k3s.prod
 ```
 
 ### K3s용 호스트 설정
-
 K3s 환경에서는 서비스 이름을 사용해야 합니다. `.env.k3s.*` 파일에서 다음과 같이 설정하세요:
 
 ```bash
