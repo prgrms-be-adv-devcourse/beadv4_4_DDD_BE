@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import com.modeunsa.SettlementApplication;
 import com.modeunsa.boundedcontext.settlement.app.SettlementAddItemsAndCalculatePayoutsUseCase;
 import com.modeunsa.boundedcontext.settlement.domain.entity.Settlement;
 import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementCandidateItem;
@@ -22,22 +21,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 
 @ExtendWith(MockitoExtension.class)
-@ActiveProfiles("test")
-@SpringBootTest(classes = SettlementApplication.class)
 @DisplayName("Settlement 멱등성 요구사항 테스트")
 class SettlementIdempotencyTest {
-
+  private static final Long SYSTEM_MEMBER_ID = 1L;
   private static final Long SELLER_ID = 2L;
 
   @Mock private SettlementRepository settlementRepository;
-
-  @Value("${settlement.member.system-member-id}")
-  private Long systemMemberId;
 
   private SettlementAddItemsAndCalculatePayoutsUseCase useCase;
   private Settlement sellerSettlement;
@@ -47,7 +38,7 @@ class SettlementIdempotencyTest {
   @BeforeEach
   void setUp() {
     SettlementConfig settlementConfig = new SettlementConfig();
-    settlementConfig.setSystemMemberId(systemMemberId);
+    settlementConfig.setSystemMemberId(SYSTEM_MEMBER_ID);
 
     useCase =
         new SettlementAddItemsAndCalculatePayoutsUseCase(settlementRepository, settlementConfig);
@@ -62,7 +53,7 @@ class SettlementIdempotencyTest {
             SELLER_ID, year, month, SettlementEventType.SETTLEMENT_PRODUCT_SALES_AMOUNT);
     feeSettlement =
         Settlement.create(
-            systemMemberId, year, month, SettlementEventType.SETTLEMENT_PRODUCT_SALES_FEE);
+            SYSTEM_MEMBER_ID, year, month, SettlementEventType.SETTLEMENT_PRODUCT_SALES_FEE);
 
     candidateItem =
         SettlementCandidateItem.create(
@@ -76,7 +67,7 @@ class SettlementIdempotencyTest {
             eq(candidateItem.getSellerMemberId()), anyInt(), anyInt()))
         .thenReturn(Optional.of(sellerSettlement));
     when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonth(
-            eq(systemMemberId), anyInt(), anyInt()))
+            eq(SYSTEM_MEMBER_ID), anyInt(), anyInt()))
         .thenReturn(Optional.of(feeSettlement));
 
     useCase.addItemsAndCalculatePayouts(candidateItem);
@@ -94,7 +85,7 @@ class SettlementIdempotencyTest {
             eq(candidateItem.getSellerMemberId()), anyInt(), anyInt()))
         .thenReturn(Optional.of(sellerSettlement));
     when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonth(
-            eq(systemMemberId), anyInt(), anyInt()))
+            eq(SYSTEM_MEMBER_ID), anyInt(), anyInt()))
         .thenReturn(Optional.of(feeSettlement));
 
     useCase.addItemsAndCalculatePayouts(candidateItem);
@@ -112,7 +103,7 @@ class SettlementIdempotencyTest {
             eq(candidateItem.getSellerMemberId()), anyInt(), anyInt()))
         .thenReturn(Optional.of(sellerSettlement));
     when(settlementRepository.findBySellerMemberIdAndSettlementYearAndSettlementMonth(
-            eq(systemMemberId), anyInt(), anyInt()))
+            eq(SYSTEM_MEMBER_ID), anyInt(), anyInt()))
         .thenReturn(Optional.of(feeSettlement));
 
     useCase.addItemsAndCalculatePayouts(candidateItem);
