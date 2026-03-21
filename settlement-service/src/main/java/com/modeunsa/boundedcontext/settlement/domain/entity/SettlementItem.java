@@ -10,6 +10,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -18,7 +19,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "settlement_item")
+@Table(
+    name = "settlement_item",
+    uniqueConstraints = {
+      @UniqueConstraint(
+          name = "settlement_item_unique",
+          columnNames = {"settlement_id", "order_item_id", "event_type"})
+    })
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class SettlementFacade {
   private final SettlementAddItemsAndCalculatePayoutsUseCase settlementProcessOrderUseCase;
+  private final SettlementClaimCandidateItemUseCase settlementClaimCandidateItemUseCase;
   private final SettlementSaveItemsUseCase settlementSaveItemsUseCase;
   private final SettlementSyncMemberUseCase settlementSyncMemberUseCase;
   private final SettlementCollectCandidateItemsUseCase settlementCollectCandidateItemsUseCase;
@@ -28,6 +29,11 @@ public class SettlementFacade {
   public List<SettlementItem> addItemsAndCalculatePayouts(
       SettlementCandidateItem settlementCandidateItem) {
     return settlementProcessOrderUseCase.addItemsAndCalculatePayouts(settlementCandidateItem);
+  }
+
+  @Transactional
+  public boolean claimCandidateItem(Long candidateItemId) {
+    return settlementClaimCandidateItemUseCase.claim(candidateItemId);
   }
 
   @Transactional
