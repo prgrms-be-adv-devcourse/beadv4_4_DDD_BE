@@ -2,6 +2,7 @@ package com.modeunsa.boundedcontext.settlement.out;
 
 import com.modeunsa.boundedcontext.settlement.domain.entity.Settlement;
 import com.modeunsa.boundedcontext.settlement.domain.types.SettlementEventType;
+import com.modeunsa.boundedcontext.settlement.domain.types.SettlementStatus;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,4 +18,10 @@ public interface SettlementRepository extends JpaRepository<Settlement, Long> {
 
   List<Settlement> findByPayoutAtIsNullAndSettlementYearAndSettlementMonthOrderByIdAsc(
       int settlementYear, int settlementMonth);
+
+  List<Settlement> findBySettlementYearAndSettlementMonthAndStatusOrderByIdAsc(
+      int settlementYear, int settlementMonth, SettlementStatus status);
+
+  List<Settlement> findByBatchExecutionIdAndStatusOrderByIdAsc(
+      Long batchExecutionId, SettlementStatus status);
 }

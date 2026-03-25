@@ -102,12 +102,20 @@ public class Settlement extends GeneratedIdAndAuditedEntity {
   }
 
   public void completePayout() {
+    if (this.status == SettlementStatus.COMPLETED) {
+      return;
+    }
+
     LocalDateTime now = LocalDateTime.now();
     this.status = SettlementStatus.COMPLETED;
     this.payoutAt = now;
   }
 
   public void markProcessing(Long batchExecutionId) {
+    if (this.status == SettlementStatus.COMPLETED) {
+      return;
+    }
+
     this.status = SettlementStatus.PROCESSING;
     this.batchExecutionId = batchExecutionId;
     this.processingAt = LocalDateTime.now();

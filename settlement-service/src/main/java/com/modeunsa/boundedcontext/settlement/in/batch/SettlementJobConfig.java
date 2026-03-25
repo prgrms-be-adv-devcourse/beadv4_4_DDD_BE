@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 @RequiredArgsConstructor
 public class SettlementJobConfig {
   private final JobRepository jobRepository;
+  private final SettlementMonthlyJobExecutionListener settlementMonthlyJobExecutionListener;
 
   @Bean
   public Job collectItemsAndCalculatePayoutsJob(Step collectItemsAndCalculatePayoutsStep) {
@@ -21,9 +22,15 @@ public class SettlementJobConfig {
   }
 
   @Bean
-  public Job monthlySettlementJob(Step monthlySettlementStep) {
+  public Job monthlySettlementJob(
+      Step reserveMonthlySettlementStep,
+      Step monthlySettlementStep,
+      Step completeMonthlySettlementStep) {
     return new JobBuilder("monthlySettlementJob", jobRepository)
-        .start(monthlySettlementStep)
+        .listener(settlementMonthlyJobExecutionListener)
+        .start(reserveMonthlySettlementStep)
+        .next(monthlySettlementStep)
+        .next(completeMonthlySettlementStep)
         .build();
   }
 }

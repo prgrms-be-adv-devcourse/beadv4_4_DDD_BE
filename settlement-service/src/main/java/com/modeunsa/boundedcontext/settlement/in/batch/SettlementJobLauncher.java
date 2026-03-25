@@ -1,8 +1,8 @@
 package com.modeunsa.boundedcontext.settlement.in.batch;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.job.Job;
@@ -20,14 +20,25 @@ public class SettlementJobLauncher {
   private final Job collectItemsAndCalculatePayoutsJob;
   private final Job monthlySettlementJob;
 
-  String batchId = UUID.randomUUID().toString();
-
   public JobExecution runCollectItemsAndCalculatePayoutsJob() throws Exception {
     return runJob(collectItemsAndCalculatePayoutsJob);
   }
 
   public JobExecution runMonthlyPayoutJob() throws Exception {
-    return runJob(monthlySettlementJob);
+    LocalDate targetMonth = LocalDate.now().minusMonths(1);
+
+    JobParameters jobParameters =
+        new JobParametersBuilder()
+            .addString(
+                "runDateTime", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+            .addLong("settlementYear", (long) targetMonth.getYear())
+            .addLong("settlementMonth", (long) targetMonth.getMonthValue())
+            .addString(
+                "settlementPeriod",
+                "%d-%02d".formatted(targetMonth.getYear(), targetMonth.getMonthValue()))
+            .toJobParameters();
+
+    return jobOperator.start(monthlySettlementJob, jobParameters);
   }
 
   private JobExecution runJob(Job job) throws Exception {
@@ -35,7 +46,6 @@ public class SettlementJobLauncher {
         new JobParametersBuilder()
             .addString(
                 "runDateTime", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
-            .addString("batchId", batchId)
             .toJobParameters();
 
     return jobOperator.start(job, jobParameters);
