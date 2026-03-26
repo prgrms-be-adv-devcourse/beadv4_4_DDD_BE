@@ -122,6 +122,8 @@ class SettlementMonthlyJobConfigTest {
 
     SettlementCompletedPayoutEvent publishedEvent = eventCaptor.getValue();
     assertThat(publishedEvent.batchId()).isEqualTo(String.valueOf(jobExecution.getId()));
+    assertThat(publishedEvent.eventId())
+        .isEqualTo("settlement-monthly-completed:" + jobExecution.getId());
     assertThat(publishedEvent.payouts()).hasSize(2);
     assertThat(publishedEvent.payouts())
         .extracting("settlementId")

@@ -8,7 +8,6 @@ import com.modeunsa.shared.settlement.dto.SettlementCompletedPayoutDto;
 import com.modeunsa.shared.settlement.event.SettlementCompletedPayoutEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.repository.JobRepository;
@@ -100,9 +99,7 @@ public class SettlementMonthSettlementStepConfig {
                         settlement.getPayoutAt()));
               }
 
-              eventPublisher.publish(
-                  new SettlementCompletedPayoutEvent(
-                      String.valueOf(batchExecutionId), UUID.randomUUID().toString(), payouts));
+              eventPublisher.publish(SettlementCompletedPayoutEvent.of(batchExecutionId, payouts));
 
               return RepeatStatus.FINISHED;
             },
