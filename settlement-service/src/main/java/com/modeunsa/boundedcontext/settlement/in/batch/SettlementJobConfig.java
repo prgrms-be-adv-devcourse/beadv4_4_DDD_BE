@@ -23,13 +23,10 @@ public class SettlementJobConfig {
 
   @Bean
   public Job monthlySettlementJob(
-      Step reserveMonthlySettlementStep,
-      Step monthlySettlementStep,
-      Step completeMonthlySettlementStep) {
+      Step reserveMonthlySettlementStep, Step completeMonthlySettlementStep) {
     return new JobBuilder("monthlySettlementJob", jobRepository)
         .listener(settlementMonthlyJobExecutionListener)
         .start(reserveMonthlySettlementStep)
-        .next(monthlySettlementStep)
         .next(completeMonthlySettlementStep)
         .build();
   }
