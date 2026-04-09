@@ -87,6 +87,6 @@ app:
     http-only: true
     same-site: Lax
   event-publisher:
-    type: kafka
+    type: outbox
   event-consumer:
     type: kafka
