@@ -83,6 +83,6 @@ app:
     http-only: true
     same-site: Strict
   event-publisher:
-    type: kafka
+    type: outbox
   event-consumer:
     type: kafka

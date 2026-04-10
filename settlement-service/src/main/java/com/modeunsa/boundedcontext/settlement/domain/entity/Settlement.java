@@ -5,6 +5,7 @@ import static jakarta.persistence.FetchType.LAZY;
 import com.modeunsa.boundedcontext.settlement.domain.PayoutAmounts;
 import com.modeunsa.boundedcontext.settlement.domain.policy.SettlementPolicy;
 import com.modeunsa.boundedcontext.settlement.domain.types.SettlementEventType;
+import com.modeunsa.boundedcontext.settlement.domain.types.SettlementStatus;
 import com.modeunsa.global.jpa.entity.GeneratedIdAndAuditedEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -49,6 +50,15 @@ public class Settlement extends GeneratedIdAndAuditedEntity {
 
   private LocalDateTime payoutAt;
 
+  private Long batchExecutionId;
+
+  private LocalDateTime processingAt;
+
+  @Column(nullable = false, length = 30)
+  @Enumerated(EnumType.STRING)
+  @Builder.Default
+  private SettlementStatus status = SettlementStatus.PENDING;
+
   public static Settlement create(
       Long sellerMemberId, int year, int month, SettlementEventType type) {
     return Settlement.builder()
@@ -92,7 +102,29 @@ public class Settlement extends GeneratedIdAndAuditedEntity {
   }
 
   public void completePayout() {
-    this.payoutAt = LocalDateTime.now();
+    if (this.status == SettlementStatus.COMPLETED) {
+      return;
+    }
+
+    LocalDateTime now = LocalDateTime.now();
+    this.status = SettlementStatus.COMPLETED;
+    this.payoutAt = now;
+  }
+
+  public void markProcessing(Long batchExecutionId) {
+    if (this.status == SettlementStatus.COMPLETED) {
+      return;
+    }
+
+    this.status = SettlementStatus.PROCESSING;
+    this.batchExecutionId = batchExecutionId;
+    this.processingAt = LocalDateTime.now();
+  }
+
+  public void rollbackToPending() {
+    this.status = SettlementStatus.PENDING;
+    this.batchExecutionId = null;
+    this.processingAt = null;
   }
 
   public void changeSettlementPeriod(int year, int month) {

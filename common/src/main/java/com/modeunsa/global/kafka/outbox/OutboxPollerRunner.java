@@ -30,7 +30,7 @@ public class OutboxPollerRunner {
   }
 
   public void runPolling(
-      OutboxReader reader, OutboxStore store, int batchSize, int maxRetry, int timeoutSeconds) {
+      OutboxReader reader, OutboxStore store, int batchSize, int maxRetry, int timeoutMs) {
     List<? extends OutboxEventView> pending = self.findPendingEvents(reader, store, batchSize);
 
     for (OutboxEventView event : pending) {
@@ -47,7 +47,7 @@ public class OutboxPollerRunner {
 
         kafkaTemplate
             .send(event.getTopic(), event.getAggregateId(), envelope)
-            .get(timeoutSeconds, TimeUnit.SECONDS);
+            .get(timeoutMs, TimeUnit.MILLISECONDS);
 
         store.markSent(event.getId());
       } catch (Exception e) {

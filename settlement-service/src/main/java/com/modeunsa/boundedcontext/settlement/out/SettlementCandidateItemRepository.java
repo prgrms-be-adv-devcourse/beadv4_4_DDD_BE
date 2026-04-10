@@ -4,6 +4,7 @@ import com.modeunsa.boundedcontext.settlement.domain.entity.SettlementCandidateI
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -21,4 +22,15 @@ public interface SettlementCandidateItemRepository
   List<SettlementCandidateItem> findUncollectedItems(
       @Param("startInclusive") LocalDateTime startInclusive,
       @Param("endExclusive") LocalDateTime endExclusive);
+
+  @Modifying(clearAutomatically = true, flushAutomatically = true)
+  @Query(
+      """
+      UPDATE SettlementCandidateItem s
+      SET s.collectedAt = :collectedAt
+      WHERE s.id = :id
+        AND s.collectedAt IS NULL
+      """)
+  int markCollectedIfUncollected(
+      @Param("id") Long id, @Param("collectedAt") LocalDateTime collectedAt);
 }

@@ -67,9 +67,11 @@ public class SettlementCollectItemsAndCalculatePayoutsStepConfig {
   public ItemProcessor<SettlementCandidateItem, List<SettlementItem>>
       addItemsAndCalculatePayoutsProcessor() {
     return candidateItem -> {
-      List<SettlementItem> items = settlementFacade.addItemsAndCalculatePayouts(candidateItem);
-      candidateItem.markCollected();
-      return items;
+      boolean claimed = settlementFacade.claimCandidateItem(candidateItem.getId());
+      if (!claimed) {
+        return List.of();
+      }
+      return settlementFacade.addItemsAndCalculatePayouts(candidateItem);
     };
   }
 

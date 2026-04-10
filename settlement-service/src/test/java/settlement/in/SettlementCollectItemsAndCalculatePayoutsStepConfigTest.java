@@ -88,6 +88,7 @@ class SettlementCollectItemsAndCalculatePayoutsStepConfigTest {
     // given
     when(settlementFacade.getSettlementCandidateItems(any(), any()))
         .thenReturn(List.of(candidateItem));
+    when(settlementFacade.claimCandidateItem(any())).thenReturn(true);
     when(settlementFacade.addItemsAndCalculatePayouts(any())).thenReturn(testItems);
 
     // when
@@ -103,6 +104,7 @@ class SettlementCollectItemsAndCalculatePayoutsStepConfigTest {
     // given
     when(settlementFacade.getSettlementCandidateItems(any(), any()))
         .thenReturn(List.of(candidateItem));
+    when(settlementFacade.claimCandidateItem(any())).thenReturn(true);
     when(settlementFacade.addItemsAndCalculatePayouts(any())).thenReturn(testItems);
 
     // when
@@ -118,6 +120,7 @@ class SettlementCollectItemsAndCalculatePayoutsStepConfigTest {
     // given
     when(settlementFacade.getSettlementCandidateItems(any(), any()))
         .thenReturn(List.of(candidateItem));
+    when(settlementFacade.claimCandidateItem(any())).thenReturn(true);
     when(settlementFacade.addItemsAndCalculatePayouts(any())).thenReturn(testItems);
 
     // when
@@ -138,5 +141,18 @@ class SettlementCollectItemsAndCalculatePayoutsStepConfigTest {
 
     // then
     assertThat(jobExecution.getExitStatus().getExitCode()).isEqualTo("COMPLETED");
+  }
+
+  @Test
+  @DisplayName("claim 실패 시 정산 항목 생성 없이 정상 종료")
+  void step_skips_candidate_when_claimFails() throws Exception {
+    when(settlementFacade.getSettlementCandidateItems(any(), any()))
+        .thenReturn(List.of(candidateItem));
+    when(settlementFacade.claimCandidateItem(any())).thenReturn(false);
+
+    JobExecution jobExecution = launchJob();
+
+    assertThat(jobExecution.getExitStatus().getExitCode()).isEqualTo("COMPLETED");
+    verify(settlementFacade, atLeastOnce()).claimCandidateItem(any());
   }
 }
