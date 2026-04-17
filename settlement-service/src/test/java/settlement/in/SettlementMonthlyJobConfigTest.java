@@ -28,13 +28,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.JobExecution;
-import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
-import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.JobOperator;
-import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.core.step.Step;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
@@ -48,10 +44,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 class SettlementMonthlyJobConfigTest {
 
   @Autowired private JobOperator jobOperator;
-  @Autowired private JobLauncher jobLauncher;
-  @Autowired private JobRepository jobRepository;
   @Autowired private Job monthlySettlementJob;
-  @Autowired private Step reserveMonthlySettlementStep;
   @Autowired private SettlementItemRepository settlementItemRepository;
   @Autowired private SettlementRepository settlementRepository;
 
@@ -196,8 +189,8 @@ class SettlementMonthlyJobConfigTest {
   }
 
   @Test
-  @DisplayName("N+1 update에 대한 테스트")
-  void reserveMonthlySettlementJob_executeNUpdateQueries() throws Exception {
+  @DisplayName("reserve/complete 모두 bulk update로 단일 쿼리로 처리되는지 확인")
+  void monthlySettlementJob_executeBulkUpdateQuery() throws Exception {
     int count = 100;
     for (int i = 0; i < count; i++) {
       saveSettlement(
@@ -212,9 +205,6 @@ class SettlementMonthlyJobConfigTest {
     stats.setStatisticsEnabled(true);
     stats.clear();
 
-    Job reserveOnlyJob =
-        new JobBuilder("reserveOnlyJob", jobRepository).start(reserveMonthlySettlementStep).build();
-
     JobParameters jobParameters =
         new JobParametersBuilder()
             .addString("runDateTime", LocalDateTime.now().toString())
@@ -223,11 +213,21 @@ class SettlementMonthlyJobConfigTest {
             .addString("settlementPeriod", "%d-%02d".formatted(settlementYear, settlementMonth))
             .toJobParameters();
 
-    jobLauncher.run(reserveOnlyJob, jobParameters);
+    jobOperator.start(monthlySettlementJob, jobParameters);
 
+    long totalQueryCount = stats.getPrepareStatementCount();
     long updateCount = stats.getEntityUpdateCount();
-    System.out.println("UPDATE 쿼리 실행 횟수: " + updateCount);
-    assertThat(updateCount).isEqualTo(count);
+    long completedCount =
+        settlementRepository
+            .findBySettlementYearAndSettlementMonthAndStatusOrderByIdAsc(
+                settlementYear, settlementMonth, SettlementStatus.COMPLETED)
+            .size();
+
+    System.out.println("총 쿼리 수: " + totalQueryCount);
+    System.out.println("Entity UPDATE 횟수: " + updateCount);
+    System.out.println("COMPLETED 처리 건수: " + completedCount);
+    assertThat(updateCount).isEqualTo(0);
+    assertThat(completedCount).isEqualTo(count);
   }
 
   private Settlement saveSettlement(

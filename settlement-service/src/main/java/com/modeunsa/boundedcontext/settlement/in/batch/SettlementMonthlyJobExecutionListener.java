@@ -1,9 +1,6 @@
 package com.modeunsa.boundedcontext.settlement.in.batch;
 
-import com.modeunsa.boundedcontext.settlement.domain.entity.Settlement;
-import com.modeunsa.boundedcontext.settlement.domain.types.SettlementStatus;
 import com.modeunsa.boundedcontext.settlement.out.SettlementRepository;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.job.JobExecution;
@@ -30,18 +27,12 @@ public class SettlementMonthlyJobExecutionListener implements JobExecutionListen
     }
 
     Long batchExecutionId = jobExecution.getId();
-    List<Settlement> processingSettlements =
-        settlementRepository.findByBatchExecutionIdAndStatusOrderByIdAsc(
-            batchExecutionId, SettlementStatus.PROCESSING);
-
-    for (Settlement settlement : processingSettlements) {
-      settlement.rollbackToPending();
-    }
+    int count = settlementRepository.bulkRollbackToPending(batchExecutionId);
 
     log.warn(
         "[SettlementMonthlyJobExecutionListener] 월 정산 배치 실패로 PROCESSING 상태 롤백:"
             + " jobExecutionId={}, count={}",
         batchExecutionId,
-        processingSettlements.size());
+        count);
   }
 }

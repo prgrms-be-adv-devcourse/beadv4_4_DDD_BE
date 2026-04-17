@@ -176,4 +176,16 @@ tasks.named('check') {
 // TODO 추후 suppressions 파일로 분리
 checkstyleMain.source = fileTree('src/main/java')
 
+tasks.register('performanceTest', Test) {
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform {
+        includeTags 'performance'
+    }
+    testLogging {
+        events "passed", "skipped", "failed"
+        showStandardStreams = true
+    }
+}
+
 tasks.register("prepareKotlinBuildScriptModel"){}

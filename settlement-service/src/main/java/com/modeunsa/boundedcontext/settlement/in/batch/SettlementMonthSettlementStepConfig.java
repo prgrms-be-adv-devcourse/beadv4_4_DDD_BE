@@ -6,7 +6,7 @@ import com.modeunsa.boundedcontext.settlement.out.SettlementRepository;
 import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.shared.settlement.dto.SettlementCompletedPayoutDto;
 import com.modeunsa.shared.settlement.event.SettlementCompletedPayoutEvent;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.repository.JobRepository;
@@ -38,13 +38,8 @@ public class SettlementMonthSettlementStepConfig {
                   ((Long) chunkContext.getStepContext().getJobParameters().get("settlementMonth"))
                       .intValue();
 
-              List<Settlement> settlements =
-                  settlementRepository.findBySettlementYearAndSettlementMonthAndStatusOrderByIdAsc(
-                      settlementYear, settlementMonth, SettlementStatus.PENDING);
-
-              for (Settlement settlement : settlements) {
-                settlement.markProcessing(batchExecutionId);
-              }
+              settlementRepository.bulkMarkProcessing(
+                  batchExecutionId, settlementYear, settlementMonth, LocalDateTime.now());
 
               return RepeatStatus.FINISHED;
             },
@@ -67,17 +62,20 @@ public class SettlementMonthSettlementStepConfig {
                 return RepeatStatus.FINISHED;
               }
 
-              List<SettlementCompletedPayoutDto> payouts = new ArrayList<>();
-              for (Settlement settlement : settlements) {
-                settlement.completePayout();
-                payouts.add(
-                    new SettlementCompletedPayoutDto(
-                        settlement.getId(),
-                        settlement.getSellerMemberId(),
-                        settlement.getAmount(),
-                        settlement.getType().getCompleteType(),
-                        settlement.getPayoutAt()));
-              }
+              LocalDateTime now = LocalDateTime.now();
+              settlementRepository.bulkCompletePayout(batchExecutionId, now);
+
+              List<SettlementCompletedPayoutDto> payouts =
+                  settlements.stream()
+                      .map(
+                          s ->
+                              new SettlementCompletedPayoutDto(
+                                  s.getId(),
+                                  s.getSellerMemberId(),
+                                  s.getAmount(),
+                                  s.getType().getCompleteType(),
+                                  now))
+                      .toList();
 
               eventPublisher.publish(SettlementCompletedPayoutEvent.of(batchExecutionId, payouts));
 

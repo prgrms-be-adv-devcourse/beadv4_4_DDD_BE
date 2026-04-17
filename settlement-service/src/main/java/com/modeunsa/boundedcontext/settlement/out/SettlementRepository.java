@@ -57,4 +57,15 @@ public interface SettlementRepository extends JpaRepository<Settlement, Long> {
       """)
   int bulkCompletePayout(
       @Param("batchExecutionId") Long batchExecutionId, @Param("now") LocalDateTime now);
+
+  // Listener용: PROCESSING → PENDING 일괄 롤백
+  @Modifying
+  @Transactional
+  @Query(
+      """
+      UPDATE Settlement s
+      SET s.status = 'PENDING', s.batchExecutionId = NULL, s.processingAt = NULL
+      WHERE s.batchExecutionId = :batchExecutionId AND s.status = 'PROCESSING'
+      """)
+  int bulkRollbackToPending(@Param("batchExecutionId") Long batchExecutionId);
 }
