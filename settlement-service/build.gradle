@@ -97,6 +97,10 @@ dependencies {
     // test
     testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    testImplementation platform('org.testcontainers:testcontainers-bom:1.20.4')
+    testImplementation 'org.testcontainers:mysql'
+    testImplementation 'org.testcontainers:junit-jupiter'
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.springframework.batch:spring-batch-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -112,7 +116,7 @@ jar {
 tasks.named('test') {
     useJUnitPlatform {
         // 기본적으로 ignore 태그는 제외
-        excludeTags 'ignore'
+        excludeTags 'ignore', 'performance'
 
         // 필요하면 시스템 프로퍼티로 추가 제외
         def excluded = System.getProperty('junit.excludeTags')
@@ -171,5 +175,17 @@ tasks.named('check') {
 
 // TODO 추후 suppressions 파일로 분리
 checkstyleMain.source = fileTree('src/main/java')
+
+tasks.register('performanceTest', Test) {
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform {
+        includeTags 'performance'
+    }
+    testLogging {
+        events "passed", "skipped", "failed"
+        showStandardStreams = true
+    }
+}
 
 tasks.register("prepareKotlinBuildScriptModel"){}

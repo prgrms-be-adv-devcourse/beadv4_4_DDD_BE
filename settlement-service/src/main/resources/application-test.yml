@@ -3,16 +3,6 @@ spring:
     activate:
       on-profile: test
 
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.elasticsearch.autoconfigure.ElasticsearchClientAutoConfiguration
-      - org.springframework.boot.data.elasticsearch.autoconfigure.DataElasticsearchAutoConfiguration
-
-  data:
-    elasticsearch:
-      repositories:
-        enabled: false
-
   datasource:
     url: jdbc:h2:mem:testdb;MODE=MySQL
     username: sa
@@ -29,6 +19,9 @@ spring:
       ddl-auto: create-drop
     open-in-view: false
     show-sql: false
+    properties:
+      hibernate:
+        generate_statistics: true
   batch:
     jdbc:
       initialize-schema: embedded

@@ -15,10 +15,13 @@ import com.modeunsa.boundedcontext.settlement.out.SettlementItemRepository;
 import com.modeunsa.boundedcontext.settlement.out.SettlementRepository;
 import com.modeunsa.global.eventpublisher.EventPublisher;
 import com.modeunsa.shared.settlement.event.SettlementCompletedPayoutEvent;
+import jakarta.persistence.EntityManagerFactory;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import org.hibernate.SessionFactory;
+import org.hibernate.stat.Statistics;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -44,6 +47,8 @@ class SettlementMonthlyJobConfigTest {
   @Autowired private Job monthlySettlementJob;
   @Autowired private SettlementItemRepository settlementItemRepository;
   @Autowired private SettlementRepository settlementRepository;
+
+  @Autowired private EntityManagerFactory entityManagerFactory;
 
   @MockitoBean private EventPublisher eventPublisher;
 
@@ -181,6 +186,48 @@ class SettlementMonthlyJobConfigTest {
             .addString("settlementPeriod", "%d-%02d".formatted(year, month))
             .toJobParameters();
     return jobOperator.start(monthlySettlementJob, jobParameters);
+  }
+
+  @Test
+  @DisplayName("reserve/complete 모두 bulk update로 단일 쿼리로 처리되는지 확인")
+  void monthlySettlementJob_executeBulkUpdateQuery() throws Exception {
+    int count = 100;
+    for (int i = 0; i < count; i++) {
+      saveSettlement(
+          (long) i,
+          settlementYear,
+          settlementMonth,
+          SettlementEventType.SETTLEMENT_PRODUCT_SALES_AMOUNT,
+          "1000");
+    }
+
+    Statistics stats = entityManagerFactory.unwrap(SessionFactory.class).getStatistics();
+    stats.setStatisticsEnabled(true);
+    stats.clear();
+
+    JobParameters jobParameters =
+        new JobParametersBuilder()
+            .addString("runDateTime", LocalDateTime.now().toString())
+            .addLong("settlementYear", (long) settlementYear)
+            .addLong("settlementMonth", (long) settlementMonth)
+            .addString("settlementPeriod", "%d-%02d".formatted(settlementYear, settlementMonth))
+            .toJobParameters();
+
+    jobOperator.start(monthlySettlementJob, jobParameters);
+
+    long totalQueryCount = stats.getPrepareStatementCount();
+    long updateCount = stats.getEntityUpdateCount();
+    long completedCount =
+        settlementRepository
+            .findBySettlementYearAndSettlementMonthAndStatusOrderByIdAsc(
+                settlementYear, settlementMonth, SettlementStatus.COMPLETED)
+            .size();
+
+    System.out.println("총 쿼리 수: " + totalQueryCount);
+    System.out.println("Entity UPDATE 횟수: " + updateCount);
+    System.out.println("COMPLETED 처리 건수: " + completedCount);
+    assertThat(updateCount).isEqualTo(0);
+    assertThat(completedCount).isEqualTo(count);
   }
 
   private Settlement saveSettlement(

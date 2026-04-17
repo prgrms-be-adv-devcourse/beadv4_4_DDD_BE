@@ -1,0 +1,48 @@
+spring:
+  config:
+    activate:
+      on-profile: mysql-test
+  datasource:
+    url: # Testcontainers @ServiceConnection이 자동으로 설정
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        generate_statistics: true
+  batch:
+    jdbc:
+      initialize-schema: always
+  task:
+    scheduling:
+      enabled: false
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.elasticsearch.autoconfigure.ElasticsearchClientAutoConfiguration
+      - org.springframework.boot.data.elasticsearch.autoconfigure.DataElasticsearchAutoConfiguration
+  data:
+    elasticsearch:
+      repositories:
+        enabled: false
+
+settlement:
+  scheduler:
+    daily-03: "* * * * * *"
+    monthly-25-04: "* * * * * *"
+  member:
+    system-member-id: 1
+
+internal:
+  api-key: test-internal-key
+
+app:
+  event-publisher:
+    type: spring
+  event-consumer:
+    type: spring
+
+encryption:
+  enabled: false
+  master-key: test
