@@ -129,7 +129,7 @@ app:
   simulation:
     enabled: true
   event-publisher:
-    type: ${EVENT_PUBLISHER_TYPE:kafka}
+    type: ${EVENT_PUBLISHER_TYPE:outbox}
   event-consumer:
     type: ${EVENT_CONSUMER_TYPE:kafka}
   data-init:
@@ -137,3 +137,16 @@ app:
 
 internal:
   api-key: ${INTERNAL_API_KEY}
+
+outbox:
+  enabled: true
+  timeoutMs: 10000
+  poller:
+    enabled: true
+    interval-ms: 5000
+    batch-size: 100
+    max-retry: 5
+    retention-days: 7
+  cleanup:
+    batch-size: 500
+    cron: "0 0 3 * * *"
